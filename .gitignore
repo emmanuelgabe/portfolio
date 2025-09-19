@@ -1,0 +1,57 @@
+ Fichiers d'environnement
+.env
+**/.env
+
+# Fichiers générés par le backend Spring
+/portfolio-backend/build/
+/portfolio-backend/.gradle/
+/portfolio-backend/out/
+/portfolio-backend/target/
+/portfolio-backend/bin/
+/portfolio-backend/gradle-app.setting
+/portfolio-backend/.settings/
+/portfolio-backend/.vscode/
+/portfolio-backend/.project
+/portfolio-backend/.classpath
+
+# Fichiers générés par le frontend Angular
+/portfolio-frontend/node_modules/
+/portfolio-frontend/dist/
+/portfolio-frontend/.angular/
+/portfolio-frontend/npm-debug.log
+/portfolio-frontend/yarn-error.log
+/portfolio-frontend/.pnp
+/portfolio-frontend/.pnp.js
+/portfolio-frontend/coverage/
+/portfolio-frontend/.env.local
+/portfolio-frontend/.env.development.local
+/portfolio-frontend/.env.test.local
+/portfolio-frontend/.env.production.local
+
+# Fichiers IDE
+../.idea/
+**/.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Volumes Docker
+portfolio_db_data/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers temporaires
+*.tmp
+*.temp
+temp/
+tmp/
