@@ -1,0 +1,14 @@
+# Dockerfile for local development with hot reload (Spring DevTools)
+FROM gradle:8-jdk24
+
+WORKDIR /app
+
+# Copy build files
+COPY build.gradle settings.gradle ./
+
+# Download dependencies
+RUN gradle dependencies --no-daemon || true
+
+EXPOSE 8080 5005
+
+CMD ["gradle", "bootRun", "--continuous", "--no-daemon"]

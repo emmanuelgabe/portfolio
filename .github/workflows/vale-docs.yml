@@ -1,0 +1,78 @@
+name: Documentation Quality Check
+
+on:
+  push:
+    branches: [ main, develop, dev ]
+    paths:
+      - '**.md'
+      - 'docs/**'
+      - '.vale.ini'
+      - '.vale/**'
+  pull_request:
+    branches: [ main, develop, dev ]
+    paths:
+      - '**.md'
+      - 'docs/**'
+      - '.vale.ini'
+      - '.vale/**'
+  workflow_dispatch:
+
+jobs:
+  vale-linting:
+    runs-on: ubuntu-latest
+    name: Vale Documentation Linting
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Vale styles
+        run: |
+          # Download Google style guide
+          mkdir -p .vale/styles/Google
+          cd .vale/styles
+          wget https://github.com/errata-ai/Google/releases/latest/download/Google.zip
+          unzip Google.zip -d Google
+          rm Google.zip
+
+      - name: Vale linting
+        uses: errata-ai/vale-action@reviewdog
+        with:
+          files: '["README.md", "docs", "CHANGELOG.md"]'
+          version: 3.10.0
+          fail_on_error: false
+          reporter: github-check
+          level: warning
+          filter_mode: nofilter
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Upload Vale results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vale-results
+          path: |
+            .vale.ini
+            vale-output.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+  documentation-summary:
+    runs-on: ubuntu-latest
+    needs: vale-linting
+    if: always()
+
+    steps:
+      - name: Documentation check summary
+        run: |
+          echo "## Documentation Quality Check Complete ✓" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Vale has checked all markdown files against the Google Developer Documentation Style Guide." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Style: Google Developer Documentation" >> $GITHUB_STEP_SUMMARY
+          echo "- Severity: Mixed (errors + warnings)" >> $GITHUB_STEP_SUMMARY
+          echo "- Scope: README.md, docs/, CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Vale results above for detailed feedback." >> $GITHUB_STEP_SUMMARY

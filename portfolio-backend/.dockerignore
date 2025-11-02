@@ -1,0 +1,56 @@
+# Ignore build artifacts
+build/
+target/
+*.class
+*.jar
+*.war
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.classpath
+.project
+
+# Ignore Gradle files
+.gradle/
+gradle/wrapper/gradle-wrapper.jar
+
+# Ignore Git
+.git/
+.gitignore
+.gitattributes
+
+# Ignore test files
+**/test/
+**/*Test.java
+**/*Tests.java
+
+# Ignore documentation
+README.md
+docs/
+*.md
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore environment files
+.env
+.env.*
+!.env.example
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
