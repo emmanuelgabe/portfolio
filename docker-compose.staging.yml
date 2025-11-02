@@ -1,0 +1,42 @@
+# Docker Compose override for STAGING environment
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+
+services:
+  angular-frontend:
+    container_name: portfolio-frontend-staging
+    environment:
+      - NODE_ENV=staging
+
+  spring-backend:
+    container_name: portfolio-backend-staging
+    environment:
+      - SPRING_PROFILES_ACTIVE=staging
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://portfolio-db-staging:5432/portfolio_staging
+      - SPRING_DATASOURCE_USERNAME=postgres_app
+      - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
+    depends_on:
+      portfolio-db-staging:
+        condition: service_healthy
+
+  portfolio-db:
+    container_name: portfolio-db-staging
+    ports:
+      - "5434:5432"  # Expose staging DB on different port
+    environment:
+      POSTGRES_DB: portfolio_staging
+      POSTGRES_USER: postgres_app
+      POSTGRES_PASSWORD: ${DB_USER_PASSWORD}
+    volumes:
+      - portfolio_db_staging_data:/var/lib/postgresql/data
+
+  nginx-portfolio:
+    container_name: portfolio-nginx-staging
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d/staging.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "3000:80"  # Staging accessible on port 3000
+
+volumes:
+  portfolio_db_staging_data:
+    name: portfolio_staging_db_data

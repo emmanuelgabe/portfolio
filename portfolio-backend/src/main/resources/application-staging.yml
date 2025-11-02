@@ -1,0 +1,40 @@
+spring:
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: validate  # Safer for staging - only validates schema
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  application:
+    name: portfolio-backend
+  datasource:
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate: WARN
+
+# Staging specific configs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true 

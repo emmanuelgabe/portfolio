@@ -1,0 +1,92 @@
+name: Health Check CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "DB_USER_PASSWORD=test_password_ci" > .env
+
+      - name: Build Docker containers
+        run: |
+          docker-compose -f docker-compose.yml -f docker-compose.local.yml build --parallel
+
+      - name: Start Docker containers
+        run: |
+          docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d
+
+      - name: Wait for containers to be healthy
+        run: |
+          echo "Waiting for all containers to be healthy..."
+          timeout 300 bash -c '
+            while true; do
+              status=$(docker-compose -f docker-compose.yml -f docker-compose.local.yml ps --format json | jq -r ".Health" | grep -v "healthy" | wc -l)
+              if [ "$status" -eq 0 ]; then
+                echo "All containers are healthy!"
+                break
+              fi
+              echo "Waiting for containers... ($status containers not healthy yet)"
+              sleep 5
+            done
+          '
+
+      - name: Show container status
+        run: |
+          docker-compose -f docker-compose.yml -f docker-compose.local.yml ps
+
+      - name: Run health check script
+        run: |
+          chmod +x ./test-health.sh
+          ./test-health.sh local
+
+      - name: Test individual endpoints
+        run: |
+          echo "Testing Nginx..."
+          curl -f http://localhost:8081/health || exit 1
+
+          echo "Testing Backend Actuator..."
+          curl -f http://localhost:8080/actuator/health || exit 1
+
+          echo "Testing Backend API..."
+          curl -f http://localhost:8080/api/health/ping || exit 1
+
+          echo "Testing Database connection..."
+          curl -f http://localhost:8080/api/health/db || exit 1
+
+          echo "Testing Full health chain..."
+          curl -f http://localhost:8081/health/full || exit 1
+
+          echo "✓ All endpoints are healthy!"
+
+      - name: Show container logs on failure
+        if: failure()
+        run: |
+          echo "=== Frontend logs ==="
+          docker logs portfolio-frontend-local --tail 100
+          echo ""
+          echo "=== Backend logs ==="
+          docker logs portfolio-backend-local --tail 100
+          echo ""
+          echo "=== Database logs ==="
+          docker logs portfolio-db-local --tail 100
+          echo ""
+          echo "=== Nginx logs ==="
+          docker logs portfolio-nginx-local --tail 100
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose -f docker-compose.yml -f docker-compose.local.yml down -v

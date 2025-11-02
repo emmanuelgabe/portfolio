@@ -1,0 +1,207 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - 'dev/**'
+  pull_request:
+    branches:
+      - main
+      - staging
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from Git tags
+        id: version
+        run: |
+          VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "0.0.1-SNAPSHOT")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        working-directory: portfolio-backend
+
+      - name: Build Backend with Gradle
+        run: ./gradlew clean bootJar -x test
+        working-directory: portfolio-backend
+
+      # Tests désactivés pour le moment - Décommenter pour activer
+      # - name: Run Backend Tests
+      #   run: ./gradlew test
+      #   working-directory: portfolio-backend
+
+      # - name: Test Report
+      #   uses: dorny/test-reporter@v1
+      #   if: always()
+      #   with:
+      #     name: Backend Test Results
+      #     path: portfolio-backend/build/test-results/test/*.xml
+      #     reporter: java-junit
+
+  deploy:
+    runs-on: self-hosted
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set deployment variables
+        id: deploy-vars
+        run: |
+          if [ "$GITHUB_REF_NAME" == "main" ]; then
+            echo "ENV_NAME=prod" >> $GITHUB_OUTPUT
+            echo "COMPOSE_FILE=docker-compose.prod.yml" >> $GITHUB_OUTPUT
+            echo "DEPLOY_PATH=/home/manu/projects/portfolio/prod" >> $GITHUB_OUTPUT
+          else
+            echo "ENV_NAME=stage" >> $GITHUB_OUTPUT
+            echo "COMPOSE_FILE=docker-compose.staging.yml" >> $GITHUB_OUTPUT
+            echo "DEPLOY_PATH=/home/manu/projects/portfolio/stage" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create deployment directory
+        run: mkdir -p ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
+
+      - name: Copy artifacts to deployment folder
+        run: |
+          DEPLOY_PATH="${{ steps.deploy-vars.outputs.DEPLOY_PATH }}"
+
+          # Copier .git pour la génération de version (nécessaire pour le frontend)
+          cp -r .git "$DEPLOY_PATH/"
+
+          # Copier les sources
+          cp -r portfolio-backend "$DEPLOY_PATH/"
+          cp -r portfolio-frontend "$DEPLOY_PATH/"
+          cp -r nginx "$DEPLOY_PATH/"
+
+          # Copier les fichiers Docker Compose
+          cp docker-compose.yml "$DEPLOY_PATH/"
+          cp ${{ steps.deploy-vars.outputs.COMPOSE_FILE }} "$DEPLOY_PATH/"
+
+      - name: Deploy with Docker Compose
+        working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
+        run: |
+          COMPOSE_FILE="${{ steps.deploy-vars.outputs.COMPOSE_FILE }}"
+
+          echo "Stopping existing containers..."
+          docker-compose -f docker-compose.yml -f "$COMPOSE_FILE" down || true
+
+          echo "Building and starting containers..."
+          DB_USER_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            docker-compose -f docker-compose.yml -f "$COMPOSE_FILE" up --build -d
+
+          echo "Waiting for containers to be healthy..."
+          sleep 10
+
+      - name: Health check
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+
+          # Attendre que les containers soient prêts
+          for i in {1..30}; do
+            if docker ps | grep -q "portfolio-backend-$ENV_NAME"; then
+              echo "Backend container is running"
+              break
+            fi
+            echo "Waiting for backend container... ($i/30)"
+            sleep 2
+          done
+
+          for i in {1..30}; do
+            if docker ps | grep -q "portfolio-frontend-$ENV_NAME"; then
+              echo "Frontend container is running"
+              break
+            fi
+            echo "Waiting for frontend container... ($i/30)"
+            sleep 2
+          done
+
+      - name: Tag Docker images with version
+        run: |
+          VERSION=${{ needs.build-and-test.outputs.version }}
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+
+          echo "Tagging images with version: $VERSION"
+
+          # Tag backend image
+          BACKEND_IMAGE=$(docker ps --filter "name=portfolio-backend-$ENV_NAME" --format "{{.Image}}")
+          if [ -n "$BACKEND_IMAGE" ]; then
+            docker tag "$BACKEND_IMAGE" "portfolio-backend:$VERSION"
+            docker tag "$BACKEND_IMAGE" "portfolio-backend:latest"
+            docker tag "$BACKEND_IMAGE" "portfolio-backend:$ENV_NAME-latest"
+            echo "Tagged backend: portfolio-backend:$VERSION"
+          fi
+
+          # Tag frontend image
+          FRONTEND_IMAGE=$(docker ps --filter "name=portfolio-frontend-$ENV_NAME" --format "{{.Image}}")
+          if [ -n "$FRONTEND_IMAGE" ]; then
+            docker tag "$FRONTEND_IMAGE" "portfolio-frontend:$VERSION"
+            docker tag "$FRONTEND_IMAGE" "portfolio-frontend:latest"
+            docker tag "$FRONTEND_IMAGE" "portfolio-frontend:$ENV_NAME-latest"
+            echo "Tagged frontend: portfolio-frontend:$VERSION"
+          fi
+
+      - name: Cleanup old images
+        run: |
+          echo "Cleaning up dangling images..."
+          docker image prune -f
+
+          echo "Removing unused volumes..."
+          docker volume prune -f || true
+
+      - name: Verify deployment
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+
+          echo "=== Running containers ==="
+          docker ps --filter "name=portfolio.*-$ENV_NAME"
+
+          echo ""
+          echo "=== Container health status ==="
+          docker ps --filter "name=portfolio.*-$ENV_NAME" --format "table {{.Names}}\t{{.Status}}"
+
+          echo ""
+          echo "=== Disk usage ==="
+          docker system df
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+          VERSION="${{ needs.build-and-test.outputs.version }}"
+
+          echo "========================================="
+          echo "Deployment Summary"
+          echo "========================================="
+          echo "Environment: $ENV_NAME"
+          echo "Version: $VERSION"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "Commit: $GITHUB_SHA"
+          echo "========================================="
