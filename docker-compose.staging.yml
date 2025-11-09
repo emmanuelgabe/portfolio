@@ -4,18 +4,20 @@
 services:
   angular-frontend:
     container_name: portfolio-frontend-staging
+    image: portfolio-angular-frontend:staging
     environment:
       - NODE_ENV=staging
 
   spring-backend:
     container_name: portfolio-backend-staging
+    image: portfolio-spring-backend:staging
     environment:
       - SPRING_PROFILES_ACTIVE=staging
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://portfolio-db-staging:5432/portfolio_staging
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://portfolio-db:5432/portfolio_staging
       - SPRING_DATASOURCE_USERNAME=postgres_app
       - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
     depends_on:
-      portfolio-db-staging:
+      portfolio-db:
         condition: service_healthy
 
   portfolio-db:

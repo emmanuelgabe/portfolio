@@ -1,8 +1,8 @@
 # CI/CD Deployment Guide
 
 **Document Type:** Deployment Guide
-**Version:** 1.0.0
-**Last Updated:** 2025-11-09
+**Version:** 2.2.0
+**Last Updated:** 2025-11-10
 **Status:** Active
 
 ---
@@ -48,16 +48,127 @@ CI/CD infrastructure using GitHub Actions with self-hosted runner to automate bu
 
 ### 2.1 Active Workflows
 
-The CI/CD pipeline consists of four automated workflows:
+The CI/CD pipeline consists of five automated workflows:
 
 | Workflow | File | Trigger | Purpose |
 |----------|------|---------|---------|
+| **CI/CD Pipeline** | `ci-cd.yml` | Push/PR on main/staging/dev/** | Build and deploy to environments |
 | **Backend Tests** | `backend-tests.yml` | Push/PR on backend changes | Run Spring Boot unit tests |
 | **Frontend Tests** | `frontend-tests.yml` | Push/PR on frontend changes | Run Angular unit tests |
 | **Documentation Quality** | `vale-docs.yml` | Push/PR on `.md` changes | Validate documentation style |
 | **Health Check** | `health-check.yml` | Push/PR on main/develop | Full stack integration tests |
 
-### 2.2 Backend Tests Workflow
+### 2.2 Main CI/CD Pipeline
+
+**Primary deployment workflow that builds and deploys the application to production and staging environments.**
+
+**Build-and-Test Job:**
+1. Checkout code with full Git history
+2. Extract version from Git tags using `git describe`
+3. Set up JDK 24 with Gradle caching
+4. Grant execute permission for gradlew
+5. Build backend JAR with `./gradlew clean bootJar -x test`
+6. Output version for deployment job
+
+**Deploy Job:**
+1. **Set deployment variables** - Determine environment (prod/stage) and paths
+2. **Clean deployment directory** - Remove old directory to avoid permission conflicts
+3. **Copy artifacts** - Copy source code, .git, nginx config, and Docker Compose files
+4. **Cleanup old containers** - Stop and remove existing containers for the environment
+5. **Deploy with Docker Compose** - Build and start all containers in detached mode
+6. **Wait for healthy status** - Monitor container health (max 5 min, check every 5s)
+7. **Run smoke tests** - Validate frontend, backend, database, and full stack integration
+8. **Tag Docker images** - Tag with version, latest, and environment-specific tags
+9. **Cleanup old images** - Prune dangling images and unused volumes
+10. **Verify deployment** - Display running containers and health status
+11. **Deployment summary** - Output environment, version, branch, and commit info
+
+**Configuration:**
+- **Triggers:**
+  - Push to `main` → Production deployment
+  - Push to `staging` → Staging deployment
+  - Push to `develop` → Build only (no deployment)
+  - Push to `dev/**` → Build only (no deployment)
+  - Pull requests to `main` or `staging` → Build only
+- **Runner:** self-hosted
+- **Java Version:** 24 (Temurin distribution)
+- **Environments:** production (main branch), staging (staging branch)
+- **Blocking:** Yes - deployment fails if any step fails
+
+**Critical Safety Features:**
+- Automatic container cleanup before deployment
+- Real-time health monitoring with timeout
+- Comprehensive smoke tests (4 tests)
+- Automatic logs display on failure
+- Image versioning with multiple tags
+
+### 2.3 Workflow Triggers & Execution Order
+
+**Trigger Matrix:**
+
+| Event | Branch | CI/CD Pipeline | Backend Tests | Frontend Tests | Health Check | Vale Docs |
+|-------|--------|----------------|---------------|----------------|--------------|-----------|
+| Push | `main` | ✅ Build + Deploy | ✅ (if backend/*) | ✅ (if frontend/*) | ❌ | ✅ (if *.md) |
+| Push | `staging` | ✅ Build + Deploy | ✅ (if backend/*) | ✅ (if frontend/*) | ❌ | ✅ (if *.md) |
+| Push | `develop` | ✅ Build only | ✅ (if backend/*) | ✅ (if frontend/*) | ✅ | ✅ (if *.md) |
+| Push | `dev/**` | ✅ Build only | ✅ (if backend/*) | ✅ (if frontend/*) | ❌ | ✅ (if *.md) |
+| PR | `main` | ✅ Build only | ✅ (if backend/*) | ✅ (if frontend/*) | ❌ | ✅ (if *.md) |
+| PR | `staging` | ✅ Build only | ✅ (if backend/*) | ✅ (if frontend/*) | ❌ | ✅ (if *.md) |
+
+**Execution Sequence:**
+
+```
+Push to main/staging
+│
+├─→ CI/CD Pipeline (ci-cd.yml)
+│   ├─→ Job 1: build-and-test (runs immediately)
+│   │   ├─ Extract version
+│   │   ├─ Build backend JAR
+│   │   └─ Output: VERSION
+│   │
+│   └─→ Job 2: deploy (waits for Job 1, only on main/staging)
+│       ├─ Clean & prepare deployment directory
+│       ├─ Copy artifacts
+│       ├─ Cleanup old containers
+│       ├─ Deploy with Docker Compose
+│       ├─ Wait for containers to be healthy (max 5 min)
+│       ├─ Run smoke tests (4 tests)
+│       ├─ Tag Docker images
+│       └─ Verify deployment
+│
+├─→ Backend Tests (backend-tests.yml) - Runs in parallel if backend/** changed
+│   ├─→ Job 1: test
+│   │   ├─ Run unit tests
+│   │   ├─ Generate coverage
+│   │   └─ Publish results
+│   │
+│   └─→ Job 2: build (waits for Job 1)
+│       └─ Build without tests
+│
+├─→ Frontend Tests (frontend-tests.yml) - Runs in parallel if frontend/** changed
+│   ├─→ Job 1: test
+│   │   ├─ Run Karma tests
+│   │   └─ Upload coverage
+│   │
+│   ├─→ Job 2: lint (runs in parallel with test)
+│   │   └─ Run ESLint
+│   │
+│   └─→ Job 3: build (waits for test + lint)
+│       └─ Build production bundle
+│
+├─→ Health Check (health-check.yml) - Runs in parallel on develop only
+│   └─→ Job: health-check
+│       ├─ Build Docker containers (local dev environment)
+│       ├─ Start full stack
+│       ├─ Wait for healthy status
+│       └─ Test all endpoints
+│
+└─→ Vale Docs (vale-docs.yml) - Runs in parallel if *.md changed
+    └─→ Job: vale-linting
+        └─ Validate documentation style
+```
+
+### 2.4 Backend Tests Workflow
 
 **Test Job:**
 - Checkout source code
@@ -76,7 +187,7 @@ The CI/CD pipeline consists of four automated workflows:
 - **Test Framework:** JUnit 5 + Spring Boot Test
 - **Blocking:** Yes - tests must pass to merge
 
-### 2.3 Frontend Tests Workflow
+### 2.5 Frontend Tests Workflow
 
 **Test Job:**
 - Checkout source code
@@ -101,7 +212,7 @@ The CI/CD pipeline consists of four automated workflows:
 - **Browser:** ChromeHeadless
 - **Blocking:** Yes - tests must pass to merge
 
-### 2.4 Documentation Quality Workflow
+### 2.6 Documentation Quality Workflow
 
 **Vale Linting Job:**
 - Download Google Developer Documentation Style Guide
@@ -114,22 +225,25 @@ The CI/CD pipeline consists of four automated workflows:
 - **Style Guide:** Google Developer Documentation
 - **Blocking:** No - warnings don't block merge
 
-### 2.5 Health Check Workflow
+### 2.7 Health Check Workflow
 
 **Health Check Job:**
-- Build Docker containers
-- Start full stack (frontend, backend, database, nginx)
+- Build Docker containers using `docker-compose.local.yml` (development environment)
+- Start full stack (frontend with `ng serve`, backend, database, nginx)
 - Wait for all containers to be healthy
 - Test individual endpoints
 - Test full health chain
 - Show logs on failure
 
 **Configuration:**
-- **Trigger:** Push/PR to `main`, `develop`
+- **Trigger:** Push/PR to `develop` only
 - **Timeout:** 15 minutes
 - **Blocking:** Yes - all services must be healthy
+- **Environment:** Local development setup (not production/staging)
 
-### 2.6 Key Features
+> **Note:** This workflow tests the development environment only and is NOT triggered on `staging` or `main` branches. Production and staging deployments have their own health checks integrated in the main CI/CD Pipeline workflow. The frontend health check is disabled in local dev mode because the Angular dev server (`ng serve`) takes too long to start reliably in CI environments.
+
+### 2.8 Key Features
 
 | Feature | Benefit |
 |---------|---------|
@@ -141,6 +255,80 @@ The CI/CD pipeline consists of four automated workflows:
 | **Artifact Retention** | Test reports kept for 7 days |
 | **Build Verification** | Ensure code compiles for production |
 | **Documentation Validation** | Automated style guide enforcement |
+
+### 2.9 Critical Deployment Steps
+
+The main CI/CD pipeline includes several critical safety steps that ensure reliable deployments:
+
+#### Container Cleanup (Step 4)
+```bash
+# Stops and removes old containers for the environment
+docker ps -a --filter "name=portfolio.*-$ENV_NAME" | xargs -r docker stop
+docker ps -a --filter "name=portfolio.*-$ENV_NAME" | xargs -r docker rm
+docker image prune -f
+```
+
+**Purpose:** Prevents port conflicts, resource leaks, and ensures clean state.
+
+#### Health Check Monitoring (Step 6)
+```bash
+# Monitors container health status in real-time
+MAX_ATTEMPTS=60  # 5 minutes max (60 × 5s)
+ATTEMPT=0
+
+while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+  # Check each container's health status
+  DB_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' portfolio-db-$ENV_NAME)
+  BACKEND_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' portfolio-backend-$ENV_NAME)
+  FRONTEND_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' portfolio-frontend-$ENV_NAME)
+
+  # Exit when all are healthy
+  if all healthy; then exit 0; fi
+
+  # Fail fast if any become unhealthy
+  if any unhealthy; then show logs and exit 1; fi
+
+  sleep 5
+done
+```
+
+**Features:**
+- Real-time monitoring every 5 seconds
+- 5-minute timeout to prevent infinite waiting
+- Automatic log display on failure
+- Fail-fast on unhealthy status
+
+#### Smoke Tests (Step 7)
+
+**Test 1 - Frontend Health:**
+```bash
+curl http://localhost:$PORT/health.json
+# Expected: HTTP 200
+```
+Validates: Nginx routing, Angular build, static file serving
+
+**Test 2 - Backend Actuator:**
+```bash
+docker exec portfolio-backend-$ENV_NAME curl http://localhost:8080/actuator/health
+# Expected: HTTP 200
+```
+Validates: Spring Boot startup, application context, actuator endpoints
+
+**Test 3 - Database Connectivity:**
+```bash
+docker exec portfolio-db-$ENV_NAME psql -U postgres_app -d $DB_NAME -c "SELECT 1;"
+# Expected: 1 row returned
+```
+Validates: PostgreSQL running, database exists, credentials valid
+
+**Test 4 - Full Stack Integration:**
+```bash
+curl http://localhost:$PORT/
+# Expected: HTTP 200 or 304
+```
+Validates: End-to-end flow (Nginx → Angular → Spring Boot → PostgreSQL)
+
+**All tests must pass for deployment to succeed.**
 
 ---
 
@@ -448,16 +636,234 @@ curl http://localhost:3000/health
 
 ---
 
+## 9. Troubleshooting
+
+### 9.1 Common Deployment Errors
+
+#### Error: "Port already allocated"
+```
+Error response from daemon: driver failed programming external connectivity:
+Bind for 0.0.0.0:80 failed: port is already allocated
+```
+
+**Cause:** Old containers still running on the same port.
+
+**Solution:**
+```bash
+# Find containers using the port
+docker ps | grep portfolio
+
+# Stop and remove old containers
+docker stop $(docker ps -a --filter "name=portfolio" --format "{{.Names}}")
+docker rm $(docker ps -a --filter "name=portfolio" --format "{{.Names}}")
+```
+
+#### Error: "Permission denied" during file copy
+```
+cp: cannot create directory '/home/manu/projects/portfolio/stage/.git': Permission denied
+```
+
+**Cause:** Old deployment directory has wrong permissions.
+
+**Solution:** The CI/CD pipeline now automatically removes the old directory before copying. If this still occurs:
+```bash
+# Manual cleanup
+sudo rm -rf /home/manu/projects/portfolio/stage
+```
+
+#### Error: "Container is unhealthy"
+```
+❌ One or more containers are unhealthy!
+```
+
+**Cause:** Service failed health check (database not ready, backend crashed, etc.).
+
+**Solution:**
+```bash
+# Check container logs
+docker logs portfolio-backend-staging
+docker logs portfolio-db-staging
+docker logs portfolio-frontend-staging
+
+# Check container health status
+docker inspect portfolio-backend-staging --format='{{.State.Health}}'
+
+# Common fixes:
+# - Database: Check password in secrets
+# - Backend: Check Spring Boot logs for startup errors
+# - Frontend: Check nginx config syntax
+```
+
+#### Error: Smoke tests failing
+```
+❌ Frontend health check failed (HTTP 000)
+```
+
+**Cause:** Container started but service not responding.
+
+**Solution:**
+```bash
+# Test manually
+curl http://localhost:3000/health.json
+curl http://localhost:3000/
+
+# Check if nginx is running
+docker exec portfolio-nginx-staging nginx -t
+
+# Check frontend build
+docker exec portfolio-frontend-staging ls -la /usr/share/nginx/html/
+```
+
+### 9.2 GitHub Actions Runner Issues
+
+#### Runner offline
+```bash
+# Check runner service status
+sudo systemctl status actions.runner.*
+
+# Restart runner
+cd ~/actions-runner
+sudo ./svc.sh stop
+sudo ./svc.sh start
+
+# Check logs
+sudo journalctl -u actions.runner.* -f
+```
+
+#### Build failing on self-hosted runner
+```bash
+# Check disk space
+df -h
+
+# Clean up Docker resources
+docker system prune -a -f
+docker volume prune -f
+
+# Check runner logs
+cd ~/actions-runner
+tail -f _diag/Runner_*.log
+```
+
+### 9.3 Version Issues
+
+#### Wrong version displayed
+```bash
+# Check Git tags
+git describe --tags --always --dirty
+
+# Verify frontend version
+docker exec portfolio-frontend-staging cat /usr/share/nginx/html/health.json
+
+# Verify backend version
+curl http://localhost:8080/actuator/info | jq '.build.version'
+```
+
+#### No version generated
+**Cause:** .git directory not copied to deployment location.
+
+**Solution:** The CI/CD pipeline automatically copies .git. Verify:
+```bash
+ls -la /home/manu/projects/portfolio/stage/.git
+```
+
+### 9.4 Database Issues
+
+#### Database container won't start
+```bash
+# Check database logs
+docker logs portfolio-db-staging
+
+# Common issues:
+# - Volume corruption: docker volume rm portfolio_db_staging_data
+# - Port conflict: lsof -i :5434
+# - Wrong password: Check GitHub secrets
+```
+
+#### Connection refused from backend
+```bash
+# Verify database is healthy
+docker inspect portfolio-db-staging --format='{{.State.Health.Status}}'
+
+# Test connection manually
+docker exec portfolio-backend-staging curl -v telnet://portfolio-db-staging:5432
+
+# Check Spring Boot datasource config
+docker exec portfolio-backend-staging env | grep SPRING_DATASOURCE
+```
+
+### 9.5 Debugging Commands
+
+**View real-time deployment logs:**
+```bash
+# GitHub Actions runner logs
+sudo journalctl -u actions.runner.* -f
+
+# Container logs during deployment
+watch -n 1 'docker ps --format "table {{.Names}}\t{{.Status}}"'
+```
+
+**Check container health progression:**
+```bash
+# Watch health status change
+watch -n 2 'docker inspect portfolio-backend-staging --format="{{.State.Health.Status}}"'
+```
+
+**Full diagnostic:**
+```bash
+# Container status
+docker ps -a --filter "name=portfolio"
+
+# Resource usage
+docker stats --no-stream
+
+# Network connectivity
+docker network inspect portfolio-network
+
+# Volume status
+docker volume ls | grep portfolio
+
+# Disk usage
+docker system df
+```
+
+### 9.6 Rollback Procedure
+
+If deployment fails and you need to rollback:
+
+```bash
+# Option 1: Redeploy previous version
+git checkout <previous-commit>
+git push origin staging --force
+
+# Option 2: Use previous Docker image
+docker stop portfolio-backend-staging
+docker rm portfolio-backend-staging
+docker run -d --name portfolio-backend-staging \
+  --network portfolio-network \
+  portfolio-backend:v1.0.0  # Previous version tag
+
+# Option 3: Restore from backup
+docker-compose -f docker-compose.yml -f docker-compose.staging.yml down
+# Restore database backup
+cat backup.sql | docker exec -i portfolio-db-staging psql -U postgres_app -d portfolio_staging
+docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+```
+
+---
+
 ## Change History
 
 | Version | Date       | Changes |
 |---------|------------|---------|
+| 2.2.0   | 2025-11-10 | Restricted Health Check CI workflow to `develop` branch only (removed from main/staging), disabled frontend health check in local dev mode, increased health check timeouts (90s start_period, 5 retries) for production/staging |
+| 2.1.0   | 2025-11-09 | Added `develop` branch to CI/CD pipeline (build-only), added `staging` branch to health check workflow, improved healthcheck script to handle containers without healthcheck configuration |
+| 2.0.0   | 2025-11-09 | Major update: Added main CI/CD pipeline documentation, workflow triggers matrix, execution sequence diagrams, critical deployment steps, smoke tests details, and comprehensive troubleshooting guide |
 | 1.1.0   | 2025-11-09 | Added automated testing workflows (backend, frontend, docs) |
 | 1.0.0   | 2025-11-09 | Initial release |
 
 ---
 
 **Document Type:** Deployment Guide
-**Version:** 1.1.0
-**Last Updated:** 2025-11-09
+**Version:** 2.2.0
+**Last Updated:** 2025-11-10
 **Status:** Active

@@ -1,20 +1,25 @@
 FROM node:20-alpine AS build
 
-WORKDIR /app
+# Accept version as build argument
+ARG VERSION=0.0.1-SNAPSHOT
 
-# Install git for version generation (optional)
-RUN apk add --no-cache git || true
+WORKDIR /app
 
 COPY package*.json ./
 
 RUN npm ci --legacy-peer-deps
 
-# Copy all source code (including .git if present, excluded by .dockerignore if not needed)
+# Copy all source code
 COPY . .
 
+# Build with VERSION as environment variable (used by generate-version.js)
+ENV VERSION=${VERSION}
 RUN npm run build -- --configuration production
 
 FROM nginx:alpine
+
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 COPY --from=build /app/dist/portfolio-frontend/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

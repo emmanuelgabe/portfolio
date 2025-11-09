@@ -2,9 +2,9 @@ name: Health Check CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ develop ]
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -22,18 +22,18 @@ jobs:
 
       - name: Build Docker containers
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.local.yml build --parallel
+          docker compose -f docker-compose.yml -f docker-compose.local.yml build --parallel
 
       - name: Start Docker containers
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d
+          docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
 
       - name: Wait for containers to be healthy
         run: |
           echo "Waiting for all containers to be healthy..."
           timeout 300 bash -c '
             while true; do
-              status=$(docker-compose -f docker-compose.yml -f docker-compose.local.yml ps --format json | jq -r ".Health" | grep -v "healthy" | wc -l)
+              status=$(docker compose -f docker-compose.yml -f docker-compose.local.yml ps --format json | jq -r ".Health" | grep -v "healthy" | wc -l)
               if [ "$status" -eq 0 ]; then
                 echo "All containers are healthy!"
                 break
@@ -45,7 +45,7 @@ jobs:
 
       - name: Show container status
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.local.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.local.yml ps
 
       - name: Run health check script
         run: |
@@ -89,4 +89,4 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.local.yml down -v
+          docker compose -f docker-compose.yml -f docker-compose.local.yml down -v

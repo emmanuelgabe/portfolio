@@ -82,7 +82,7 @@ jobs:
             echo "❌ Test execution failed" >> $GITHUB_STEP_SUMMARY
           fi
 
-  # Optionnel: Build pour vérifier la compilation
+  # Optional: Build to verify compilation
   build:
     runs-on: ubuntu-latest
     name: Build Backend

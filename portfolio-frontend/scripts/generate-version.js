@@ -3,6 +3,13 @@ const fs = require('fs');
 const path = require('path');
 
 function getGitVersion() {
+    // Check if VERSION is provided as environment variable (used in Docker builds)
+    if (process.env.VERSION) {
+        console.log(`Using VERSION from environment: ${process.env.VERSION}`);
+        return process.env.VERSION;
+    }
+
+    // Try to get version from git
     try {
         const version = execSync('git describe --tags --always --dirty', { encoding: 'utf-8' }).trim();
         return version || '0.0.1-SNAPSHOT';

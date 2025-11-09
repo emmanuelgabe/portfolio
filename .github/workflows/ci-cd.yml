@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - staging
+      - develop
       - 'dev/**'
   pull_request:
     branches:
@@ -12,7 +13,7 @@ on:
       - staging
 
 env:
-  JAVA_VERSION: '21'
+  JAVA_VERSION: '24'
   JAVA_DISTRIBUTION: 'temurin'
 
 jobs:
@@ -48,7 +49,7 @@ jobs:
         run: ./gradlew clean bootJar -x test
         working-directory: portfolio-backend
 
-      # Tests désactivés pour le moment - Décommenter pour activer
+      # Tests disabled for now - Uncomment to enable
       # - name: Run Backend Tests
       #   run: ./gradlew test
       #   working-directory: portfolio-backend
@@ -81,67 +82,143 @@ jobs:
             echo "COMPOSE_FILE=docker-compose.prod.yml" >> $GITHUB_OUTPUT
             echo "DEPLOY_PATH=/home/manu/projects/portfolio/prod" >> $GITHUB_OUTPUT
           else
-            echo "ENV_NAME=stage" >> $GITHUB_OUTPUT
+            echo "ENV_NAME=staging" >> $GITHUB_OUTPUT
             echo "COMPOSE_FILE=docker-compose.staging.yml" >> $GITHUB_OUTPUT
-            echo "DEPLOY_PATH=/home/manu/projects/portfolio/stage" >> $GITHUB_OUTPUT
+            echo "DEPLOY_PATH=/home/manu/projects/portfolio/staging" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create deployment directory
-        run: mkdir -p ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
+      - name: Clean and prepare deployment directory
+        run: |
+          DEPLOY_PATH="${{ steps.deploy-vars.outputs.DEPLOY_PATH }}"
+
+          # Remove old deployment directory to avoid permission conflicts
+          rm -rf "$DEPLOY_PATH"
+
+          # Create fresh deployment directory
+          mkdir -p "$DEPLOY_PATH"
 
       - name: Copy artifacts to deployment folder
         run: |
           DEPLOY_PATH="${{ steps.deploy-vars.outputs.DEPLOY_PATH }}"
 
-          # Copier .git pour la génération de version (nécessaire pour le frontend)
+          # Copy .git for version generation (required for frontend)
           cp -r .git "$DEPLOY_PATH/"
 
-          # Copier les sources
+          # Copy source files
           cp -r portfolio-backend "$DEPLOY_PATH/"
           cp -r portfolio-frontend "$DEPLOY_PATH/"
           cp -r nginx "$DEPLOY_PATH/"
 
-          # Copier les fichiers Docker Compose
+          # Copy Docker Compose files
           cp docker-compose.yml "$DEPLOY_PATH/"
           cp ${{ steps.deploy-vars.outputs.COMPOSE_FILE }} "$DEPLOY_PATH/"
+
+      - name: Cleanup old containers and images
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+
+          echo "Stopping and removing old containers for $ENV_NAME environment..."
+          docker ps -a --filter "name=portfolio.*-$ENV_NAME" --format "{{.Names}}" | xargs -r docker stop || true
+          docker ps -a --filter "name=portfolio.*-$ENV_NAME" --format "{{.Names}}" | xargs -r docker rm || true
+
+          echo "Cleaning up dangling images..."
+          docker image prune -f
 
       - name: Deploy with Docker Compose
         working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
         run: |
           COMPOSE_FILE="${{ steps.deploy-vars.outputs.COMPOSE_FILE }}"
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+          VERSION="${{ needs.build-and-test.outputs.version }}"
 
-          echo "Stopping existing containers..."
-          docker-compose -f docker-compose.yml -f "$COMPOSE_FILE" down || true
-
-          echo "Building and starting containers..."
+          echo "Building and starting containers with version: $VERSION..."
           DB_USER_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            docker-compose -f docker-compose.yml -f "$COMPOSE_FILE" up --build -d
+          VERSION=$VERSION \
+            docker-compose -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" up --build -d
 
-          echo "Waiting for containers to be healthy..."
-          sleep 10
+          echo "Containers started, waiting for health checks..."
 
-      - name: Health check
+      - name: Wait for containers to be healthy
+        working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
         run: |
           ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+          MAX_ATTEMPTS=60
+          ATTEMPT=0
 
-          # Attendre que les containers soient prêts
-          for i in {1..30}; do
-            if docker ps | grep -q "portfolio-backend-$ENV_NAME"; then
-              echo "Backend container is running"
-              break
+          echo "Waiting for all containers to reach healthy status..."
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+
+            # Check if containers exist and are running
+            DB_EXISTS=$(docker ps -q --filter "name=portfolio-db-$ENV_NAME" 2>/dev/null)
+            BACKEND_EXISTS=$(docker ps -q --filter "name=portfolio-backend-$ENV_NAME" 2>/dev/null)
+            FRONTEND_EXISTS=$(docker ps -q --filter "name=portfolio-frontend-$ENV_NAME" 2>/dev/null)
+            NGINX_EXISTS=$(docker ps -q --filter "name=portfolio-nginx-$ENV_NAME" 2>/dev/null)
+
+            # Check health status (only for containers with healthcheck)
+            if [ -n "$DB_EXISTS" ]; then
+              DB_HEALTH=$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}running{{end}}' portfolio-db-$ENV_NAME 2>/dev/null)
+            else
+              DB_HEALTH="not_running"
             fi
-            echo "Waiting for backend container... ($i/30)"
-            sleep 2
+
+            if [ -n "$BACKEND_EXISTS" ]; then
+              BACKEND_HEALTH=$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}running{{end}}' portfolio-backend-$ENV_NAME 2>/dev/null)
+            else
+              BACKEND_HEALTH="not_running"
+            fi
+
+            if [ -n "$FRONTEND_EXISTS" ]; then
+              FRONTEND_HEALTH=$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}running{{end}}' portfolio-frontend-$ENV_NAME 2>/dev/null)
+            else
+              FRONTEND_HEALTH="not_running"
+            fi
+
+            if [ -n "$NGINX_EXISTS" ]; then
+              NGINX_HEALTH="running"
+            else
+              NGINX_HEALTH="not_running"
+            fi
+
+            echo "[$ATTEMPT/$MAX_ATTEMPTS] DB: $DB_HEALTH | Backend: $BACKEND_HEALTH | Frontend: $FRONTEND_HEALTH | Nginx: $NGINX_HEALTH"
+
+            # Check if all are healthy or running
+            if [ "$DB_HEALTH" = "healthy" ] && [ "$BACKEND_HEALTH" = "healthy" ] && [ "$FRONTEND_HEALTH" = "healthy" ] && [ "$NGINX_HEALTH" = "running" ]; then
+              echo "✅ All containers are healthy!"
+              exit 0
+            fi
+
+            # Check for unhealthy or not running containers
+            if [ "$DB_HEALTH" = "unhealthy" ] || [ "$BACKEND_HEALTH" = "unhealthy" ] || [ "$FRONTEND_HEALTH" = "unhealthy" ]; then
+              echo "❌ One or more containers are unhealthy!"
+              echo "Showing container logs..."
+              [ "$DB_HEALTH" = "unhealthy" ] && docker logs --tail=50 portfolio-db-$ENV_NAME
+              [ "$BACKEND_HEALTH" = "unhealthy" ] && docker logs --tail=50 portfolio-backend-$ENV_NAME
+              [ "$FRONTEND_HEALTH" = "unhealthy" ] && docker logs --tail=50 portfolio-frontend-$ENV_NAME
+              exit 1
+            fi
+
+            if [ "$DB_HEALTH" = "not_running" ] || [ "$BACKEND_HEALTH" = "not_running" ] || [ "$FRONTEND_HEALTH" = "not_running" ] || [ "$NGINX_HEALTH" = "not_running" ]; then
+              echo "⚠️ Some containers are not running yet, waiting..."
+              docker ps -a --filter "name=portfolio.*-$ENV_NAME"
+            fi
+
+            sleep 5
           done
 
-          for i in {1..30}; do
-            if docker ps | grep -q "portfolio-frontend-$ENV_NAME"; then
-              echo "Frontend container is running"
-              break
-            fi
-            echo "Waiting for frontend container... ($i/30)"
-            sleep 2
-          done
+          echo "❌ Timeout waiting for containers to be healthy"
+          echo "Final status - DB: $DB_HEALTH | Backend: $BACKEND_HEALTH | Frontend: $FRONTEND_HEALTH | Nginx: $NGINX_HEALTH"
+          echo ""
+          echo "Container status:"
+          docker ps -a --filter "name=portfolio.*-$ENV_NAME"
+          echo ""
+          echo "Container logs:"
+          docker logs --tail=50 portfolio-db-$ENV_NAME 2>&1 || true
+          docker logs --tail=50 portfolio-backend-$ENV_NAME 2>&1 || true
+          docker logs --tail=50 portfolio-frontend-$ENV_NAME 2>&1 || true
+          docker logs --tail=50 portfolio-nginx-$ENV_NAME 2>&1 || true
+          exit 1
 
       - name: Tag Docker images with version
         run: |
@@ -167,6 +244,69 @@ jobs:
             docker tag "$FRONTEND_IMAGE" "portfolio-frontend:$ENV_NAME-latest"
             echo "Tagged frontend: portfolio-frontend:$VERSION"
           fi
+
+      - name: Smoke tests
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+
+          # Determine the port based on environment
+          if [ "$ENV_NAME" = "prod" ]; then
+            PORT=80
+          else
+            PORT=3000
+          fi
+
+          echo "Running smoke tests on port $PORT..."
+
+          # Test 1: Frontend health endpoint
+          echo "Testing frontend health endpoint..."
+          FRONTEND_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/health.json || echo "000")
+          if [ "$FRONTEND_HEALTH" = "200" ]; then
+            echo "✅ Frontend health check passed"
+          else
+            echo "❌ Frontend health check failed (HTTP $FRONTEND_HEALTH)"
+            exit 1
+          fi
+
+          # Test 2: Backend actuator health endpoint
+          echo "Testing backend actuator health endpoint..."
+          if docker exec portfolio-backend-$ENV_NAME wget --quiet --spider http://localhost:8080/actuator/health >/dev/null 2>&1; then
+            echo "✅ Backend actuator health check passed"
+          else
+            echo "❌ Backend actuator health check failed"
+            exit 1
+          fi
+
+          # Test 3: Database connectivity
+          echo "Testing database connectivity..."
+          if [ "$ENV_NAME" = "prod" ]; then
+            DB_NAME="portfolio_prod"
+          else
+            DB_NAME="portfolio_staging"
+          fi
+          DB_TEST=$(docker exec portfolio-db-$ENV_NAME psql -U postgres_app -d $DB_NAME -c "SELECT 1;" 2>&1)
+          if echo "$DB_TEST" | grep -q "1 row"; then
+            echo "✅ Database connectivity test passed"
+          else
+            echo "❌ Database connectivity test failed"
+            echo "$DB_TEST"
+            exit 1
+          fi
+
+          # Test 4: Full stack integration (nginx -> frontend)
+          echo "Testing full stack integration..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/ || echo "000")
+          if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "304" ]; then
+            echo "✅ Full stack integration test passed (HTTP $HTTP_STATUS)"
+          else
+            echo "❌ Full stack integration test failed (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+
+          echo ""
+          echo "========================================="
+          echo "✅ All smoke tests passed!"
+          echo "========================================="
 
       - name: Cleanup old images
         run: |
