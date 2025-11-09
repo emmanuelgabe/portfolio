@@ -1,0 +1,198 @@
+package com.emmanuelgabe.portfolio.controller;
+
+import com.emmanuelgabe.portfolio.dto.CompleteHealthResponse;
+import com.emmanuelgabe.portfolio.dto.DatabaseHealthResponse;
+import com.emmanuelgabe.portfolio.dto.HealthResponse;
+import com.emmanuelgabe.portfolio.service.HealthService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+/**
+ * Unit tests for HealthController
+ * Tests all REST endpoints for health checks
+ */
+@WebMvcTest(HealthController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
+class HealthControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private HealthService healthService;
+
+    @Test
+    void testPing_ShouldReturnOkStatus() throws Exception {
+        // Given
+        HealthResponse healthResponse = new HealthResponse(
+            "ok",
+            "Backend API is responding",
+            System.currentTimeMillis()
+        );
+        when(healthService.ping()).thenReturn(healthResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/health/ping"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.status").value("ok"))
+            .andExpect(jsonPath("$.message").value("Backend API is responding"))
+            .andExpect(jsonPath("$.timestamp").isNumber());
+    }
+
+    @Test
+    void testCheckDatabase_WhenHealthy_ShouldReturn200() throws Exception {
+        // Given
+        DatabaseHealthResponse dbResponse = new DatabaseHealthResponse();
+        dbResponse.setStatus("ok");
+        dbResponse.setMessage("Database connection is healthy");
+        dbResponse.setDatabase("PostgreSQL");
+        dbResponse.setUrl("jdbc:postgresql://localhost:5432/portfolio");
+
+        when(healthService.checkDatabase()).thenReturn(dbResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/health/db"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.status").value("ok"))
+            .andExpect(jsonPath("$.message").value("Database connection is healthy"))
+            .andExpect(jsonPath("$.database").value("PostgreSQL"))
+            .andExpect(jsonPath("$.url").value("jdbc:postgresql://localhost:5432/portfolio"));
+    }
+
+    @Test
+    void testCheckDatabase_WhenUnhealthy_ShouldReturn503() throws Exception {
+        // Given
+        DatabaseHealthResponse dbResponse = new DatabaseHealthResponse();
+        dbResponse.setStatus("error");
+        dbResponse.setMessage("Database connection failed");
+        dbResponse.setError("Connection timeout");
+
+        when(healthService.checkDatabase()).thenReturn(dbResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/health/db"))
+            .andExpect(status().isServiceUnavailable())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.status").value("error"))
+            .andExpect(jsonPath("$.message").value("Database connection failed"))
+            .andExpect(jsonPath("$.error").value("Connection timeout"));
+    }
+
+    @Test
+    void testGetStatus_WhenHealthy_ShouldReturn200() throws Exception {
+        // Given
+        Map<String, Object> checks = new HashMap<>();
+        checks.put("api", Map.of("status", "ok", "message", "API is responding"));
+        checks.put("database", Map.of("status", "ok", "message", "Database connection is healthy"));
+
+        CompleteHealthResponse completeResponse = new CompleteHealthResponse(
+            "healthy",
+            checks,
+            System.currentTimeMillis()
+        );
+
+        when(healthService.getCompleteStatus()).thenReturn(completeResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/health/status"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.status").value("healthy"))
+            .andExpect(jsonPath("$.checks.api.status").value("ok"))
+            .andExpect(jsonPath("$.checks.database.status").value("ok"))
+            .andExpect(jsonPath("$.timestamp").isNumber());
+    }
+
+    @Test
+    void testGetStatus_WhenUnhealthy_ShouldReturn503() throws Exception {
+        // Given
+        Map<String, Object> checks = new HashMap<>();
+        checks.put("api", Map.of("status", "ok", "message", "API is responding"));
+        checks.put("database", Map.of("status", "error", "message", "Database connection failed"));
+
+        CompleteHealthResponse completeResponse = new CompleteHealthResponse(
+            "unhealthy",
+            checks,
+            System.currentTimeMillis()
+        );
+
+        when(healthService.getCompleteStatus()).thenReturn(completeResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/health/status"))
+            .andExpect(status().isServiceUnavailable())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.status").value("unhealthy"))
+            .andExpect(jsonPath("$.checks.api.status").value("ok"))
+            .andExpect(jsonPath("$.checks.database.status").value("error"))
+            .andExpect(jsonPath("$.timestamp").isNumber());
+    }
+
+    @Test
+    void testPing_VerifyContentStructure() throws Exception {
+        // Given
+        HealthResponse healthResponse = new HealthResponse(
+            "ok",
+            "Backend API is responding",
+            1234567890L
+        );
+        when(healthService.ping()).thenReturn(healthResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/health/ping"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").exists())
+            .andExpect(jsonPath("$.message").exists())
+            .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void testCheckDatabase_VerifyEndpointPath() throws Exception {
+        // Given
+        DatabaseHealthResponse dbResponse = new DatabaseHealthResponse();
+        dbResponse.setStatus("ok");
+        dbResponse.setMessage("Database connection is healthy");
+
+        when(healthService.checkDatabase()).thenReturn(dbResponse);
+
+        // When & Then - verify correct endpoint path
+        mockMvc.perform(get("/api/health/db"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetStatus_VerifyEndpointPath() throws Exception {
+        // Given
+        Map<String, Object> checks = new HashMap<>();
+        checks.put("api", Map.of("status", "ok"));
+        checks.put("database", Map.of("status", "ok"));
+
+        CompleteHealthResponse completeResponse = new CompleteHealthResponse(
+            "healthy",
+            checks,
+            System.currentTimeMillis()
+        );
+
+        when(healthService.getCompleteStatus()).thenReturn(completeResponse);
+
+        // When & Then - verify correct endpoint path
+        mockMvc.perform(get("/api/health/status"))
+            .andExpect(status().isOk());
+    }
+}

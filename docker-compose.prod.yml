@@ -1,0 +1,42 @@
+# Docker Compose override for PRODUCTION environment
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  angular-frontend:
+    container_name: portfolio-frontend-prod
+    environment:
+      - NODE_ENV=production
+
+  spring-backend:
+    container_name: portfolio-backend-prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://portfolio-db-prod:5432/portfolio_prod
+      - SPRING_DATASOURCE_USERNAME=postgres_app
+      - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
+    depends_on:
+      portfolio-db-prod:
+        condition: service_healthy
+
+  portfolio-db:
+    container_name: portfolio-db-prod
+    ports:
+      - "5432:5432"  # Production DB on standard port
+    environment:
+      POSTGRES_DB: portfolio_prod
+      POSTGRES_USER: postgres_app
+      POSTGRES_PASSWORD: ${DB_USER_PASSWORD}
+    volumes:
+      - portfolio_db_prod_data:/var/lib/postgresql/data
+
+  nginx-portfolio:
+    container_name: portfolio-nginx-prod
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d/prod.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"  # Production accessible on standard HTTP port
+
+volumes:
+  portfolio_db_prod_data:
+    name: portfolio_prod_db_data
