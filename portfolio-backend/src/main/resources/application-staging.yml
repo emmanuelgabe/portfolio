@@ -1,8 +1,8 @@
 spring:
   jpa:
-    generate-ddl: true
+    generate-ddl: false  # Flyway manages schema creation
     hibernate:
-      ddl-auto: validate  # Safer for staging - only validates schema
+      ddl-auto: validate  # Only validate schema, never modify
     open-in-view: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   application:
@@ -12,6 +12,13 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     url: ${SPRING_DATASOURCE_URL}
     driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true
 
 server:
   port: 8080

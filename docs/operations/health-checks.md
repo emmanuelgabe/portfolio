@@ -1,8 +1,8 @@
 # Health Check Operations Guide
 
 **Document Type:** Operational Guide
-**Version:** 1.0.0
-**Last Updated:** 2025-11-09
+**Version:** 1.1.0
+**Last Updated:** 2025-11-10
 **Status:** Active
 
 ---
@@ -155,24 +155,36 @@ portfolio-nginx-local      Up
 
 ### 4.2 Health Check Configuration
 
-**Frontend:**
+**Frontend (Production/Staging):**
 ```yaml
 healthcheck:
-  test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4200/health.json"]
+  test: ["CMD", "curl", "-f", "http://localhost:80/health.json"]
   interval: 30s
   timeout: 10s
-  retries: 3
-  start_period: 60s
+  retries: 5
+  start_period: 90s
 ```
 
-**Backend:**
+> **Note:** Frontend health check is **disabled** in local development mode (`docker-compose.local.yml`) because the Angular dev server (`ng serve`) is too slow to start reliably in CI environments. Backend and database health checks are sufficient for local testing.
+
+**Backend (Production/Staging):**
 ```yaml
 healthcheck:
   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
   interval: 30s
   timeout: 10s
-  retries: 3
-  start_period: 60s
+  retries: 5
+  start_period: 90s
+```
+
+**Backend (Development):**
+```yaml
+healthcheck:
+  test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+  interval: 30s
+  timeout: 10s
+  retries: 5
+  start_period: 90s
 ```
 
 **Database:**
@@ -187,28 +199,59 @@ healthcheck:
 
 ### 4.3 Health Check Parameters
 
-| Parameter | Description | Typical Value |
-|-----------|-------------|---------------|
-| `interval` | Time between health checks | 30 seconds |
-| `timeout` | Maximum wait time for response | 10 seconds |
-| `retries` | Consecutive failures before unhealthy | 3 |
-| `start_period` | Grace period before first check | 60 seconds |
+| Parameter | Description | Production/Staging | Development |
+|-----------|-------------|-------------------|-------------|
+| `interval` | Time between health checks | 30 seconds | 30 seconds |
+| `timeout` | Maximum wait time for response | 10 seconds | 10 seconds |
+| `retries` | Consecutive failures before unhealthy | 5 | 5 |
+| `start_period` | Grace period before first check | 90 seconds | 90 seconds |
+
+**Rationale for extended timings:**
+- Extended `start_period` (90s) accommodates slower CI/CD runner environments
+- Increased `retries` (5) reduces false positives during startup
+- These values ensure reliable health checks in resource-constrained environments
 
 ---
 
 ## 5. CI/CD Integration
 
-### 5.1 GitHub Actions Workflow
+### 5.1 GitHub Actions Workflows
 
+**Two separate workflows handle health checks:**
+
+#### 5.1.1 Health Check CI
 **Workflow file:** `.github/workflows/health-check.yml`
 
+**Purpose:** Tests local development environment
+
+**Triggers:**
+- Push to `develop` branch only
+- Pull requests to `develop` branch
+- Manual trigger via GitHub Actions UI
+
 **Steps:**
-1. Build Docker containers
+1. Build Docker containers with `docker-compose.local.yml`
 2. Start all services
 3. Wait for containers to reach healthy state
 4. Execute health check script
 5. Verify individual endpoints
 6. Display logs on failure
+
+> **Note:** This workflow is NOT triggered on `staging` or `main` branches because it tests the development environment, not production deployments.
+
+#### 5.1.2 CI/CD Pipeline
+**Workflow file:** `.github/workflows/ci-cd.yml`
+
+**Purpose:** Build, deploy, and verify staging/production environments
+
+**Triggers:**
+- Push to `staging` or `main` branches
+- Pull requests to `staging` or `main`
+
+**Health Check Steps:**
+- Waits for containers to become healthy (max 5 minutes)
+- Runs smoke tests on deployed services
+- Verifies frontend, backend, database, and nginx
 
 ### 5.2 Manual Workflow Trigger
 
@@ -217,6 +260,8 @@ Navigate to GitHub Actions and trigger manually:
 ```
 Repository → Actions → Health Check CI → Run workflow
 ```
+
+Select the branch to test (typically `develop`)
 
 ---
 
@@ -264,11 +309,12 @@ NGINX (Port 8081)
 
 | Version | Date       | Changes |
 |---------|------------|---------|
+| 1.1.0   | 2025-11-10 | Updated health check configuration: Changed frontend to use curl, increased timeouts (90s start_period, 5 retries), disabled frontend health check in local dev mode, restricted Health Check CI workflow to develop branch only |
 | 1.0.0   | 2025-11-09 | Initial release |
 
 ---
 
 **Document Type:** Operational Guide
-**Version:** 1.0.0
-**Last Updated:** 2025-11-09
+**Version:** 1.1.0
+**Last Updated:** 2025-11-10
 **Status:** Active

@@ -1,8 +1,8 @@
 spring:
   jpa:
-    generate-ddl: true
+    generate-ddl: false  # Flyway manages schema creation
     hibernate:
-      ddl-auto: update  # Auto-create/update schema for local dev
+      ddl-auto: validate  # Only validate schema, Flyway handles migrations
     open-in-view: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true  # Show SQL queries in console for debugging
@@ -13,6 +13,13 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:password}
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://portfolio-db:5432/portfolio_local}
     driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true  # Prevent accidental data deletion
 
 server:
   port: 8080

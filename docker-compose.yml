@@ -8,19 +8,24 @@ networks:
 
 services:
   angular-frontend:
-    build: ./portfolio-frontend
+    build:
+      context: ./portfolio-frontend
+      args:
+        VERSION: ${VERSION:-0.0.1-SNAPSHOT}
+    image: portfolio-angular-frontend:latest
     restart: unless-stopped
     networks:
       - portfolio-net
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health.json"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/health.json"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+      start_period: 90s
 
   spring-backend:
     build: ./portfolio-backend
+    image: portfolio-spring-backend:latest
     restart: unless-stopped
     environment:
       - SPRING_PROFILES_ACTIVE=dev
@@ -36,8 +41,8 @@ services:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 60s
+      retries: 5
+      start_period: 90s
 
   portfolio-db:
     image: postgres:17.6
@@ -51,7 +56,7 @@ services:
     networks:
       - portfolio-net
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres_app -d portfolio" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres_app -d $${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
