@@ -1,0 +1,73 @@
+<div class="card h-100 shadow-sm project-card">
+  <!-- Project Image -->
+  <img
+    [src]="imageSrc"
+    [alt]="project.title"
+    class="card-img-top"
+    [class.placeholder-image]="!hasImage"
+  />
+
+  <div class="card-body d-flex flex-column">
+    <!-- Project Title -->
+    <h5 class="card-title">{{ project.title }}</h5>
+
+    <!-- Project Description -->
+    <p class="card-text text-muted flex-grow-1">
+      {{ truncateDescription(project.description) }}
+    </p>
+
+    <!-- Tags -->
+    <div class="tags-container mb-3">
+      <span
+        *ngFor="let tag of project.tags"
+        class="badge rounded-pill me-1 mb-1"
+        [style.background-color]="tag.color || '#6c757d'"
+      >
+        {{ tag.name }}
+      </span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card-actions d-flex gap-2">
+      <!-- View Details Button -->
+      <a
+        [routerLink]="['/projects', project.id]"
+        class="btn btn-primary btn-sm flex-grow-1"
+      >
+        <i class="bi bi-eye"></i> View Details
+      </a>
+
+      <!-- GitHub Link -->
+      <a
+        *ngIf="hasGithubUrl"
+        [href]="project.githubUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline-secondary btn-sm"
+        title="View on GitHub"
+      >
+        <i class="bi bi-github"></i>
+      </a>
+
+      <!-- Demo Link -->
+      <a
+        *ngIf="hasDemoUrl"
+        [href]="project.demoUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline-success btn-sm"
+        title="View Demo"
+      >
+        <i class="bi bi-box-arrow-up-right"></i>
+      </a>
+    </div>
+
+    <!-- Featured Badge -->
+    <span
+      *ngIf="project.featured"
+      class="badge bg-warning position-absolute top-0 end-0 m-2"
+    >
+      <i class="bi bi-star-fill"></i> Featured
+    </span>
+  </div>
+</div>

@@ -1,0 +1,163 @@
+.container {
+  max-width: 1200px;
+}
+
+h1.display-4 {
+  font-weight: 700;
+  color: #212529;
+}
+
+.badges .badge {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  color: white;
+}
+
+.project-image-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.project-image-container img {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.project-image-container:hover img {
+  transform: scale(1.02);
+}
+
+.card {
+  border: none;
+  border-radius: 0.5rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-title {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 1rem;
+}
+
+.card-title i {
+  font-size: 1.2rem;
+}
+
+.card-text {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #495057;
+}
+
+.tech-stack-list li {
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.tech-stack-list i {
+  font-size: 1rem;
+}
+
+.btn {
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.btn i {
+  font-size: 1rem;
+}
+
+.spinner-border {
+  border-width: 0.3rem;
+}
+
+.alert {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+/* Social Share Buttons */
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+
+.btn-dark {
+  background-color: #333;
+  border-color: #333;
+}
+
+.btn-dark:hover {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  h1.display-4 {
+    font-size: 2rem;
+  }
+
+  .badges .badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  .project-image-container img {
+    max-height: 300px;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .card-text {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.375rem 1rem;
+  }
+
+  .d-flex.gap-2 {
+    gap: 0.5rem !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
+  h1.display-4 {
+    font-size: 2.5rem;
+  }
+}

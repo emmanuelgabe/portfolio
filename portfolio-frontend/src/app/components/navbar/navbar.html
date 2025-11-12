@@ -1,0 +1,75 @@
+<nav class="navbar navbar-expand-lg fixed-top" [class.scrolled]="isScrolled">
+  <div class="container">
+    <!-- Logo/Brand -->
+    <a class="navbar-brand" routerLink="/" (click)="closeNavbar()">
+      <span class="brand-name">Emmanuel Gabe</span>
+    </a>
+
+    <!-- Toggle button for mobile -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      (click)="toggleNavbar()"
+      [attr.aria-expanded]="!isCollapsed"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navigation links -->
+    <div class="collapse navbar-collapse" [class.show]="!isCollapsed">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="#hero"
+            (click)="scrollToSection('hero')">
+            <i class="bi bi-house-door"></i> Accueil
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="#about"
+            (click)="scrollToSection('about')">
+            <i class="bi bi-person"></i> À propos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="#skills"
+            (click)="scrollToSection('skills')">
+            <i class="bi bi-code-slash"></i> Compétences
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="#experiences"
+            (click)="scrollToSection('experiences')">
+            <i class="bi bi-briefcase"></i> Expériences
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="#projects"
+            (click)="scrollToSection('projects')">
+            <i class="bi bi-folder"></i> Portfolio
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="#contact"
+            (click)="scrollToSection('contact')">
+            <i class="bi bi-envelope"></i> Contact
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Spacer to prevent content from being hidden under fixed navbar -->
+<div class="navbar-spacer"></div>
