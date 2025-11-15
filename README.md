@@ -22,8 +22,6 @@ Full-stack web application with Angular, Spring Boot, and PostgreSQL.
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue?logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)
 
-> **Exact versions:** See [`portfolio-backend/build.gradle`](./portfolio-backend/build.gradle) and [`portfolio-frontend/package.json`](./portfolio-frontend/package.json)
-
 ---
 
 ## Quick Start
@@ -41,11 +39,6 @@ echo "DB_USER_PASSWORD=your_secure_password" > .env
 # 3. Start all services
 docker-compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
 
-# 4. Access application
-# - Frontend: http://localhost:8081
-# - Backend API: http://localhost:8081/api
-# - Swagger UI: http://localhost:8081/api/swagger-ui.html
-# - Health Check: http://localhost:8081/health
 ```
 
 For detailed setup instructions, see [Setup Guide](./docs/development/setup.md).
@@ -55,45 +48,32 @@ For detailed setup instructions, see [Setup Guide](./docs/development/setup.md).
 ## Architecture
 
 ```mermaid
-graph TB
-    User[Web Browser]
-
-    User -->|HTTPS| CF[Cloudflare Tunnel<br/>SSL/TLS + DDoS Protection]
-
-    CF -->|Secure Connection| NGINX[NGINX<br/>Reverse Proxy]
-
-    NGINX -->|/api/*| Backend[Spring Boot API<br/>Business Logic]
-    NGINX -->|/*| Frontend[Angular SPA<br/>User Interface]
-
-    Backend -->|Auth<br/>Future| Auth[Authentication Service<br/>Coming Soon]
-    Backend -->|Persistence| DB[(PostgreSQL<br/>Database)]
-
-    DB -.->|Volume| Storage[Persistent Storage]
-
-    subgraph Production
-        CF
-        NGINX
-        Frontend
-        Backend
-        Auth
-        DB
-        Storage
-    end
-
-    subgraph Environments
-        direction LR
-        Dev[Development<br/>localhost:8081]
-        Staging[Staging<br/>]
-        Prod[Production<br/>emmanuelgabe.com]
-    end
+flowchart TB
+ subgraph Production["Production"]
+        CF["Cloudflare Tunnel<br>SSL/TLS + DDoS Protection"]
+        NGINX["NGINX<br>Reverse Proxy"]
+        Frontend["Angular SPA<br>User Interface"]
+        Backend["Spring Boot API<br>Business Logic"]
+        Auth["Authentication Service<br>Coming Soon"]
+        DB[("PostgreSQL<br>Database")]
+        Storage["Persistent Storage"]
+  end
+    User["Web Browser"] -- HTTPS --> CF
+    CF -- Secure Connection --> NGINX
+    NGINX -- /api/* --> Backend
+    NGINX -- /* --> Frontend
+    Backend -- Auth<br>Future --> Auth
+    Backend -- Persistence --> DB
+    DB -. Volume .-> Storage
 
     style CF fill:#f38020,color:#fff
     style NGINX fill:#2d5c88,color:#fff
-    style Backend fill:#6db33f,color:#fff
     style Frontend fill:#dd0031,color:#fff
-    style DB fill:#336791,color:#fff
+    style Backend fill:#6db33f,color:#fff
     style Auth fill:#4285f4,color:#fff,stroke-dasharray: 5 5
+    style DB fill:#336791,color:#fff
     style Storage fill:#ffd700,color:#000
+
 ```
 
 ### Technology Stack

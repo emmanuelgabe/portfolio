@@ -4,7 +4,11 @@ import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
 import com.emmanuelgabe.portfolio.entity.Skill;
-import org.mapstruct.*;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 /**
  * MapStruct mapper for Skill entity and DTOs

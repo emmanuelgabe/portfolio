@@ -4,7 +4,11 @@ import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
 import com.emmanuelgabe.portfolio.entity.Project;
-import org.mapstruct.*;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 /**
  * MapStruct mapper for Project entity and DTOs

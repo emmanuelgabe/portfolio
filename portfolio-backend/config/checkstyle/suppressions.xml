@@ -20,4 +20,7 @@
 
     <!-- Suppress checks for entities (JPA entities often have specific patterns) -->
     <suppress checks="VisibilityModifier" files=".*[\\/]entity[\\/].*\.java"/>
+
+    <!-- Suppress HideUtilityClassConstructor for Spring Boot main application class -->
+    <suppress checks="HideUtilityClassConstructor" files=".*Application\.java"/>
 </suppressions>
