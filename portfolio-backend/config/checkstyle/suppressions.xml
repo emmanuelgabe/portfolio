@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Suppress checks for generated code -->
+    <suppress checks=".*" files=".*[\\/]target[\\/]generated-sources[\\/].*"/>
+    <suppress checks=".*" files=".*[\\/]build[\\/]generated[\\/].*"/>
+
+    <!-- Suppress checks for MapStruct generated implementations -->
+    <suppress checks=".*" files=".*MapperImpl\.java"/>
+
+    <!-- Suppress checks for configuration classes (can have public fields for properties) -->
+    <suppress checks="VisibilityModifier" files=".*Config\.java"/>
+    <suppress checks="VisibilityModifier" files=".*Properties\.java"/>
+
+    <!-- Suppress checks for DTOs (can have public fields) -->
+    <suppress checks="VisibilityModifier" files=".*[\\/]dto[\\/].*\.java"/>
+
+    <!-- Suppress checks for entities (JPA entities often have specific patterns) -->
+    <suppress checks="VisibilityModifier" files=".*[\\/]entity[\\/].*\.java"/>
+</suppressions>

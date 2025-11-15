@@ -13,7 +13,7 @@ on:
       - staging
 
 env:
-  JAVA_VERSION: '24'
+  JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'temurin'
 
 jobs:
@@ -185,13 +185,13 @@ jobs:
 
             # Check if all are healthy or running
             if [ "$DB_HEALTH" = "healthy" ] && [ "$BACKEND_HEALTH" = "healthy" ] && [ "$FRONTEND_HEALTH" = "healthy" ] && [ "$NGINX_HEALTH" = "running" ]; then
-              echo "✅ All containers are healthy!"
+              echo "[SUCCESS] All containers are healthy!"
               exit 0
             fi
 
             # Check for unhealthy or not running containers
             if [ "$DB_HEALTH" = "unhealthy" ] || [ "$BACKEND_HEALTH" = "unhealthy" ] || [ "$FRONTEND_HEALTH" = "unhealthy" ]; then
-              echo "❌ One or more containers are unhealthy!"
+              echo "[ERROR] One or more containers are unhealthy!"
               echo "Showing container logs..."
               [ "$DB_HEALTH" = "unhealthy" ] && docker logs --tail=50 portfolio-db-$ENV_NAME
               [ "$BACKEND_HEALTH" = "unhealthy" ] && docker logs --tail=50 portfolio-backend-$ENV_NAME
@@ -200,14 +200,14 @@ jobs:
             fi
 
             if [ "$DB_HEALTH" = "not_running" ] || [ "$BACKEND_HEALTH" = "not_running" ] || [ "$FRONTEND_HEALTH" = "not_running" ] || [ "$NGINX_HEALTH" = "not_running" ]; then
-              echo "⚠️ Some containers are not running yet, waiting..."
+              echo "[WARN] Some containers are not running yet, waiting..."
               docker ps -a --filter "name=portfolio.*-$ENV_NAME"
             fi
 
             sleep 5
           done
 
-          echo "❌ Timeout waiting for containers to be healthy"
+          echo "[ERROR] Timeout waiting for containers to be healthy"
           echo "Final status - DB: $DB_HEALTH | Backend: $BACKEND_HEALTH | Frontend: $FRONTEND_HEALTH | Nginx: $NGINX_HEALTH"
           echo ""
           echo "Container status:"
@@ -262,18 +262,18 @@ jobs:
           echo "Testing frontend health endpoint..."
           FRONTEND_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/health.json || echo "000")
           if [ "$FRONTEND_HEALTH" = "200" ]; then
-            echo "✅ Frontend health check passed"
+            echo "[SUCCESS] Frontend health check passed"
           else
-            echo "❌ Frontend health check failed (HTTP $FRONTEND_HEALTH)"
+            echo "[ERROR] Frontend health check failed (HTTP $FRONTEND_HEALTH)"
             exit 1
           fi
 
           # Test 2: Backend actuator health endpoint
           echo "Testing backend actuator health endpoint..."
           if docker exec portfolio-backend-$ENV_NAME wget --quiet --spider http://localhost:8080/actuator/health >/dev/null 2>&1; then
-            echo "✅ Backend actuator health check passed"
+            echo "[SUCCESS] Backend actuator health check passed"
           else
-            echo "❌ Backend actuator health check failed"
+            echo "[ERROR] Backend actuator health check failed"
             exit 1
           fi
 
@@ -286,9 +286,9 @@ jobs:
           fi
           DB_TEST=$(docker exec portfolio-db-$ENV_NAME psql -U postgres_app -d $DB_NAME -c "SELECT 1;" 2>&1)
           if echo "$DB_TEST" | grep -q "1 row"; then
-            echo "✅ Database connectivity test passed"
+            echo "[SUCCESS] Database connectivity test passed"
           else
-            echo "❌ Database connectivity test failed"
+            echo "[ERROR] Database connectivity test failed"
             echo "$DB_TEST"
             exit 1
           fi
@@ -297,15 +297,15 @@ jobs:
           echo "Testing full stack integration..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/ || echo "000")
           if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "304" ]; then
-            echo "✅ Full stack integration test passed (HTTP $HTTP_STATUS)"
+            echo "[SUCCESS] Full stack integration test passed (HTTP $HTTP_STATUS)"
           else
-            echo "❌ Full stack integration test failed (HTTP $HTTP_STATUS)"
+            echo "[ERROR] Full stack integration test failed (HTTP $HTTP_STATUS)"
             exit 1
           fi
 
           echo ""
           echo "========================================="
-          echo "✅ All smoke tests passed!"
+          echo "[SUCCESS] All smoke tests passed!"
           echo "========================================="
 
       - name: Cleanup old images

@@ -66,7 +66,7 @@ jobs:
     steps:
       - name: Documentation check summary
         run: |
-          echo "## Documentation Quality Check Complete ✓" >> $GITHUB_STEP_SUMMARY
+          echo "## Documentation Quality Check Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Vale has checked all markdown files against the Google Developer Documentation Style Guide." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

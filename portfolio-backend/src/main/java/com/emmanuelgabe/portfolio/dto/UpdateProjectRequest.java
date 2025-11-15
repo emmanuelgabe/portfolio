@@ -2,9 +2,15 @@ package com.emmanuelgabe.portfolio.dto;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateProjectRequest {
 
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
@@ -34,73 +40,4 @@ public class UpdateProjectRequest {
     private Boolean featured;
 
     private Set<Long> tagIds;
-
-    // Constructeurs
-    public UpdateProjectRequest() {
-    }
-
-    // Getters et Setters
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTechStack() {
-        return techStack;
-    }
-
-    public void setTechStack(String techStack) {
-        this.techStack = techStack;
-    }
-
-    public String getGithubUrl() {
-        return githubUrl;
-    }
-
-    public void setGithubUrl(String githubUrl) {
-        this.githubUrl = githubUrl;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getDemoUrl() {
-        return demoUrl;
-    }
-
-    public void setDemoUrl(String demoUrl) {
-        this.demoUrl = demoUrl;
-    }
-
-    public Boolean getFeatured() {
-        return featured;
-    }
-
-    public void setFeatured(Boolean featured) {
-        this.featured = featured;
-    }
-
-    public Set<Long> getTagIds() {
-        return tagIds;
-    }
-
-    public void setTagIds(Set<Long> tagIds) {
-        this.tagIds = tagIds;
-    }
 }

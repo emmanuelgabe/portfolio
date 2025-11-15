@@ -2,14 +2,15 @@ package com.emmanuelgabe.portfolio.config;
 
 import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
-import com.emmanuelgabe.portfolio.entity.Skill;
+import com.emmanuelgabe.portfolio.dto.CreateTagRequest;
+import com.emmanuelgabe.portfolio.dto.TagResponse;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
-import com.emmanuelgabe.portfolio.entity.Tag;
+import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.repository.ProjectRepository;
 import com.emmanuelgabe.portfolio.repository.SkillRepository;
-import com.emmanuelgabe.portfolio.repository.TagRepository;
 import com.emmanuelgabe.portfolio.service.ProjectService;
 import com.emmanuelgabe.portfolio.service.SkillService;
+import com.emmanuelgabe.portfolio.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -32,54 +33,54 @@ public class DataSeeder implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
 
     private final ProjectService projectService;
-    private final ProjectRepository projectRepository;
-    private final TagRepository tagRepository;
+    private final TagService tagService;
     private final SkillService skillService;
+    private final ProjectRepository projectRepository;
     private final SkillRepository skillRepository;
 
-    public DataSeeder(ProjectService projectService, ProjectRepository projectRepository,
-                      TagRepository tagRepository, SkillService skillService,
+    public DataSeeder(ProjectService projectService, TagService tagService,
+                      SkillService skillService, ProjectRepository projectRepository,
                       SkillRepository skillRepository) {
         this.projectService = projectService;
-        this.projectRepository = projectRepository;
-        this.tagRepository = tagRepository;
+        this.tagService = tagService;
         this.skillService = skillService;
+        this.projectRepository = projectRepository;
         this.skillRepository = skillRepository;
     }
 
     @Override
     public void run(String... args) {
-        log.info("🌱 Checking database for seeding...");
+        log.info("[DATA_SEEDER] Checking database for seeding");
 
         // Create skills if they don't exist
         if (skillRepository.count() == 0) {
-            log.info("Creating skills...");
+            log.info("[DATA_SEEDER] Creating skills - count=0");
             createSkills();
-            log.info("✅ Created {} skills", skillRepository.count());
+            log.info("[DATA_SEEDER] Skills created - count={}", skillRepository.count());
         } else {
-            log.info("⏭️  Skills already exist, skipping skill seeding.");
+            log.info("[DATA_SEEDER] Skills already exist, skipping seeding");
         }
 
         // Create tags and projects if they don't exist
         if (projectRepository.count() == 0) {
-            log.info("Creating projects and tags...");
+            log.info("[DATA_SEEDER] Creating projects and tags - count=0");
 
             // Create tags
-            List<Tag> tags = createTags();
-            log.info("✅ Created {} tags", tags.size());
+            List<TagResponse> tags = createTags();
+            log.info("[DATA_SEEDER] Tags created - count={}", tags.size());
 
             // Create projects
             createProjects(tags);
-            log.info("✅ Created {} projects", projectRepository.count());
+            log.info("[DATA_SEEDER] Projects created - count={}", projectRepository.count());
         } else {
-            log.info("⏭️  Projects already exist, skipping project seeding.");
+            log.info("[DATA_SEEDER] Projects already exist, skipping seeding");
         }
 
-        log.info("✅ Database seeding complete!");
+        log.info("[DATA_SEEDER] Database seeding complete");
     }
 
-    private List<Tag> createTags() {
-        List<Tag> tags = new ArrayList<>();
+    private List<TagResponse> createTags() {
+        List<TagResponse> tags = new ArrayList<>();
 
         tags.add(createTag("Angular", "#dd0031"));
         tags.add(createTag("Spring Boot", "#6db33f"));
@@ -95,14 +96,14 @@ public class DataSeeder implements CommandLineRunner {
         return tags;
     }
 
-    private Tag createTag(String name, String color) {
-        Tag tag = new Tag();
-        tag.setName(name);
-        tag.setColor(color);
-        return tagRepository.save(tag);
+    private TagResponse createTag(String name, String color) {
+        CreateTagRequest request = new CreateTagRequest();
+        request.setName(name);
+        request.setColor(color);
+        return tagService.createTag(request);
     }
 
-    private void createProjects(List<Tag> tags) {
+    private void createProjects(List<TagResponse> tags) {
         // Project 1: E-Commerce Platform (Featured)
         createProject(
                 "E-Commerce Platform",
@@ -110,7 +111,7 @@ public class DataSeeder implements CommandLineRunner {
                 "Angular, Spring Boot, PostgreSQL, Docker",
                 "https://github.com/emmanuelgabe/ecommerce-platform",
                 "https://ecommerce-demo.emmanuelgabe.com",
-                null,
+                "https://images.unsplash.com/photo-1557821552-17105176677c?w=800&h=600&fit=crop",
                 true,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "Angular"),
@@ -128,7 +129,7 @@ public class DataSeeder implements CommandLineRunner {
                 "React, Node.js, PostgreSQL, Docker",
                 "https://github.com/emmanuelgabe/task-manager",
                 "https://tasks.emmanuelgabe.com",
-                null,
+                "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop",
                 true,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "React"),
@@ -146,7 +147,7 @@ public class DataSeeder implements CommandLineRunner {
                 "TypeScript, Angular, REST API",
                 "https://github.com/emmanuelgabe/weather-dashboard",
                 "https://weather.emmanuelgabe.com",
-                null,
+                "https://images.unsplash.com/photo-1592210454359-9043f067919b?w=800&h=600&fit=crop",
                 false,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "Angular"),
@@ -162,7 +163,7 @@ public class DataSeeder implements CommandLineRunner {
                 "Angular, Spring Boot, PostgreSQL, Docker",
                 "https://github.com/emmanuelgabe/portfolio",
                 null,
-                null,
+                "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
                 true,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "Angular"),
@@ -181,7 +182,7 @@ public class DataSeeder implements CommandLineRunner {
                 "Spring Boot, PostgreSQL, JWT",
                 "https://github.com/emmanuelgabe/blog-api",
                 null,
-                null,
+                "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=600&fit=crop",
                 false,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "Spring Boot"),
@@ -198,7 +199,7 @@ public class DataSeeder implements CommandLineRunner {
                 "React, Node.js, WebSocket",
                 "https://github.com/emmanuelgabe/chat-app",
                 "https://chat.emmanuelgabe.com",
-                null,
+                "https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=800&h=600&fit=crop",
                 false,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "React"),
@@ -214,7 +215,7 @@ public class DataSeeder implements CommandLineRunner {
                 "Angular, Spring Boot, PostgreSQL",
                 "https://github.com/emmanuelgabe/expense-tracker",
                 null,
-                null,
+                "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&h=600&fit=crop",
                 false,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "Angular"),
@@ -231,7 +232,7 @@ public class DataSeeder implements CommandLineRunner {
                 "React, Node.js, REST API",
                 "https://github.com/emmanuelgabe/recipe-finder",
                 "https://recipes.emmanuelgabe.com",
-                null,
+                "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=600&fit=crop",
                 false,
                 new HashSet<>(java.util.Arrays.asList(
                         findTagByName(tags, "React"),
@@ -257,12 +258,12 @@ public class DataSeeder implements CommandLineRunner {
         projectService.createProject(request);
     }
 
-    private Long findTagByName(List<Tag> tags, String name) {
+    private Long findTagByName(List<TagResponse> tags, String name) {
         return tags.stream()
                 .filter(tag -> tag.getName().equals(name))
                 .findFirst()
-                .map(Tag::getId)
-                .orElseThrow(() -> new RuntimeException("Tag not found: " + name));
+                .map(TagResponse::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag", "name", name));
     }
 
     private void createSkills() {

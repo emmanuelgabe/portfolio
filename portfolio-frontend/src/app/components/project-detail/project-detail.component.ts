@@ -1,13 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { ProjectResponse } from '../../models';
+import { LoggerService } from '../../services/logger.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css']
 })
@@ -15,6 +17,8 @@ export class ProjectDetailComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly logger = inject(LoggerService);
+  private readonly toastr = inject(ToastrService);
 
   project: ProjectResponse | null = null;
   isLoading = true;
@@ -43,7 +47,7 @@ export class ProjectDetailComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error loading project:', err);
+        this.logger.error('[HTTP_ERROR] Failed to load project', { projectId: id, error: err.message || err });
         this.error = 'Project not found or failed to load. Please try again.';
         this.isLoading = false;
       }
@@ -92,9 +96,10 @@ export class ProjectDetailComponent implements OnInit {
   copyLink(): void {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      alert('Link copied to clipboard!');
+      this.toastr.success('Link copied to clipboard!', 'Success');
     }).catch(err => {
-      console.error('Failed to copy link:', err);
+      this.logger.error('[CLIPBOARD_ERROR] Failed to copy link', { error: err.message || err });
+      this.toastr.error('Failed to copy link to clipboard', 'Error');
     });
   }
 

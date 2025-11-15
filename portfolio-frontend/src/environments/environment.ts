@@ -3,5 +3,6 @@ import { VERSION } from './version';
 export const environment = {
   production: false,
   apiUrl: '', // Empty string to use proxy configuration
-  version: VERSION
+  version: VERSION,
+  logLevel: 'DEBUG'
 };

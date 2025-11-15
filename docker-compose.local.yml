@@ -8,6 +8,9 @@ services:
     build:
       context: ./portfolio-frontend
       dockerfile: Dockerfile.dev
+    depends_on:
+      spring-backend:
+        condition: service_healthy
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true

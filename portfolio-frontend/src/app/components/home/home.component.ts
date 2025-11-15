@@ -1,26 +1,28 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { ProjectCardComponent } from '../project-card/project-card.component';
 import { ProjectService, SkillService } from '../../services';
 import { ProjectResponse } from '../../models';
 import { Skill } from '../../models/skill.model';
 import { VERSION } from '../../../environments/version';
+import { LoggerService } from '../../services/logger.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, ProjectCardComponent],
+  imports: [CommonModule, ProjectCardComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly skillService = inject(SkillService);
+  private readonly logger = inject(LoggerService);
 
-  featuredProjects: ProjectResponse[] = [];
+  allProjects: ProjectResponse[] = [];
   isLoadingProjects = false;
   projectsError: string | null = null;
+  showAllProjects = false;
 
   skills: Skill[] = [];
   isLoadingSkills = false;
@@ -29,7 +31,7 @@ export class HomeComponent implements OnInit {
   version = VERSION;
 
   ngOnInit(): void {
-    this.loadFeaturedProjects();
+    this.loadProjects();
     this.loadSkills();
   }
 
@@ -46,7 +48,7 @@ export class HomeComponent implements OnInit {
         this.isLoadingSkills = false;
       },
       error: (err) => {
-        console.error('Error loading skills:', err);
+        this.logger.error('[HTTP_ERROR] Failed to load skills', { error: err.message || err });
         this.skillsError = 'Unable to load skills';
         this.isLoadingSkills = false;
       }
@@ -54,29 +56,77 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Load featured projects from API
+   * Load all projects from API
    */
-  loadFeaturedProjects(): void {
+  loadProjects(): void {
     this.isLoadingProjects = true;
     this.projectsError = null;
 
-    this.projectService.getFeatured().subscribe({
+    this.projectService.getAll().subscribe({
       next: (projects) => {
-        this.featuredProjects = projects;
+        this.allProjects = projects;
         this.isLoadingProjects = false;
       },
       error: (err) => {
-        console.error('Error loading featured projects:', err);
-        this.projectsError = 'Unable to load featured projects';
+        this.logger.error('[HTTP_ERROR] Failed to load projects', { error: err.message || err });
+        this.projectsError = 'Unable to load projects';
         this.isLoadingProjects = false;
       }
     });
   }
 
   /**
-   * Check if there are featured projects
+   * Toggle show all projects
    */
-  get hasFeaturedProjects(): boolean {
-    return this.featuredProjects.length > 0;
+  toggleShowAllProjects(): void {
+    this.showAllProjects = !this.showAllProjects;
+
+    if (this.showAllProjects) {
+      // Scroll to projects section smoothly after expansion
+      setTimeout(() => {
+        const projectsSection = document.getElementById('projects');
+        if (projectsSection) {
+          projectsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }
+
+  /**
+   * Get featured projects (those marked as featured)
+   */
+  get featuredProjects(): ProjectResponse[] {
+    return this.allProjects.filter(p => p.featured);
+  }
+
+  /**
+   * Get non-featured projects
+   */
+  get otherProjects(): ProjectResponse[] {
+    return this.allProjects.filter(p => !p.featured);
+  }
+
+  /**
+   * Get projects to display based on current state
+   */
+  get displayedProjects(): ProjectResponse[] {
+    if (this.showAllProjects) {
+      return this.allProjects;
+    }
+    return this.featuredProjects;
+  }
+
+  /**
+   * Check if there are projects
+   */
+  get hasProjects(): boolean {
+    return this.allProjects.length > 0;
+  }
+
+  /**
+   * Check if there are more projects to show
+   */
+  get hasMoreProjects(): boolean {
+    return this.otherProjects.length > 0;
   }
 }

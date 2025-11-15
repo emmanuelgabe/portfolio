@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.service;
 import com.emmanuelgabe.portfolio.dto.CompleteHealthResponse;
 import com.emmanuelgabe.portfolio.dto.DatabaseHealthResponse;
 import com.emmanuelgabe.portfolio.dto.HealthResponse;
+import com.emmanuelgabe.portfolio.service.impl.HealthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +38,7 @@ class HealthServiceTest {
     private DatabaseMetaData metaData;
 
     @InjectMocks
-    private HealthService healthService;
+    private HealthServiceImpl healthService;
 
     @BeforeEach
     void setUp() throws SQLException {

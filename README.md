@@ -2,90 +2,122 @@
 
 Full-stack web application with Angular, Spring Boot, and PostgreSQL.
 
+## Build & Quality Status
+
+[![Backend Tests](https://github.com/emmanuelgabe/portfolio/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/emmanuelgabe/portfolio/actions/workflows/backend-tests.yml)
+[![Frontend Tests](https://github.com/emmanuelgabe/portfolio/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/emmanuelgabe/portfolio/actions/workflows/frontend-tests.yml)
+[![CI/CD](https://github.com/emmanuelgabe/portfolio/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/emmanuelgabe/portfolio/actions/workflows/ci-cd.yml)
+[![Health Check](https://github.com/emmanuelgabe/portfolio/actions/workflows/health-check.yml/badge.svg)](https://github.com/emmanuelgabe/portfolio/actions/workflows/health-check.yml)
+[![Docs](https://github.com/emmanuelgabe/portfolio/actions/workflows/vale-docs.yml/badge.svg)](https://github.com/emmanuelgabe/portfolio/actions/workflows/vale-docs.yml)
+
+![License](https://img.shields.io/github/license/emmanuelgabe/portfolio)
+![Last Commit](https://img.shields.io/github/last-commit/emmanuelgabe/portfolio)
+![Issues](https://img.shields.io/github/issues/emmanuelgabe/portfolio)
+
+## Tech Stack
+
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)
+![Angular](https://img.shields.io/badge/Angular-18%20LTS-red?logo=angular)
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue?logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)
+
+> **Exact versions:** See [`portfolio-backend/build.gradle`](./portfolio-backend/build.gradle) and [`portfolio-frontend/package.json`](./portfolio-frontend/package.json)
+
+---
+
+## Quick Start
+
+**Prerequisites:** Docker, Docker Compose, Git
+
+```bash
+# 1. Clone repository
+git clone https://github.com/emmanuelgabe/portfolio.git
+cd portfolio
+
+# 2. Create environment file
+echo "DB_USER_PASSWORD=your_secure_password" > .env
+
+# 3. Start all services
+docker-compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
+
+# 4. Access application
+# - Frontend: http://localhost:8081
+# - Backend API: http://localhost:8081/api
+# - Swagger UI: http://localhost:8081/api/swagger-ui.html
+# - Health Check: http://localhost:8081/health
+```
+
+For detailed setup instructions, see [Setup Guide](./docs/development/setup.md).
+
 ---
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────┐
-│                    NGINX                         │
-│              (Reverse Proxy)                     │
-│            Port: 8081 (local)                    │
-└──────────┬────────────────────┬──────────────────┘
-           │                    │
-    ┌──────▼──────┐      ┌─────▼──────────┐
-    │  Frontend   │      │    Backend     │
-    │  Angular 20 │      │ Spring Boot 3  │
-    │  Port: 4200 │      │   Port: 8080   │
-    └─────────────┘      └────────┬────────┘
-                                  │
-                         ┌────────▼────────┐
-                         │   PostgreSQL    │
-                         │   Port: 5432    │
-                         └─────────────────┘
+```mermaid
+graph TB
+    User[Web Browser]
+
+    User -->|HTTPS| CF[Cloudflare Tunnel<br/>SSL/TLS + DDoS Protection]
+
+    CF -->|Secure Connection| NGINX[NGINX<br/>Reverse Proxy]
+
+    NGINX -->|/api/*| Backend[Spring Boot API<br/>Business Logic]
+    NGINX -->|/*| Frontend[Angular SPA<br/>User Interface]
+
+    Backend -->|Auth<br/>Future| Auth[Authentication Service<br/>Coming Soon]
+    Backend -->|Persistence| DB[(PostgreSQL<br/>Database)]
+
+    DB -.->|Volume| Storage[Persistent Storage]
+
+    subgraph Production
+        CF
+        NGINX
+        Frontend
+        Backend
+        Auth
+        DB
+        Storage
+    end
+
+    subgraph Environments
+        direction LR
+        Dev[Development<br/>localhost:8081]
+        Staging[Staging<br/>]
+        Prod[Production<br/>emmanuelgabe.com]
+    end
+
+    style CF fill:#f38020,color:#fff
+    style NGINX fill:#2d5c88,color:#fff
+    style Backend fill:#6db33f,color:#fff
+    style Frontend fill:#dd0031,color:#fff
+    style DB fill:#336791,color:#fff
+    style Auth fill:#4285f4,color:#fff,stroke-dasharray: 5 5
+    style Storage fill:#ffd700,color:#000
 ```
 
 ### Technology Stack
 
 **Frontend:**
-- Angular 20
-- Bootstrap 5.3
+- Angular 18 LTS
+- Bootstrap 5
 - RxJS
-- TypeScript 5.8
+- TypeScript 5
 
 **Backend:**
-- Spring Boot 3.5.5
-- Java 24
+- Spring Boot 3
+- Java 21 LTS
 - Spring Data JPA
 - Spring Security
 - Spring Boot Actuator
 
 **Database:**
-- PostgreSQL 17.6
+- PostgreSQL 17
 
 **Infrastructure:**
 - Docker & Docker Compose
-- Nginx 1.27
+- Nginx
 - GitHub Actions (CI/CD)
-
----
-
-## Configuration
-
-### Environment Variables
-
-Create a `.env` file at project root:
-
-```env
-# Database
-DB_USER_PASSWORD=your_secure_password
-```
-
-### Important Configuration Files
-
-```
-portfolio/
-├── .env                              # Environment variables (create manually)
-├── docker-compose.yml                # Base Docker configuration
-├── docker-compose.local.yml          # Local overrides
-├── docker-compose.staging.yml        # Staging overrides
-├── docker-compose.prod.yml           # Production overrides
-├── nginx/
-│   ├── nginx.conf                    # Global Nginx configuration
-│   └── conf.d/
-│       ├── local.conf                # Nginx local config
-│       ├── staging.conf              # Nginx staging config
-│       └── prod.conf                 # Nginx production config
-├── portfolio-frontend/
-│   ├── proxy.conf.json               # Angular proxy for dev
-│   └── angular.json                  # Angular configuration
-└── portfolio-backend/
-    ├── build.gradle                  # Gradle configuration
-    └── src/main/resources/
-        ├── application-dev.yml       # Spring Boot dev config
-        ├── application-staging.yml   # Spring Boot staging config
-        └── application-prod.yml      # Spring Boot production config
-```
 
 ---
 
@@ -97,21 +129,10 @@ See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
 ## License
 
-This project is licensed under the MIT License
+This project is licensed under the MIT License.
 
 ---
 
-## Team
+## Contact
 
-**Lead Developer:** Emmanuel Gabe
-
----
-
-## Related Links
-
-- [Architecture Guide](./docs/architecture/architecture.md)
-- [CI/CD Guide](./docs/deployment/ci-cd.md)
-- [Health Checks Guide](./docs/operations/health-checks.md)
-- [Versioning Guide](./docs/reference/versioning.md)
-- [Testing Guide](./docs/development/testing.md)
-- [Troubleshooting](./docs/development/testing-troubleshooting.md)
+**Emmanuel Gabe** - Lead Developer

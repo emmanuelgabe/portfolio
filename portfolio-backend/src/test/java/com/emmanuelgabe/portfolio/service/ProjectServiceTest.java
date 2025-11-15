@@ -6,8 +6,10 @@ import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
 import com.emmanuelgabe.portfolio.entity.Project;
 import com.emmanuelgabe.portfolio.entity.Tag;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
+import com.emmanuelgabe.portfolio.mapper.ProjectMapper;
 import com.emmanuelgabe.portfolio.repository.ProjectRepository;
 import com.emmanuelgabe.portfolio.repository.TagRepository;
+import com.emmanuelgabe.portfolio.service.impl.ProjectServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +23,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -31,16 +34,22 @@ class ProjectServiceTest {
     @Mock
     private TagRepository tagRepository;
 
+    @Mock
+    private ProjectMapper projectMapper;
+
     @InjectMocks
-    private ProjectService projectService;
+    private ProjectServiceImpl projectService;
 
     private Project testProject;
     private Tag testTag;
+    private ProjectResponse testProjectResponse;
 
     @BeforeEach
     void setUp() {
-        testTag = new Tag("Java", "#FF5733");
+        testTag = new Tag();
         testTag.setId(1L);
+        testTag.setName("Java");
+        testTag.setColor("#FF5733");
 
         testProject = new Project();
         testProject.setId(1L);
@@ -54,6 +63,43 @@ class ProjectServiceTest {
         testProject.setCreatedAt(LocalDateTime.now());
         testProject.setUpdatedAt(LocalDateTime.now());
         testProject.setTags(new HashSet<>(Collections.singletonList(testTag)));
+
+        // Create test ProjectResponse
+        testProjectResponse = new ProjectResponse();
+        testProjectResponse.setId(1L);
+        testProjectResponse.setTitle("Test Project");
+        testProjectResponse.setDescription("Test Description for project");
+        testProjectResponse.setTechStack("Java, Spring Boot");
+        testProjectResponse.setGithubUrl("https://github.com/test/project");
+        testProjectResponse.setImageUrl("https://example.com/image.jpg");
+        testProjectResponse.setDemoUrl("https://example.com/demo");
+        testProjectResponse.setFeatured(true);
+        testProjectResponse.setCreatedAt(testProject.getCreatedAt());
+        testProjectResponse.setUpdatedAt(testProject.getUpdatedAt());
+
+        // Mock projectMapper behavior (using lenient to avoid UnnecessaryStubbingException)
+        // Use thenAnswer to dynamically create responses based on input Project
+        lenient().when(projectMapper.toResponse(any(Project.class))).thenAnswer(invocation -> {
+            Project project = invocation.getArgument(0);
+            ProjectResponse response = new ProjectResponse();
+            response.setId(project.getId());
+            response.setTitle(project.getTitle());
+            response.setDescription(project.getDescription());
+            response.setTechStack(project.getTechStack());
+            response.setGithubUrl(project.getGithubUrl());
+            response.setImageUrl(project.getImageUrl());
+            response.setDemoUrl(project.getDemoUrl());
+            response.setFeatured(project.isFeatured());
+            response.setCreatedAt(project.getCreatedAt());
+            response.setUpdatedAt(project.getUpdatedAt());
+            if (project.getTags() != null && !project.getTags().isEmpty()) {
+                response.setTags(project.getTags().stream()
+                    .map(tag -> new com.emmanuelgabe.portfolio.dto.TagResponse(tag.getId(), tag.getName(), tag.getColor()))
+                    .collect(java.util.stream.Collectors.toSet()));
+            }
+            return response;
+        });
+        lenient().when(projectMapper.toEntity(any(CreateProjectRequest.class))).thenReturn(testProject);
     }
 
     @Test
@@ -123,7 +169,7 @@ class ProjectServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getTitle()).isEqualTo("New Project");
-        assertThat(result.getFeatured()).isFalse();
+        assertThat(result.isFeatured()).isFalse();
         verify(projectRepository, times(1)).save(any(Project.class));
     }
 
@@ -260,7 +306,7 @@ class ProjectServiceTest {
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getFeatured()).isTrue();
+        assertThat(result.get(0).isFeatured()).isTrue();
         verify(projectRepository, times(1)).findByFeaturedTrue();
     }
 

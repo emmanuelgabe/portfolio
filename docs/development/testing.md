@@ -1,12 +1,5 @@
 # Testing Guide
 
-**Document Type:** Guide
-**Version:** 1.0.0
-**Last Updated:** 2025-11-09
-**Status:** Active
-
----
-
 ## Table of Contents
 
 1. [Overview](#1-overview)
@@ -28,15 +21,6 @@ Unit testing framework for the Portfolio Application ensures code quality and pr
 | Backend   | JUnit 5 + Mockito | Gradle |
 | Frontend  | Jasmine | Karma |
 
-### 1.2 Test Organization
-
-```
-docs/development/
-├── testing.md                    # This file - overview and quick start
-├── backend-tests.md              # Detailed backend testing guide
-├── frontend-tests.md             # Detailed frontend testing guide
-├── testing-quick-ref.md          # Quick reference commands
-```
 
 ---
 
@@ -73,30 +57,28 @@ npm test -- --watch=false --browsers=ChromeHeadlessCI
 
 ## 3. Test Coverage
 
-### 3.1 Current Status
+### 3.1 View Current Coverage
 
-| Layer | Component | Tests | Status |
-|-------|-----------|-------|--------|
-| Backend | HealthService | 9 | PASS |
-| Backend | HealthController | 8 | PASS |
-| Backend | CustomHealthIndicator | 7 | PASS |
-| Frontend | AppComponent | 11 | PASS |
-| **Total** | **4 components** | **35** | **PASS** |
+**Backend:**
+```bash
+cd portfolio-backend
+./gradlew test jacocoTestReport
+# Open: build/reports/jacoco/test/html/index.html
+```
 
-### 3.2 Coverage Metrics
+**Frontend:**
+```bash
+cd portfolio-frontend
+npm test -- --code-coverage --watch=false
+# Open: coverage/portfolio-frontend/index.html
+```
 
-- **Backend:** 100% of critical service classes
-- **Frontend:** 100% of main application component
-- **Overall:** Core health check functionality fully tested
+### 3.2 Coverage Requirements
 
-### 3.3 Coverage Goals
+Coverage thresholds are enforced by CI/CD.
 
-| Layer | Minimum Coverage |
-|-------|------------------|
-| Critical paths | 100% |
-| Service layer | 90%+ |
-| Controllers/Components | 80%+ |
-| Utilities | 70%+ |
+**Backend configuration:** See `portfolio-backend/build.gradle` lines 136-167
+**Frontend configuration:** See `karma.conf.js` (if configured)
 
 ---
 
@@ -171,20 +153,3 @@ Tests are integrated into GitHub Actions workflow (`.github/workflows/ci-cd.yml`
 ```
 
 **Note:** Tests are currently disabled in pipeline but can be enabled by uncommenting these steps.
-
----
-
-
-
-## Change History
-
-| Version | Date       | Changes |
-|---------|------------|---------|
-| 1.0.0   | 2025-11-09 | Initial release |
-
----
-
-**Document Type:** Guide
-**Version:** 1.0.0
-**Last Updated:** 2025-11-09
-**Status:** Active

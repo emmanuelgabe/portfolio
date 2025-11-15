@@ -1,10 +1,5 @@
 # Health Check Operations Guide
 
-**Document Type:** Operational Guide
-**Version:** 1.1.0
-**Last Updated:** 2025-11-10
-**Status:** Active
-
 ---
 
 ## Table of Contents
@@ -264,57 +259,3 @@ Repository → Actions → Health Check CI → Run workflow
 Select the branch to test (typically `develop`)
 
 ---
-
-## 6. System Architecture
-
-### 6.1 Health Check Flow
-
-```
-USER
-  │
-  │ http://localhost:8081
-  ▼
-NGINX (Port 8081)
-  • /health          → Simple check
-  • /health/full     → Proxy to backend
-  • /health/frontend → Proxy to frontend:4200
-  • /health/backend  → Proxy to backend:8080
-  │
-  ├─→ Frontend (Port 4200)
-  │   /health.json
-  │
-  └─→ Backend (Port 8080)
-      /actuator/health
-      /api/health/ping
-      /api/health/db
-      /api/health/status
-      │
-      └─→ PostgreSQL (Port 5432)
-          pg_isready
-```
-
----
-
-## 7. Pre-Deployment Checklist
-
-- [ ] All Docker containers show status `(healthy)`
-- [ ] Script `./test-health.sh local` executes successfully
-- [ ] Endpoint `/health/full` returns status `healthy`
-- [ ] GitHub Actions workflow completes without errors
-- [ ] No critical errors in application logs
-
----
-
-## Change History
-
-| Version | Date       | Changes |
-|---------|------------|---------|
-| 1.1.0   | 2025-11-10 | Updated health check configuration: Changed frontend to use curl, increased timeouts (90s start_period, 5 retries), disabled frontend health check in local dev mode, restricted Health Check CI workflow to develop branch only |
-| 1.0.0   | 2025-11-09 | Initial release |
-
----
-
-**Document Type:** Operational Guide
-**Version:** 1.1.0
-**Last Updated:** 2025-11-10
-**Status:** Active

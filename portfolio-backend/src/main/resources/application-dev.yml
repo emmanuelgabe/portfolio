@@ -5,7 +5,7 @@ spring:
       ddl-auto: validate  # Only validate schema, Flyway handles migrations
     open-in-view: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true  # Show SQL queries in console for debugging
+    show-sql: true
   application:
     name: portfolio-backend
   datasource:
@@ -30,7 +30,20 @@ logging:
     org.hibernate: INFO
     com.emmanuelgabe.portfolio: DEBUG
 
-# Development specific configs
+# Springdoc OpenAPI (Swagger UI)
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+  show-actuator: true
+
+
 management:
   endpoints:
     web:

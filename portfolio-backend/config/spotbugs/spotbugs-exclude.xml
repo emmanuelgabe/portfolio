@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude generated code -->
+    <Match>
+        <Class name="~.*MapperImpl"/>
+    </Match>
+
+    <!-- Exclude build directory -->
+    <Match>
+        <Source name="~.*/build/generated/.*"/>
+    </Match>
+
+    <!-- Exclude entities - JPA entities often trigger false positives -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.entity.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- Exclude DTOs - DTOs are data carriers -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.dto.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- Exclude configuration classes -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.config.*"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+
+    <!-- Exclude test classes from certain checks -->
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+
+    <!-- Exclude main application class -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.PortfolioBackendApplication"/>
+    </Match>
+
+    <!-- Common false positives for Spring Boot applications -->
+    <Match>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+        <Or>
+            <Annotation name="org.springframework.beans.factory.annotation.Autowired"/>
+            <Annotation name="org.springframework.beans.factory.annotation.Value"/>
+            <Annotation name="lombok.RequiredArgsConstructor"/>
+        </Or>
+    </Match>
+</FindBugsFilter>

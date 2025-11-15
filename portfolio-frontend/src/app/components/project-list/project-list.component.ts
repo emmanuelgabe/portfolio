@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProjectCardComponent } from '../project-card/project-card.component';
 import { ProjectService } from '../../services/project.service';
 import { ProjectResponse } from '../../models';
+import { LoggerService } from '../../services/logger.service';
 
 @Component({
   selector: 'app-project-list',
@@ -13,6 +14,7 @@ import { ProjectResponse } from '../../models';
 })
 export class ProjectListComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
+  private readonly logger = inject(LoggerService);
 
   projects: ProjectResponse[] = [];
   isLoading = true;
@@ -35,7 +37,7 @@ export class ProjectListComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error loading projects:', err);
+        this.logger.error('[HTTP_ERROR] Failed to load projects', { error: err.message || err });
         this.error = 'Failed to load projects. Please try again later.';
         this.isLoading = false;
       }

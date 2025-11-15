@@ -5,7 +5,13 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateSkillRequest {
 
     @Size(min = 2, max = 50, message = "Skill name must be between 2 and 50 characters")
@@ -25,66 +31,4 @@ public class UpdateSkillRequest {
 
     @Min(value = 0, message = "Display order must be at least 0")
     private Integer displayOrder;
-
-    // Constructeurs
-    public UpdateSkillRequest() {
-    }
-
-    public UpdateSkillRequest(String name, String icon, String color, SkillCategory category, Integer level, Integer displayOrder) {
-        this.name = name;
-        this.icon = icon;
-        this.color = color;
-        this.category = category;
-        this.level = level;
-        this.displayOrder = displayOrder;
-    }
-
-    // Getters et Setters
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public SkillCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(SkillCategory category) {
-        this.category = category;
-    }
-
-    public Integer getLevel() {
-        return level;
-    }
-
-    public void setLevel(Integer level) {
-        this.level = level;
-    }
-
-    public Integer getDisplayOrder() {
-        return displayOrder;
-    }
-
-    public void setDisplayOrder(Integer displayOrder) {
-        this.displayOrder = displayOrder;
-    }
 }

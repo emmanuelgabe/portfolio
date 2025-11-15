@@ -69,7 +69,7 @@ jobs:
           echo "Testing Full health chain..."
           curl -f http://localhost:8081/health/full || exit 1
 
-          echo "✓ All endpoints are healthy!"
+          echo "[SUCCESS] All endpoints are healthy!"
 
       - name: Show container logs on failure
         if: failure()

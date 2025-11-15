@@ -35,7 +35,7 @@ case $ENVIRONMENT in
     FRONTEND_URL="http://localhost:80"
     ;;
   *)
-    echo -e "${RED}❌ Invalid environment: $ENVIRONMENT${NC}"
+    echo -e "${RED}[ERROR] Invalid environment: $ENVIRONMENT${NC}"
     echo "Usage: $0 [local|staging|prod]"
     exit 1
     ;;
@@ -61,40 +61,40 @@ test_endpoint() {
 
   if response=$(curl -s -o /dev/null -w "%{http_code}" --max-time $TIMEOUT "$url" 2>/dev/null); then
     if [ "$response" -eq "$expected_status" ]; then
-      echo -e "${GREEN}✓ PASS${NC} (HTTP $response)"
+      echo -e "${GREEN}[PASS]${NC} (HTTP $response)"
       ((PASSED++))
       return 0
     else
-      echo -e "${RED}✗ FAIL${NC} (HTTP $response, expected $expected_status)"
+      echo -e "${RED}[FAIL]${NC} (HTTP $response, expected $expected_status)"
       ((FAILED++))
       return 1
     fi
   else
-    echo -e "${RED}✗ FAIL${NC} (Connection failed or timeout)"
+    echo -e "${RED}[FAIL]${NC} (Connection failed or timeout)"
     ((FAILED++))
     return 1
   fi
 }
 
 # Run tests
-echo -e "${YELLOW}📡 Testing Nginx endpoints...${NC}"
+echo -e "${YELLOW}[TEST] Testing Nginx endpoints...${NC}"
 test_endpoint "Nginx health" "$BASE_URL/health"
 echo ""
 
-echo -e "${YELLOW}🖥️  Testing Frontend...${NC}"
+echo -e "${YELLOW}[TEST] Testing Frontend...${NC}"
 test_endpoint "Frontend static health" "$FRONTEND_URL/health.json"
 echo ""
 
-echo -e "${YELLOW}⚙️  Testing Backend...${NC}"
+echo -e "${YELLOW}[TEST] Testing Backend...${NC}"
 test_endpoint "Backend ping" "$BACKEND_URL/api/health/ping"
 test_endpoint "Backend actuator" "$BACKEND_URL/actuator/health"
 echo ""
 
-echo -e "${YELLOW}🗄️  Testing Database connection...${NC}"
+echo -e "${YELLOW}[TEST] Testing Database connection...${NC}"
 test_endpoint "Database health" "$BACKEND_URL/api/health/db"
 echo ""
 
-echo -e "${YELLOW}🔗 Testing full chain...${NC}"
+echo -e "${YELLOW}[TEST] Testing full chain...${NC}"
 test_endpoint "Full health check" "$BASE_URL/health/full"
 echo ""
 
@@ -107,11 +107,11 @@ echo -e "  ${RED}Failed: $FAILED${NC}"
 echo ""
 
 if [ $FAILED -eq 0 ]; then
-  echo -e "${GREEN}✓ All health checks passed!${NC}"
+  echo -e "${GREEN}[SUCCESS] All health checks passed!${NC}"
   echo ""
   exit 0
 else
-  echo -e "${RED}✗ Some health checks failed!${NC}"
+  echo -e "${RED}[FAILURE] Some health checks failed!${NC}"
   echo ""
   exit 1
 fi

@@ -28,7 +28,13 @@ logging:
     org.springframework.web: WARN
     org.hibernate: ERROR
 
-# Production specific configs
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+
 management:
   endpoints:
     web:

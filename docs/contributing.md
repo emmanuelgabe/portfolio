@@ -1,11 +1,5 @@
 # Documentation Contribution Guide
 
-**Version:** 1.0.0
-**Last Updated:** 2025-11-09
-**Status:** Active
-
----
-
 ## 1. Overview
 
 This guide defines the minimal standards for contributing to the Portfolio Application documentation. For comprehensive style guidelines, refer to the [Google Developer Documentation Style Guide](https://developers.google.com/style).
@@ -21,11 +15,6 @@ Every documentation file must start with:
 
 ```markdown
 # Document Title
-
-**Document Type:** Guide | Reference | Operational | Deployment
-**Version:** X.Y.Z
-**Last Updated:** YYYY-MM-DD
-**Status:** Active | Draft | Deprecated
 
 ## Table of Contents
 
@@ -169,26 +158,14 @@ Expected response:
 
 ---
 
-## 5. Version Control
 
-### 5.1 Document Versioning
 
-Follow Semantic Versioning:
 
-- **Major (X.0.0):** Complete rewrite
-- **Minor (X.Y.0):** New sections
-- **Patch (X.Y.Z):** Corrections, clarifications
 
-### 5.2 Change History
 
-Include at document end:
 
 ```markdown
-## Change History
 
-| Version | Date       | Changes |
-|---------|------------|---------|
-| 1.0.0   | 2025-11-09 | Initial release |
 ```
 
 ---
@@ -209,7 +186,6 @@ Before submitting documentation changes:
 3. **Review warnings:** Consider addressing warning-level issues (recommended)
 
 4. **Verify formatting:**
-   - Required header present
    - Section numbering correct
    - Code blocks have language specified
    - Links are valid
@@ -228,60 +204,3 @@ The CI/CD pipeline automatically validates documentation:
 **Workflow file:** `.github/workflows/vale-docs.yml`
 
 ---
-
-## 7. Troubleshooting Vale
-
-### 7.1 Common Issues
-
-**False positives for technical terms:**
-
-Add the term to `.vale/styles/Vocab/Portfolio/accept.txt`:
-
-```
-Angular
-PostgreSQL
-MyCustomTerm
-```
-
-**Rule too strict:**
-
-Adjust severity in `.vale.ini`:
-
-```ini
-Google.Acronyms = suggestion  # Change from warning to suggestion
-```
-
-**Vale not running in CI/CD:**
-
-1. Check workflow triggers in `.github/workflows/vale-docs.yml`
-2. Verify file paths match what was changed
-3. Check GitHub Actions logs for errors
-
----
-
-## 8. External References
-
-Primary style authority: [Google Developer Documentation Style Guide](https://developers.google.com/style)
-
-**Key Sections to Review:**
-- [Tone and Content](https://developers.google.com/style/tone)
-- [Language and Grammar](https://developers.google.com/style/language)
-- [Formatting](https://developers.google.com/style/formatting)
-- [Computer Interfaces](https://developers.google.com/style/ui-elements)
-- [Code Samples](https://developers.google.com/style/code-samples)
-
----
-
-## Change History
-
-| Version | Date       | Changes |
-|---------|------------|---------|
-| 1.1.0   | 2025-11-09 | Added Vale integration and automated validation |
-| 1.0.0   | 2025-11-09 | Initial release |
-
----
-
-**Document Type:** Reference
-**Version:** 1.1.0
-**Last Updated:** 2025-11-09
-**Status:** Active

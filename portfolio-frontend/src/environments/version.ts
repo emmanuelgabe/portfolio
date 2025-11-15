@@ -1,4 +1,4 @@
 // This file is auto-generated. Do not edit manually.
-// Generated on: 2025-11-11T21:44:31.672Z
+// Generated on: 2025-11-15T16:42:03.701Z
 
-export const VERSION = 'a758f76-dirty';
+export const VERSION = '0.0.1-SNAPSHOT';

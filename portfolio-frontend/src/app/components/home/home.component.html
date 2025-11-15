@@ -4,34 +4,27 @@
     <div class="row align-items-center">
       <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0">
         <h1 class="display-3 fw-bold mb-3">
-          Hi, I'm <span class="text-primary">Your Name</span>
+          Bonjour, je suis <span class="text-primary">Emmanuel Gabe</span>
         </h1>
-        <h2 class="h3 text-muted mb-4">Full Stack Developer</h2>
+        <h2 class="h3 text-muted mb-4">Développeur Full Stack</h2>
         <p class="lead mb-4">
-          I build modern, scalable web applications using Angular, Spring Boot,
-          and cutting-edge technologies. Passionate about clean code, best practices,
-          and creating exceptional user experiences.
+          Je crée des applications web modernes et évolutives avec Angular, Spring Boot
+          et les technologies de pointe. Passionné par le code propre, les bonnes pratiques
+          et la création d'expériences utilisateur exceptionnelles.
         </p>
         <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
           <a href="#projects" class="btn btn-primary btn-lg">
             <i class="bi bi-folder2-open me-2"></i>
-            View My Work
+            Voir mes projets
           </a>
           <a href="#contact" class="btn btn-outline-primary btn-lg">
             <i class="bi bi-envelope me-2"></i>
-            Get In Touch
+            Me contacter
           </a>
         </div>
       </div>
       <div class="col-lg-6 text-center">
         <div class="hero-image-container">
-          <img
-            src="assets/images/developer-illustration.svg"
-            alt="Developer Illustration"
-            class="img-fluid hero-image"
-            onerror="this.style.display='none'"
-          />
-          <!-- Fallback if image doesn't exist -->
           <div class="hero-placeholder">
             <i class="bi bi-person-circle display-1 text-primary"></i>
           </div>
@@ -47,21 +40,6 @@
     <div class="text-center mb-5">
       <h2 class="display-5 fw-bold mb-3">À propos de moi</h2>
       <p class="lead text-muted">Développeur passionné par la création d'applications web modernes</p>
-    </div>
-
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <p class="lead">
-          Développeur Full Stack avec une expertise en Angular et Spring Boot, je suis passionné par la création
-          d'applications web performantes et évolutives. Mon approche se concentre sur la qualité du code,
-          les bonnes pratiques et l'expérience utilisateur.
-        </p>
-        <p>
-          Fort d'une expérience dans le développement d'applications complexes, je maîtrise l'ensemble de la stack
-          de développement moderne, de la conception à la mise en production. J'aime relever des défis techniques
-          et apprendre de nouvelles technologies pour rester à la pointe de l'innovation.
-        </p>
-      </div>
     </div>
   </div>
 </section>
@@ -90,12 +68,15 @@
   </div>
 </section>
 
-<!-- Featured Projects Section -->
-<section id="projects" class="featured-projects-section py-5">
+<!-- Projects Section -->
+<section id="projects" class="projects-section py-5">
   <div class="container">
     <div class="text-center mb-5">
       <h2 class="display-5 fw-bold mb-3">Projets Réalisés</h2>
-      <p class="lead text-muted">Découvrez mes meilleures réalisations</p>
+      <p class="lead text-muted">
+        <span *ngIf="!showAllProjects">Découvrez mes meilleures réalisations</span>
+        <span *ngIf="showAllProjects">Tous mes projets</span>
+      </p>
     </div>
 
     <!-- Loading Spinner -->
@@ -112,25 +93,43 @@
       {{ projectsError }}
     </div>
 
-    <!-- No Featured Projects -->
-    <div *ngIf="!isLoadingProjects && !projectsError && !hasFeaturedProjects" class="text-center py-5">
+    <!-- No Projects -->
+    <div *ngIf="!isLoadingProjects && !projectsError && !hasProjects" class="text-center py-5">
       <i class="bi bi-inbox display-3 text-muted"></i>
-      <p class="lead mt-3 text-muted">Aucun projet mis en avant pour le moment</p>
+      <p class="lead mt-3 text-muted">Aucun projet pour le moment</p>
     </div>
 
-    <!-- Featured Projects Grid -->
-    <div *ngIf="!isLoadingProjects && !projectsError && hasFeaturedProjects" class="row g-4 mb-4">
-      <div class="col-12 col-md-6 col-lg-4" *ngFor="let project of featuredProjects">
-        <app-project-card [project]="project"></app-project-card>
+    <!-- Projects Grid -->
+    <div *ngIf="!isLoadingProjects && !projectsError && hasProjects">
+      <!-- Featured Projects Section -->
+      <div *ngIf="featuredProjects.length > 0" class="mb-4">
+        <div class="row g-4">
+          <div class="col-12 col-md-6 col-lg-4" *ngFor="let project of featuredProjects">
+            <app-project-card [project]="project"></app-project-card>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- View All Projects Button -->
-    <div *ngIf="hasFeaturedProjects" class="text-center mt-5">
-      <a routerLink="/projects" class="btn btn-outline-primary btn-lg">
-        <i class="bi bi-grid-3x3-gap me-2"></i>
-        Voir tous les projets
-      </a>
+      <!-- Other Projects Section (shown when expanded) -->
+      <div *ngIf="showAllProjects && otherProjects.length > 0" class="mt-5">
+        <div class="row g-4">
+          <div class="col-12 col-md-6 col-lg-4" *ngFor="let project of otherProjects">
+            <app-project-card [project]="project"></app-project-card>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle Button -->
+      <div *ngIf="hasMoreProjects" class="text-center mt-5">
+        <button
+          (click)="toggleShowAllProjects()"
+          class="btn btn-outline-primary btn-lg"
+        >
+          <i [class]="showAllProjects ? 'bi bi-chevron-up me-2' : 'bi bi-grid-3x3-gap me-2'"></i>
+          <span *ngIf="!showAllProjects">Voir tous les projets ({{ allProjects.length }})</span>
+          <span *ngIf="showAllProjects">Voir moins</span>
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -171,8 +170,8 @@
               <i class="bi bi-envelope display-4 text-primary mb-3"></i>
               <h5>Email</h5>
               <p class="mb-0">
-                <a href="mailto:contact@example.com" class="text-decoration-none">
-                  contact@example.com
+                <a href="mailto:contact@emmanuelgabe.com" class="text-decoration-none">
+                  contact@emmanuelgabe.com
                 </a>
               </p>
             </div>
@@ -182,7 +181,7 @@
               <i class="bi bi-linkedin display-4 text-primary mb-3"></i>
               <h5>LinkedIn</h5>
               <p class="mb-0">
-                <a href="https://linkedin.com/in/yourprofile" target="_blank" class="text-decoration-none">
+                <a href="https://linkedin.com/in/egabe" target="_blank" class="text-decoration-none">
                   Mon profil
                 </a>
               </p>
@@ -193,8 +192,8 @@
               <i class="bi bi-github display-4 text-primary mb-3"></i>
               <h5>GitHub</h5>
               <p class="mb-0">
-                <a href="https://github.com/yourusername" target="_blank" class="text-decoration-none">
-                  @yourusername
+                <a href="https://github.com/emmanuelgabe" target="_blank" class="text-decoration-none">
+                  @emmanuelgabe
                 </a>
               </p>
             </div>

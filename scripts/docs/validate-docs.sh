@@ -48,7 +48,7 @@ if [ ! -d ".vale/styles/Google" ]; then
     unzip -q Google.zip -d Google
     rm Google.zip
     cd ../..
-    echo -e "${GREEN}✓ Google style guide downloaded${NC}"
+    echo -e "${GREEN}[SUCCESS] Google style guide downloaded${NC}"
     echo ""
 fi
 
@@ -58,11 +58,11 @@ echo ""
 
 if vale --config=.vale.ini "$DOC_PATH"; then
     echo ""
-    echo -e "${GREEN}✓ Documentation validation passed!${NC}"
+    echo -e "${GREEN}[SUCCESS] Documentation validation passed!${NC}"
     exit 0
 else
     echo ""
-    echo -e "${YELLOW}⚠ Documentation has suggestions or warnings${NC}"
+    echo -e "${YELLOW}[WARN] Documentation has suggestions or warnings${NC}"
     echo ""
     echo "To ignore specific rules, update .vale.ini"
     echo "To add accepted terms, update .vale/styles/Vocab/Portfolio/accept.txt"

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { NavbarComponent } from './components/navbar/navbar';
+import { LoggerService } from './services/logger.service';
 
 @Component({
   selector: 'app-root',
@@ -11,9 +12,10 @@ import { NavbarComponent } from './components/navbar/navbar';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  private readonly logger = inject(LoggerService);
   version = environment.version;
 
   ngOnInit(): void {
-    console.log(`Portfolio Application ${this.version}`);
+    this.logger.info('[APP_INIT] Application started', { version: this.version });
   }
 }

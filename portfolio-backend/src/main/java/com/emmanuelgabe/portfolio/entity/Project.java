@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,10 +13,16 @@ import java.util.Set;
 
 @Entity
 @Table(name = "projects")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(exclude = "tags")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank(message = "Title is required")
@@ -54,7 +61,7 @@ public class Project {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
-    private Boolean featured = false;
+    private boolean featured = false;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
@@ -64,142 +71,59 @@ public class Project {
     )
     private Set<Tag> tags = new HashSet<>();
 
-    // Constructeurs
-    public Project() {
-    }
-
-    public Project(String title, String description, String techStack) {
-        this.title = title;
-        this.description = description;
-        this.techStack = techStack;
-    }
-
-    // Getters et Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTechStack() {
-        return techStack;
-    }
-
-    public void setTechStack(String techStack) {
-        this.techStack = techStack;
-    }
-
-    public String getGithubUrl() {
-        return githubUrl;
-    }
-
-    public void setGithubUrl(String githubUrl) {
-        this.githubUrl = githubUrl;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getDemoUrl() {
-        return demoUrl;
-    }
-
-    public void setDemoUrl(String demoUrl) {
-        this.demoUrl = demoUrl;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Boolean getFeatured() {
-        return featured;
-    }
-
-    public void setFeatured(Boolean featured) {
-        this.featured = featured;
-    }
-
-    public Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
-
     // Helper methods for managing bidirectional relationship
     public void addTag(Tag tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("Tag cannot be null");
+        }
         this.tags.add(tag);
         tag.getProjects().add(this);
     }
 
     public void removeTag(Tag tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("Tag cannot be null");
+        }
         this.tags.remove(tag);
         tag.getProjects().remove(this);
     }
 
-    @Override
-    public String toString() {
-        return "Project{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", techStack='" + techStack + '\'' +
-                ", githubUrl='" + githubUrl + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", demoUrl='" + demoUrl + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", featured=" + featured +
-                '}';
+    /**
+     * Business logic: Mark project as featured
+     * A featured project must have tags and ideally an image and demo URL
+     * @throws IllegalStateException if project doesn't meet featured criteria
+     */
+    public void markAsFeatured() {
+        validateForFeatured();
+        this.featured = true;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Project)) return false;
-        Project project = (Project) o;
-        return id != null && id.equals(project.getId());
+    /**
+     * Business logic: Remove featured status from project
+     */
+    public void unfeature() {
+        this.featured = false;
     }
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    /**
+     * Business validation: Check if project can be featured
+     * @throws IllegalStateException if project doesn't meet criteria
+     */
+    private void validateForFeatured() {
+        if (this.tags == null || this.tags.isEmpty()) {
+            throw new IllegalStateException("Cannot feature project without tags");
+        }
+        if (this.imageUrl == null || this.imageUrl.trim().isEmpty()) {
+            throw new IllegalStateException("Cannot feature project without an image URL");
+        }
+    }
+
+    /**
+     * Business logic: Check if project can be marked as featured
+     * @return true if project meets featured criteria
+     */
+    public boolean canBeFeatured() {
+        return this.tags != null && !this.tags.isEmpty()
+                && this.imageUrl != null && !this.imageUrl.trim().isEmpty();
     }
 }

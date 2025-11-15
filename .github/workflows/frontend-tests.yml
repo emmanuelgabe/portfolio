@@ -54,7 +54,7 @@ jobs:
           echo "## Frontend Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -d "coverage" ]; then
-            echo "✅ Tests executed successfully with coverage" >> $GITHUB_STEP_SUMMARY
+            echo "[SUCCESS] Tests executed successfully with coverage" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Details:**" >> $GITHUB_STEP_SUMMARY
             echo "- Framework: Karma + Jasmine" >> $GITHUB_STEP_SUMMARY
@@ -63,7 +63,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "View coverage reports in artifacts." >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Test execution failed" >> $GITHUB_STEP_SUMMARY
+            echo "[ERROR] Test execution failed" >> $GITHUB_STEP_SUMMARY
           fi
 
   lint:
@@ -128,15 +128,15 @@ jobs:
       - name: Check build output
         run: |
           if [ -d "dist" ]; then
-            echo "✅ Build successful"
+            echo "[SUCCESS] Build successful"
             ls -lah dist/
           else
-            echo "❌ Build failed - no dist folder"
+            echo "[ERROR] Build failed - no dist folder"
             exit 1
           fi
 
       - name: Build Summary
         run: |
-          echo "## Frontend Build Complete ✓" >> $GITHUB_STEP_SUMMARY
+          echo "## Frontend Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Angular application built successfully for production." >> $GITHUB_STEP_SUMMARY

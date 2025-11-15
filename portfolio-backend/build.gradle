@@ -2,6 +2,9 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'checkstyle'
+    id 'com.github.spotbugs' version '6.0.26'
+    id 'jacoco'
 }
 
 group = 'com.emmanuelgabe'
@@ -10,7 +13,7 @@ description = 'portfolio-backend'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -24,6 +27,16 @@ repositories {
 }
 
 dependencies {
+    // Security: Force secure versions of transitive dependencies to fix CVEs
+    constraints {
+        implementation('org.apache.commons:commons-lang3:3.18.0') {
+            because 'CVE-2025-48924 fixed in 3.18.0+'
+        }
+        implementation('org.apache.commons:commons-compress:1.26.0') {
+            because 'CVE-2024-25710 and CVE-2024-26308 fixed in 1.26.0+'
+        }
+    }
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -31,13 +44,138 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
+
+    // Documentation
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+
+    // Mapping
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    // Logging
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
+
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'io.rest-assured:rest-assured:5.5.0'
+    testImplementation 'org.testcontainers:testcontainers:1.20.4'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+// Checkstyle Configuration
+checkstyle {
+    toolVersion = '10.20.2'
+    configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+    ignoreFailures = false
+    maxWarnings = 0
+}
+
+checkstyleMain {
+    source = 'src/main/java'
+}
+
+checkstyleTest {
+    source = 'src/test/java'
+}
+
+// SpotBugs Configuration
+spotbugs {
+    toolVersion = '4.8.6'
+    ignoreFailures = false
+    effort = 'max'
+    reportLevel = 'medium'
+    excludeFilter = file("${rootDir}/config/spotbugs/spotbugs-exclude.xml")
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+    reports {
+        html {
+            enabled = true
+            outputLocation = file("$buildDir/reports/spotbugs/${name}.html")
+        }
+        xml {
+            enabled = false
+        }
+    }
+}
+
+// JaCoCo Configuration
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/config/**',
+                '**/entity/**',
+                '**/dto/**',
+                '**/exception/**',
+                '**/mapper/**',
+                '**/version/**',
+                '**/health/**',
+                '**/PortfolioBackendApplication.class'
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
+            }
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/config/**',
+                '**/entity/**',
+                '**/dto/**',
+                '**/exception/**',
+                '**/mapper/**',
+                '**/version/**',
+                '**/health/**',
+                '**/PortfolioBackendApplication.class'
+            ])
+        }))
+    }
+}
+
+check {
+    dependsOn jacocoTestCoverageVerification
 }
