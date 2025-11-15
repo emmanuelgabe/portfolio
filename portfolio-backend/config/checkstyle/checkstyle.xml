@@ -25,11 +25,19 @@
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
         <module name="MemberName"/>
-        <module name="MethodName"/>
+        <module name="MethodName">
+            <property name="id" value="MethodNameCheck"/>
+        </module>
         <module name="PackageName"/>
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
+
+        <!-- Suppress MethodName check for test files (allow underscores) -->
+        <module name="SuppressionXpathSingleFilter">
+            <property name="checks" value="MethodNameCheck"/>
+            <property name="query" value="//CLASS_DEF[./IDENT[matches(@text, '.*Test$')]]//METHOD_DEF/IDENT"/>
+        </module>
 
         <!-- Imports -->
         <module name="AvoidStarImport"/>
