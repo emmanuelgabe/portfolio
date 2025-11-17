@@ -20,6 +20,6 @@ public interface UserMapper {
     @Mapping(target = "refreshToken", ignore = true)
     @Mapping(target = "tokenType", ignore = true)
     @Mapping(target = "expiresIn", ignore = true)
-    @Mapping(source = "role", target = "role")
+    @Mapping(target = "role", expression = "java(user.getRole().name())")
     AuthResponse toAuthResponse(User user);
 }
