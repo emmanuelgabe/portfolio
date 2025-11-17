@@ -7,7 +7,7 @@
   "useTabs": false,
   "arrowParens": "always",
   "bracketSpacing": true,
-  "endOfLine": "lf",
+  "endOfLine": "auto",
   "overrides": [
     {
       "files": "*.html",

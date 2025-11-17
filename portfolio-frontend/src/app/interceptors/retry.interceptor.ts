@@ -32,7 +32,7 @@ export const retryInterceptor: HttpInterceptorFn = (req, next) => {
             attempt: retryCount + 1,
             maxRetries: 3,
             delayMs: delayMs,
-            errorStatus: error.status
+            errorStatus: error.status,
           });
 
           return timer(delayMs);
@@ -40,7 +40,7 @@ export const retryInterceptor: HttpInterceptorFn = (req, next) => {
 
         // Don't retry client errors (4xx)
         throw error;
-      }
+      },
     })
   );
 };

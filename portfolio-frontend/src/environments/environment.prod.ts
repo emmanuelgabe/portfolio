@@ -4,5 +4,5 @@ export const environment = {
   production: true,
   apiUrl: 'https://emmanuelgabe.com',
   version: VERSION,
-  logLevel: 'INFO'
+  logLevel: 'INFO',
 };

@@ -23,7 +23,7 @@ describe('ProjectListComponent', () => {
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
         featured: true,
-        tags: [{ id: 1, name: 'Angular', color: '#dd0031' }]
+        tags: [{ id: 1, name: 'Angular', color: '#dd0031' }],
       },
       {
         id: 2,
@@ -35,8 +35,8 @@ describe('ProjectListComponent', () => {
         createdAt: '2024-01-02T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
         featured: false,
-        tags: [{ id: 2, name: 'React', color: '#61dafb' }]
-      }
+        tags: [{ id: 2, name: 'React', color: '#61dafb' }],
+      },
     ];
 
     mockProjectService = jasmine.createSpyObj('ProjectService', ['getAll']);
@@ -44,9 +44,7 @@ describe('ProjectListComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProjectListComponent],
-      providers: [
-        { provide: ProjectService, useValue: mockProjectService }
-      ]
+      providers: [{ provide: ProjectService, useValue: mockProjectService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectListComponent);

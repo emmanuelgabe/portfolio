@@ -3,15 +3,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import {
-  ProjectResponse,
-  CreateProjectRequest,
-  UpdateProjectRequest
-} from '../models';
+import { ProjectResponse, CreateProjectRequest, UpdateProjectRequest } from '../models';
 import { LoggerService } from './logger.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProjectService {
   private readonly http = inject(HttpClient);
@@ -26,13 +22,13 @@ export class ProjectService {
     this.logger.debug('[HTTP_REQUEST] Fetching all projects');
 
     return this.http.get<ProjectResponse[]>(this.apiUrl).pipe(
-      tap(projects => {
+      tap((projects) => {
         this.logger.info('[HTTP_SUCCESS] Projects fetched', { count: projects.length });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to fetch projects', {
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -48,14 +44,17 @@ export class ProjectService {
     this.logger.debug('[HTTP_REQUEST] Fetching project', { id });
 
     return this.http.get<ProjectResponse>(`${this.apiUrl}/${id}`).pipe(
-      tap(project => {
-        this.logger.debug('[HTTP_SUCCESS] Project fetched', { id: project.id, title: project.title });
+      tap((project) => {
+        this.logger.debug('[HTTP_SUCCESS] Project fetched', {
+          id: project.id,
+          title: project.title,
+        });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to fetch project', {
           id,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -71,17 +70,17 @@ export class ProjectService {
     this.logger.info('[HTTP_REQUEST] Creating project', { title: request.title });
 
     return this.http.post<ProjectResponse>(this.apiUrl, request).pipe(
-      tap(project => {
+      tap((project) => {
         this.logger.info('[HTTP_SUCCESS] Project created', {
           id: project.id,
-          title: project.title
+          title: project.title,
         });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to create project', {
           title: request.title,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -98,17 +97,17 @@ export class ProjectService {
     this.logger.info('[HTTP_REQUEST] Updating project', { id });
 
     return this.http.put<ProjectResponse>(`${this.apiUrl}/${id}`, request).pipe(
-      tap(project => {
+      tap((project) => {
         this.logger.info('[HTTP_SUCCESS] Project updated', {
           id: project.id,
-          title: project.title
+          title: project.title,
         });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to update project', {
           id,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -127,11 +126,11 @@ export class ProjectService {
       tap(() => {
         this.logger.info('[HTTP_SUCCESS] Project deleted', { id });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to delete project', {
           id,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -146,13 +145,13 @@ export class ProjectService {
     this.logger.debug('[HTTP_REQUEST] Fetching featured projects');
 
     return this.http.get<ProjectResponse[]>(`${this.apiUrl}/featured`).pipe(
-      tap(projects => {
+      tap((projects) => {
         this.logger.info('[HTTP_SUCCESS] Featured projects fetched', { count: projects.length });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to fetch featured projects', {
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -169,17 +168,17 @@ export class ProjectService {
 
     const params = new HttpParams().set('title', title);
     return this.http.get<ProjectResponse[]>(`${this.apiUrl}/search/title`, { params }).pipe(
-      tap(projects => {
+      tap((projects) => {
         this.logger.info('[HTTP_SUCCESS] Projects search completed', {
           title,
-          count: projects.length
+          count: projects.length,
         });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to search projects by title', {
           title,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -196,17 +195,17 @@ export class ProjectService {
 
     const params = new HttpParams().set('technology', technology);
     return this.http.get<ProjectResponse[]>(`${this.apiUrl}/search/technology`, { params }).pipe(
-      tap(projects => {
+      tap((projects) => {
         this.logger.info('[HTTP_SUCCESS] Technology search completed', {
           technology,
-          count: projects.length
+          count: projects.length,
         });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to search projects by technology', {
           technology,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })

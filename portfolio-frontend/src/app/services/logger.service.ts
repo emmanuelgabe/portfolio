@@ -7,7 +7,7 @@ export enum LogLevel {
   INFO = 2,
   WARN = 3,
   ERROR = 4,
-  FATAL = 5
+  FATAL = 5,
 }
 
 /**
@@ -15,7 +15,7 @@ export enum LogLevel {
  * Provides log level filtering based on environment configuration
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoggerService {
   private readonly levelMap: Record<string, LogLevel> = {
@@ -24,7 +24,7 @@ export class LoggerService {
     INFO: LogLevel.INFO,
     WARN: LogLevel.WARN,
     ERROR: LogLevel.ERROR,
-    FATAL: LogLevel.FATAL
+    FATAL: LogLevel.FATAL,
   };
 
   private get minLevel(): LogLevel {

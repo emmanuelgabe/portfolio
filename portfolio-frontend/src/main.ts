@@ -15,11 +15,9 @@ bootstrapApplication(AppComponent, {
       timeOut: 3000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
-      progressBar: true
+      progressBar: true,
     }),
-    provideHttpClient(
-      withInterceptors([retryInterceptor, loggingInterceptor])
-    ),
-    provideRouter(routes)
-  ]
-}).catch(err => console.error(err));
+    provideHttpClient(withInterceptors([retryInterceptor, loggingInterceptor])),
+    provideRouter(routes),
+  ],
+}).catch((err) => console.error(err));

@@ -3,7 +3,7 @@ export enum SkillCategory {
   BACKEND = 'BACKEND',
   DATABASE = 'DATABASE',
   DEVOPS = 'DEVOPS',
-  TOOLS = 'TOOLS'
+  TOOLS = 'TOOLS',
 }
 
 export interface Skill {

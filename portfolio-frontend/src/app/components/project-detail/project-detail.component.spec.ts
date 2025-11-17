@@ -17,7 +17,8 @@ describe('ProjectDetailComponent', () => {
     mockProject = {
       id: 1,
       title: 'Test Project',
-      description: 'This is a detailed test project description that explains what the project does.',
+      description:
+        'This is a detailed test project description that explains what the project does.',
       techStack: 'Angular, TypeScript, Bootstrap',
       githubUrl: 'https://github.com/test/project',
       imageUrl: 'https://example.com/image.png',
@@ -27,8 +28,8 @@ describe('ProjectDetailComponent', () => {
       featured: true,
       tags: [
         { id: 1, name: 'Angular', color: '#dd0031' },
-        { id: 2, name: 'TypeScript', color: '#3178c6' }
-      ]
+        { id: 2, name: 'TypeScript', color: '#3178c6' },
+      ],
     };
 
     mockProjectService = jasmine.createSpyObj('ProjectService', ['getById']);
@@ -39,9 +40,9 @@ describe('ProjectDetailComponent', () => {
     mockActivatedRoute = {
       snapshot: {
         paramMap: {
-          get: jasmine.createSpy('get').and.returnValue('1')
-        }
-      }
+          get: jasmine.createSpy('get').and.returnValue('1'),
+        },
+      },
     };
 
     await TestBed.configureTestingModule({
@@ -49,8 +50,8 @@ describe('ProjectDetailComponent', () => {
       providers: [
         { provide: ProjectService, useValue: mockProjectService },
         { provide: Router, useValue: mockRouter },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute }
-      ]
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectDetailComponent);
@@ -193,11 +194,11 @@ describe('ProjectDetailComponent', () => {
 
   it('should copy link to clipboard', async () => {
     const mockClipboard = {
-      writeText: jasmine.createSpy('writeText').and.returnValue(Promise.resolve())
+      writeText: jasmine.createSpy('writeText').and.returnValue(Promise.resolve()),
     };
     Object.defineProperty(navigator, 'clipboard', {
       value: mockClipboard,
-      writable: true
+      writable: true,
     });
     spyOn(window, 'alert');
 

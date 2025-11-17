@@ -11,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './project-detail.component.html',
-  styleUrls: ['./project-detail.component.css']
+  styleUrls: ['./project-detail.component.css'],
 })
 export class ProjectDetailComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
@@ -47,10 +47,13 @@ export class ProjectDetailComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.logger.error('[HTTP_ERROR] Failed to load project', { projectId: id, error: err.message || err });
+        this.logger.error('[HTTP_ERROR] Failed to load project', {
+          projectId: id,
+          error: err.message || err,
+        });
         this.error = 'Project not found or failed to load. Please try again.';
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -95,19 +98,22 @@ export class ProjectDetailComponent implements OnInit {
    */
   copyLink(): void {
     const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      this.toastr.success('Link copied to clipboard!', 'Success');
-    }).catch(err => {
-      this.logger.error('[CLIPBOARD_ERROR] Failed to copy link', { error: err.message || err });
-      this.toastr.error('Failed to copy link to clipboard', 'Error');
-    });
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        this.toastr.success('Link copied to clipboard!', 'Success');
+      })
+      .catch((err) => {
+        this.logger.error('[CLIPBOARD_ERROR] Failed to copy link', { error: err.message || err });
+        this.toastr.error('Failed to copy link to clipboard', 'Error');
+      });
   }
 
   /**
    * Get tech stack as array
    */
   get techStackArray(): string[] {
-    return this.project?.techStack.split(',').map(tech => tech.trim()) || [];
+    return this.project?.techStack.split(',').map((tech) => tech.trim()) || [];
   }
 
   /**

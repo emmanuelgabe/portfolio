@@ -23,7 +23,7 @@ describe('HomeComponent', () => {
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
         featured: true,
-        tags: [{ id: 1, name: 'Angular', color: '#dd0031' }]
+        tags: [{ id: 1, name: 'Angular', color: '#dd0031' }],
       },
       {
         id: 2,
@@ -34,8 +34,8 @@ describe('HomeComponent', () => {
         createdAt: '2024-01-02T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
         featured: true,
-        tags: [{ id: 2, name: 'Spring Boot', color: '#6db33f' }]
-      }
+        tags: [{ id: 2, name: 'Spring Boot', color: '#6db33f' }],
+      },
     ];
 
     mockProjectService = jasmine.createSpyObj('ProjectService', ['getFeatured']);
@@ -43,9 +43,7 @@ describe('HomeComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [
-        { provide: ProjectService, useValue: mockProjectService }
-      ]
+      providers: [{ provide: ProjectService, useValue: mockProjectService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
@@ -184,18 +182,18 @@ describe('HomeComponent', () => {
   });
 
   it('should have correct skill colors', () => {
-    const angularSkill = component.skills.find(s => s.name === 'Angular');
+    const angularSkill = component.skills.find((s) => s.name === 'Angular');
     expect(angularSkill?.color).toBe('#dd0031');
 
-    const springBootSkill = component.skills.find(s => s.name === 'Spring Boot');
+    const springBootSkill = component.skills.find((s) => s.name === 'Spring Boot');
     expect(springBootSkill?.color).toBe('#6db33f');
   });
 
   it('should have correct skill icons', () => {
-    const angularSkill = component.skills.find(s => s.name === 'Angular');
+    const angularSkill = component.skills.find((s) => s.name === 'Angular');
     expect(angularSkill?.icon).toBe('bi-code-square');
 
-    const dockerSkill = component.skills.find(s => s.name === 'Docker');
+    const dockerSkill = component.skills.find((s) => s.name === 'Docker');
     expect(dockerSkill?.icon).toBe('bi-box');
   });
 });

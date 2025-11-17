@@ -20,15 +20,12 @@ describe('ProjectService', () => {
     createdAt: '2025-01-01T00:00:00',
     updatedAt: '2025-01-01T00:00:00',
     featured: true,
-    tags: []
+    tags: [],
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(ProjectService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -46,7 +43,7 @@ describe('ProjectService', () => {
     it('should return all projects', () => {
       const mockProjects: ProjectResponse[] = [mockProject];
 
-      service.getAll().subscribe(projects => {
+      service.getAll().subscribe((projects) => {
         expect(projects).toEqual(mockProjects);
         expect(projects.length).toBe(1);
       });
@@ -59,7 +56,7 @@ describe('ProjectService', () => {
 
   describe('getById', () => {
     it('should return a project by id', () => {
-      service.getById(1).subscribe(project => {
+      service.getById(1).subscribe((project) => {
         expect(project).toEqual(mockProject);
         expect(project.id).toBe(1);
       });
@@ -76,10 +73,10 @@ describe('ProjectService', () => {
         title: 'New Project',
         description: 'New Description',
         techStack: 'Java, Spring',
-        featured: false
+        featured: false,
       };
 
-      service.create(createRequest).subscribe(project => {
+      service.create(createRequest).subscribe((project) => {
         expect(project).toEqual(mockProject);
       });
 
@@ -93,10 +90,10 @@ describe('ProjectService', () => {
   describe('update', () => {
     it('should update an existing project', () => {
       const updateRequest: UpdateProjectRequest = {
-        title: 'Updated Project'
+        title: 'Updated Project',
       };
 
-      service.update(1, updateRequest).subscribe(project => {
+      service.update(1, updateRequest).subscribe((project) => {
         expect(project).toEqual(mockProject);
       });
 
@@ -109,7 +106,7 @@ describe('ProjectService', () => {
 
   describe('delete', () => {
     it('should delete a project', () => {
-      service.delete(1).subscribe(response => {
+      service.delete(1).subscribe((response) => {
         expect(response).toBeNull();
       });
 
@@ -123,7 +120,7 @@ describe('ProjectService', () => {
     it('should return featured projects', () => {
       const mockProjects: ProjectResponse[] = [mockProject];
 
-      service.getFeatured().subscribe(projects => {
+      service.getFeatured().subscribe((projects) => {
         expect(projects).toEqual(mockProjects);
         expect(projects[0].featured).toBe(true);
       });
@@ -139,7 +136,7 @@ describe('ProjectService', () => {
       const mockProjects: ProjectResponse[] = [mockProject];
       const searchTitle = 'Test';
 
-      service.searchByTitle(searchTitle).subscribe(projects => {
+      service.searchByTitle(searchTitle).subscribe((projects) => {
         expect(projects).toEqual(mockProjects);
       });
 
@@ -155,7 +152,7 @@ describe('ProjectService', () => {
       const mockProjects: ProjectResponse[] = [mockProject];
       const searchTech = 'Java';
 
-      service.searchByTechnology(searchTech).subscribe(projects => {
+      service.searchByTechnology(searchTech).subscribe((projects) => {
         expect(projects).toEqual(mockProjects);
       });
 

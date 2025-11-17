@@ -9,7 +9,7 @@ describe('ProjectCardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProjectCardComponent]
+      imports: [ProjectCardComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectCardComponent);
@@ -28,8 +28,8 @@ describe('ProjectCardComponent', () => {
       featured: true,
       tags: [
         { id: 1, name: 'Angular', color: '#dd0031' },
-        { id: 2, name: 'TypeScript', color: '#3178c6' }
-      ]
+        { id: 2, name: 'TypeScript', color: '#3178c6' },
+      ],
     };
 
     component.project = mockProject;

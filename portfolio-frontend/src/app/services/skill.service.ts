@@ -7,12 +7,12 @@ import {
   Skill,
   CreateSkillRequest,
   UpdateSkillRequest,
-  SkillCategory
+  SkillCategory,
 } from '../models/skill.model';
 import { LoggerService } from './logger.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SkillService {
   private readonly http = inject(HttpClient);
@@ -27,13 +27,13 @@ export class SkillService {
     this.logger.debug('[HTTP_REQUEST] Fetching all skills');
 
     return this.http.get<Skill[]>(this.apiUrl).pipe(
-      tap(skills => {
+      tap((skills) => {
         this.logger.info('[HTTP_SUCCESS] Skills fetched', { count: skills.length });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to fetch skills', {
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -49,14 +49,14 @@ export class SkillService {
     this.logger.debug('[HTTP_REQUEST] Fetching skill', { id });
 
     return this.http.get<Skill>(`${this.apiUrl}/${id}`).pipe(
-      tap(skill => {
+      tap((skill) => {
         this.logger.debug('[HTTP_SUCCESS] Skill fetched', { id: skill.id, name: skill.name });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to fetch skill', {
           id,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -72,17 +72,17 @@ export class SkillService {
     this.logger.debug('[HTTP_REQUEST] Fetching skills by category', { category });
 
     return this.http.get<Skill[]>(`${this.apiUrl}/category/${category}`).pipe(
-      tap(skills => {
+      tap((skills) => {
         this.logger.info('[HTTP_SUCCESS] Skills by category fetched', {
           category,
-          count: skills.length
+          count: skills.length,
         });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to fetch skills by category', {
           category,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -98,17 +98,17 @@ export class SkillService {
     this.logger.info('[HTTP_REQUEST] Creating skill', { name: request.name });
 
     return this.http.post<Skill>(`${this.apiUrl}/admin`, request).pipe(
-      tap(skill => {
+      tap((skill) => {
         this.logger.info('[HTTP_SUCCESS] Skill created', {
           id: skill.id,
-          name: skill.name
+          name: skill.name,
         });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to create skill', {
           name: request.name,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -125,17 +125,17 @@ export class SkillService {
     this.logger.info('[HTTP_REQUEST] Updating skill', { id });
 
     return this.http.put<Skill>(`${this.apiUrl}/admin/${id}`, request).pipe(
-      tap(skill => {
+      tap((skill) => {
         this.logger.info('[HTTP_SUCCESS] Skill updated', {
           id: skill.id,
-          name: skill.name
+          name: skill.name,
         });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to update skill', {
           id,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -154,11 +154,11 @@ export class SkillService {
       tap(() => {
         this.logger.info('[HTTP_SUCCESS] Skill deleted', { id });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to delete skill', {
           id,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })

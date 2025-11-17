@@ -8,7 +8,7 @@ import { ProjectResponse } from '../../models';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './project-card.component.html',
-  styleUrls: ['./project-card.component.css']
+  styleUrls: ['./project-card.component.css'],
 })
 export class ProjectCardComponent {
   @Input() project!: ProjectResponse;

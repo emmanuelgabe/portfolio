@@ -9,7 +9,7 @@ import { LoggerService } from './services/logger.service';
   standalone: true,
   imports: [RouterOutlet, NavbarComponent],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
   private readonly logger = inject(LoggerService);
