@@ -2,11 +2,17 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { ProjectListComponent } from './components/project-list/project-list.component';
 import { ProjectDetailComponent } from './components/project-detail/project-detail.component';
+import { LoginComponent } from './pages/login/login.component';
+import { adminGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
   },
   {
     path: 'about',
@@ -27,6 +33,19 @@ export const routes: Routes = [
   {
     path: 'contact',
     component: HomeComponent, // TODO: Remplacer par ContactComponent quand créé (task 3.5)
+  },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    children: [
+      // Admin routes will be added here as they are created
+      // For now, redirect to home
+      {
+        path: '',
+        redirectTo: '/',
+        pathMatch: 'full',
+      },
+    ],
   },
   {
     path: '**',
