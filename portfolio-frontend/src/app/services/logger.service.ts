@@ -10,6 +10,10 @@ export enum LogLevel {
   FATAL = 5
 }
 
+/**
+ * Logging service with structured logging support
+ * Provides log level filtering based on environment configuration
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -27,26 +31,56 @@ export class LoggerService {
     return this.levelMap[environment.logLevel] || LogLevel.INFO;
   }
 
+  /**
+   * Log trace message
+   * @param message Log message
+   * @param context Optional context data
+   */
   trace(message: string, context?: unknown): void {
     this.log(LogLevel.TRACE, message, context);
   }
 
+  /**
+   * Log debug message
+   * @param message Log message
+   * @param context Optional context data
+   */
   debug(message: string, context?: unknown): void {
     this.log(LogLevel.DEBUG, message, context);
   }
 
+  /**
+   * Log info message
+   * @param message Log message
+   * @param context Optional context data
+   */
   info(message: string, context?: unknown): void {
     this.log(LogLevel.INFO, message, context);
   }
 
+  /**
+   * Log warning message
+   * @param message Log message
+   * @param context Optional context data
+   */
   warn(message: string, context?: unknown): void {
     this.log(LogLevel.WARN, message, context);
   }
 
+  /**
+   * Log error message
+   * @param message Log message
+   * @param context Optional context data
+   */
   error(message: string, context?: unknown): void {
     this.log(LogLevel.ERROR, message, context);
   }
 
+  /**
+   * Log fatal error message
+   * @param message Log message
+   * @param context Optional context data
+   */
   fatal(message: string, context?: unknown): void {
     this.log(LogLevel.FATAL, message, context);
   }

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude generated code -->
+    <Match>
+        <Class name="~.*\.mapper\..*Impl" />
+    </Match>
+
+    <!-- Exclude entity classes (JPA entities) -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.entity.*" />
+    </Match>
+
+    <!-- Exclude DTO classes -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.dto.*" />
+    </Match>
+
+    <!-- Exclude exception classes -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.exception.*" />
+    </Match>
+
+    <!-- Exclude configuration classes -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.config.*" />
+    </Match>
+
+    <!-- Exclude version and health controllers -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.version.*" />
+    </Match>
+
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.health.*" />
+    </Match>
+
+    <!-- Exclude main application class -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.PortfolioBackendApplication" />
+    </Match>
+
+    <!-- Exclude Spring false positives: dependency injection via constructor -->
+    <!-- Controllers -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />
+        <Class name="~.*Controller" />
+    </Match>
+
+    <!-- Services -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />
+        <Class name="~.*Service.*" />
+    </Match>
+
+    <!-- DataSeeder -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />
+        <Class name="com.emmanuelgabe.portfolio.config.DataSeeder" />
+    </Match>
+
+    <!-- Exclude common false positives for JPA repositories -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.repository.*" />
+    </Match>
+</FindBugsFilter>

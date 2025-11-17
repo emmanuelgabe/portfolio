@@ -1,0 +1,22 @@
+# Global configuration shared across all profiles
+# Profile-specific configs: application-{profile}.yml
+
+app:
+  jwt:
+    # JWT secret key - MUST be set via environment variable in production
+    # Generate secure secret: openssl rand -base64 64
+    secret: ${JWT_SECRET:defaultSecretKeyForDevOnlyChangeInProductionMustBeAtLeast256BitsLongForHS256Algorithm}
+    # Access token expiration: 15 minutes (900000 ms)
+    access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:900000}
+    # Refresh token expiration: 7 days (604800000 ms)
+    refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
+    # Token issuer identifier
+    issuer: ${JWT_ISSUER:portfolio-backend}
+    # Token audience identifier
+    audience: ${JWT_AUDIENCE:portfolio-frontend}
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  application:
+    name: portfolio-backend

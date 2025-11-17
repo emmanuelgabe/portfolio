@@ -1,5 +1,5 @@
 # Dockerfile for local development with hot reload (Spring DevTools)
-FROM gradle:8-jdk24
+FROM gradle:8-jdk21
 
 WORKDIR /app
 

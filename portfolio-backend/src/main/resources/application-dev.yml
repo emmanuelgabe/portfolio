@@ -11,7 +11,7 @@ spring:
   datasource:
     username: ${SPRING_DATASOURCE_USERNAME:postgres_app}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://portfolio-db:5432/portfolio_local}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://portfolio-db:5432/portfolio}
     driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true

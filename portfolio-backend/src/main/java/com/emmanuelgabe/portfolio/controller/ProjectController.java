@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,11 +56,12 @@ public class ProjectController {
     }
 
     /**
-     * Create a new project
+     * Create a new project (ADMIN only)
      * @param request Create project request
      * @return Created project
      */
-    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin")
     public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody CreateProjectRequest request) {
         log.info("[CREATE_PROJECT] Request received - title={}", request.getTitle());
         ProjectResponse createdProject = projectService.createProject(request);
@@ -68,12 +70,13 @@ public class ProjectController {
     }
 
     /**
-     * Update an existing project
+     * Update an existing project (ADMIN only)
      * @param id Project ID
      * @param request Update project request
      * @return Updated project
      */
-    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/{id}")
     public ResponseEntity<ProjectResponse> updateProject(
             @PathVariable Long id,
             @Valid @RequestBody UpdateProjectRequest request) {
@@ -84,11 +87,12 @@ public class ProjectController {
     }
 
     /**
-     * Delete a project
+     * Delete a project (ADMIN only)
      * @param id Project ID
      * @return No content
      */
-    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.info("[DELETE_PROJECT] Request received - id={}", id);
         projectService.deleteProject(id);

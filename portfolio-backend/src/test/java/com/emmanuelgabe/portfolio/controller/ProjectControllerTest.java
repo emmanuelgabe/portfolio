@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.controller;
 
+import com.emmanuelgabe.portfolio.config.TestSecurityConfig;
 import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ProjectController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("dev")
+@Import(TestSecurityConfig.class)
 class ProjectControllerTest {
 
     @Autowired
@@ -140,7 +143,7 @@ class ProjectControllerTest {
                 .thenReturn(testProjectResponse);
 
         // Act & Assert
-        mockMvc.perform(post("/api/projects")
+        mockMvc.perform(post("/api/projects/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isCreated())
@@ -160,7 +163,7 @@ class ProjectControllerTest {
         invalidRequest.setTechStack(""); // Blank
 
         // Act & Assert
-        mockMvc.perform(post("/api/projects")
+        mockMvc.perform(post("/api/projects/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest())
@@ -181,7 +184,7 @@ class ProjectControllerTest {
         invalidRequest.setTechStack("Java");
 
         // Act & Assert
-        mockMvc.perform(post("/api/projects")
+        mockMvc.perform(post("/api/projects/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest())
@@ -197,7 +200,7 @@ class ProjectControllerTest {
                 .thenReturn(testProjectResponse);
 
         // Act & Assert
-        mockMvc.perform(put("/api/projects/1")
+        mockMvc.perform(put("/api/projects/admin/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
@@ -215,7 +218,7 @@ class ProjectControllerTest {
                 .thenThrow(new ResourceNotFoundException("Project", "id", 999L));
 
         // Act & Assert
-        mockMvc.perform(put("/api/projects/999")
+        mockMvc.perform(put("/api/projects/admin/999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isNotFound())
@@ -231,7 +234,7 @@ class ProjectControllerTest {
         doNothing().when(projectService).deleteProject(1L);
 
         // Act & Assert
-        mockMvc.perform(delete("/api/projects/1"))
+        mockMvc.perform(delete("/api/projects/admin/1"))
                 .andExpect(status().isNoContent());
 
         verify(projectService, times(1)).deleteProject(1L);
@@ -244,7 +247,7 @@ class ProjectControllerTest {
                 .when(projectService).deleteProject(999L);
 
         // Act & Assert
-        mockMvc.perform(delete("/api/projects/999"))
+        mockMvc.perform(delete("/api/projects/admin/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)))
                 .andExpect(jsonPath("$.message", containsString("Project not found")));

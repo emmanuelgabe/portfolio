@@ -1,0 +1,19 @@
+package com.emmanuelgabe.portfolio.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Token refresh request DTO
+ * Contains refresh token for obtaining new access token
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TokenRefreshRequest {
+
+    @NotBlank(message = "Refresh token is required")
+    private String refreshToken;
+}

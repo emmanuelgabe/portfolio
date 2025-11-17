@@ -1,99 +1,108 @@
 package com.emmanuelgabe.portfolio.config;
 
+import com.emmanuelgabe.portfolio.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security Configuration
+ * Configures JWT-based authentication and authorization
+ */
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    /**
-     * Configure CSRF protection with cookie-based tokens
-     */
-    private void configureCsrf(HttpSecurity http) throws Exception {
-        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-        requestHandler.setCsrfRequestAttributeName("_csrf");
-
-        http.csrf(csrf -> csrf
-            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-            .csrfTokenRequestHandler(requestHandler)
-        );
-    }
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserDetailsService userDetailsService;
 
     /**
-     * Configure security headers for production environments
-     */
-    private void configureSecurityHeaders(HttpSecurity http) throws Exception {
-        http.headers(headers -> headers
-            .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-            .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
-        );
-    }
-
-    /**
-     * Security configuration for LOCAL/DEV environment
-     * - CSRF disabled for easier testing
-     * - All endpoints accessible without authentication
+     * Password encoder bean
+     * Uses BCrypt algorithm for secure password hashing
      */
     @Bean
-    @Profile("dev")
-    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Authentication provider bean
+     * Configures authentication with UserDetailsService and PasswordEncoder
+     */
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    /**
+     * Authentication manager bean
+     * Required for manual authentication in AuthService
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    /**
+     * Security filter chain
+     * Configures HTTP security with JWT authentication
+     */
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/health", "/api/**", "/actuator/**").permitAll()
-                .anyRequest().permitAll()
-            );
+                // Disable CSRF (not needed for JWT stateless authentication)
+                .csrf(AbstractHttpConfigurer::disable)
 
-        return http.build();
-    }
+                // Configure authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
+                        .requestMatchers("/health", "/api/version", "/actuator/health").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
-    /**
-     * Security configuration for STAGING environment
-     * - CSRF enabled with cookie-based tokens
-     * - Security headers enabled
-     * - Public endpoints: /health, /api/version
-     * - Protected endpoints: /api/items/** (require auth in future)
-     */
-    @Bean
-    @Profile("staging")
-    public SecurityFilterChain stagingSecurityFilterChain(HttpSecurity http) throws Exception {
-        configureCsrf(http);
-        configureSecurityHeaders(http);
+                        // Admin modification endpoints (require ADMIN role)
+                        .requestMatchers("/api/projects/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/skills/admin/**").hasRole("ADMIN")
 
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/health", "/api/version", "/actuator/health").permitAll()
-            .requestMatchers("/api/**").permitAll()
-            .anyRequest().authenticated()
-        );
+                        // Public read-only endpoints (GET only)
+                        .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/skills/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
 
-        return http.build();
-    }
+                        // All other requests require authentication
+                        .anyRequest().authenticated()
+                )
 
-    /**
-     * Security configuration for PRODUCTION environment
-     * - CSRF enabled with cookie-based tokens
-     * - Strict security headers
-     * - Public endpoints: /health, /api/version
-     * - Protected endpoints: /api/items/** (require auth in future)
-     */
-    @Bean
-    @Profile("prod")
-    public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
-        configureCsrf(http);
-        configureSecurityHeaders(http);
+                // Stateless session management (JWT)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
 
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/health", "/api/version", "/actuator/health").permitAll()
-            .requestMatchers("/api/**").permitAll()
-            .anyRequest().authenticated()
-        );
+                // Set authentication provider
+                .authenticationProvider(authenticationProvider())
+
+                // Add JWT filter before UsernamePasswordAuthenticationFilter
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
