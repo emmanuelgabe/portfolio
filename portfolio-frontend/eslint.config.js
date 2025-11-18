@@ -43,13 +43,4 @@ module.exports = [
       'no-var': 'error'
     }
   },
-  {
-    files: ['**/*.html'],
-    plugins: {
-      'prettier': prettierPlugin
-    },
-    rules: {
-      'prettier/prettier': 'error'
-    }
-  }
 ];

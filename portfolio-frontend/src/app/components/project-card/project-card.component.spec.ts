@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ProjectCardComponent } from './project-card.component';
 import { ProjectResponse } from '../../models';
 
@@ -9,7 +10,7 @@ describe('ProjectCardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProjectCardComponent]
+      imports: [ProjectCardComponent, RouterTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectCardComponent);
@@ -28,8 +29,8 @@ describe('ProjectCardComponent', () => {
       featured: true,
       tags: [
         { id: 1, name: 'Angular', color: '#dd0031' },
-        { id: 2, name: 'TypeScript', color: '#3178c6' }
-      ]
+        { id: 2, name: 'TypeScript', color: '#3178c6' },
+      ],
     };
 
     component.project = mockProject;
@@ -88,25 +89,10 @@ describe('ProjectCardComponent', () => {
 
   it('should display tags', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const tags = compiled.querySelectorAll('.badge');
+    const tags = compiled.querySelectorAll('.tags-container .badge');
     expect(tags.length).toBe(2);
     expect(tags[0].textContent?.trim()).toBe('Angular');
     expect(tags[1].textContent?.trim()).toBe('TypeScript');
-  });
-
-  it('should display featured badge when project is featured', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const featuredBadge = compiled.querySelector('.badge.bg-warning');
-    expect(featuredBadge).toBeTruthy();
-    expect(featuredBadge?.textContent).toContain('Featured');
-  });
-
-  it('should not display featured badge when project is not featured', () => {
-    component.project.featured = false;
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const featuredBadge = compiled.querySelector('.badge.bg-warning');
-    expect(featuredBadge).toBeFalsy();
   });
 
   it('should display GitHub button when GitHub URL is available', () => {

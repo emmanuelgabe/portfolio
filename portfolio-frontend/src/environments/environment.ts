@@ -4,5 +4,5 @@ export const environment = {
   production: false,
   apiUrl: '', // Empty string to use proxy configuration
   version: VERSION,
-  logLevel: 'DEBUG'
+  logLevel: 'DEBUG',
 };

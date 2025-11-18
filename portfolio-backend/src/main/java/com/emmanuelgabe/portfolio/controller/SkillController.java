@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -72,6 +73,7 @@ public class SkillController {
      * @param request Create skill request
      * @return Created skill
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin")
     public ResponseEntity<SkillResponse> createSkill(@Valid @RequestBody CreateSkillRequest request) {
         log.info("[CREATE_SKILL] Request received - name={}", request.getName());
@@ -86,6 +88,7 @@ public class SkillController {
      * @param request Update skill request
      * @return Updated skill
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/{id}")
     public ResponseEntity<SkillResponse> updateSkill(
             @PathVariable Long id,
@@ -101,6 +104,7 @@ public class SkillController {
      * @param id Skill ID
      * @return No content
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void> deleteSkill(@PathVariable Long id) {
         log.info("[DELETE_SKILL] Request received - id={}", id);

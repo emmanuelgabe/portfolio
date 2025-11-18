@@ -2,12 +2,12 @@ name: Frontend Tests (Angular)
 
 on:
   push:
-    branches: [ main, develop, dev ]
+    branches: [ main, staging, dev ]
     paths:
       - 'portfolio-frontend/**'
       - '.github/workflows/frontend-tests.yml'
   pull_request:
-    branches: [ main, develop, dev ]
+    branches: [ main, staging, dev ]
     paths:
       - 'portfolio-frontend/**'
       - '.github/workflows/frontend-tests.yml'

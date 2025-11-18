@@ -26,7 +26,6 @@ class SkillEntityTest {
         skill.setIcon("bi-spring");
         skill.setColor("#6DB33F");
         skill.setCategory(SkillCategory.BACKEND);
-        skill.setLevel(85);
         skill.setDisplayOrder(1);
     }
 
@@ -216,58 +215,6 @@ class SkillEntityTest {
     }
 
     @Test
-    void whenLevelIsBelowMinimum_thenConstraintViolation() {
-        // Given
-        skill.setLevel(-1); // Below 0
-
-        // When
-        Set<ConstraintViolation<Skill>> violations = validator.validate(skill);
-
-        // Then
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage())
-                .isEqualTo("Level must be at least 0");
-    }
-
-    @Test
-    void whenLevelIsAboveMaximum_thenConstraintViolation() {
-        // Given
-        skill.setLevel(101); // Above 100
-
-        // When
-        Set<ConstraintViolation<Skill>> violations = validator.validate(skill);
-
-        // Then
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage())
-                .isEqualTo("Level cannot exceed 100");
-    }
-
-    @Test
-    void whenLevelIsZero_thenNoConstraintViolations() {
-        // Given
-        skill.setLevel(0); // Minimum valid value
-
-        // When
-        Set<ConstraintViolation<Skill>> violations = validator.validate(skill);
-
-        // Then
-        assertThat(violations).isEmpty();
-    }
-
-    @Test
-    void whenLevelIsOneHundred_thenNoConstraintViolations() {
-        // Given
-        skill.setLevel(100); // Maximum valid value
-
-        // When
-        Set<ConstraintViolation<Skill>> violations = validator.validate(skill);
-
-        // Then
-        assertThat(violations).isEmpty();
-    }
-
-    @Test
     void whenDisplayOrderIsBelowMinimum_thenConstraintViolation() {
         // Given
         skill.setDisplayOrder(-1); // Below 0
@@ -308,14 +255,13 @@ class SkillEntityTest {
         skill.setName(""); // Blank - triggers both @NotBlank and @Size
         skill.setIcon(null); // Null
         skill.setColor("invalid"); // Invalid format - triggers both @NotBlank and @Pattern
-        skill.setLevel(-10); // Below minimum
         skill.setDisplayOrder(-5); // Below minimum
 
         // When
         Set<ConstraintViolation<Skill>> violations = validator.validate(skill);
 
         // Then
-        assertThat(violations).hasSizeGreaterThanOrEqualTo(5);
+        assertThat(violations).hasSizeGreaterThanOrEqualTo(4);
     }
 
     @Test

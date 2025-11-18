@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.controller;
 
+import com.emmanuelgabe.portfolio.config.TestSecurityConfig;
 import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,6 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(SkillController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("dev")
+@Import(TestSecurityConfig.class)
 class SkillControllerTest {
 
     @Autowired
@@ -68,7 +71,6 @@ class SkillControllerTest {
         testSkillResponse.setColor("#6DB33F");
         testSkillResponse.setCategory(SkillCategory.BACKEND);
         testSkillResponse.setCategoryDisplayName("Backend");
-        testSkillResponse.setLevel(85);
         testSkillResponse.setDisplayOrder(1);
         testSkillResponse.setCreatedAt(LocalDateTime.now());
         testSkillResponse.setUpdatedAt(LocalDateTime.now());
@@ -78,12 +80,10 @@ class SkillControllerTest {
         createRequest.setIcon("bi-angular");
         createRequest.setColor("#DD0031");
         createRequest.setCategory(SkillCategory.FRONTEND);
-        createRequest.setLevel(80);
         createRequest.setDisplayOrder(2);
 
         updateRequest = new UpdateSkillRequest();
         updateRequest.setName("Spring Boot Updated");
-        updateRequest.setLevel(90);
     }
 
     @Test
@@ -102,7 +102,6 @@ class SkillControllerTest {
                 .andExpect(jsonPath("$[0].icon", is("bi-spring")))
                 .andExpect(jsonPath("$[0].color", is("#6DB33F")))
                 .andExpect(jsonPath("$[0].category", is("BACKEND")))
-                .andExpect(jsonPath("$[0].level", is(85)))
                 .andExpect(jsonPath("$[0].displayOrder", is(1)));
 
         verify(skillService, times(1)).getAllSkills();
@@ -133,8 +132,7 @@ class SkillControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Spring Boot")))
-                .andExpect(jsonPath("$.category", is("BACKEND")))
-                .andExpect(jsonPath("$.level", is(85)));
+                .andExpect(jsonPath("$.category", is("BACKEND")));
 
         verify(skillService, times(1)).getSkillById(1L);
     }
@@ -197,7 +195,6 @@ class SkillControllerTest {
         invalidRequest.setIcon(""); // Blank
         invalidRequest.setColor("invalid"); // Invalid hex color
         invalidRequest.setCategory(SkillCategory.BACKEND);
-        invalidRequest.setLevel(150); // Exceeds max
         invalidRequest.setDisplayOrder(-1); // Below min
 
         // When & Then
@@ -221,7 +218,6 @@ class SkillControllerTest {
         invalidRequest.setIcon("bi-test");
         invalidRequest.setColor("#FF5733");
         invalidRequest.setCategory(SkillCategory.BACKEND);
-        invalidRequest.setLevel(80);
         invalidRequest.setDisplayOrder(1);
 
         // When & Then
@@ -242,7 +238,6 @@ class SkillControllerTest {
         invalidRequest.setIcon("bi-test");
         invalidRequest.setColor("red"); // Invalid format - not hex
         invalidRequest.setCategory(SkillCategory.BACKEND);
-        invalidRequest.setLevel(80);
         invalidRequest.setDisplayOrder(1);
 
         // When & Then
@@ -256,48 +251,6 @@ class SkillControllerTest {
     }
 
     @Test
-    void shouldReturn400_whenCreateSkillWithLevelBelowMinimum() throws Exception {
-        // Given
-        CreateSkillRequest invalidRequest = new CreateSkillRequest();
-        invalidRequest.setName("Test Skill");
-        invalidRequest.setIcon("bi-test");
-        invalidRequest.setColor("#FF5733");
-        invalidRequest.setCategory(SkillCategory.BACKEND);
-        invalidRequest.setLevel(-10); // Below minimum
-        invalidRequest.setDisplayOrder(1);
-
-        // When & Then
-        mockMvc.perform(post("/api/skills/admin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors.level").exists());
-
-        verify(skillService, never()).createSkill(any(CreateSkillRequest.class));
-    }
-
-    @Test
-    void shouldReturn400_whenCreateSkillWithLevelAboveMaximum() throws Exception {
-        // Given
-        CreateSkillRequest invalidRequest = new CreateSkillRequest();
-        invalidRequest.setName("Test Skill");
-        invalidRequest.setIcon("bi-test");
-        invalidRequest.setColor("#FF5733");
-        invalidRequest.setCategory(SkillCategory.BACKEND);
-        invalidRequest.setLevel(150); // Above maximum
-        invalidRequest.setDisplayOrder(1);
-
-        // When & Then
-        mockMvc.perform(post("/api/skills/admin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors.level").exists());
-
-        verify(skillService, never()).createSkill(any(CreateSkillRequest.class));
-    }
-
-    @Test
     void shouldReturn400_whenCreateSkillWithNullCategory() throws Exception {
         // Given
         CreateSkillRequest invalidRequest = new CreateSkillRequest();
@@ -305,7 +258,6 @@ class SkillControllerTest {
         invalidRequest.setIcon("bi-test");
         invalidRequest.setColor("#FF5733");
         invalidRequest.setCategory(null); // Null category
-        invalidRequest.setLevel(80);
         invalidRequest.setDisplayOrder(1);
 
         // When & Then
@@ -410,7 +362,6 @@ class SkillControllerTest {
                 .andExpect(jsonPath("$.color").exists())
                 .andExpect(jsonPath("$.category").exists())
                 .andExpect(jsonPath("$.categoryDisplayName").exists())
-                .andExpect(jsonPath("$.level").exists())
                 .andExpect(jsonPath("$.displayOrder").exists())
                 .andExpect(jsonPath("$.createdAt").exists())
                 .andExpect(jsonPath("$.updatedAt").exists());

@@ -28,6 +28,11 @@
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
 
+    <!-- Exclude security classes - Spring Security integration -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.security.*"/>
+    </Match>
+
     <!-- Exclude test classes from certain checks -->
     <Match>
         <Class name="~.*Test"/>

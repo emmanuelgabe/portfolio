@@ -5,6 +5,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
+import { jwtInterceptor } from './app/interceptors/jwt.interceptor';
 import { retryInterceptor } from './app/interceptors/retry.interceptor';
 import { loggingInterceptor } from './app/interceptors/logging.interceptor';
 
@@ -15,11 +16,9 @@ bootstrapApplication(AppComponent, {
       timeOut: 3000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
-      progressBar: true
+      progressBar: true,
     }),
-    provideHttpClient(
-      withInterceptors([retryInterceptor, loggingInterceptor])
-    ),
-    provideRouter(routes)
-  ]
-}).catch(err => console.error(err));
+    provideHttpClient(withInterceptors([jwtInterceptor, retryInterceptor, loggingInterceptor])),
+    provideRouter(routes),
+  ],
+}).catch((err) => console.error(err));

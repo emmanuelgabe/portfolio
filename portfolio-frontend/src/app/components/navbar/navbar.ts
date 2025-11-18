@@ -1,17 +1,30 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../models/auth.model';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
+  styleUrl: './navbar.css',
 })
 export class NavbarComponent {
+  private readonly authService = inject(AuthService);
+  private readonly toastr = inject(ToastrService);
+
   isCollapsed = true;
   isScrolled = false;
+  currentUser: User | null = null;
+
+  constructor() {
+    this.authService.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+    });
+  }
 
   toggleNavbar() {
     this.isCollapsed = !this.isCollapsed;
@@ -31,9 +44,24 @@ export class NavbarComponent {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
+  }
+
+  logout() {
+    const username = this.currentUser?.username;
+    this.authService.logout();
+    this.closeNavbar();
+    this.toastr.success(`À bientôt ${username} !`, 'Déconnexion réussie');
+  }
+
+  get isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 
   @HostListener('window:scroll', [])

@@ -58,7 +58,6 @@ class SkillServiceTest {
         testSkill.setIcon("bi-cup-hot");
         testSkill.setColor("#007396");
         testSkill.setCategory(SkillCategory.BACKEND);
-        testSkill.setLevel(90);
         testSkill.setDisplayOrder(1);
         testSkill.setCreatedAt(LocalDateTime.now());
         testSkill.setUpdatedAt(LocalDateTime.now());
@@ -70,7 +69,6 @@ class SkillServiceTest {
         testSkillResponse.setColor("#007396");
         testSkillResponse.setCategory(SkillCategory.BACKEND);
         testSkillResponse.setCategoryDisplayName(SkillCategory.BACKEND.getDisplayName());
-        testSkillResponse.setLevel(90);
         testSkillResponse.setDisplayOrder(1);
         testSkillResponse.setCreatedAt(testSkill.getCreatedAt());
         testSkillResponse.setUpdatedAt(testSkill.getUpdatedAt());
@@ -85,7 +83,6 @@ class SkillServiceTest {
             response.setColor(skill.getColor());
             response.setCategory(skill.getCategory());
             response.setCategoryDisplayName(skill.getCategory() != null ? skill.getCategory().getDisplayName() : null);
-            response.setLevel(skill.getLevel());
             response.setDisplayOrder(skill.getDisplayOrder());
             response.setCreatedAt(skill.getCreatedAt());
             response.setUpdatedAt(skill.getUpdatedAt());
@@ -104,7 +101,6 @@ class SkillServiceTest {
         skill2.setIcon("bi-gear");
         skill2.setColor("#6db33f");
         skill2.setCategory(SkillCategory.BACKEND);
-        skill2.setLevel(85);
         skill2.setDisplayOrder(2);
 
         List<Skill> skills = Arrays.asList(testSkill, skill2);
@@ -135,7 +131,6 @@ class SkillServiceTest {
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo("Java");
         assertThat(result.getCategory()).isEqualTo(SkillCategory.BACKEND);
-        assertThat(result.getLevel()).isEqualTo(90);
         verify(skillRepository, times(1)).findById(1L);
     }
 
@@ -159,7 +154,6 @@ class SkillServiceTest {
         request.setIcon("bi-cup-hot");
         request.setColor("#007396");
         request.setCategory(SkillCategory.BACKEND);
-        request.setLevel(90);
         request.setDisplayOrder(1);
 
         when(skillRepository.save(any(Skill.class))).thenReturn(testSkill);
@@ -171,7 +165,6 @@ class SkillServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("Java");
         assertThat(result.getCategory()).isEqualTo(SkillCategory.BACKEND);
-        assertThat(result.getLevel()).isEqualTo(90);
         verify(skillMapper, times(1)).toEntity(request);
         verify(skillRepository, times(1)).save(any(Skill.class));
     }
@@ -180,7 +173,6 @@ class SkillServiceTest {
     void updateSkill_WhenSkillExists_ShouldReturnUpdatedSkill() {
         // Arrange
         UpdateSkillRequest request = new UpdateSkillRequest();
-        request.setLevel(95);
         request.setDisplayOrder(2);
 
         when(skillRepository.findById(1L)).thenReturn(Optional.of(testSkill));
@@ -200,7 +192,7 @@ class SkillServiceTest {
     void updateSkill_WhenSkillNotFound_ShouldThrowException() {
         // Arrange
         UpdateSkillRequest request = new UpdateSkillRequest();
-        request.setLevel(95);
+        request.setDisplayOrder(2);
 
         when(skillRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -216,7 +208,7 @@ class SkillServiceTest {
     void updateSkill_WithPartialData_ShouldUpdateOnlyProvidedFields() {
         // Arrange
         UpdateSkillRequest request = new UpdateSkillRequest();
-        request.setLevel(95); // Only update level
+        request.setDisplayOrder(2); // Only update display order
 
         when(skillRepository.findById(1L)).thenReturn(Optional.of(testSkill));
         when(skillRepository.save(any(Skill.class))).thenReturn(testSkill);
@@ -266,7 +258,6 @@ class SkillServiceTest {
         backendSkill2.setIcon("bi-gear");
         backendSkill2.setColor("#6db33f");
         backendSkill2.setCategory(SkillCategory.BACKEND);
-        backendSkill2.setLevel(85);
         backendSkill2.setDisplayOrder(2);
 
         List<Skill> backendSkills = Arrays.asList(testSkill, backendSkill2);

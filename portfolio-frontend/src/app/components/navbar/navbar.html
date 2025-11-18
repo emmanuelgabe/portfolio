@@ -66,6 +66,40 @@
             <i class="bi bi-envelope"></i> Contact
           </a>
         </li>
+
+        <!-- Admin link (visible only when authenticated as admin) -->
+        <li class="nav-item" *ngIf="isAdmin">
+          <a
+            class="nav-link"
+            routerLink="/admin"
+            (click)="closeNavbar()">
+            <i class="bi bi-gear"></i> Admin
+          </a>
+        </li>
+
+        <!-- Authentication section -->
+        <li class="nav-item auth-section" *ngIf="!isAuthenticated">
+          <a
+            class="nav-link btn-login"
+            routerLink="/login"
+            (click)="closeNavbar()">
+            <i class="bi bi-box-arrow-in-right"></i> Connexion
+          </a>
+        </li>
+
+        <li class="nav-item auth-section" *ngIf="isAuthenticated">
+          <div class="user-menu">
+            <span class="user-name">
+              <i class="bi bi-person-circle"></i> {{ currentUser?.username }}
+            </span>
+            <button
+              class="btn-logout"
+              (click)="logout()"
+              title="Se déconnecter">
+              <i class="bi bi-box-arrow-right"></i> Déconnexion
+            </button>
+          </div>
+        </li>
       </ul>
     </div>
   </div>

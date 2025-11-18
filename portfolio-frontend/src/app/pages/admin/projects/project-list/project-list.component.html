@@ -1,0 +1,117 @@
+<div class="project-list">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Gestion des Projets</h1>
+    <a routerLink="/admin/projects/new" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-2"></i>
+      Nouveau Projet
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement des projets...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadProjects()">
+      <i class="bi bi-arrow-clockwise me-1"></i>
+      Réessayer
+    </button>
+  </div>
+
+  <!-- Projects Table -->
+  <div *ngIf="!loading && !error" class="card shadow-sm">
+    <div class="card-body p-0">
+      <!-- Empty State -->
+      <div *ngIf="projects.length === 0" class="text-center py-5">
+        <i class="bi bi-folder-x display-1 text-muted"></i>
+        <p class="mt-3 text-muted">Aucun projet trouvé</p>
+        <a routerLink="/admin/projects/new" class="btn btn-primary">
+          <i class="bi bi-plus-circle me-2"></i>
+          Créer le premier projet
+        </a>
+      </div>
+
+      <!-- Table -->
+      <div *ngIf="projects.length > 0" class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 120px">Image</th>
+              <th>Titre</th>
+              <th>Technologies</th>
+              <th style="width: 150px" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of projects">
+              <!-- Image -->
+              <td>
+                <img
+                  [src]="getImageUrl(project.imageUrl)"
+                  [alt]="project.title"
+                  class="img-thumbnail project-thumbnail"
+                  (error)="$any($event.target).src = defaultImage"
+                />
+              </td>
+
+              <!-- Title -->
+              <td class="align-middle">
+                <strong>{{ project.title }}</strong>
+                <br />
+                <small class="text-muted">
+                  {{ project.description | slice:0:60 }}{{ project.description.length > 60 ? '...' : '' }}
+                </small>
+              </td>
+
+              <!-- Technologies -->
+              <td class="align-middle">
+                <span
+                  *ngFor="let tech of getTechArray(project.techStack)"
+                  class="badge bg-info text-dark me-1 mb-1"
+                >
+                  {{ tech }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="align-middle text-center">
+                <div class="btn-group" role="group">
+                  <a
+                    [routerLink]="['/admin/projects', project.id, 'edit']"
+                    class="btn btn-sm btn-outline-primary"
+                    title="Éditer"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="deleteProject(project)"
+                    title="Supprimer"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer Stats -->
+    <div *ngIf="projects.length > 0" class="card-footer text-muted">
+      <small>
+        <i class="bi bi-info-circle me-1"></i>
+        Total: {{ projects.length }} projet{{ projects.length > 1 ? 's' : '' }}
+      </small>
+    </div>
+  </div>
+</div>

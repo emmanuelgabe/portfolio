@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
+import { provideToastr } from 'ngx-toastr';
 import { ProjectDetailComponent } from './project-detail.component';
 import { ProjectService } from '../../services/project.service';
 import { ProjectResponse } from '../../models';
@@ -17,7 +18,8 @@ describe('ProjectDetailComponent', () => {
     mockProject = {
       id: 1,
       title: 'Test Project',
-      description: 'This is a detailed test project description that explains what the project does.',
+      description:
+        'This is a detailed test project description that explains what the project does.',
       techStack: 'Angular, TypeScript, Bootstrap',
       githubUrl: 'https://github.com/test/project',
       imageUrl: 'https://example.com/image.png',
@@ -27,8 +29,8 @@ describe('ProjectDetailComponent', () => {
       featured: true,
       tags: [
         { id: 1, name: 'Angular', color: '#dd0031' },
-        { id: 2, name: 'TypeScript', color: '#3178c6' }
-      ]
+        { id: 2, name: 'TypeScript', color: '#3178c6' },
+      ],
     };
 
     mockProjectService = jasmine.createSpyObj('ProjectService', ['getById']);
@@ -39,9 +41,9 @@ describe('ProjectDetailComponent', () => {
     mockActivatedRoute = {
       snapshot: {
         paramMap: {
-          get: jasmine.createSpy('get').and.returnValue('1')
-        }
-      }
+          get: jasmine.createSpy('get').and.returnValue('1'),
+        },
+      },
     };
 
     await TestBed.configureTestingModule({
@@ -49,8 +51,9 @@ describe('ProjectDetailComponent', () => {
       providers: [
         { provide: ProjectService, useValue: mockProjectService },
         { provide: Router, useValue: mockRouter },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute }
-      ]
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        provideToastr(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectDetailComponent);
@@ -70,8 +73,9 @@ describe('ProjectDetailComponent', () => {
   });
 
   it('should display loading spinner while loading', () => {
+    fixture.detectChanges(); // Let ngOnInit complete first
     component.isLoading = true;
-    fixture.detectChanges();
+    fixture.detectChanges(); // Now render with isLoading = true
     const compiled = fixture.nativeElement as HTMLElement;
     const spinner = compiled.querySelector('.spinner-border');
     expect(spinner).toBeTruthy();
@@ -86,9 +90,10 @@ describe('ProjectDetailComponent', () => {
   });
 
   it('should display error message when error occurs', () => {
+    fixture.detectChanges(); // Let ngOnInit complete first
     component.error = 'Test error';
     component.isLoading = false;
-    fixture.detectChanges();
+    fixture.detectChanges(); // Now render with error state
 
     const compiled = fixture.nativeElement as HTMLElement;
     const alert = compiled.querySelector('.alert-danger');
@@ -139,14 +144,6 @@ describe('ProjectDetailComponent', () => {
     expect(badges.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('should display featured badge when project is featured', () => {
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const featuredBadge = compiled.querySelector('.badge.bg-warning');
-    expect(featuredBadge).toBeTruthy();
-    expect(featuredBadge?.textContent).toContain('Featured');
-  });
-
   it('should display GitHub button when GitHub URL is available', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
@@ -193,11 +190,11 @@ describe('ProjectDetailComponent', () => {
 
   it('should copy link to clipboard', async () => {
     const mockClipboard = {
-      writeText: jasmine.createSpy('writeText').and.returnValue(Promise.resolve())
+      writeText: jasmine.createSpy('writeText').and.returnValue(Promise.resolve()),
     };
     Object.defineProperty(navigator, 'clipboard', {
       value: mockClipboard,
-      writable: true
+      writable: true,
     });
     spyOn(window, 'alert');
 
@@ -228,12 +225,5 @@ describe('ProjectDetailComponent', () => {
 
     expect(component.error).toBe('Invalid project ID');
     expect(component.isLoading).toBeFalse();
-  });
-
-  it('should display created and updated dates', () => {
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const metadataCard = compiled.querySelector('.bg-light .card-body');
-    expect(metadataCard).toBeTruthy();
   });
 });

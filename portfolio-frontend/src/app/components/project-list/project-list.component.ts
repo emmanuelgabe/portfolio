@@ -10,7 +10,7 @@ import { LoggerService } from '../../services/logger.service';
   standalone: true,
   imports: [CommonModule, ProjectCardComponent],
   templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.css']
+  styleUrls: ['./project-list.component.css'],
 })
 export class ProjectListComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
@@ -40,7 +40,7 @@ export class ProjectListComponent implements OnInit {
         this.logger.error('[HTTP_ERROR] Failed to load projects', { error: err.message || err });
         this.error = 'Failed to load projects. Please try again later.';
         this.isLoading = false;
-      }
+      },
     });
   }
 

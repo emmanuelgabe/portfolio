@@ -14,26 +14,26 @@ export const loggingInterceptor: HttpInterceptorFn = (req, next) => {
 
   logger.debug('[HTTP_INTERCEPTOR] Request started', {
     method: req.method,
-    url: req.url
+    url: req.url,
   });
 
   return next(req).pipe(
-    tap(event => {
+    tap((_event) => {
       const duration = Date.now() - startTime;
       logger.debug('[HTTP_INTERCEPTOR] Request completed', {
         method: req.method,
         url: req.url,
-        duration: `${duration}ms`
+        duration: `${duration}ms`,
       });
     }),
-    catchError(error => {
+    catchError((error) => {
       const duration = Date.now() - startTime;
       logger.error('[HTTP_INTERCEPTOR] Request failed', {
         method: req.method,
         url: req.url,
         status: error.status,
         statusText: error.statusText,
-        duration: `${duration}ms`
+        duration: `${duration}ms`,
       });
       return throwError(() => error);
     })

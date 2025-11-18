@@ -12,7 +12,7 @@ import { LoggerService } from '../../services/logger.service';
   standalone: true,
   imports: [CommonModule, ProjectCardComponent],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
@@ -51,7 +51,7 @@ export class HomeComponent implements OnInit {
         this.logger.error('[HTTP_ERROR] Failed to load skills', { error: err.message || err });
         this.skillsError = 'Unable to load skills';
         this.isLoadingSkills = false;
-      }
+      },
     });
   }
 
@@ -71,7 +71,7 @@ export class HomeComponent implements OnInit {
         this.logger.error('[HTTP_ERROR] Failed to load projects', { error: err.message || err });
         this.projectsError = 'Unable to load projects';
         this.isLoadingProjects = false;
-      }
+      },
     });
   }
 
@@ -96,14 +96,14 @@ export class HomeComponent implements OnInit {
    * Get featured projects (those marked as featured)
    */
   get featuredProjects(): ProjectResponse[] {
-    return this.allProjects.filter(p => p.featured);
+    return this.allProjects.filter((p) => p.featured);
   }
 
   /**
    * Get non-featured projects
    */
   get otherProjects(): ProjectResponse[] {
-    return this.allProjects.filter(p => !p.featured);
+    return this.allProjects.filter((p) => !p.featured);
   }
 
   /**
