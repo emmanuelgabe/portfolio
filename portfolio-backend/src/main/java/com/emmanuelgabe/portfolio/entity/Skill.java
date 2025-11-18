@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -55,11 +54,6 @@ public class Skill {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private SkillCategory category;
-
-    @Min(value = 0, message = "Level must be at least 0")
-    @Max(value = 100, message = "Level cannot exceed 100")
-    @Column(nullable = false)
-    private Integer level;
 
     @Min(value = 0, message = "Display order must be at least 0")
     @Column(name = "display_order", nullable = false)
