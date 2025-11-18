@@ -2,14 +2,14 @@ name: Documentation Quality Check
 
 on:
   push:
-    branches: [ main, develop, dev ]
+    branches: [ main, staging, dev ]
     paths:
       - '**.md'
       - 'docs/**'
       - '.vale.ini'
       - '.vale/**'
   pull_request:
-    branches: [ main, develop, dev ]
+    branches: [ main, staging, dev ]
     paths:
       - '**.md'
       - 'docs/**'

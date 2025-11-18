@@ -141,7 +141,7 @@ describe('HomeComponent', () => {
     mockProjectService.getFeatured.and.returnValue(of([]));
     fixture.detectChanges();
 
-    expect(component.hasFeaturedProjects).toBeFalse();
+    expect(component.featuredProjects.length).toBe(0);
 
     const compiled = fixture.nativeElement as HTMLElement;
     const noProjectsMessage = compiled.querySelector('.bi-inbox');
@@ -172,13 +172,13 @@ describe('HomeComponent', () => {
   });
 
   it('should return true for hasFeaturedProjects when projects exist', () => {
-    component.featuredProjects = mockFeaturedProjects;
-    expect(component.hasFeaturedProjects).toBeTrue();
+    component.allProjects = mockFeaturedProjects;
+    expect(component.featuredProjects.length).toBeGreaterThan(0);
   });
 
   it('should return false for hasFeaturedProjects when no projects', () => {
-    component.featuredProjects = [];
-    expect(component.hasFeaturedProjects).toBeFalse();
+    component.allProjects = [];
+    expect(component.featuredProjects.length).toBe(0);
   });
 
   it('should have correct skill colors', () => {

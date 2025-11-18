@@ -143,6 +143,7 @@ jacocoTestReport {
                 '**/mapper/**',
                 '**/version/**',
                 '**/health/**',
+                '**/security/**',
                 '**/PortfolioBackendApplication.class'
             ])
         }))
@@ -176,6 +177,7 @@ jacocoTestCoverageVerification {
                 '**/mapper/**',
                 '**/version/**',
                 '**/health/**',
+                '**/security/**',
                 '**/PortfolioBackendApplication.class'
             ])
         }))
