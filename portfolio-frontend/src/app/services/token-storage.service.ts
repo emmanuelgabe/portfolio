@@ -6,7 +6,7 @@ import { AuthResponse, JwtPayload, User, UserRole } from '../models/auth.model';
  * Supports both session storage (default) and local storage (remember me)
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TokenStorageService {
   private readonly ACCESS_TOKEN_KEY = 'access_token';
@@ -21,7 +21,7 @@ export class TokenStorageService {
    */
   saveTokens(authResponse: AuthResponse, rememberMe: boolean = false): void {
     const storage = this.getStorage(rememberMe);
-    const expiresAt = Date.now() + (authResponse.expiresIn * 1000);
+    const expiresAt = Date.now() + authResponse.expiresIn * 1000;
 
     storage.setItem(this.ACCESS_TOKEN_KEY, authResponse.accessToken);
     storage.setItem(this.REFRESH_TOKEN_KEY, authResponse.refreshToken);
@@ -75,7 +75,7 @@ export class TokenStorageService {
     }
 
     const bufferMs = bufferSeconds * 1000;
-    return Date.now() >= (expiresAt - bufferMs);
+    return Date.now() >= expiresAt - bufferMs;
   }
 
   /**
@@ -102,7 +102,7 @@ export class TokenStorageService {
       const payload = token.split('.')[1];
       const decoded = atob(payload);
       return JSON.parse(decoded) as JwtPayload;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -122,13 +122,13 @@ export class TokenStorageService {
       return null;
     }
 
-    const roles = payload.authorities.map(auth => auth.authority as UserRole);
+    const roles = payload.authorities.map((auth) => auth.authority as UserRole);
     const isAdmin = roles.includes(UserRole.ADMIN);
 
     return {
       username: payload.sub,
       roles,
-      isAdmin
+      isAdmin,
     };
   }
 

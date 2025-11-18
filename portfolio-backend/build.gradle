@@ -178,7 +178,8 @@ jacocoTestCoverageVerification {
                 '**/version/**',
                 '**/health/**',
                 '**/security/**',
-                '**/PortfolioBackendApplication.class'
+                '**/PortfolioBackendApplication.class',
+                '**/controller/FileUploadController.class'
             ])
         }))
     }

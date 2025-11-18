@@ -1,0 +1,78 @@
+<div class="admin-wrapper">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <!-- Sidebar Toggle Button -->
+      <button
+        class="btn btn-outline-light me-3"
+        type="button"
+        (click)="toggleSidebar()"
+      >
+        <i class="bi bi-list"></i>
+      </button>
+
+      <!-- Brand Logo -->
+      <a class="navbar-brand" href="/">
+        <i class="bi bi-person-circle me-2"></i>
+        Portfolio Admin
+      </a>
+
+      <!-- User Info & Actions -->
+      <div class="d-flex align-items-center gap-2">
+        <a href="/" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-house me-1"></i>
+          Retour au site
+        </a>
+        <span class="text-light me-2">
+          <i class="bi bi-person-fill me-1"></i>
+          {{ currentUser?.username }}
+        </span>
+        <button class="btn btn-outline-light btn-sm" (click)="logout()">
+          <i class="bi bi-box-arrow-right me-1"></i>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar-header">
+      <h5>Menu</h5>
+    </div>
+    <nav class="sidebar-menu">
+      <a
+        routerLink="/admin"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="sidebar-link"
+      >
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a
+        routerLink="/admin/projects"
+        routerLinkActive="active"
+        class="sidebar-link"
+      >
+        <i class="bi bi-folder"></i>
+        <span>Projects</span>
+      </a>
+      <a
+        routerLink="/admin/skills"
+        routerLinkActive="active"
+        class="sidebar-link"
+      >
+        <i class="bi bi-tools"></i>
+        <span>Skills</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" [class.sidebar-collapsed]="isSidebarCollapsed">
+    <div class="container-fluid py-4">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

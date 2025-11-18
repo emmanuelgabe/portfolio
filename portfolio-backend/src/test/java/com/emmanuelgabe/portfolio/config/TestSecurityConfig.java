@@ -25,4 +25,7 @@ public class TestSecurityConfig {
 
     @MockBean
     private PasswordEncoder passwordEncoder;
+
+    @MockBean
+    private FileStorageProperties fileStorageProperties;
 }

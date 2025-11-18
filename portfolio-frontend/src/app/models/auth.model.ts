@@ -34,7 +34,7 @@ export interface TokenRefreshRequest {
  */
 export enum UserRole {
   ADMIN = 'ROLE_ADMIN',
-  GUEST = 'ROLE_GUEST'
+  GUEST = 'ROLE_GUEST',
 }
 
 /**

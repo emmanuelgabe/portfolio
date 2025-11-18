@@ -3,7 +3,6 @@ import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LoggerService } from '../services/logger.service';
-import { Router } from '@angular/router';
 
 /**
  * JWT HTTP Interceptor
@@ -13,7 +12,6 @@ import { Router } from '@angular/router';
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const logger = inject(LoggerService);
-  const router = inject(Router);
 
   const token = authService.getToken();
   const isAuthEndpoint = req.url.includes('/api/auth/');
@@ -23,13 +21,13 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   if (token && !isAuthEndpoint) {
     authReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     logger.debug('[JWT_INTERCEPTOR] Added Authorization header', {
       method: req.method,
-      url: req.url
+      url: req.url,
     });
   }
 
@@ -38,7 +36,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       // Handle 401 Unauthorized errors
       if (error.status === 401 && !isAuthEndpoint) {
         logger.warn('[JWT_INTERCEPTOR] 401 Unauthorized, attempting token refresh', {
-          url: req.url
+          url: req.url,
         });
 
         // Attempt to refresh token and retry request
@@ -49,14 +47,14 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
             if (newToken) {
               logger.info('[JWT_INTERCEPTOR] Token refreshed, retrying request', {
-                url: req.url
+                url: req.url,
               });
 
               // Clone original request with new token
               const retryReq = req.clone({
                 setHeaders: {
-                  Authorization: `Bearer ${newToken}`
-                }
+                  Authorization: `Bearer ${newToken}`,
+                },
               });
 
               return next(retryReq);
@@ -69,7 +67,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
             // Refresh failed, logout user
             logger.error('[JWT_INTERCEPTOR] Token refresh failed, redirecting to login', {
               status: refreshError.status,
-              message: refreshError.message
+              message: refreshError.message,
             });
 
             authService.logout();
@@ -81,7 +79,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       // Handle 403 Forbidden errors
       if (error.status === 403) {
         logger.warn('[JWT_INTERCEPTOR] 403 Forbidden - insufficient permissions', {
-          url: req.url
+          url: req.url,
         });
       }
 

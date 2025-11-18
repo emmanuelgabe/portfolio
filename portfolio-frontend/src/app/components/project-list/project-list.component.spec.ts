@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { ProjectListComponent } from './project-list.component';
 import { ProjectService } from '../../services/project.service';
 import { ProjectResponse } from '../../models';
@@ -44,7 +45,7 @@ describe('ProjectListComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProjectListComponent],
-      providers: [{ provide: ProjectService, useValue: mockProjectService }],
+      providers: [{ provide: ProjectService, useValue: mockProjectService }, provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectListComponent);
@@ -64,8 +65,9 @@ describe('ProjectListComponent', () => {
   });
 
   it('should display loading spinner while loading', () => {
+    fixture.detectChanges(); // Let ngOnInit complete first
     component.isLoading = true;
-    fixture.detectChanges();
+    fixture.detectChanges(); // Now render with isLoading = true
     const compiled = fixture.nativeElement as HTMLElement;
     const spinner = compiled.querySelector('.spinner-border');
     expect(spinner).toBeTruthy();
@@ -80,9 +82,10 @@ describe('ProjectListComponent', () => {
   });
 
   it('should display error alert when error occurs', () => {
+    fixture.detectChanges(); // Let ngOnInit complete first
     component.error = 'Test error message';
     component.isLoading = false;
-    fixture.detectChanges();
+    fixture.detectChanges(); // Now render with error state
 
     const compiled = fixture.nativeElement as HTMLElement;
     const alert = compiled.querySelector('.alert-danger');
@@ -91,9 +94,10 @@ describe('ProjectListComponent', () => {
   });
 
   it('should retry loading when retry button is clicked', () => {
+    fixture.detectChanges(); // Let ngOnInit complete first
     component.error = 'Test error';
     component.isLoading = false;
-    fixture.detectChanges();
+    fixture.detectChanges(); // Render error state
 
     mockProjectService.getAll.and.returnValue(of(mockProjects));
 
@@ -132,9 +136,10 @@ describe('ProjectListComponent', () => {
   });
 
   it('should close error alert when close button is clicked', () => {
+    fixture.detectChanges(); // Let ngOnInit complete first
     component.error = 'Test error';
     component.isLoading = false;
-    fixture.detectChanges();
+    fixture.detectChanges(); // Render error state
 
     const compiled = fixture.nativeElement as HTMLElement;
     const closeButton = compiled.querySelector('.btn-close') as HTMLButtonElement;

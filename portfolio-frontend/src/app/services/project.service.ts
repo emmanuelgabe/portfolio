@@ -69,7 +69,7 @@ export class ProjectService {
   create(request: CreateProjectRequest): Observable<ProjectResponse> {
     this.logger.info('[HTTP_REQUEST] Creating project', { title: request.title });
 
-    return this.http.post<ProjectResponse>(this.apiUrl, request).pipe(
+    return this.http.post<ProjectResponse>(`${this.apiUrl}/admin`, request).pipe(
       tap((project) => {
         this.logger.info('[HTTP_SUCCESS] Project created', {
           id: project.id,
@@ -96,7 +96,7 @@ export class ProjectService {
   update(id: number, request: UpdateProjectRequest): Observable<ProjectResponse> {
     this.logger.info('[HTTP_REQUEST] Updating project', { id });
 
-    return this.http.put<ProjectResponse>(`${this.apiUrl}/${id}`, request).pipe(
+    return this.http.put<ProjectResponse>(`${this.apiUrl}/admin/${id}`, request).pipe(
       tap((project) => {
         this.logger.info('[HTTP_SUCCESS] Project updated', {
           id: project.id,
@@ -122,7 +122,7 @@ export class ProjectService {
   delete(id: number): Observable<void> {
     this.logger.info('[HTTP_REQUEST] Deleting project', { id });
 
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/admin/${id}`).pipe(
       tap(() => {
         this.logger.info('[HTTP_SUCCESS] Project deleted', { id });
       }),
