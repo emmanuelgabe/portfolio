@@ -1,7 +1,6 @@
 package com.emmanuelgabe.portfolio.dto;
 
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,11 +29,6 @@ public class CreateSkillRequest {
 
     @NotNull(message = "Category is required")
     private SkillCategory category;
-
-    @NotNull(message = "Level is required")
-    @Min(value = 0, message = "Level must be at least 0")
-    @Max(value = 100, message = "Level cannot exceed 100")
-    private Integer level;
 
     @NotNull(message = "Display order is required")
     @Min(value = 0, message = "Display order must be at least 0")

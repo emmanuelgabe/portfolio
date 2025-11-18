@@ -18,7 +18,6 @@ public class SkillResponse {
     private String color;
     private SkillCategory category;
     private String categoryDisplayName;
-    private Integer level;
     private Integer displayOrder;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

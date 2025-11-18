@@ -28,6 +28,10 @@ RUN addgroup -S spring && adduser -S spring -G spring
 
 COPY --from=build /app/build/libs/*.jar app.jar
 
+# Create uploads directory with proper permissions
+RUN mkdir -p uploads/images && \
+    chown -R spring:spring uploads
+
 # Change ownership to non-root user
 RUN chown spring:spring app.jar
 

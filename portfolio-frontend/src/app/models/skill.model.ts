@@ -13,7 +13,6 @@ export interface Skill {
   color: string;
   category: SkillCategory;
   categoryDisplayName: string;
-  level: number;
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -24,7 +23,6 @@ export interface CreateSkillRequest {
   icon: string;
   color: string;
   category: SkillCategory;
-  level: number;
   displayOrder: number;
 }
 
@@ -33,6 +31,5 @@ export interface UpdateSkillRequest {
   icon?: string;
   color?: string;
   category?: SkillCategory;
-  level?: number;
   displayOrder?: number;
 }

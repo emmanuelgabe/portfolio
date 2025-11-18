@@ -1,0 +1,33 @@
+.dashboard {
+  .stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left-width: 4px;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .stat-icon {
+      font-size: 3rem;
+      opacity: 0.3;
+    }
+
+    h2 {
+      font-weight: 700;
+      font-size: 2.5rem;
+    }
+
+    h6 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .list-unstyled {
+    li {
+      padding: 0.5rem 0;
+    }
+  }
+}

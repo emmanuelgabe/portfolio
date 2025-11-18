@@ -79,8 +79,10 @@ public class SecurityConfig {
                         .requestMatchers("/health", "/api/version", "/actuator/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
 
                         // Admin modification endpoints (require ADMIN role)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/projects/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/skills/admin/**").hasRole("ADMIN")
 

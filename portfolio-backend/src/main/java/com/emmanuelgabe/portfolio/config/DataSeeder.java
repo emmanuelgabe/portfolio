@@ -293,35 +293,34 @@ public class DataSeeder implements CommandLineRunner {
 
     private void createSkills() {
         // Frontend Skills
-        createSkill("Angular", "bi-code-square", "#dd0031", SkillCategory.FRONTEND, 90, 1);
-        createSkill("React", "bi-bootstrap", "#61dafb", SkillCategory.FRONTEND, 85, 2);
-        createSkill("TypeScript", "bi-file-code", "#3178c6", SkillCategory.FRONTEND, 90, 3);
+        createSkill("Angular", "bi-code-square", "#dd0031", SkillCategory.FRONTEND, 1);
+        createSkill("React", "bi-bootstrap", "#61dafb", SkillCategory.FRONTEND, 2);
+        createSkill("TypeScript", "bi-file-code", "#3178c6", SkillCategory.FRONTEND, 3);
 
         // Backend Skills
-        createSkill("Spring Boot", "bi-gear", "#6db33f", SkillCategory.BACKEND, 90, 4);
-        createSkill("Java", "bi-cup-hot", "#007396", SkillCategory.BACKEND, 88, 5);
-        createSkill("Node.js", "bi-node-plus", "#339933", SkillCategory.BACKEND, 80, 6);
+        createSkill("Spring Boot", "bi-gear", "#6db33f", SkillCategory.BACKEND, 4);
+        createSkill("Java", "bi-cup-hot", "#007396", SkillCategory.BACKEND, 5);
+        createSkill("Node.js", "bi-node-plus", "#339933", SkillCategory.BACKEND, 6);
 
         // Database Skills
-        createSkill("PostgreSQL", "bi-database", "#336791", SkillCategory.DATABASE, 85, 7);
-        createSkill("MongoDB", "bi-server", "#47a248", SkillCategory.DATABASE, 75, 8);
+        createSkill("PostgreSQL", "bi-database", "#336791", SkillCategory.DATABASE, 7);
+        createSkill("MongoDB", "bi-server", "#47a248", SkillCategory.DATABASE, 8);
 
         // DevOps Skills
-        createSkill("Docker", "bi-box", "#2496ed", SkillCategory.DEVOPS, 85, 9);
-        createSkill("Git", "bi-git", "#f05032", SkillCategory.DEVOPS, 90, 10);
+        createSkill("Docker", "bi-box", "#2496ed", SkillCategory.DEVOPS, 9);
+        createSkill("Git", "bi-git", "#f05032", SkillCategory.DEVOPS, 10);
 
         // Tools
-        createSkill("REST API", "bi-arrow-left-right", "#009688", SkillCategory.TOOLS, 90, 11);
-        createSkill("VS Code", "bi-code-slash", "#007acc", SkillCategory.TOOLS, 88, 12);
+        createSkill("REST API", "bi-arrow-left-right", "#009688", SkillCategory.TOOLS, 11);
+        createSkill("VS Code", "bi-code-slash", "#007acc", SkillCategory.TOOLS, 12);
     }
 
-    private void createSkill(String name, String icon, String color, SkillCategory category, Integer level, Integer displayOrder) {
+    private void createSkill(String name, String icon, String color, SkillCategory category, Integer displayOrder) {
         CreateSkillRequest request = new CreateSkillRequest();
         request.setName(name);
         request.setIcon(icon);
         request.setColor(color);
         request.setCategory(category);
-        request.setLevel(level);
         request.setDisplayOrder(displayOrder);
 
         skillService.createSkill(request);

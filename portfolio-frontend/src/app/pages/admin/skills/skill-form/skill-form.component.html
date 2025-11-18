@@ -1,0 +1,187 @@
+<div class="skill-form">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ isEditMode ? 'Éditer la Compétence' : 'Nouvelle Compétence' }}</h1>
+    <a routerLink="/admin/skills" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!loading" class="card shadow-sm">
+    <div class="card-body">
+      <form [formGroup]="skillForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <!-- Name -->
+          <div class="col-md-6 mb-3">
+            <label for="name" class="form-label">
+              Nom <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              class="form-control"
+              formControlName="name"
+              [class.is-invalid]="isFieldInvalid('name')"
+              placeholder="Ex: Angular, Spring Boot, Docker"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('name', 'required')">
+              Le nom est requis
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('name', 'minlength')">
+              Le nom doit contenir au moins 2 caractères
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div class="col-md-6 mb-3">
+            <label for="category" class="form-label">
+              Catégorie <span class="text-danger">*</span>
+            </label>
+            <select
+              id="category"
+              class="form-select"
+              formControlName="category"
+              [class.is-invalid]="isFieldInvalid('category')"
+            >
+              <option *ngFor="let cat of categories" [value]="cat.value">
+                {{ cat.label }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="hasError('category', 'required')">
+              La catégorie est requise
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Icon -->
+          <div class="col-md-6 mb-3">
+            <label for="icon" class="form-label">
+              Icône Bootstrap <span class="text-danger">*</span>
+            </label>
+            <select
+              id="icon"
+              class="form-select"
+              formControlName="icon"
+              [class.is-invalid]="isFieldInvalid('icon')"
+            >
+              <option *ngFor="let iconClass of commonIcons" [value]="iconClass">
+                {{ iconClass }}
+              </option>
+            </select>
+            <div class="form-text">
+              Prévisualisation:
+              <i class="bi {{ skillForm.get('icon')?.value }} ms-2" style="font-size: 1.5rem;"></i>
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('icon', 'required')">
+              L'icône est requise
+            </div>
+          </div>
+
+          <!-- Color -->
+          <div class="col-md-6 mb-3">
+            <label for="color" class="form-label">
+              Couleur <span class="text-danger">*</span>
+            </label>
+            <div class="d-flex align-items-center">
+              <input
+                type="color"
+                id="color"
+                class="form-control form-control-color"
+                formControlName="color"
+                [class.is-invalid]="isFieldInvalid('color')"
+              />
+              <input
+                type="text"
+                class="form-control ms-2"
+                [value]="skillForm.get('color')?.value"
+                readonly
+              />
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('color', 'required')">
+              La couleur est requise
+            </div>
+          </div>
+        </div>
+
+        <!-- Display Order -->
+        <div class="mb-3">
+            <label for="displayOrder" class="form-label">
+              Ordre d'affichage <span class="text-danger">*</span>
+            </label>
+            <input
+              type="number"
+              id="displayOrder"
+              class="form-control"
+              formControlName="displayOrder"
+              [class.is-invalid]="isFieldInvalid('displayOrder')"
+              min="0"
+            />
+            <div class="form-text">
+              Plus le nombre est bas, plus la compétence sera affichée en premier
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('displayOrder', 'required')">
+              L'ordre d'affichage est requis
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="mb-4">
+          <label class="form-label">Prévisualisation</label>
+          <div class="card preview-card">
+            <div class="card-body text-center">
+              <i
+                class="bi {{ skillForm.get('icon')?.value }} skill-preview-icon"
+                [style.color]="skillForm.get('color')?.value"
+              ></i>
+              <h5 class="mt-3">{{ skillForm.get('name')?.value || 'Nom de la compétence' }}</h5>
+              <p class="text-muted mb-0">
+                <span class="badge" [ngClass]="{
+                  'bg-primary': skillForm.get('category')?.value === 'FRONTEND',
+                  'bg-success': skillForm.get('category')?.value === 'BACKEND',
+                  'bg-info': skillForm.get('category')?.value === 'DATABASE',
+                  'bg-warning': skillForm.get('category')?.value === 'DEVOPS',
+                  'bg-secondary': skillForm.get('category')?.value === 'TOOLS'
+                }">
+                  {{ getCategoryLabel(skillForm.get('category')?.value) }}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between pt-3 border-top">
+          <a routerLink="/admin/skills" class="btn btn-outline-secondary">
+            Annuler
+          </a>
+          <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="skillForm.invalid || submitting"
+          >
+            <span *ngIf="!submitting">
+              <i class="bi bi-check-lg me-2"></i>
+              {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+            </span>
+            <span *ngIf="submitting">
+              <div class="spinner-border spinner-border-sm me-2" role="status">
+                <span class="visually-hidden">Envoi...</span>
+              </div>
+              Envoi...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

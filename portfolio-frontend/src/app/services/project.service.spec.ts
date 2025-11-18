@@ -48,7 +48,7 @@ describe('ProjectService', () => {
         expect(projects.length).toBe(1);
       });
 
-      const req = httpMock.expectOne(apiUrl);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects') && request.method === 'GET');
       expect(req.request.method).toBe('GET');
       req.flush(mockProjects);
     });
@@ -61,7 +61,7 @@ describe('ProjectService', () => {
         expect(project.id).toBe(1);
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/1`);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects/1') && request.method === 'GET');
       expect(req.request.method).toBe('GET');
       req.flush(mockProject);
     });
@@ -80,7 +80,7 @@ describe('ProjectService', () => {
         expect(project).toEqual(mockProject);
       });
 
-      const req = httpMock.expectOne(apiUrl);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects/admin') && request.method === 'POST');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createRequest);
       req.flush(mockProject);
@@ -97,7 +97,7 @@ describe('ProjectService', () => {
         expect(project).toEqual(mockProject);
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/1`);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects/admin/1') && request.method === 'PUT');
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(updateRequest);
       req.flush(mockProject);
@@ -110,7 +110,7 @@ describe('ProjectService', () => {
         expect(response).toBeNull();
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/1`);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects/admin/1') && request.method === 'DELETE');
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
     });
@@ -125,7 +125,7 @@ describe('ProjectService', () => {
         expect(projects[0].featured).toBe(true);
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/featured`);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects/featured') && request.method === 'GET');
       expect(req.request.method).toBe('GET');
       req.flush(mockProjects);
     });
@@ -140,7 +140,7 @@ describe('ProjectService', () => {
         expect(projects).toEqual(mockProjects);
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/search/title?title=${searchTitle}`);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects/search/title') && request.method === 'GET');
       expect(req.request.method).toBe('GET');
       expect(req.request.params.get('title')).toBe(searchTitle);
       req.flush(mockProjects);
@@ -156,7 +156,7 @@ describe('ProjectService', () => {
         expect(projects).toEqual(mockProjects);
       });
 
-      const req = httpMock.expectOne(`${apiUrl}/search/technology?technology=${searchTech}`);
+      const req = httpMock.expectOne((request) => request.url.includes('/api/projects/search/technology') && request.method === 'GET');
       expect(req.request.method).toBe('GET');
       expect(req.request.params.get('technology')).toBe(searchTech);
       req.flush(mockProjects);

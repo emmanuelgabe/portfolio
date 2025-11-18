@@ -21,7 +21,7 @@ export class NavbarComponent {
   currentUser: User | null = null;
 
   constructor() {
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
   }

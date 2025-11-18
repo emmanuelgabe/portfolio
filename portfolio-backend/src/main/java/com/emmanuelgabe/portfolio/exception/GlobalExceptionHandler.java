@@ -180,6 +180,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle FileStorageException
+     */
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ErrorResponse> handleFileStorageException(FileStorageException ex) {
+        log.error("[EXCEPTION] File storage error - message={}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    /**
      * Handle validation errors
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)

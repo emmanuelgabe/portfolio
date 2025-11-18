@@ -1,0 +1,200 @@
+<div class="project-form">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ isEditMode ? 'Éditer le Projet' : 'Nouveau Projet' }}</h1>
+    <a routerLink="/admin/projects" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!loading" class="card shadow-sm">
+    <div class="card-body">
+      <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <!-- Title -->
+          <div class="col-md-6 mb-3">
+            <label for="title" class="form-label">
+              Titre <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              id="title"
+              class="form-control"
+              formControlName="title"
+              [class.is-invalid]="isFieldInvalid('title')"
+              placeholder="Nom du projet"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('title', 'required')">
+              Le titre est requis
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('title', 'minlength')">
+              Le titre doit contenir au moins 3 caractères
+            </div>
+          </div>
+
+          <!-- Featured -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label d-block">Projet mis en avant</label>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="featured"
+                formControlName="featured"
+              />
+              <label class="form-check-label" for="featured">
+                Afficher sur la page d'accueil
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label for="description" class="form-label">
+            Description <span class="text-danger">*</span>
+          </label>
+          <textarea
+            id="description"
+            class="form-control"
+            formControlName="description"
+            [class.is-invalid]="isFieldInvalid('description')"
+            rows="4"
+            placeholder="Décrivez votre projet..."
+          ></textarea>
+          <div class="invalid-feedback" *ngIf="hasError('description', 'required')">
+            La description est requise
+          </div>
+          <div class="invalid-feedback" *ngIf="hasError('description', 'minlength')">
+            La description doit contenir au moins 10 caractères
+          </div>
+        </div>
+
+        <!-- Technologies -->
+        <div class="mb-3">
+          <label for="techStack" class="form-label">
+            Technologies <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            id="techStack"
+            class="form-control"
+            formControlName="techStack"
+            [class.is-invalid]="isFieldInvalid('techStack')"
+            placeholder="Angular, TypeScript, Spring Boot (séparées par des virgules)"
+          />
+          <div class="form-text">
+            Séparez les technologies par des virgules
+          </div>
+          <div class="invalid-feedback" *ngIf="hasError('techStack', 'required')">
+            Les technologies sont requises
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- GitHub URL -->
+          <div class="col-md-6 mb-3">
+            <label for="githubUrl" class="form-label">
+              URL GitHub
+            </label>
+            <input
+              type="url"
+              id="githubUrl"
+              class="form-control"
+              formControlName="githubUrl"
+              placeholder="https://github.com/username/repo"
+            />
+          </div>
+
+          <!-- Demo URL -->
+          <div class="col-md-6 mb-3">
+            <label for="demoUrl" class="form-label">
+              URL Démo
+            </label>
+            <input
+              type="url"
+              id="demoUrl"
+              class="form-control"
+              formControlName="demoUrl"
+              placeholder="https://demo.example.com"
+            />
+          </div>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="mb-4">
+          <label class="form-label">Image du projet</label>
+
+          <!-- Upload Button -->
+          <div class="mb-3">
+            <label for="imageFile" class="btn btn-outline-primary">
+              <i class="bi bi-cloud-upload me-2"></i>
+              Choisir une image
+            </label>
+            <input
+              type="file"
+              id="imageFile"
+              class="d-none"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              [disabled]="uploadingImage"
+            />
+            <span *ngIf="uploadingImage" class="ms-3">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Upload...</span>
+              </div>
+              <span class="ms-2">Upload en cours...</span>
+            </span>
+          </div>
+
+          <!-- Image Preview -->
+          <div *ngIf="imagePreview" class="image-preview-container">
+            <div class="position-relative d-inline-block">
+              <img [src]="imagePreview" alt="Preview" class="image-preview" />
+              <button
+                type="button"
+                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                (click)="removeImage()"
+                [disabled]="uploadingImage"
+              >
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between pt-3 border-top">
+          <a routerLink="/admin/projects" class="btn btn-outline-secondary">
+            Annuler
+          </a>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="projectForm.invalid || submitting || uploadingImage"
+          >
+            <span *ngIf="!submitting">
+              <i class="bi bi-check-lg me-2"></i>
+              {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+            </span>
+            <span *ngIf="submitting">
+              <div class="spinner-border spinner-border-sm me-2" role="status">
+                <span class="visually-hidden">Envoi...</span>
+              </div>
+              Envoi...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

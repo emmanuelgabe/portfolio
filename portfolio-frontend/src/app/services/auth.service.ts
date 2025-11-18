@@ -13,7 +13,7 @@ import { LoginRequest, AuthResponse, TokenRefreshRequest, User } from '../models
  * Handles login, logout, token refresh, and auto-refresh scheduling
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -60,15 +60,15 @@ export class AuthService {
     this.logger.info('[AUTH_LOGIN] Login attempt', { username: credentials.username });
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
+      tap((response) => {
         this.handleAuthenticationSuccess(response, rememberMe);
         this.logger.info('[AUTH_LOGIN] Login successful', { username: credentials.username });
       }),
-      catchError(error => {
+      catchError((error) => {
         this.logger.error('[AUTH_LOGIN] Login failed', {
           username: credentials.username,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         return throwError(() => error);
       })
@@ -85,19 +85,25 @@ export class AuthService {
     if (refreshToken) {
       this.logger.info('[AUTH_LOGOUT] Logout initiated');
 
-      this.http.post(`${this.apiUrl}/logout`, { refreshToken }).pipe(
-        catchError(error => {
-          this.logger.warn('[AUTH_LOGOUT] Logout endpoint error (proceeding with local cleanup)', {
-            status: error.status
-          });
-          return throwError(() => error);
-        })
-      ).subscribe({
-        complete: () => {
-          this.clearAuthenticationState();
-          this.logger.info('[AUTH_LOGOUT] Logout completed');
-        }
-      });
+      this.http
+        .post(`${this.apiUrl}/logout`, { refreshToken })
+        .pipe(
+          catchError((error) => {
+            this.logger.warn(
+              '[AUTH_LOGOUT] Logout endpoint error (proceeding with local cleanup)',
+              {
+                status: error.status,
+              }
+            );
+            return throwError(() => error);
+          })
+        )
+        .subscribe({
+          complete: () => {
+            this.clearAuthenticationState();
+            this.logger.info('[AUTH_LOGOUT] Logout completed');
+          },
+        });
     } else {
       this.clearAuthenticationState();
       this.logger.info('[AUTH_LOGOUT] Local logout (no refresh token)');
@@ -128,17 +134,17 @@ export class AuthService {
     const request: TokenRefreshRequest = { refreshToken };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, request).pipe(
-      tap(response => {
+      tap((response) => {
         const rememberMe = this.tokenStorage.isRememberMeEnabled();
         this.handleAuthenticationSuccess(response, rememberMe);
         this.isRefreshing = false;
         this.logger.info('[AUTH_REFRESH] Token refresh successful');
       }),
-      catchError(error => {
+      catchError((error) => {
         this.isRefreshing = false;
         this.logger.error('[AUTH_REFRESH] Token refresh failed', {
           status: error.status,
-          message: error.message
+          message: error.message,
         });
         this.clearAuthenticationState();
         return throwError(() => error);
@@ -208,23 +214,23 @@ export class AuthService {
     this.cancelTokenRefresh();
 
     const timeUntilExpiration = this.tokenStorage.getTimeUntilExpiration();
-    const refreshTime = timeUntilExpiration - (this.REFRESH_BUFFER_SECONDS * 1000);
+    const refreshTime = timeUntilExpiration - this.REFRESH_BUFFER_SECONDS * 1000;
 
     if (refreshTime > 0) {
       this.logger.debug('[AUTH_SCHEDULE] Scheduling token refresh', {
         refreshInMs: refreshTime,
-        refreshInMinutes: Math.round(refreshTime / 60000)
+        refreshInMinutes: Math.round(refreshTime / 60000),
       });
 
-      this.refreshTimerSubscription = timer(refreshTime).pipe(
-        switchMap(() => this.refreshToken())
-      ).subscribe({
-        error: (error) => {
-          this.logger.error('[AUTH_SCHEDULE] Scheduled refresh failed', {
-            error: error.message
-          });
-        }
-      });
+      this.refreshTimerSubscription = timer(refreshTime)
+        .pipe(switchMap(() => this.refreshToken()))
+        .subscribe({
+          error: (error) => {
+            this.logger.error('[AUTH_SCHEDULE] Scheduled refresh failed', {
+              error: error.message,
+            });
+          },
+        });
     } else {
       this.logger.debug('[AUTH_SCHEDULE] Token expires soon, refreshing immediately');
       this.refreshToken().subscribe();

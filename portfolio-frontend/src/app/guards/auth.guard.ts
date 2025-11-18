@@ -23,12 +23,12 @@ export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
 
   logger.warn('[AUTH_GUARD] Access denied, redirecting to login', {
     url,
-    returnUrl: url
+    returnUrl: url,
   });
 
   // Redirect to login with return URL
   return router.createUrlTree(['/login'], {
-    queryParams: { returnUrl: url }
+    queryParams: { returnUrl: url },
   });
 };
 
@@ -54,17 +54,17 @@ export const adminGuard: CanActivateFn = (route, state): boolean | UrlTree => {
   if (!isAuthenticated) {
     logger.warn('[ADMIN_GUARD] Not authenticated, redirecting to login', {
       url,
-      returnUrl: url
+      returnUrl: url,
     });
 
     return router.createUrlTree(['/login'], {
-      queryParams: { returnUrl: url }
+      queryParams: { returnUrl: url },
     });
   }
 
   logger.warn('[ADMIN_GUARD] Insufficient permissions, redirecting to home', {
     url,
-    isAdmin
+    isAdmin,
   });
 
   return router.createUrlTree(['/']);

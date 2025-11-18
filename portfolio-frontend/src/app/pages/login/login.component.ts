@@ -17,7 +17,7 @@ import { LoginRequest } from '../../models/auth.model';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
+      rememberMe: [false],
     });
   }
 
@@ -65,7 +65,7 @@ export class LoginComponent implements OnInit {
 
     const credentials: LoginRequest = {
       username: this.loginForm.value.username,
-      password: this.loginForm.value.password
+      password: this.loginForm.value.password,
     };
     const rememberMe = this.loginForm.value.rememberMe;
 
@@ -83,17 +83,17 @@ export class LoginComponent implements OnInit {
         this.logger.error('[LOGIN] Login failed', {
           username: credentials.username,
           status: error.status,
-          message: error.message
+          message: error.message,
         });
 
         if (error.status === 401) {
-          this.toastr.error('Nom d\'utilisateur ou mot de passe incorrect', 'Échec de connexion');
+          this.toastr.error("Nom d'utilisateur ou mot de passe incorrect", 'Échec de connexion');
         } else if (error.status === 0) {
           this.toastr.error('Impossible de contacter le serveur', 'Erreur réseau');
         } else {
           this.toastr.error('Une erreur est survenue lors de la connexion', 'Erreur');
         }
-      }
+      },
     });
   }
 
@@ -101,7 +101,7 @@ export class LoginComponent implements OnInit {
    * Mark all form fields as touched to trigger validation messages
    */
   private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach(key => {
+    Object.keys(formGroup.controls).forEach((key) => {
       const control = formGroup.get(key);
       control?.markAsTouched();
     });
