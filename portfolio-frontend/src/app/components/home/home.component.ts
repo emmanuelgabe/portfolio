@@ -2,8 +2,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProjectCardComponent } from '../project-card/project-card.component';
 import { ProjectService, SkillService } from '../../services';
+import { CvService } from '../../services/cv.service';
 import { ProjectResponse } from '../../models';
 import { Skill } from '../../models/skill.model';
+import { CvResponse } from '../../models/cv.model';
 import { VERSION } from '../../../environments/version';
 import { LoggerService } from '../../services/logger.service';
 
@@ -17,6 +19,7 @@ import { LoggerService } from '../../services/logger.service';
 export class HomeComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly skillService = inject(SkillService);
+  private readonly cvService = inject(CvService);
   private readonly logger = inject(LoggerService);
 
   allProjects: ProjectResponse[] = [];
@@ -28,11 +31,15 @@ export class HomeComponent implements OnInit {
   isLoadingSkills = false;
   skillsError: string | null = null;
 
+  currentCv: CvResponse | null = null;
+  isLoadingCv = false;
+
   version = VERSION;
 
   ngOnInit(): void {
     this.loadProjects();
     this.loadSkills();
+    this.loadCv();
   }
 
   /**
@@ -128,5 +135,32 @@ export class HomeComponent implements OnInit {
    */
   get hasMoreProjects(): boolean {
     return this.otherProjects.length > 0;
+  }
+
+  /**
+   * Load current CV from API
+   */
+  loadCv(): void {
+    this.isLoadingCv = true;
+
+    this.cvService.getCurrentCv().subscribe({
+      next: (cv) => {
+        this.currentCv = cv;
+        this.isLoadingCv = false;
+      },
+      error: (err) => {
+        this.logger.debug('[HTTP_ERROR] No CV available', { error: err.message || err });
+        this.currentCv = null;
+        this.isLoadingCv = false;
+      },
+    });
+  }
+
+  /**
+   * Download CV
+   */
+  downloadCv(): void {
+    this.logger.info('[USER_ACTION] User clicked download CV button');
+    this.cvService.downloadCv();
   }
 }

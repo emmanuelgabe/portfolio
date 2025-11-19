@@ -59,3 +59,4 @@ temp/
 tmp/
 nul
 .claude/
+portfolio-frontend/src/environments/version.ts

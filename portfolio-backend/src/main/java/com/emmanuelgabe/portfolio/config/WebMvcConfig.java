@@ -14,11 +14,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final FileStorageProperties fileStorageProperties;
+    private final CvStorageProperties cvStorageProperties;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Serve uploaded images
         registry.addResourceHandler(fileStorageProperties.getBasePath() + "/**")
                 .addResourceLocations("file:" + fileStorageProperties.getUploadDir() + "/");
+
+        // Serve uploaded CVs
+        registry.addResourceHandler(cvStorageProperties.getBasePath() + "/**")
+                .addResourceLocations("file:" + cvStorageProperties.getUploadDir() + "/");
     }
 }

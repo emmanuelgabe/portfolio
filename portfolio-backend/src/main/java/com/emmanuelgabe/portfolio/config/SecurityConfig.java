@@ -80,6 +80,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/cv/current", "/api/cv/download").permitAll()
 
                         // Admin modification endpoints (require ADMIN role)
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

@@ -12,7 +12,7 @@
           et les technologies de pointe. Passionné par le code propre, les bonnes pratiques
           et la création d'expériences utilisateur exceptionnelles.
         </p>
-        <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+        <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
           <a href="#projects" class="btn btn-primary btn-lg">
             <i class="bi bi-folder2-open me-2"></i>
             Voir mes projets
@@ -21,6 +21,14 @@
             <i class="bi bi-envelope me-2"></i>
             Me contacter
           </a>
+          <button
+            *ngIf="currentCv && !isLoadingCv"
+            (click)="downloadCv()"
+            class="btn btn-success btn-lg"
+            type="button">
+            <i class="bi bi-download me-2"></i>
+            Télécharger mon CV
+          </button>
         </div>
       </div>
       <div class="col-lg-6 text-center">

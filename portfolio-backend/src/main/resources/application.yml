@@ -33,6 +33,17 @@ file:
       - image/gif
       - image/webp
 
+# CV upload configuration
+cv:
+  storage:
+    upload-dir: ${CV_UPLOAD_DIR:uploads/cvs}
+    base-path: ${CV_BASE_PATH:/uploads/cvs}
+    max-file-size: ${CV_MAX_FILE_SIZE:10485760}  # 10MB in bytes
+    allowed-extensions:
+      - pdf
+    allowed-mime-types:
+      - application/pdf
+
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
@@ -43,6 +54,6 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 5MB
-      max-request-size: 5MB
+      max-file-size: 10MB
+      max-request-size: 10MB
       file-size-threshold: 2KB
