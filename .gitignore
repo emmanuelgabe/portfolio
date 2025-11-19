@@ -58,5 +58,7 @@ yarn-error.log*
 temp/
 tmp/
 nul
-.claude/
 portfolio-frontend/src/environments/version.ts
+
+# MkDocs generated site
+site/
