@@ -17,11 +17,14 @@ services:
     volumes:
       - ./portfolio-frontend:/app
       - /app/node_modules
-    ports:
-      - "4200:4200"
+    # Port not exposed directly - access through nginx on port 4200
     command: npm start -- --host 0.0.0.0 --poll 2000
-    # Health check disabled for dev server (ng serve is too slow to start in CI)
-    # Backend and DB health checks are sufficient for local testing
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/health.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
 
   spring-backend:
     container_name: portfolio-backend-local
@@ -35,6 +38,11 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres_app
       - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - REDIS_HOST=redis-cache
+      - REDIS_PORT=6379
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_APP_PASSWORD=${MAIL_APP_PASSWORD}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
     volumes:
       - ./portfolio-backend/src:/app/src
       - ./portfolio-backend/build:/app/build
@@ -58,14 +66,24 @@ services:
     ports:
       - "5435:5432"
 
+  redis-cache:
+    container_name: portfolio-redis-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - portfolio_redis_local_data:/data
+
   nginx-portfolio:
     container_name: portfolio-nginx-local
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d/local.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
+      - "4200:80"
       - "8081:80"
 
 volumes:
   portfolio_uploads_local:
     name: portfolio_local_uploads
+  portfolio_redis_local_data:
+    name: portfolio_local_redis_data
