@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -41,10 +42,18 @@ public class Skill {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @NotBlank(message = "Icon is required")
     @Size(max = 50, message = "Icon class cannot exceed 50 characters")
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String icon;
+
+    @NotNull(message = "Icon type is required")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "icon_type", nullable = false, length = 20)
+    private IconType iconType = IconType.FONT_AWESOME;
+
+    @Size(max = 500, message = "Custom icon URL cannot exceed 500 characters")
+    @Column(name = "custom_icon_url", length = 500)
+    private String customIconUrl;
 
     @NotBlank(message = "Color is required")
     @Pattern(regexp = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", message = "Color must be a valid hex color code")

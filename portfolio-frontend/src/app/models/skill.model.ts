@@ -6,10 +6,17 @@ export enum SkillCategory {
   TOOLS = 'TOOLS',
 }
 
+export enum IconType {
+  FONT_AWESOME = 'FONT_AWESOME',
+  CUSTOM_SVG = 'CUSTOM_SVG',
+}
+
 export interface Skill {
   id: number;
   name: string;
-  icon: string;
+  icon?: string;
+  iconType: IconType;
+  customIconUrl?: string;
   color: string;
   category: SkillCategory;
   categoryDisplayName: string;
@@ -20,7 +27,9 @@ export interface Skill {
 
 export interface CreateSkillRequest {
   name: string;
-  icon: string;
+  icon?: string;
+  iconType: IconType;
+  customIconUrl?: string;
   color: string;
   category: SkillCategory;
   displayOrder: number;
@@ -29,6 +38,8 @@ export interface CreateSkillRequest {
 export interface UpdateSkillRequest {
   name?: string;
   icon?: string;
+  iconType?: IconType;
+  customIconUrl?: string;
   color?: string;
   category?: SkillCategory;
   displayOrder?: number;

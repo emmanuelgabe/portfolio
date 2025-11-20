@@ -1,11 +1,11 @@
 <div class="skill-form">
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>{{ isEditMode ? 'Éditer la Compétence' : 'Nouvelle Compétence' }}</h1>
-    <a routerLink="/admin/skills" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left me-2"></i>
+    <h1>{{ isEditMode ? 'Editer la Competence' : 'Nouvelle Competence' }}</h1>
+    <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left me-2"></i>
       Retour
-    </a>
+    </button>
   </div>
 
   <!-- Loading State -->
@@ -31,20 +31,21 @@
               class="form-control"
               formControlName="name"
               [class.is-invalid]="isFieldInvalid('name')"
+              [readonly]="demoModeService.isDemo()"
               placeholder="Ex: Angular, Spring Boot, Docker"
             />
             <div class="invalid-feedback" *ngIf="hasError('name', 'required')">
               Le nom est requis
             </div>
             <div class="invalid-feedback" *ngIf="hasError('name', 'minlength')">
-              Le nom doit contenir au moins 2 caractères
+              Le nom doit contenir au moins 2 caracteres
             </div>
           </div>
 
           <!-- Category -->
           <div class="col-md-6 mb-3">
             <label for="category" class="form-label">
-              Catégorie <span class="text-danger">*</span>
+              Categorie <span class="text-danger">*</span>
             </label>
             <select
               id="category"
@@ -57,34 +58,27 @@
               </option>
             </select>
             <div class="invalid-feedback" *ngIf="hasError('category', 'required')">
-              La catégorie est requise
+              La categorie est requise
             </div>
           </div>
         </div>
 
         <div class="row">
-          <!-- Icon -->
+          <!-- Icon Type -->
           <div class="col-md-6 mb-3">
-            <label for="icon" class="form-label">
-              Icône Bootstrap <span class="text-danger">*</span>
+            <label for="iconType" class="form-label">
+              Type d'icone <span class="text-danger">*</span>
             </label>
             <select
-              id="icon"
+              id="iconType"
               class="form-select"
-              formControlName="icon"
-              [class.is-invalid]="isFieldInvalid('icon')"
+              formControlName="iconType"
+              (change)="onIconTypeChange()"
             >
-              <option *ngFor="let iconClass of commonIcons" [value]="iconClass">
-                {{ iconClass }}
+              <option *ngFor="let type of iconTypes" [value]="type.value">
+                {{ type.label }}
               </option>
             </select>
-            <div class="form-text">
-              Prévisualisation:
-              <i class="bi {{ skillForm.get('icon')?.value }} ms-2" style="font-size: 1.5rem;"></i>
-            </div>
-            <div class="invalid-feedback" *ngIf="hasError('icon', 'required')">
-              L'icône est requise
-            </div>
           </div>
 
           <!-- Color -->
@@ -113,37 +107,111 @@
           </div>
         </div>
 
-        <!-- Display Order -->
-        <div class="mb-3">
-            <label for="displayOrder" class="form-label">
-              Ordre d'affichage <span class="text-danger">*</span>
+        <!-- Font Awesome Icon Picker -->
+        <div *ngIf="skillForm.get('iconType')?.value === IconType.FONT_AWESOME" class="mb-3">
+          <label class="form-label">
+            Icone Font Awesome <span class="text-danger">*</span>
+          </label>
+          <app-icon-picker
+            [selectedIcon]="skillForm.get('icon')?.value"
+            [previewColor]="skillForm.get('color')?.value"
+            (iconSelected)="onIconSelected($event)"
+            [class.disabled]="demoModeService.isDemo()"
+          ></app-icon-picker>
+        </div>
+
+        <!-- Custom SVG Upload -->
+        <div *ngIf="skillForm.get('iconType')?.value === IconType.CUSTOM_SVG" class="mb-3">
+          <label class="form-label">
+            Fichier SVG <span class="text-danger">*</span>
+          </label>
+          <div class="d-flex align-items-center gap-3">
+            <label for="svgFile" class="btn btn-outline-primary mb-0" [class.disabled]="demoModeService.isDemo()">
+              <i class="fa-solid fa-upload me-2"></i>
+              Choisir un fichier SVG
             </label>
             <input
-              type="number"
-              id="displayOrder"
-              class="form-control"
-              formControlName="displayOrder"
-              [class.is-invalid]="isFieldInvalid('displayOrder')"
-              min="0"
+              type="file"
+              id="svgFile"
+              class="d-none"
+              accept=".svg"
+              (change)="onSvgFileSelected($event)"
+              [disabled]="demoModeService.isDemo() || uploadingIcon"
             />
-            <div class="form-text">
-              Plus le nombre est bas, plus la compétence sera affichée en premier
+            <span *ngIf="uploadingIcon" class="text-muted">
+              <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+              Upload en cours...
+            </span>
+          </div>
+          <div class="form-text">Format SVG uniquement, max 100KB</div>
+
+          <!-- SVG Preview -->
+          <div *ngIf="svgPreview" class="mt-3 p-3 border rounded bg-light">
+            <div class="d-flex align-items-center">
+              <img
+                [src]="svgPreview"
+                alt="SVG Preview"
+                class="svg-preview me-3"
+                [style.width.px]="64"
+                [style.height.px]="64"
+              />
+              <div>
+                <strong>Apercu de l'icone SVG</strong>
+                <p class="text-muted mb-0 small">
+                  Note: La couleur sera appliquee si le SVG utilise currentColor
+                </p>
+              </div>
             </div>
-            <div class="invalid-feedback" *ngIf="hasError('displayOrder', 'required')">
-              L'ordre d'affichage est requis
-            </div>
+          </div>
+        </div>
+
+        <!-- Display Order -->
+        <div class="mb-3">
+          <label for="displayOrder" class="form-label">
+            Ordre d'affichage <span class="text-danger">*</span>
+          </label>
+          <input
+            type="number"
+            id="displayOrder"
+            class="form-control"
+            formControlName="displayOrder"
+            [class.is-invalid]="isFieldInvalid('displayOrder')"
+            [readonly]="demoModeService.isDemo()"
+            min="0"
+          />
+          <div class="form-text">
+            Plus le nombre est bas, plus la competence sera affichee en premier
+          </div>
+          <div class="invalid-feedback" *ngIf="hasError('displayOrder', 'required')">
+            L'ordre d'affichage est requis
+          </div>
         </div>
 
         <!-- Preview Card -->
         <div class="mb-4">
-          <label class="form-label">Prévisualisation</label>
+          <label class="form-label">Previsualisation</label>
           <div class="card preview-card">
             <div class="card-body text-center">
+              <!-- Font Awesome Icon -->
               <i
-                class="bi {{ skillForm.get('icon')?.value }} skill-preview-icon"
+                *ngIf="skillForm.get('iconType')?.value === IconType.FONT_AWESOME"
+                [class]="skillForm.get('icon')?.value + ' skill-preview-icon'"
                 [style.color]="skillForm.get('color')?.value"
               ></i>
-              <h5 class="mt-3">{{ skillForm.get('name')?.value || 'Nom de la compétence' }}</h5>
+              <!-- Custom SVG Icon -->
+              <img
+                *ngIf="skillForm.get('iconType')?.value === IconType.CUSTOM_SVG && svgPreview"
+                [src]="svgPreview"
+                alt="Custom icon"
+                class="skill-preview-svg"
+              />
+              <div
+                *ngIf="skillForm.get('iconType')?.value === IconType.CUSTOM_SVG && !svgPreview"
+                class="skill-preview-placeholder"
+              >
+                <i class="fa-solid fa-image text-muted"></i>
+              </div>
+              <h5 class="mt-3">{{ skillForm.get('name')?.value || 'Nom de la competence' }}</h5>
               <p class="text-muted mb-0">
                 <span class="badge" [ngClass]="{
                   'bg-primary': skillForm.get('category')?.value === 'FRONTEND',
@@ -161,17 +229,19 @@
 
         <!-- Form Actions -->
         <div class="d-flex justify-content-between pt-3 border-top">
-          <a routerLink="/admin/skills" class="btn btn-outline-secondary">
+          <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
             Annuler
-          </a>
+          </button>
           <button
             type="submit"
             class="btn btn-success"
-            [disabled]="skillForm.invalid || submitting"
+            [disabled]="skillForm.invalid || submitting || uploadingIcon || demoModeService.isDemo()"
+            [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+            [title]="demoModeService.isDemo() ? 'Action desactivee en mode demonstration' : ''"
           >
             <span *ngIf="!submitting">
-              <i class="bi bi-check-lg me-2"></i>
-              {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+              <i class="fa-solid fa-check me-2"></i>
+              {{ isEditMode ? 'Mettre a jour' : 'Creer' }}
             </span>
             <span *ngIf="submitting">
               <div class="spinner-border spinner-border-sm me-2" role="status">

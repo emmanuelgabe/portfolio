@@ -1,27 +1,22 @@
 package com.emmanuelgabe.portfolio.controller;
 
-import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
-import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
 import com.emmanuelgabe.portfolio.service.SkillService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST controller for public skill endpoints.
+ * Admin endpoints are in AdminSkillController under /api/admin/skills.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/skills")
@@ -36,9 +31,9 @@ public class SkillController {
      */
     @GetMapping
     public ResponseEntity<List<SkillResponse>> getAllSkills() {
-        log.debug("[LIST_SKILLS] Request received");
+        log.debug("[SKILLS] Fetching all skills");
         List<SkillResponse> skills = skillService.getAllSkills();
-        log.info("[LIST_SKILLS] Success - count={}", skills.size());
+        log.debug("[SKILLS] Found {} skills", skills.size());
         return ResponseEntity.ok(skills);
     }
 
@@ -49,9 +44,9 @@ public class SkillController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<SkillResponse> getSkillById(@PathVariable Long id) {
-        log.debug("[GET_SKILL] Request received - id={}", id);
+        log.debug("[SKILLS] Fetching skill id={}", id);
         SkillResponse skill = skillService.getSkillById(id);
-        log.debug("[GET_SKILL] Success - id={}, name={}", skill.getId(), skill.getName());
+        log.debug("[SKILLS] Found skill: {}", skill.getName());
         return ResponseEntity.ok(skill);
     }
 
@@ -62,54 +57,9 @@ public class SkillController {
      */
     @GetMapping("/category/{category}")
     public ResponseEntity<List<SkillResponse>> getSkillsByCategory(@PathVariable SkillCategory category) {
-        log.debug("[LIST_SKILLS_CATEGORY] Request received - category={}", category);
+        log.debug("[SKILLS] Fetching skills by category={}", category);
         List<SkillResponse> skills = skillService.getSkillsByCategory(category);
-        log.info("[LIST_SKILLS_CATEGORY] Success - category={}, count={}", category, skills.size());
+        log.debug("[SKILLS] Found {} skills in category={}", skills.size(), category);
         return ResponseEntity.ok(skills);
-    }
-
-    /**
-     * Create a new skill (Admin only)
-     * @param request Create skill request
-     * @return Created skill
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/admin")
-    public ResponseEntity<SkillResponse> createSkill(@Valid @RequestBody CreateSkillRequest request) {
-        log.info("[CREATE_SKILL] Request received - name={}", request.getName());
-        SkillResponse createdSkill = skillService.createSkill(request);
-        log.info("[CREATE_SKILL] Success - id={}, name={}", createdSkill.getId(), createdSkill.getName());
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdSkill);
-    }
-
-    /**
-     * Update an existing skill (Admin only)
-     * @param id Skill ID
-     * @param request Update skill request
-     * @return Updated skill
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/admin/{id}")
-    public ResponseEntity<SkillResponse> updateSkill(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateSkillRequest request) {
-        log.info("[UPDATE_SKILL] Request received - id={}", id);
-        SkillResponse updatedSkill = skillService.updateSkill(id, request);
-        log.info("[UPDATE_SKILL] Success - id={}, name={}", updatedSkill.getId(), updatedSkill.getName());
-        return ResponseEntity.ok(updatedSkill);
-    }
-
-    /**
-     * Delete a skill (Admin only)
-     * @param id Skill ID
-     * @return No content
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/admin/{id}")
-    public ResponseEntity<Void> deleteSkill(@PathVariable Long id) {
-        log.info("[DELETE_SKILL] Request received - id={}", id);
-        skillService.deleteSkill(id);
-        log.info("[DELETE_SKILL] Success - id={}", id);
-        return ResponseEntity.noContent().build();
     }
 }

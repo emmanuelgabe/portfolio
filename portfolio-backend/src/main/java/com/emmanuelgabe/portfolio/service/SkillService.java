@@ -4,6 +4,7 @@ import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -53,4 +54,12 @@ public interface SkillService {
      * @return List of skills in the specified category, sorted by displayOrder
      */
     List<SkillResponse> getSkillsByCategory(SkillCategory category);
+
+    /**
+     * Upload a custom SVG icon for a skill
+     * @param id Skill ID
+     * @param file SVG file to upload
+     * @return Updated skill response with custom icon URL
+     */
+    SkillResponse uploadSkillIcon(Long id, MultipartFile file);
 }

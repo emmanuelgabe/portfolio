@@ -2,6 +2,12 @@
   .skill-icon {
     font-size: 2rem;
     text-align: center;
+
+    .skill-svg-icon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
   }
 
   .skill-level {
