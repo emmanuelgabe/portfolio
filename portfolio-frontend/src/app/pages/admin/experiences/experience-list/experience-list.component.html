@@ -1,0 +1,102 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestion des Expériences</h2>
+    <a routerLink="new" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-2"></i>Nouvelle Expérience
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <div class="card">
+      <div class="card-body">
+        @if (experiences.length === 0) {
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+            <p>Aucune expérience. Créez-en une !</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Rôle</th>
+                  <th>Entreprise/Organisation</th>
+                  <th>Période</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (experience of experiences; track experience.id) {
+                  <tr>
+                    <td>
+                      <span class="badge" [ngClass]="getTypeBadgeClass(experience.type)">
+                        {{ getTypeLabel(experience.type) }}
+                      </span>
+                    </td>
+                    <td>
+                      <strong>{{ experience.role }}</strong>
+                    </td>
+                    <td>{{ experience.company }}</td>
+                    <td>
+                      <small class="text-muted">
+                        {{ formatDate(experience.startDate) }}
+                        @if (experience.endDate) {
+                          - {{ formatDate(experience.endDate) }}
+                        } @else {
+                          - Présent
+                        }
+                      </small>
+                    </td>
+                    <td>
+                      @if (experience.ongoing) {
+                        <span class="badge bg-success">En cours</span>
+                      } @else {
+                        <span class="badge bg-secondary">Terminé</span>
+                      }
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <a
+                          [routerLink]="['edit', experience.id]"
+                          class="btn btn-outline-primary"
+                          title="Modifier"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger"
+                          title="Supprimer"
+                          (click)="confirmDelete(experience)"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
