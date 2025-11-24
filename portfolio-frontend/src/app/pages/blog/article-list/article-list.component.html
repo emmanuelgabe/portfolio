@@ -1,0 +1,47 @@
+<div class="container my-5">
+  <h1 class="mb-4">Blog</h1>
+
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!isLoading && !error" class="row">
+    <div *ngFor="let article of articles" class="col-md-6 col-lg-4 mb-4">
+      <app-article-card [article]="article"></app-article-card>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !error && articles.length === 0" class="alert alert-info">
+    Aucun article publie pour le moment.
+  </div>
+
+  <!-- Pagination -->
+  <nav *ngIf="!isLoading && !error && totalPages > 1" aria-label="Navigation des articles" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="isFirst">
+        <button class="page-link" (click)="previousPage()" [disabled]="isFirst">
+          Precedent
+        </button>
+      </li>
+
+      <li *ngFor="let page of [].constructor(totalPages); let i = index"
+          class="page-item"
+          [class.active]="i === currentPage">
+        <button class="page-link" (click)="goToPage(i)">{{ i + 1 }}</button>
+      </li>
+
+      <li class="page-item" [class.disabled]="isLast">
+        <button class="page-link" (click)="nextPage()" [disabled]="isLast">
+          Suivant
+        </button>
+      </li>
+    </ul>
+    <p class="text-center text-muted">
+      Page {{ currentPage + 1 }} sur {{ totalPages }} ({{ totalElements }} articles)
+    </p>
+  </nav>
+</div>
