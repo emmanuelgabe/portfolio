@@ -35,362 +35,360 @@ class ProjectEntityTest {
     }
 
     @Test
-    void whenValidProject_thenNoConstraintViolations() {
-        // When
+    void should_haveNoConstraintViolations_when_projectIsValid() {
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).isEmpty();
     }
 
     @Test
-    void whenTitleIsBlank_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_titleIsBlank() {
+        // Arrange
         project.setTitle("");
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).isNotEmpty();
         assertThat(violations).anyMatch(v -> v.getMessage().equals("Title is required"));
     }
 
     @Test
-    void whenTitleIsNull_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_titleIsNull() {
+        // Arrange
         project.setTitle(null);
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .isEqualTo("Title is required");
     }
 
     @Test
-    void whenTitleIsTooShort_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_titleIsTooShort() {
+        // Arrange
         project.setTitle("AB"); // Less than 3 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("Title must be between 3 and 100 characters");
     }
 
     @Test
-    void whenTitleIsTooLong_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_titleIsTooLong() {
+        // Arrange
         project.setTitle("A".repeat(101)); // More than 100 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("Title must be between 3 and 100 characters");
     }
 
     @Test
-    void whenDescriptionIsBlank_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_descriptionIsBlank() {
+        // Arrange
         project.setDescription("");
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).isNotEmpty();
         assertThat(violations).anyMatch(v -> v.getMessage().equals("Description is required"));
     }
 
     @Test
-    void whenDescriptionIsTooShort_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_descriptionIsTooShort() {
+        // Arrange
         project.setDescription("Too short"); // Less than 10 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("Description must be between 10 and 2000 characters");
     }
 
     @Test
-    void whenDescriptionIsTooLong_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_descriptionIsTooLong() {
+        // Arrange
         project.setDescription("A".repeat(2001)); // More than 2000 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("Description must be between 10 and 2000 characters");
     }
 
     @Test
-    void whenTechStackIsBlank_thenConstraintViolation() {
-        // Given
+    void should_haveNoViolation_when_techStackIsBlank() {
+        // Arrange - techStack is now optional (nullable)
         project.setTechStack("");
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage())
-                .isEqualTo("Tech stack is required");
+        // Assert - no violations since techStack is optional
+        assertThat(violations).isEmpty();
     }
 
     @Test
-    void whenTechStackIsTooLong_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_techStackIsTooLong() {
+        // Arrange
         project.setTechStack("A".repeat(501)); // More than 500 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("Tech stack cannot exceed 500 characters");
     }
 
     @Test
-    void whenGithubUrlIsTooLong_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_githubUrlIsTooLong() {
+        // Arrange
         project.setGithubUrl("https://github.com/" + "A".repeat(250)); // More than 255 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("GitHub URL cannot exceed 255 characters");
     }
 
     @Test
-    void whenImageUrlIsTooLong_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_imageUrlIsTooLong() {
+        // Arrange
         project.setImageUrl("https://example.com/" + "A".repeat(250)); // More than 255 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("Image URL cannot exceed 255 characters");
     }
 
     @Test
-    void whenDemoUrlIsTooLong_thenConstraintViolation() {
-        // Given
+    void should_haveConstraintViolation_when_demoUrlIsTooLong() {
+        // Arrange
         project.setDemoUrl("https://demo.com/" + "A".repeat(250)); // More than 255 characters
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
                 .contains("Demo URL cannot exceed 255 characters");
     }
 
     @Test
-    void whenAddTag_thenTagIsAdded() {
-        // When
+    void should_addTag_when_addTagCalled() {
+        // Act
         project.addTag(tag);
 
-        // Then
+        // Assert
         assertThat(project.getTags()).contains(tag);
         assertThat(tag.getProjects()).contains(project);
     }
 
     @Test
-    void whenAddNullTag_thenThrowsIllegalArgumentException() {
-        // When & Then
+    void should_throwIllegalArgumentException_when_addingNullTag() {
+        // Act & Assert
         assertThatThrownBy(() -> project.addTag(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Tag cannot be null");
     }
 
     @Test
-    void whenRemoveTag_thenTagIsRemoved() {
-        // Given
+    void should_removeTag_when_removeTagCalled() {
+        // Arrange
         project.addTag(tag);
 
-        // When
+        // Act
         project.removeTag(tag);
 
-        // Then
+        // Assert
         assertThat(project.getTags()).doesNotContain(tag);
         assertThat(tag.getProjects()).doesNotContain(project);
     }
 
     @Test
-    void whenRemoveNullTag_thenThrowsIllegalArgumentException() {
-        // When & Then
+    void should_throwIllegalArgumentException_when_removingNullTag() {
+        // Act & Assert
         assertThatThrownBy(() -> project.removeTag(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Tag cannot be null");
     }
 
     @Test
-    void whenMarkAsFeatured_withTagsAndImage_thenProjectIsFeatured() {
-        // Given
+    void should_markProjectAsFeatured_when_hasTagsAndImage() {
+        // Arrange
         project.addTag(tag);
         project.setImageUrl("https://example.com/image.jpg");
 
-        // When
+        // Act
         project.markAsFeatured();
 
-        // Then
+        // Assert
         assertThat(project.isFeatured()).isTrue();
     }
 
     @Test
-    void whenMarkAsFeatured_withoutTags_thenThrowsIllegalStateException() {
-        // Given
+    void should_throwIllegalStateException_when_markingAsFeaturedWithoutTags() {
+        // Arrange
         project.setImageUrl("https://example.com/image.jpg");
 
-        // When & Then
+        // Act & Assert
         assertThatThrownBy(() -> project.markAsFeatured())
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot feature project without tags");
     }
 
     @Test
-    void whenMarkAsFeatured_withoutImageUrl_thenThrowsIllegalStateException() {
-        // Given
+    void should_throwIllegalStateException_when_markingAsFeaturedWithoutImageUrl() {
+        // Arrange
         project.addTag(tag);
         project.setImageUrl(null);
 
-        // When & Then
+        // Act & Assert
         assertThatThrownBy(() -> project.markAsFeatured())
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Cannot feature project without an image URL");
+                .hasMessage("Cannot feature project without an image");
     }
 
     @Test
-    void whenMarkAsFeatured_withBlankImageUrl_thenThrowsIllegalStateException() {
-        // Given
+    void should_throwIllegalStateException_when_markingAsFeaturedWithBlankImageUrl() {
+        // Arrange
         project.addTag(tag);
         project.setImageUrl("   ");
 
-        // When & Then
+        // Act & Assert
         assertThatThrownBy(() -> project.markAsFeatured())
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Cannot feature project without an image URL");
+                .hasMessage("Cannot feature project without an image");
     }
 
     @Test
-    void whenUnfeature_thenProjectIsNotFeatured() {
-        // Given
+    void should_unfeatureProject_when_unfeatureCalled() {
+        // Arrange
         project.addTag(tag);
         project.setImageUrl("https://example.com/image.jpg");
         project.markAsFeatured();
 
-        // When
+        // Act
         project.unfeature();
 
-        // Then
+        // Assert
         assertThat(project.isFeatured()).isFalse();
     }
 
     @Test
-    void whenCanBeFeatured_withTagsAndImage_thenReturnsTrue() {
-        // Given
+    void should_returnTrue_when_canBeFeaturedWithTagsAndImage() {
+        // Arrange
         project.addTag(tag);
         project.setImageUrl("https://example.com/image.jpg");
 
-        // When
+        // Act
         boolean canBeFeatured = project.canBeFeatured();
 
-        // Then
+        // Assert
         assertThat(canBeFeatured).isTrue();
     }
 
     @Test
-    void whenCanBeFeatured_withoutTags_thenReturnsFalse() {
-        // Given
+    void should_returnFalse_when_canBeFeaturedWithoutTags() {
+        // Arrange
         project.setImageUrl("https://example.com/image.jpg");
 
-        // When
+        // Act
         boolean canBeFeatured = project.canBeFeatured();
 
-        // Then
+        // Assert
         assertThat(canBeFeatured).isFalse();
     }
 
     @Test
-    void whenCanBeFeatured_withoutImageUrl_thenReturnsFalse() {
-        // Given
+    void should_returnFalse_when_canBeFeaturedWithoutImageUrl() {
+        // Arrange
         project.addTag(tag);
         project.setImageUrl(null);
 
-        // When
+        // Act
         boolean canBeFeatured = project.canBeFeatured();
 
-        // Then
+        // Assert
         assertThat(canBeFeatured).isFalse();
     }
 
     @Test
-    void whenCanBeFeatured_withBlankImageUrl_thenReturnsFalse() {
-        // Given
+    void should_returnFalse_when_canBeFeaturedWithBlankImageUrl() {
+        // Arrange
         project.addTag(tag);
         project.setImageUrl("   ");
 
-        // When
+        // Act
         boolean canBeFeatured = project.canBeFeatured();
 
-        // Then
+        // Assert
         assertThat(canBeFeatured).isFalse();
     }
 
     @Test
-    void whenNewProject_thenFeaturedIsFalse() {
-        // Given
+    void should_haveFeaturedSetToFalse_when_projectIsNew() {
+        // Arrange
         Project newProject = new Project();
 
-        // Then
+        // Assert
         assertThat(newProject.isFeatured()).isFalse();
     }
 
     @Test
-    void whenNewProject_thenTagsIsEmptySet() {
-        // Given
+    void should_haveEmptyTagsSet_when_projectIsNew() {
+        // Arrange
         Project newProject = new Project();
 
-        // Then
+        // Assert
         assertThat(newProject.getTags()).isNotNull();
         assertThat(newProject.getTags()).isEmpty();
     }
 
     @Test
-    void testMultipleConstraintViolations() {
-        // Given
+    void should_haveMultipleConstraintViolations_when_multipleFieldsInvalid() {
+        // Arrange
         project.setTitle(""); // Blank - triggers both @NotBlank and @Size
         project.setDescription("Short"); // Too short
         project.setTechStack(null); // Null
 
-        // When
+        // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Then
+        // Assert
         assertThat(violations).hasSizeGreaterThanOrEqualTo(3);
     }
 }

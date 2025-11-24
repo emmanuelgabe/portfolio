@@ -4,7 +4,7 @@
     <div class="col">
       <button class="btn btn-outline-secondary" (click)="goBack()">
         <i class="bi bi-arrow-left me-2"></i>
-        Back to Projects
+         Retour aux projets
       </button>
     </div>
   </div>
@@ -12,23 +12,23 @@
   <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-      <span class="visually-hidden">Loading...</span>
+      <span class="visually-hidden">Chargement...</span>
     </div>
-    <p class="mt-3 text-muted">Loading project details...</p>
+    <p class="mt-3 text-muted">Chargement des détails du projet...</p>
   </div>
 
   <!-- Error Alert -->
   <div *ngIf="error" class="alert alert-danger" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
-    <strong>Error!</strong> {{ error }}
+    <strong>Erreur !</strong> {{ error }}
     <div class="mt-3">
       <button class="btn btn-outline-danger btn-sm me-2" (click)="retry()">
         <i class="bi bi-arrow-clockwise me-1"></i>
-        Retry
+        Réessayer
       </button>
       <button class="btn btn-outline-secondary btn-sm" (click)="goBack()">
         <i class="bi bi-arrow-left me-1"></i>
-        Back to Projects
+        Retour aux projets
       </button>
     </div>
   </div>
@@ -55,12 +55,86 @@
       </div>
     </div>
 
-    <!-- Project Image -->
-    <div class="row mb-4" *ngIf="hasImage">
+    <!-- Project Images Carousel -->
+    <div class="row mb-4" *ngIf="hasMultipleImages">
+      <div class="col">
+        <div class="carousel slide project-carousel position-relative">
+          <!-- Indicators -->
+          <div class="carousel-indicators" *ngIf="sortedImages.length > 1">
+            <button
+              *ngFor="let image of sortedImages; let i = index"
+              type="button"
+              [class.active]="i === currentSlideIndex"
+              [attr.aria-current]="i === currentSlideIndex ? 'true' : null"
+              (click)="goToSlide(i)"
+            ></button>
+          </div>
+
+          <!-- Slides -->
+          <div class="carousel-inner rounded shadow">
+            <div
+              *ngFor="let image of sortedImages; let i = index"
+              class="carousel-item"
+              [class.active]="i === currentSlideIndex"
+            >
+              <img
+                [src]="getFullImageUrl(image.imageUrl)"
+                [alt]="image.altText || project.title"
+                class="d-block w-100 carousel-image"
+              />
+              <div class="carousel-caption d-none d-md-block" *ngIf="image.caption">
+                <p class="mb-0">{{ image.caption }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <button
+            *ngIf="sortedImages.length > 1"
+            class="carousel-control-prev"
+            type="button"
+            (click)="prevSlide()"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Precedent</span>
+          </button>
+          <button
+            *ngIf="sortedImages.length > 1"
+            class="carousel-control-next"
+            type="button"
+            (click)="nextSlide()"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Suivant</span>
+          </button>
+        </div>
+
+        <!-- Thumbnail Navigation -->
+        <div class="thumbnail-nav mt-3 d-flex justify-content-center gap-2" *ngIf="sortedImages.length > 1">
+          <button
+            *ngFor="let image of sortedImages; let i = index"
+            type="button"
+            class="btn p-0 border-0 thumbnail-btn"
+            [class.active]="i === currentSlideIndex"
+            (click)="goToSlide(i)"
+          >
+            <img
+              [src]="getFullImageUrl(image.thumbnailUrl)"
+              [alt]="'Miniature ' + (i + 1)"
+              class="thumbnail-img rounded"
+              [class.active]="i === currentSlideIndex"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy Single Image (fallback) -->
+    <div class="row mb-4" *ngIf="hasLegacyImage">
       <div class="col">
         <div class="project-image-container">
           <img
-            [src]="imageSrc"
+            [src]="legacyImageSrc"
             [alt]="project.title"
             class="img-fluid rounded shadow"
           />
@@ -89,7 +163,7 @@
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-stack me-2 text-primary"></i>
-              Tech Stack
+              Technologies
             </h5>
             <ul class="list-unstyled tech-stack-list">
               <li *ngFor="let tech of techStackArray" class="mb-2">
@@ -103,34 +177,44 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="row mb-4">
+    <div class="row mb-4" *ngIf="hasLinks">
       <div class="col">
         <div class="card shadow-sm">
           <div class="card-body">
             <h5 class="card-title mb-3">
               <i class="bi bi-link-45deg me-2 text-primary"></i>
-              Links
+              Liens
             </h5>
             <div class="d-flex flex-wrap gap-2">
               <a
-                *ngIf="project.githubUrl"
+                *ngIf="project.githubUrl && project.githubUrl.trim() !== ''"
                 [href]="project.githubUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-dark"
               >
                 <i class="bi bi-github me-2"></i>
-                View on GitHub
+                Voir sur GitHub
               </a>
+              <!-- Internal route (starts with /) -->
               <a
-                *ngIf="project.demoUrl"
+                *ngIf="project.demoUrl && project.demoUrl.trim() !== '' && isInternalRoute(project.demoUrl)"
+                [routerLink]="project.demoUrl"
+                class="btn btn-success"
+              >
+                <i class="bi bi-box-arrow-up-right me-2"></i>
+                Démo en ligne
+              </a>
+              <!-- External URL -->
+              <a
+                *ngIf="project.demoUrl && project.demoUrl.trim() !== '' && !isInternalRoute(project.demoUrl)"
                 [href]="project.demoUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-success"
               >
                 <i class="bi bi-box-arrow-up-right me-2"></i>
-                Live Demo
+                Démo en ligne
               </a>
             </div>
           </div>

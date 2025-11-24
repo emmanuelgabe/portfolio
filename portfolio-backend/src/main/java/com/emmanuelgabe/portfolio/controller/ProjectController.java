@@ -1,27 +1,22 @@
 package com.emmanuelgabe.portfolio.controller;
 
-import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
-import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
 import com.emmanuelgabe.portfolio.service.ProjectService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST controller for public project endpoints.
+ * Admin endpoints are in AdminProjectController under /api/admin/projects.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/projects")
@@ -36,9 +31,9 @@ public class ProjectController {
      */
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
-        log.debug("[LIST_PROJECTS] Request received");
+        log.debug("[PROJECTS] Fetching all projects");
         List<ProjectResponse> projects = projectService.getAllProjects();
-        log.info("[LIST_PROJECTS] Success - count={}", projects.size());
+        log.debug("[PROJECTS] Found {} projects", projects.size());
         return ResponseEntity.ok(projects);
     }
 
@@ -49,55 +44,10 @@ public class ProjectController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
-        log.debug("[GET_PROJECT] Request received - id={}", id);
+        log.debug("[PROJECTS] Fetching project id={}", id);
         ProjectResponse project = projectService.getProjectById(id);
-        log.debug("[GET_PROJECT] Success - id={}, title={}", project.getId(), project.getTitle());
+        log.debug("[PROJECTS] Found project: {}", project.getTitle());
         return ResponseEntity.ok(project);
-    }
-
-    /**
-     * Create a new project (ADMIN only)
-     * @param request Create project request
-     * @return Created project
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/admin")
-    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody CreateProjectRequest request) {
-        log.info("[CREATE_PROJECT] Request received - title={}", request.getTitle());
-        ProjectResponse createdProject = projectService.createProject(request);
-        log.info("[CREATE_PROJECT] Success - id={}, title={}", createdProject.getId(), createdProject.getTitle());
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
-    }
-
-    /**
-     * Update an existing project (ADMIN only)
-     * @param id Project ID
-     * @param request Update project request
-     * @return Updated project
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/admin/{id}")
-    public ResponseEntity<ProjectResponse> updateProject(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateProjectRequest request) {
-        log.info("[UPDATE_PROJECT] Request received - id={}", id);
-        ProjectResponse updatedProject = projectService.updateProject(id, request);
-        log.info("[UPDATE_PROJECT] Success - id={}, title={}", updatedProject.getId(), updatedProject.getTitle());
-        return ResponseEntity.ok(updatedProject);
-    }
-
-    /**
-     * Delete a project (ADMIN only)
-     * @param id Project ID
-     * @return No content
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/admin/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        log.info("[DELETE_PROJECT] Request received - id={}", id);
-        projectService.deleteProject(id);
-        log.info("[DELETE_PROJECT] Success - id={}", id);
-        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -106,9 +56,9 @@ public class ProjectController {
      */
     @GetMapping("/featured")
     public ResponseEntity<List<ProjectResponse>> getFeaturedProjects() {
-        log.debug("[LIST_FEATURED_PROJECTS] Request received");
+        log.debug("[PROJECTS] Fetching featured projects");
         List<ProjectResponse> featuredProjects = projectService.getFeaturedProjects();
-        log.info("[LIST_FEATURED_PROJECTS] Success - count={}", featuredProjects.size());
+        log.debug("[PROJECTS] Found {} featured projects", featuredProjects.size());
         return ResponseEntity.ok(featuredProjects);
     }
 
@@ -119,9 +69,9 @@ public class ProjectController {
      */
     @GetMapping("/search/title")
     public ResponseEntity<List<ProjectResponse>> searchByTitle(@RequestParam String title) {
-        log.debug("[SEARCH_PROJECTS_TITLE] Request received - title={}", title);
+        log.debug("[PROJECTS] Searching by title={}", title);
         List<ProjectResponse> projects = projectService.searchByTitle(title);
-        log.info("[SEARCH_PROJECTS_TITLE] Success - title={}, count={}", title, projects.size());
+        log.debug("[PROJECTS] Found {} projects matching title={}", projects.size(), title);
         return ResponseEntity.ok(projects);
     }
 
@@ -132,9 +82,9 @@ public class ProjectController {
      */
     @GetMapping("/search/technology")
     public ResponseEntity<List<ProjectResponse>> searchByTechnology(@RequestParam String technology) {
-        log.debug("[SEARCH_PROJECTS_TECH] Request received - technology={}", technology);
+        log.debug("[PROJECTS] Searching by technology={}", technology);
         List<ProjectResponse> projects = projectService.searchByTechnology(technology);
-        log.info("[SEARCH_PROJECTS_TECH] Success - technology={}, count={}", technology, projects.size());
+        log.debug("[PROJECTS] Found {} projects using technology={}", projects.size(), technology);
         return ResponseEntity.ok(projects);
     }
 }

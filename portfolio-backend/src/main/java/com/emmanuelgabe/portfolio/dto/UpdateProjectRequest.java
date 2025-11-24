@@ -27,8 +27,8 @@ public class UpdateProjectRequest {
     @Size(max = 255, message = "GitHub URL cannot exceed 255 characters")
     private String githubUrl;
 
-    @Pattern(regexp = "^(https?://)?([\\w\\-]+\\.)+[\\w\\-]+(/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*)?$|^$",
-            message = "Image URL must be a valid URL")
+    @Pattern(regexp = "^(https?://)?([\\w\\-]+\\.)+[\\w\\-]+(/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*)?$|^/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]+$|^$",
+            message = "Image URL must be a valid URL or path")
     @Size(max = 255, message = "Image URL cannot exceed 255 characters")
     private String imageUrl;
 
@@ -38,6 +38,8 @@ public class UpdateProjectRequest {
     private String demoUrl;
 
     private Boolean featured;
+
+    private Boolean hasDetails;
 
     private Set<Long> tagIds;
 }
