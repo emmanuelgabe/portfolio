@@ -1,0 +1,85 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestion des Tags</h2>
+    <a routerLink="new" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-2"></i>Nouveau Tag
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <div class="card">
+      <div class="card-body">
+        @if (tags.length === 0) {
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-tags fs-1 d-block mb-3"></i>
+            <p>Aucun tag. Créez-en un !</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Couleur</th>
+                  <th>Aperçu</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (tag of tags; track tag.id) {
+                  <tr>
+                    <td>
+                      <strong>{{ tag.name }}</strong>
+                    </td>
+                    <td>
+                      <code>{{ tag.color }}</code>
+                    </td>
+                    <td>
+                      <span class="badge" [style.background-color]="tag.color">
+                        {{ tag.name }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <a
+                          [routerLink]="[tag.id, 'edit']"
+                          class="btn btn-outline-primary"
+                          title="Modifier"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger"
+                          title="Supprimer"
+                          (click)="confirmDelete(tag)"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
