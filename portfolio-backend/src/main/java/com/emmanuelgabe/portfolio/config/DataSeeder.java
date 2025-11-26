@@ -4,8 +4,10 @@ import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
 import com.emmanuelgabe.portfolio.dto.CreateTagRequest;
 import com.emmanuelgabe.portfolio.dto.TagResponse;
+import com.emmanuelgabe.portfolio.entity.SiteConfiguration;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
+import com.emmanuelgabe.portfolio.repository.SiteConfigurationRepository;
 import com.emmanuelgabe.portfolio.repository.ProjectRepository;
 import com.emmanuelgabe.portfolio.repository.SkillRepository;
 import com.emmanuelgabe.portfolio.service.ProjectService;
@@ -37,20 +39,31 @@ public class DataSeeder implements CommandLineRunner {
     private final SkillService skillService;
     private final ProjectRepository projectRepository;
     private final SkillRepository skillRepository;
+    private final SiteConfigurationRepository siteConfigurationRepository;
 
     public DataSeeder(ProjectService projectService, TagService tagService,
                       SkillService skillService, ProjectRepository projectRepository,
-                      SkillRepository skillRepository) {
+                      SkillRepository skillRepository, SiteConfigurationRepository siteConfigurationRepository) {
         this.projectService = projectService;
         this.tagService = tagService;
         this.skillService = skillService;
         this.projectRepository = projectRepository;
         this.skillRepository = skillRepository;
+        this.siteConfigurationRepository = siteConfigurationRepository;
     }
 
     @Override
     public void run(String... args) {
         LOG.info("[DATA_SEEDER] Checking database for seeding");
+
+        // Create site configuration if it doesn't exist
+        if (siteConfigurationRepository.count() == 0) {
+            LOG.info("[DATA_SEEDER] Creating site configuration - count=0");
+            createSiteConfiguration();
+            LOG.info("[DATA_SEEDER] Site configuration created");
+        } else {
+            LOG.info("[DATA_SEEDER] Site configuration already exists, skipping seeding");
+        }
 
         // Create skills if they don't exist
         if (skillRepository.count() == 0) {
@@ -77,6 +90,21 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         LOG.info("[DATA_SEEDER] Database seeding complete");
+    }
+
+    private void createSiteConfiguration() {
+        SiteConfiguration config = new SiteConfiguration();
+        config.setFullName("Emmanuel Gabe");
+        config.setEmail("contact@emmanuelgabe.com");
+        config.setHeroTitle("Developpeur Backend");
+        config.setHeroDescription("Je cree des applications web modernes et evolutives avec Angular, "
+                + "Spring Boot et les technologies de pointe. Passionne par le code propre, les bonnes "
+                + "pratiques et la creation d'experiences utilisateur exceptionnelles.");
+        config.setSiteTitle("Portfolio - Emmanuel Gabe");
+        config.setSeoDescription("Portfolio de Emmanuel Gabe, developpeur backend Java/Spring Boot.");
+        config.setGithubUrl("https://github.com/emmanuelgabe");
+        config.setLinkedinUrl("https://linkedin.com/in/egabe");
+        siteConfigurationRepository.save(config);
     }
 
     private List<TagResponse> createTags() {
@@ -176,7 +204,7 @@ public class DataSeeder implements CommandLineRunner {
                 "Angular, Spring Boot, PostgreSQL, Docker",
                 new ProjectUrls(
                         "https://github.com/emmanuelgabe/portfolio",
-                        null,
+                        "http://localhost:4200/admindemo",
                         "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop"
                 ),
                 true,

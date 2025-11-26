@@ -72,7 +72,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WithValidToken_SetsAuthentication() throws ServletException, IOException {
+    void should_setAuthentication_when_doFilterInternalCalledWithValidToken() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -96,7 +96,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WithoutAuthorizationHeader_DoesNotSetAuthentication() throws ServletException, IOException {
+    void should_notSetAuthentication_when_doFilterInternalCalledWithoutAuthorizationHeader() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn(null);
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -113,7 +113,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WithInvalidBearerFormat_DoesNotSetAuthentication() throws ServletException, IOException {
+    void should_notSetAuthentication_when_doFilterInternalCalledWithInvalidBearerFormat() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("InvalidFormat " + validToken);
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -130,7 +130,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WithEmptyToken_DoesNotSetAuthentication() throws ServletException, IOException {
+    void should_notSetAuthentication_when_doFilterInternalCalledWithEmptyToken() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("Bearer ");
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -147,7 +147,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WithInvalidToken_DoesNotSetAuthentication() throws ServletException, IOException {
+    void should_notSetAuthentication_when_doFilterInternalCalledWithInvalidToken() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -168,7 +168,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WhenAuthenticationAlreadySet_SkipsTokenValidation() throws ServletException, IOException {
+    void should_skipTokenValidation_when_doFilterInternalCalledWithAuthenticationAlreadySet() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -194,7 +194,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WithExceptionDuringTokenExtraction_DoesNotSetAuthentication() throws ServletException, IOException {
+    void should_notSetAuthentication_when_doFilterInternalCalledWithExceptionDuringTokenExtraction() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -213,7 +213,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_WithNullUsername_DoesNotSetAuthentication() throws ServletException, IOException {
+    void should_notSetAuthentication_when_doFilterInternalCalledWithNullUsername() throws ServletException, IOException {
         // Arrange
         when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
         when(request.getRequestURI()).thenReturn("/api/projects");
@@ -231,7 +231,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_AlwaysCallsFilterChain() throws ServletException, IOException {
+    void should_alwaysCallFilterChain_when_doFilterInternalCalled() throws ServletException, IOException {
         // Arrange - Multiple scenarios
         when(request.getRequestURI()).thenReturn("/api/projects");
 

@@ -53,7 +53,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void generateAccessToken_WithValidUser_ReturnsToken() {
+    void should_returnToken_when_generateAccessTokenCalledWithValidUser() {
         // Act
         String token = jwtTokenProvider.generateAccessToken(testUser);
 
@@ -64,7 +64,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void generateRefreshToken_WithValidUser_ReturnsToken() {
+    void should_returnToken_when_generateRefreshTokenCalledWithValidUser() {
         // Act
         String token = jwtTokenProvider.generateRefreshToken(testUser);
 
@@ -75,7 +75,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void extractUsername_WithValidToken_ReturnsUsername() {
+    void should_returnUsername_when_extractUsernameCalledWithValidToken() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
 
@@ -87,7 +87,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void extractExpiration_WithValidToken_ReturnsExpirationDate() {
+    void should_returnExpirationDate_when_extractExpirationCalledWithValidToken() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
 
@@ -100,7 +100,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void isTokenExpired_WithValidToken_ReturnsFalse() {
+    void should_returnFalse_when_isTokenExpiredCalledWithValidToken() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
 
@@ -112,7 +112,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void isTokenExpired_WithExpiredToken_ThrowsException() {
+    void should_throwException_when_isTokenExpiredCalledWithExpiredToken() {
         // Arrange - Create provider with negative expiration (already expired)
         JwtTokenProvider shortExpirationProvider = new JwtTokenProvider(
                 "mySecretKeyForJWTTokenGenerationAndValidationThatIsLongEnoughForHS256Algorithm",
@@ -129,7 +129,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateToken_WithValidToken_ReturnsTrue() {
+    void should_returnTrue_when_validateTokenCalledWithValidToken() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
         UserDetails userDetails = testUser;
@@ -142,7 +142,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateToken_WithWrongUsername_ReturnsFalse() {
+    void should_returnFalse_when_validateTokenCalledWithWrongUsername() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
 
@@ -161,7 +161,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateToken_WithInvalidSignature_ThrowsException() {
+    void should_throwException_when_validateTokenCalledWithInvalidSignature() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
         String tamperedToken = token.substring(0, token.length() - 5) + "XXXXX";
@@ -172,7 +172,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateToken_WithMalformedToken_ThrowsException() {
+    void should_throwException_when_validateTokenCalledWithMalformedToken() {
         // Arrange
         String malformedToken = "not.a.valid.jwt.token";
 
@@ -182,7 +182,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateToken_WithExpiredToken_ThrowsException() {
+    void should_throwException_when_validateTokenCalledWithExpiredToken() {
         // Arrange - Create provider with very short expiration
         JwtTokenProvider shortExpirationProvider = new JwtTokenProvider(
                 "mySecretKeyForJWTTokenGenerationAndValidationThatIsLongEnoughForHS256Algorithm",
@@ -206,7 +206,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateTokenStructure_WithValidToken_ReturnsTrue() {
+    void should_returnTrue_when_validateTokenStructureCalledWithValidToken() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
 
@@ -218,7 +218,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateTokenStructure_WithInvalidToken_ReturnsFalse() {
+    void should_returnFalse_when_validateTokenStructureCalledWithInvalidToken() {
         // Arrange
         String invalidToken = "invalid.token.structure";
 
@@ -230,7 +230,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateTokenStructure_WithExpiredToken_ReturnsFalse() {
+    void should_returnFalse_when_validateTokenStructureCalledWithExpiredToken() {
         // Arrange - Create provider with very short expiration
         JwtTokenProvider shortExpirationProvider = new JwtTokenProvider(
                 "mySecretKeyForJWTTokenGenerationAndValidationThatIsLongEnoughForHS256Algorithm",
@@ -256,7 +256,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void accessTokenAndRefreshToken_AreDifferent() {
+    void should_beDifferent_when_accessTokenAndRefreshTokenGenerated() {
         // Act
         String accessToken = jwtTokenProvider.generateAccessToken(testUser);
         String refreshToken = jwtTokenProvider.generateRefreshToken(testUser);
@@ -266,7 +266,7 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void extractClaim_WithValidToken_ExtractsCorrectClaim() {
+    void should_extractCorrectClaim_when_extractClaimCalledWithValidToken() {
         // Arrange
         String token = jwtTokenProvider.generateAccessToken(testUser);
 

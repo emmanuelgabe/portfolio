@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LoggerService } from '../services/logger.service';
+import { TokenStorageService } from '../services/token-storage.service';
 
 /**
  * JWT HTTP Interceptor
@@ -12,6 +13,7 @@ import { LoggerService } from '../services/logger.service';
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const logger = inject(LoggerService);
+  const tokenStorage = inject(TokenStorageService);
 
   const token = authService.getToken();
   const isAuthEndpoint = req.url.includes('/api/auth/');
@@ -76,11 +78,47 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
-      // Handle 403 Forbidden errors
-      if (error.status === 403) {
-        logger.warn('[JWT_INTERCEPTOR] 403 Forbidden - insufficient permissions', {
+      // Handle 403 Forbidden errors - might be expired token
+      if (error.status === 403 && !isAuthEndpoint) {
+        logger.warn('[JWT_INTERCEPTOR] 403 Forbidden - checking if token is expired', {
           url: req.url,
         });
+
+        // Check if token is expired (backend might return 403 instead of 401)
+        if (tokenStorage.isTokenExpired(0)) {
+          logger.info('[JWT_INTERCEPTOR] Token is expired, attempting refresh despite 403');
+
+          // Attempt to refresh token and retry request
+          return authService.refreshToken().pipe(
+            switchMap(() => {
+              const newToken = authService.getToken();
+
+              if (newToken) {
+                logger.info('[JWT_INTERCEPTOR] Token refreshed after 403, retrying request', {
+                  url: req.url,
+                });
+
+                const retryReq = req.clone({
+                  setHeaders: {
+                    Authorization: `Bearer ${newToken}`,
+                  },
+                });
+
+                return next(retryReq);
+              }
+              return throwError(() => error);
+            }),
+            catchError((_refreshError) => {
+              logger.error('[JWT_INTERCEPTOR] Token refresh failed on 403 fallback');
+              authService.logout();
+              return throwError(() => error);
+            })
+          );
+        } else {
+          logger.warn('[JWT_INTERCEPTOR] 403 Forbidden - genuine permission issue', {
+            url: req.url,
+          });
+        }
       }
 
       return throwError(() => error);

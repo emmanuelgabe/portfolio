@@ -15,6 +15,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final FileStorageProperties fileStorageProperties;
     private final CvStorageProperties cvStorageProperties;
+    private final ImageStorageProperties imageStorageProperties;
+    private final SvgStorageProperties svgStorageProperties;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -25,5 +27,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // Serve uploaded CVs
         registry.addResourceHandler(cvStorageProperties.getBasePath() + "/**")
                 .addResourceLocations("file:" + cvStorageProperties.getUploadDir() + "/");
+
+        // Serve project images (optimized images and thumbnails)
+        registry.addResourceHandler(imageStorageProperties.getBasePath() + "/**")
+                .addResourceLocations("file:" + imageStorageProperties.getUploadDir() + "/");
+
+        // Serve SVG icons (skill icons)
+        registry.addResourceHandler(svgStorageProperties.getBasePath() + "/**")
+                .addResourceLocations("file:" + svgStorageProperties.getUploadDir() + "/");
     }
 }
