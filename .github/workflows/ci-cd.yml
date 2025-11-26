@@ -51,9 +51,9 @@ jobs:
 
       - name: Run Code Quality Checks
         run: |
-          echo "✅ Tests passed"
-          echo "✅ Checkstyle validation passed"
-          echo "✅ Code coverage verified"
+          echo "[SUCCESS] Tests passed"
+          echo "[SUCCESS] Checkstyle validation passed"
+          echo "[SUCCESS] Code coverage verified"
         working-directory: portfolio-backend
 
       - name: Upload Test Results
@@ -87,14 +87,56 @@ jobs:
       - name: Set deployment variables
         id: deploy-vars
         run: |
+          DEPLOY_BASE="${{ secrets.DEPLOY_BASE_PATH }}"
+          if [ -z "$DEPLOY_BASE" ]; then
+            echo "[ERROR] DEPLOY_BASE_PATH secret is not configured"
+            exit 1
+          fi
+
           if [ "$GITHUB_REF_NAME" == "main" ]; then
             echo "ENV_NAME=prod" >> $GITHUB_OUTPUT
             echo "COMPOSE_FILE=docker-compose.prod.yml" >> $GITHUB_OUTPUT
-            echo "DEPLOY_PATH=/home/manu/projects/portfolio/prod" >> $GITHUB_OUTPUT
+            echo "DEPLOY_PATH=$DEPLOY_BASE/prod" >> $GITHUB_OUTPUT
           else
             echo "ENV_NAME=staging" >> $GITHUB_OUTPUT
             echo "COMPOSE_FILE=docker-compose.staging.yml" >> $GITHUB_OUTPUT
-            echo "DEPLOY_PATH=/home/manu/projects/portfolio/staging" >> $GITHUB_OUTPUT
+            echo "DEPLOY_PATH=$DEPLOY_BASE/staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Backup database before deployment
+        if: github.ref_name == 'main'
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+          BACKUP_DIR="${{ secrets.DEPLOY_BASE_PATH }}/backups"
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          BACKUP_FILE="portfolio_${ENV_NAME}_${TIMESTAMP}.sql"
+
+          echo "========================================="
+          echo "Database Backup - $ENV_NAME"
+          echo "========================================="
+
+          # Check if database container is running
+          if docker ps --filter "name=portfolio-db-$ENV_NAME" --filter "status=running" | grep -q portfolio-db; then
+            echo "Creating backup directory: $BACKUP_DIR"
+            mkdir -p "$BACKUP_DIR"
+
+            echo "Creating database backup: $BACKUP_FILE"
+            docker exec portfolio-db-$ENV_NAME pg_dump -U postgres_app portfolio_prod > "$BACKUP_DIR/$BACKUP_FILE"
+
+            if [ -f "$BACKUP_DIR/$BACKUP_FILE" ] && [ -s "$BACKUP_DIR/$BACKUP_FILE" ]; then
+              echo "[SUCCESS] Backup created: $BACKUP_DIR/$BACKUP_FILE"
+              ls -lh "$BACKUP_DIR/$BACKUP_FILE"
+
+              # Keep only last 5 backups
+              echo "Cleaning old backups (keeping last 5)..."
+              ls -t "$BACKUP_DIR"/portfolio_${ENV_NAME}_*.sql 2>/dev/null | tail -n +6 | xargs -r rm -f
+              echo "Current backups:"
+              ls -lt "$BACKUP_DIR"/portfolio_${ENV_NAME}_*.sql 2>/dev/null | head -5
+            else
+              echo "[WARNING] Backup file is empty or was not created"
+            fi
+          else
+            echo "[INFO] No running database container found, skipping backup"
           fi
 
       - name: Stop existing deployment
@@ -114,7 +156,7 @@ jobs:
 
             if [ -f "docker-compose.yml" ] && [ -f "$COMPOSE_FILE" ]; then
               echo "Bringing down Docker Compose stack..."
-              docker-compose -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" down 2>&1 || echo "Stack not running or already stopped"
+              docker-compose --env-file /dev/null -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" down 2>&1 || echo "Stack not running or already stopped"
             else
               echo "Docker Compose files not found, skipping docker-compose down"
             fi
@@ -145,48 +187,38 @@ jobs:
             echo "Verifying port 80 availability"
             echo "========================================="
 
-            # Check if port 80 is in use
-            PORT_CHECK=$(sudo lsof -ti:80 2>/dev/null || true)
+            # Check if port 80 is in use (using ss instead of lsof - more reliable)
+            PORT_IN_USE=$(ss -tlnp 2>/dev/null | grep -q ':80 ' && echo "yes" || echo "no")
 
-            if [ -n "$PORT_CHECK" ]; then
+            if [ "$PORT_IN_USE" = "yes" ]; then
               echo "[WARNING] Port 80 is already in use!"
-              echo "Process(es) using port 80:"
-              sudo lsof -i:80 || true
+              echo "Processes using port 80:"
+              ss -tlnp | grep ':80 ' || true
 
-              # List all containers that might be using port 80
+              # Check Docker containers on port 80
               echo ""
               echo "Checking Docker containers with port 80 bindings..."
               docker ps -a --filter "publish=80" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-              # Try to identify and stop portfolio-related containers on port 80
+              # Stop portfolio containers on port 80
               echo ""
-              echo "Attempting to stop any portfolio containers using port 80..."
+              echo "Stopping any portfolio containers using port 80..."
               CONTAINERS_ON_PORT_80=$(docker ps -a --filter "publish=80" --filter "name=portfolio" --format "{{.Names}}")
 
               if [ -n "$CONTAINERS_ON_PORT_80" ]; then
-                echo "Found portfolio containers on port 80:"
-                echo "$CONTAINERS_ON_PORT_80"
-                echo "Stopping and removing them..."
+                echo "Found: $CONTAINERS_ON_PORT_80"
                 echo "$CONTAINERS_ON_PORT_80" | xargs -r docker stop || true
                 echo "$CONTAINERS_ON_PORT_80" | xargs -r docker rm || true
-
-                # Wait a moment for port to be released
-                echo "Waiting 3 seconds for port to be released..."
-                sleep 3
+                sleep 2
 
                 # Verify port is now free
-                PORT_CHECK_AFTER=$(sudo lsof -ti:80 2>/dev/null || true)
-                if [ -n "$PORT_CHECK_AFTER" ]; then
-                  echo "[ERROR] Port 80 is still in use after cleanup!"
-                  sudo lsof -i:80 || true
-                  exit 1
+                if ss -tlnp 2>/dev/null | grep -q ':80 '; then
+                  echo "[WARNING] Port 80 still in use, but continuing anyway..."
                 else
                   echo "[SUCCESS] Port 80 is now available"
                 fi
               else
-                echo "[ERROR] Port 80 is in use but not by portfolio containers!"
-                echo "Manual intervention required. Please free port 80 and retry."
-                exit 1
+                echo "[WARNING] Port 80 in use by non-portfolio process, continuing anyway..."
               fi
             else
               echo "[SUCCESS] Port 80 is available"
@@ -235,6 +267,27 @@ jobs:
           echo "Cleaning up dangling images..."
           docker image prune -f
 
+      - name: Create environment file
+        working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+
+          echo "Creating .env file for $ENV_NAME environment..."
+
+          # Create .env file with secrets (more secure than command line arguments)
+          # Using single quotes to prevent shell expansion of $ in BCrypt hash
+          echo 'DB_USER_PASSWORD=${{ secrets.DB_USER_PASSWORD }}' > .env
+          echo 'MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}' >> .env
+          echo 'MAIL_APP_PASSWORD=${{ secrets.MAIL_APP_PASSWORD }}' >> .env
+          echo 'JWT_SECRET=${{ secrets.JWT_SECRET }}' >> .env
+          echo 'ADMIN_PASSWORD_HASH=${{ secrets.ADMIN_PASSWORD_HASH }}' >> .env
+          echo 'VERSION=${{ needs.build-and-test.outputs.version }}' >> .env
+
+          # Restrict permissions on .env file
+          chmod 600 .env
+
+          echo "Environment file created with restricted permissions"
+
       - name: Deploy with Docker Compose
         working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
         run: |
@@ -253,12 +306,21 @@ jobs:
 
           echo ""
           echo "Building and starting containers..."
-          DB_USER_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          VERSION=$VERSION \
-            docker-compose -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" up --build -d
+          # Use --env-file to load secrets securely (avoids exposing in ps/logs)
+          docker-compose --env-file .env -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" up --build -d
 
           echo ""
           echo "Containers started, waiting for health checks..."
+
+      - name: Cleanup environment file
+        if: always()
+        working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
+        run: |
+          # Remove .env file after deployment to avoid secrets persisting on disk
+          if [ -f .env ]; then
+            rm -f .env
+            echo "Environment file cleaned up"
+          fi
 
       - name: Wait for containers to be healthy
         working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}

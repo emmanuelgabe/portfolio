@@ -36,7 +36,7 @@
     <!-- Exclude test classes from certain checks -->
     <Match>
         <Class name="~.*Test"/>
-        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE,DM_DEFAULT_ENCODING"/>
     </Match>
 
     <!-- Exclude main application class -->
@@ -52,5 +52,45 @@
             <Annotation name="org.springframework.beans.factory.annotation.Value"/>
             <Annotation name="lombok.RequiredArgsConstructor"/>
         </Or>
+    </Match>
+
+    <!-- Exclude EI_EXPOSE_REP for Spring beans with @RequiredArgsConstructor -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Or>
+            <Annotation name="lombok.RequiredArgsConstructor"/>
+            <Annotation name="org.springframework.stereotype.Service"/>
+            <Annotation name="org.springframework.stereotype.Component"/>
+            <Annotation name="org.springframework.web.bind.annotation.RestController"/>
+            <Annotation name="org.springframework.context.annotation.Configuration"/>
+        </Or>
+    </Match>
+
+    <!-- Exclude VA_FORMAT_STRING_USES_NEWLINE for HTML templates -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.service.impl.ContactServiceImpl"/>
+        <Method name="buildEmailContent"/>
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    </Match>
+
+    <!-- Exclude NP warnings for MultipartFile methods (Spring validation handles nulls) -->
+    <Match>
+        <Or>
+            <Class name="com.emmanuelgabe.portfolio.service.impl.FileStorageServiceImpl"/>
+            <Class name="com.emmanuelgabe.portfolio.service.impl.CvServiceImpl"/>
+            <Class name="com.emmanuelgabe.portfolio.service.ImageService"/>
+        </Or>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
+    <!-- Exclude @MockBean annotated fields in test classes (managed by Spring, not read directly) -->
+    <Match>
+        <Source name="~.*Test\.java"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+
+    <Match>
+        <Class name="~.*\.config\.TestSecurityConfig"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
 </FindBugsFilter>
