@@ -6,7 +6,7 @@
 2. [Initial Setup](#2-initial-setup)
 3. [Running the Application](#3-running-the-application)
 4. [Development Workflow](#4-development-workflow)
-5. [Troubleshooting](#5-troubleshooting)
+5. [Initial Data Setup](#5-initial-data-setup)
 
 ---
 
@@ -178,7 +178,7 @@ docker exec portfolio-frontend-local npm test -- --watch=false
 ```
 
 **For more testing commands and options, see:**
-- [Testing Guide](./testing.md)
+- [Testing Guide](./testing-guide.md)
 - `scripts/testing/` directory (if available)
 
 ### 4.4 Access Database
@@ -220,53 +220,75 @@ docker volume prune -f
 
 ---
 
-## 5. Common Issues
+## 5. Initial Data Setup
 
-### Port Already in Use
+### Data Seeders
 
-**Error:** `bind: address already in use`
+The application includes automatic data seeders that run on first startup.
 
-**Solution:**
-```bash
-# Find and kill process using the port
-# Linux/macOS: lsof -i :8081
-# Windows: netstat -ano | findstr :8081
+### AdminSeeder
+
+Creates the initial admin user if no users exist in the database.
+
+**Location**: `config/AdminSeeder.java`
+
+**Behavior**:
+- Checks if any users exist in the database
+- If no users exist, creates admin user with credentials from environment variables
+- Only runs once (subsequent startups skip if users exist)
+
+**Configuration**:
+```yaml
+app:
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD}  # Required, no default
 ```
 
-### Containers Not Starting
-
-**Solutions:**
-1. Check logs: `docker logs portfolio-backend-local`
-2. Verify `.env` file exists with `DB_USER_PASSWORD`
-3. Clean rebuild: `docker-compose down && docker-compose up --build -d`
-
-### Backend Returns 502
-
-**Cause:** Backend not ready yet or crashed
-
-**Solution:**
+**Environment Variables**:
 ```bash
-# Wait 30-60 seconds for services to become healthy
-# Check status: docker ps
-# Check logs: docker logs portfolio-backend-local
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_admin_password
 ```
 
-### Build Errors
+### DataSeeder
 
-**Solution:**
-```bash
-# Clean and rebuild from scratch
-docker-compose build --no-cache
+Seeds default data for development environments.
+
+**Location**: `config/DataSeeder.java`
+
+**Seeded Data**:
+- Default site configuration
+- Sample skill categories
+- Initial tags
+
+**Profile**: Only active in `dev` profile
+
+```yaml
+spring:
+  profiles:
+    active: dev  # Enables DataSeeder
 ```
 
-**For more troubleshooting, check:**
-- Container logs: `docker logs <container-name>`
-- GitHub Issues: Common problems and solutions
+### First-Time Setup
+
+1. Set required environment variables:
+```bash
+# .env file
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_password
+JWT_SECRET=your_jwt_secret_key_min_32_chars
+```
+
+2. Start the application
+3. Admin user is created automatically
+4. Login with configured credentials
 
 ---
 
 ## Additional Resources
 
 - [Architecture Guide](../architecture/architecture.md) - System design
-- [Testing Guide](./testing.md) - Running tests
+- [Testing Guide](./testing-guide.md) - Running tests
 - [CI/CD Guide](../deployment/ci-cd.md) - Deployment process
+- [Initial Setup](../security/initial-setup.md) - Security configuration
