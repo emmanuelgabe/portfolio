@@ -5,8 +5,8 @@
 This document explains how to view and manage dependencies in the Portfolio Application.
 
 **For exact versions, see:**
-- Backend: [`portfolio-backend/build.gradle`](../../portfolio-backend/build.gradle)
-- Frontend: [`portfolio-frontend/package.json`](../../portfolio-frontend/package.json)
+- Backend: `portfolio-backend/build.gradle`
+- Frontend: `portfolio-frontend/package.json`
 
 **View all dependencies:**
 ```bash
