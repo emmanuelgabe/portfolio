@@ -17,11 +17,10 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -31,8 +30,11 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CvServiceTest {
@@ -119,15 +121,15 @@ class CvServiceTest {
 
     @Test
     void should_uploadCv_when_validPdfFile() {
-        // Given
+        // Arrange
         when(cvRepository.findByUserIdAndCurrent(testUser.getId(), true)).thenReturn(Arrays.asList());
         when(cvRepository.save(any(Cv.class))).thenReturn(testCv);
         when(cvMapper.toResponse(any(Cv.class))).thenReturn(testCvResponse);
 
-        // When
+        // Act
         CvResponse result = cvService.uploadCv(validPdfFile, testUser);
 
-        // Then
+        // Assert
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.isCurrent()).isTrue();
@@ -137,7 +139,7 @@ class CvServiceTest {
 
     @Test
     void should_throwException_when_uploadingInvalidFileType() {
-        // Given / When / Then
+        // Arrange / Act / Assert
         assertThatThrownBy(() -> cvService.uploadCv(invalidFile, testUser))
                 .isInstanceOf(FileStorageException.class)
                 .hasMessageContaining("File type not allowed");
@@ -147,10 +149,10 @@ class CvServiceTest {
 
     @Test
     void should_throwException_when_fileIsEmpty() {
-        // Given
+        // Arrange
         MultipartFile emptyFile = new MockMultipartFile("file", "empty.pdf", "application/pdf", new byte[0]);
 
-        // When / Then
+        // Act / Assert
         assertThatThrownBy(() -> cvService.uploadCv(emptyFile, testUser))
                 .isInstanceOf(FileStorageException.class)
                 .hasMessageContaining("empty");
@@ -160,7 +162,7 @@ class CvServiceTest {
 
     @Test
     void should_throwException_when_fileSizeExceedsLimit() {
-        // Given
+        // Arrange
         when(cvStorageProperties.getMaxFileSize()).thenReturn(100L); // Very small limit
         byte[] largePdfContent = new byte[200];
         largePdfContent[0] = 0x25; // %
@@ -169,7 +171,7 @@ class CvServiceTest {
         largePdfContent[3] = 0x46; // F
         MultipartFile largeFile = new MockMultipartFile("file", "large.pdf", "application/pdf", largePdfContent);
 
-        // When / Then
+        // Act / Assert
         assertThatThrownBy(() -> cvService.uploadCv(largeFile, testUser))
                 .isInstanceOf(FileStorageException.class)
                 .hasMessageContaining("exceeds maximum");
@@ -179,7 +181,7 @@ class CvServiceTest {
 
     @Test
     void should_setOldCvToNotCurrent_when_uploadingNewCv() {
-        // Given
+        // Arrange
         Cv oldCv = new Cv();
         oldCv.setId(2L);
         oldCv.setUser(testUser);
@@ -190,24 +192,24 @@ class CvServiceTest {
         when(cvRepository.saveAll(any())).thenReturn(Arrays.asList(oldCv));
         when(cvMapper.toResponse(any(Cv.class))).thenReturn(testCvResponse);
 
-        // When
+        // Act
         cvService.uploadCv(validPdfFile, testUser);
 
-        // Then
+        // Assert
         assertThat(oldCv.isCurrent()).isFalse();
         verify(cvRepository).saveAll(any());
     }
 
     @Test
     void should_returnCurrentCv_when_cvExists() {
-        // Given
+        // Arrange
         when(cvRepository.findByUserIdAndCurrentTrue(testUser.getId())).thenReturn(Optional.of(testCv));
         when(cvMapper.toResponse(testCv)).thenReturn(testCvResponse);
 
-        // When
+        // Act
         Optional<CvResponse> result = cvService.getCurrentCv(testUser.getId());
 
-        // Then
+        // Assert
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(1L);
         assertThat(result.get().isCurrent()).isTrue();
@@ -216,19 +218,47 @@ class CvServiceTest {
 
     @Test
     void should_returnEmpty_when_noCurrentCvExists() {
-        // Given
+        // Arrange
         when(cvRepository.findByUserIdAndCurrentTrue(testUser.getId())).thenReturn(Optional.empty());
 
-        // When
+        // Act
         Optional<CvResponse> result = cvService.getCurrentCv(testUser.getId());
 
-        // Then
+        // Assert
         assertThat(result).isEmpty();
     }
 
     @Test
+    void should_returnCurrentCv_when_publicEndpointCalled() {
+        // Arrange
+        when(cvRepository.findFirstByCurrentTrue()).thenReturn(Optional.of(testCv));
+        when(cvMapper.toResponse(testCv)).thenReturn(testCvResponse);
+
+        // Act
+        Optional<CvResponse> result = cvService.getCurrentCv();
+
+        // Assert
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(1L);
+        verify(cvRepository).findFirstByCurrentTrue();
+    }
+
+    @Test
+    void should_returnEmpty_when_publicEndpointCalledWithNoCv() {
+        // Arrange
+        when(cvRepository.findFirstByCurrentTrue()).thenReturn(Optional.empty());
+
+        // Act
+        Optional<CvResponse> result = cvService.getCurrentCv();
+
+        // Assert
+        assertThat(result).isEmpty();
+        verify(cvRepository).findFirstByCurrentTrue();
+    }
+
+    @Test
     void should_setCurrentCv_when_validCvId() {
-        // Given
+        // Arrange
         Cv oldCv = new Cv();
         oldCv.setId(2L);
         oldCv.setUser(testUser);
@@ -242,10 +272,10 @@ class CvServiceTest {
 
         testCv.setCurrent(false); // Start as not current
 
-        // When
+        // Act
         CvResponse result = cvService.setCurrentCv(testCv.getId(), testUser);
 
-        // Then
+        // Assert
         assertThat(result).isNotNull();
         assertThat(testCv.isCurrent()).isTrue();
         assertThat(oldCv.isCurrent()).isFalse();
@@ -254,10 +284,10 @@ class CvServiceTest {
 
     @Test
     void should_throwException_when_settingNonExistentCvAsCurrent() {
-        // Given
+        // Arrange
         when(cvRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // When / Then
+        // Act / Assert
         assertThatThrownBy(() -> cvService.setCurrentCv(999L, testUser))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("not found");
@@ -265,14 +295,14 @@ class CvServiceTest {
 
     @Test
     void should_throwException_when_settingOtherUsersCvAsCurrent() {
-        // Given
+        // Arrange
         User otherUser = new User();
         otherUser.setId(2L);
         testCv.setUser(otherUser);
 
         when(cvRepository.findById(testCv.getId())).thenReturn(Optional.of(testCv));
 
-        // When / Then
+        // Act / Assert
         assertThatThrownBy(() -> cvService.setCurrentCv(testCv.getId(), testUser))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("does not belong to user");
@@ -280,7 +310,7 @@ class CvServiceTest {
 
     @Test
     void should_getAllCvs_when_userHasMultipleCvs() {
-        // Given
+        // Arrange
         Cv cv1 = new Cv();
         cv1.setId(1L);
         cv1.setCurrent(true);
@@ -294,41 +324,70 @@ class CvServiceTest {
         when(cvRepository.findByUserIdOrderByUploadedAtDesc(testUser.getId())).thenReturn(cvs);
         when(cvMapper.toResponse(any(Cv.class))).thenReturn(testCvResponse);
 
-        // When
+        // Act
         List<CvResponse> result = cvService.getAllCvs(testUser.getId());
 
-        // Then
+        // Assert
         assertThat(result).hasSize(2);
         verify(cvRepository).findByUserIdOrderByUploadedAtDesc(testUser.getId());
     }
 
     @Test
     void should_deleteCv_when_notCurrentCv() {
-        // Given
+        // Arrange
         testCv.setCurrent(false);
 
         when(cvRepository.findById(testCv.getId())).thenReturn(Optional.of(testCv));
         doNothing().when(cvRepository).delete(testCv);
 
-        // When
+        // Act
         cvService.deleteCv(testCv.getId(), testUser);
 
-        // Then
+        // Assert
         verify(cvRepository).delete(testCv);
     }
 
     @Test
     void should_throwException_when_deletingCurrentCvWithOthersExist() {
-        // Given
+        // Arrange
         testCv.setCurrent(true);
         List<Cv> allCvs = Arrays.asList(testCv, new Cv());
 
         when(cvRepository.findById(testCv.getId())).thenReturn(Optional.of(testCv));
         when(cvRepository.findByUserIdOrderByUploadedAtDesc(testUser.getId())).thenReturn(allCvs);
 
-        // When / Then
+        // Act / Assert
         assertThatThrownBy(() -> cvService.deleteCv(testCv.getId(), testUser))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Cannot delete current CV");
+    }
+
+    @Test
+    void should_throwException_when_publicDownloadCalledWithNoCv() {
+        // Arrange
+        when(cvRepository.findFirstByCurrentTrue()).thenReturn(Optional.empty());
+
+        // Act / Assert
+        assertThatThrownBy(() -> cvService.downloadCurrentCv())
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(cvRepository).findFirstByCurrentTrue();
+    }
+
+    @Test
+    void should_returnResource_when_publicDownloadCalledWithExistingCv() throws Exception {
+        // Arrange
+        Path testFile = tempDir.resolve(testCv.getFileName());
+        Files.write(testFile, new byte[]{0x25, 0x50, 0x44, 0x46}); // %PDF
+
+        when(cvRepository.findFirstByCurrentTrue()).thenReturn(Optional.of(testCv));
+
+        // Act
+        org.springframework.core.io.Resource result = cvService.downloadCurrentCv();
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+        assertThat(result.isReadable()).isTrue();
+        verify(cvRepository).findFirstByCurrentTrue();
     }
 }

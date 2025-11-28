@@ -33,4 +33,10 @@ public interface CvRepository extends JpaRepository<Cv, Long> {
      * @return List of current CVs
      */
     List<Cv> findByUserIdAndCurrent(Long userId, boolean current);
+
+    /**
+     * Find the current CV (any user - for public portfolio endpoint)
+     * @return Optional containing the current CV if exists
+     */
+    Optional<Cv> findFirstByCurrentTrue();
 }

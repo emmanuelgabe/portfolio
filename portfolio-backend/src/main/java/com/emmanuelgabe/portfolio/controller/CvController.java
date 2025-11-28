@@ -68,20 +68,16 @@ public class CvController {
     @GetMapping("/current")
     @Operation(summary = "Get current CV", description = "Get metadata of the current CV (public endpoint)")
     public ResponseEntity<CvResponse> getCurrentCv() {
-        // For now, we use the first admin user (ID=1)
-        // In production, this could be a config or specific user
-        Long userId = 1L;
+        log.debug("[GET_CURRENT_CV] Request received");
 
-        log.debug("[GET_CURRENT_CV] Request received - userId={}", userId);
-
-        Optional<CvResponse> currentCv = cvService.getCurrentCv(userId);
+        Optional<CvResponse> currentCv = cvService.getCurrentCv();
 
         if (currentCv.isPresent()) {
             log.info("[GET_CURRENT_CV] Current CV found - cvId={}", currentCv.get().getId());
             return ResponseEntity.ok(currentCv.get());
         } else {
             log.debug("[GET_CURRENT_CV] No current CV found");
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
     }
 
@@ -92,18 +88,15 @@ public class CvController {
     @GetMapping("/download")
     @Operation(summary = "Download current CV", description = "Download the current CV file as PDF (public endpoint)")
     public ResponseEntity<Resource> downloadCv() {
-        // For now, we use the first admin user (ID=1)
-        Long userId = 1L;
+        log.info("[DOWNLOAD_CV] Download request received");
 
-        log.info("[DOWNLOAD_CV] Download request received - userId={}", userId);
-
-        Resource resource = cvService.downloadCurrentCv(userId);
+        Resource resource = cvService.downloadCurrentCv();
 
         log.info("[DOWNLOAD_CV] Download successful");
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"CV.pdf\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"emmanuel_gabe_cv_developpeur_backend.pdf\"")
                 .body(resource);
     }
 

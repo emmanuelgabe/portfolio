@@ -46,7 +46,6 @@ public class HealthServiceImpl implements HealthService {
                 response.setStatus("ok");
                 response.setMessage("Database connection is healthy");
                 response.setDatabase(connection.getMetaData().getDatabaseProductName());
-                response.setUrl(connection.getMetaData().getURL());
                 log.debug("[HEALTH_DB] Database healthy - database={}", response.getDatabase());
             } else {
                 response.setStatus("error");

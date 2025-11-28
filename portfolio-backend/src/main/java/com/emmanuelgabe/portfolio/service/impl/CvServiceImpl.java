@@ -91,11 +91,14 @@ public class CvServiceImpl implements CvService {
 
             // Set all existing CVs for this user to not current
             List<Cv> existingCvs = cvRepository.findByUserIdAndCurrent(user.getId(), true);
-            existingCvs.forEach(cv -> {
-                cv.setCurrent(false);
-                log.debug("[UPLOAD_CV] Setting CV to not current - cvId={}", cv.getId());
-            });
-            cvRepository.saveAll(existingCvs);
+            if (!existingCvs.isEmpty()) {
+                existingCvs.forEach(cv -> {
+                    cv.setCurrent(false);
+                    log.debug("[UPLOAD_CV] Setting CV to not current - cvId={}", cv.getId());
+                });
+                cvRepository.saveAll(existingCvs);
+                cvRepository.flush(); // Force flush to avoid constraint violation
+            }
 
             // Create new CV entity
             Cv cv = new Cv();
@@ -139,13 +142,29 @@ public class CvServiceImpl implements CvService {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<CvResponse> getCurrentCv() {
+        log.debug("[GET_CURRENT_CV] Fetching current CV (public)");
+
+        Optional<Cv> currentCv = cvRepository.findFirstByCurrentTrue();
+
+        if (currentCv.isPresent()) {
+            log.info("[GET_CURRENT_CV] Current CV found - cvId={}", currentCv.get().getId());
+            return currentCv.map(cvMapper::toResponse);
+        } else {
+            log.debug("[GET_CURRENT_CV] No current CV found");
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Resource downloadCurrentCv(Long userId) {
         log.debug("[DOWNLOAD_CV] Starting download - userId={}", userId);
 
         Cv cv = cvRepository.findByUserIdAndCurrentTrue(userId)
                 .orElseThrow(() -> {
                     log.warn("[DOWNLOAD_CV] No current CV found - userId={}", userId);
-                    return new ResourceNotFoundException("No current CV found for user");
+                    return new ResourceNotFoundException("Cv", "userId", userId);
                 });
 
         try {
@@ -169,13 +188,44 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Resource downloadCurrentCv() {
+        log.debug("[DOWNLOAD_CV] Starting public download");
+
+        Cv cv = cvRepository.findFirstByCurrentTrue()
+                .orElseThrow(() -> {
+                    log.warn("[DOWNLOAD_CV] No current CV found");
+                    return new ResourceNotFoundException("Cv", "current", true);
+                });
+
+        try {
+            Path filePath = this.fileStorageLocation.resolve(cv.getFileName()).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                log.info("[DOWNLOAD_CV] CV download successful - cvId={}, fileName={}",
+                        cv.getId(), cv.getFileName());
+                return resource;
+            } else {
+                log.error("[DOWNLOAD_CV] File not readable - fileName={}, path={}",
+                        cv.getFileName(), filePath);
+                throw new FileStorageException("Could not read CV file: " + cv.getFileName());
+            }
+        } catch (MalformedURLException ex) {
+            log.error("[DOWNLOAD_CV] Invalid file path - fileName={}, error={}",
+                    cv.getFileName(), ex.getMessage(), ex);
+            throw new FileStorageException("Invalid file path for CV: " + cv.getFileName(), ex);
+        }
+    }
+
+    @Override
     public CvResponse setCurrentCv(Long cvId, User user) {
         log.debug("[SET_CURRENT_CV] Setting CV as current - cvId={}, userId={}", cvId, user.getId());
 
         Cv cv = cvRepository.findById(cvId)
                 .orElseThrow(() -> {
                     log.warn("[SET_CURRENT_CV] CV not found - cvId={}", cvId);
-                    return new ResourceNotFoundException("CV not found with id: " + cvId);
+                    return new ResourceNotFoundException("Cv", "id", cvId);
                 });
 
         // Verify ownership
@@ -187,11 +237,14 @@ public class CvServiceImpl implements CvService {
 
         // Set all existing CVs for this user to not current
         List<Cv> existingCvs = cvRepository.findByUserIdAndCurrent(user.getId(), true);
-        existingCvs.forEach(existingCv -> {
-            existingCv.setCurrent(false);
-            log.debug("[SET_CURRENT_CV] Setting CV to not current - cvId={}", existingCv.getId());
-        });
-        cvRepository.saveAll(existingCvs);
+        if (!existingCvs.isEmpty()) {
+            existingCvs.forEach(existingCv -> {
+                existingCv.setCurrent(false);
+                log.debug("[SET_CURRENT_CV] Setting CV to not current - cvId={}", existingCv.getId());
+            });
+            cvRepository.saveAll(existingCvs);
+            cvRepository.flush(); // Force flush to avoid constraint violation
+        }
 
         // Set this CV as current
         cv.setCurrent(true);
@@ -224,7 +277,7 @@ public class CvServiceImpl implements CvService {
         Cv cv = cvRepository.findById(cvId)
                 .orElseThrow(() -> {
                     log.warn("[DELETE_CV] CV not found - cvId={}", cvId);
-                    return new ResourceNotFoundException("CV not found with id: " + cvId);
+                    return new ResourceNotFoundException("Cv", "id", cvId);
                 });
 
         // Verify ownership
@@ -312,10 +365,10 @@ public class CvServiceImpl implements CvService {
             }
 
             // Check for PDF magic bytes: %PDF
-            return fileBytes[0] == 0x25 && // %
-                   fileBytes[1] == 0x50 && // P
-                   fileBytes[2] == 0x44 && // D
-                   fileBytes[3] == 0x46;   // F
+            return fileBytes[0] == 0x25 // %
+                   && fileBytes[1] == 0x50 // P
+                   && fileBytes[2] == 0x44 // D
+                   && fileBytes[3] == 0x46;   // F
 
         } catch (IOException ex) {
             log.error("[VALIDATION] Failed to read file bytes - error={}", ex.getMessage(), ex);

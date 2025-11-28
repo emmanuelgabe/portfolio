@@ -97,18 +97,18 @@ class FileStorageServiceImplTest {
     }
 
     @Test
-    void init_ShouldCreateUploadDirectory() {
-        // When
+    void should_createUploadDirectory_when_initCalled() {
+        // Act
         fileStorageService.init();
 
-        // Then
+        // Assert
         assertTrue(Files.exists(tempDir));
         assertTrue(Files.isDirectory(tempDir));
     }
 
     @Test
-    void storeFile_ShouldStoreFileSuccessfully() throws IOException {
-        // Given
+    void should_storeFileSuccessfully_when_storeFileCalled() throws IOException {
+        // Arrange
         fileStorageService.init();
         when(multipartFile.getOriginalFilename()).thenReturn("test.jpg");
         when(multipartFile.getSize()).thenReturn(1024L);
@@ -117,30 +117,30 @@ class FileStorageServiceImplTest {
         when(multipartFile.getInputStream())
                 .thenReturn(new ByteArrayInputStream("test content".getBytes()));
 
-        // When
+        // Act
         String fileName = fileStorageService.storeFile(multipartFile);
 
-        // Then
+        // Assert
         assertNotNull(fileName);
         assertTrue(fileName.endsWith(".jpg"));
         assertTrue(Files.exists(tempDir.resolve(fileName)));
     }
 
     @Test
-    void storeFile_ShouldThrowException_WhenFileContainsPathTraversal() throws IOException {
-        // Given
+    void should_throwException_when_storeFileCalledWithPathTraversal() throws IOException {
+        // Arrange
         fileStorageService.init();
         when(multipartFile.getOriginalFilename()).thenReturn("../../../etc/passwd");
         when(multipartFile.getSize()).thenReturn(1024L);
         when(multipartFile.isEmpty()).thenReturn(false);
 
-        // When/Then
+        // Act & Assert
         assertThrows(FileStorageException.class, () -> fileStorageService.storeFile(multipartFile));
     }
 
     @Test
-    void storeFile_ShouldThrowException_WhenIOExceptionOccurs() throws IOException {
-        // Given
+    void should_throwException_when_storeFileCalledAndIOExceptionOccurs() throws IOException {
+        // Arrange
         fileStorageService.init();
         when(multipartFile.getOriginalFilename()).thenReturn("test.jpg");
         when(multipartFile.getSize()).thenReturn(1024L);
@@ -148,109 +148,109 @@ class FileStorageServiceImplTest {
         when(multipartFile.getBytes()).thenReturn(VALID_JPEG_BYTES);
         when(multipartFile.getInputStream()).thenThrow(new IOException("Simulated IO error"));
 
-        // When/Then
+        // Act & Assert
         FileStorageException exception = assertThrows(FileStorageException.class,
                 () -> fileStorageService.storeFile(multipartFile));
         assertTrue(exception.getMessage().contains("Could not store file"));
     }
 
     @Test
-    void validateFile_ShouldPass_WhenFileIsValid() throws IOException {
-        // Given
+    void should_pass_when_validateFileCalledWithValidFile() throws IOException {
+        // Arrange
         when(multipartFile.isEmpty()).thenReturn(false);
         when(multipartFile.getSize()).thenReturn(1024L);
         when(multipartFile.getOriginalFilename()).thenReturn("test.jpg");
         when(multipartFile.getBytes()).thenReturn(VALID_JPEG_BYTES);
 
-        // When/Then
+        // Act & Assert
         assertDoesNotThrow(() -> fileStorageService.validateFile(multipartFile));
     }
 
     @Test
-    void validateFile_ShouldThrowException_WhenFileIsNull() {
-        // When/Then
+    void should_throwException_when_validateFileCalledWithNullFile() {
+        // Act & Assert
         FileStorageException exception = assertThrows(FileStorageException.class,
                 () -> fileStorageService.validateFile(null));
         assertEquals("File is empty", exception.getMessage());
     }
 
     @Test
-    void validateFile_ShouldThrowException_WhenFileIsEmpty() {
-        // Given
+    void should_throwException_when_validateFileCalledWithEmptyFile() {
+        // Arrange
         when(multipartFile.isEmpty()).thenReturn(true);
 
-        // When/Then
+        // Act & Assert
         FileStorageException exception = assertThrows(FileStorageException.class,
                 () -> fileStorageService.validateFile(multipartFile));
         assertEquals("File is empty", exception.getMessage());
     }
 
     @Test
-    void validateFile_ShouldThrowException_WhenFileSizeExceedsLimit() {
-        // Given
+    void should_throwException_when_validateFileCalledWithFileSizeExceedingLimit() {
+        // Arrange
         when(multipartFile.isEmpty()).thenReturn(false);
         when(multipartFile.getSize()).thenReturn(10485760L); // 10MB
         when(multipartFile.getOriginalFilename()).thenReturn("test.jpg");
 
-        // When/Then
+        // Act & Assert
         FileStorageException exception = assertThrows(FileStorageException.class,
                 () -> fileStorageService.validateFile(multipartFile));
         assertTrue(exception.getMessage().contains("File size exceeds maximum allowed size"));
     }
 
     @Test
-    void validateFile_ShouldThrowException_WhenFileExtensionNotAllowed() {
-        // Given
+    void should_throwException_when_validateFileCalledWithDisallowedExtension() {
+        // Arrange
         when(multipartFile.isEmpty()).thenReturn(false);
         when(multipartFile.getSize()).thenReturn(1024L);
         when(multipartFile.getOriginalFilename()).thenReturn("test.exe");
 
-        // When/Then
+        // Act & Assert
         FileStorageException exception = assertThrows(FileStorageException.class,
                 () -> fileStorageService.validateFile(multipartFile));
         assertTrue(exception.getMessage().contains("File type not allowed"));
     }
 
     @Test
-    void validateFile_ShouldHandleMixedCaseExtensions() throws IOException {
-        // Given
+    void should_handleMixedCaseExtensions_when_validateFileCalled() throws IOException {
+        // Arrange
         when(multipartFile.isEmpty()).thenReturn(false);
         when(multipartFile.getSize()).thenReturn(1024L);
         when(multipartFile.getOriginalFilename()).thenReturn("test.JPG");
         when(multipartFile.getBytes()).thenReturn(VALID_JPEG_BYTES);
 
-        // When/Then
+        // Act & Assert
         assertDoesNotThrow(() -> fileStorageService.validateFile(multipartFile));
     }
 
     @Test
-    void getFileUrl_ShouldReturnCorrectUrl() {
-        // Given
+    void should_returnCorrectUrl_when_getFileUrlCalled() {
+        // Arrange
         String fileName = "test-file.jpg";
 
-        // When
+        // Act
         String fileUrl = fileStorageService.getFileUrl(fileName);
 
-        // Then
+        // Assert
         assertEquals("/uploads/images/test-file.jpg", fileUrl);
     }
 
     @Test
-    void getFileExtension_ShouldReturnCorrectExtension_ForValidFileName() throws IOException {
-        // Given
+    void should_returnCorrectExtension_when_getFileExtensionCalledWithValidFileName() throws IOException {
+        // Arrange
         fileStorageService.init();
         when(multipartFile.getOriginalFilename()).thenReturn("document.pdf.backup.jpg");
         when(multipartFile.getSize()).thenReturn(1024L);
         when(multipartFile.isEmpty()).thenReturn(false);
         when(multipartFile.getBytes()).thenReturn(VALID_JPEG_BYTES);
 
-        // When/Then - Should extract the last extension
+        // Act & Assert - Should extract the last extension
         assertDoesNotThrow(() -> fileStorageService.validateFile(multipartFile));
     }
 
     @Test
-    void storeFile_ShouldGenerateUniqueFileNames() throws IOException {
-        // Given
+    void should_generateUniqueFileNames_when_storeFileCalled() throws IOException {
+        // Arrange
         fileStorageService.init();
         when(multipartFile.getOriginalFilename()).thenReturn("test.jpg");
         when(multipartFile.getSize()).thenReturn(1024L);
@@ -260,19 +260,19 @@ class FileStorageServiceImplTest {
                 .thenReturn(new ByteArrayInputStream("test content 1".getBytes()))
                 .thenReturn(new ByteArrayInputStream("test content 2".getBytes()));
 
-        // When
+        // Act
         String fileName1 = fileStorageService.storeFile(multipartFile);
         String fileName2 = fileStorageService.storeFile(multipartFile);
 
-        // Then
+        // Assert
         assertNotEquals(fileName1, fileName2);
         assertTrue(Files.exists(tempDir.resolve(fileName1)));
         assertTrue(Files.exists(tempDir.resolve(fileName2)));
     }
 
     @Test
-    void storeFile_ShouldReplaceExistingFile_WhenFileNameMatches() throws IOException {
-        // Given
+    void should_replaceExistingFile_when_storeFileCalledWithMatchingFileName() throws IOException {
+        // Arrange
         fileStorageService.init();
         when(multipartFile.getOriginalFilename()).thenReturn("test.png");
         when(multipartFile.getSize()).thenReturn(1024L);
@@ -281,10 +281,10 @@ class FileStorageServiceImplTest {
         when(multipartFile.getInputStream())
                 .thenReturn(new ByteArrayInputStream("test content".getBytes()));
 
-        // When
+        // Act
         String fileName = fileStorageService.storeFile(multipartFile);
 
-        // Then
+        // Assert
         Path targetPath = tempDir.resolve(fileName);
         assertTrue(Files.exists(targetPath));
         String content = Files.readString(targetPath);
@@ -292,26 +292,26 @@ class FileStorageServiceImplTest {
     }
 
     @Test
-    void validateFile_ShouldHandleFileWithNoExtension() {
-        // Given
+    void should_handleFileWithNoExtension_when_validateFileCalled() {
+        // Arrange
         when(multipartFile.isEmpty()).thenReturn(false);
         when(multipartFile.getSize()).thenReturn(1024L);
         when(multipartFile.getOriginalFilename()).thenReturn("testfile");
 
-        // When/Then
+        // Act & Assert
         FileStorageException exception = assertThrows(FileStorageException.class,
                 () -> fileStorageService.validateFile(multipartFile));
         assertTrue(exception.getMessage().contains("File type not allowed"));
     }
 
     @Test
-    void validateFile_ShouldHandleNullOriginalFilename() {
-        // Given
+    void should_handleNullOriginalFilename_when_validateFileCalled() {
+        // Arrange
         when(multipartFile.isEmpty()).thenReturn(false);
         when(multipartFile.getSize()).thenReturn(1024L);
         when(multipartFile.getOriginalFilename()).thenReturn(null);
 
-        // When/Then
+        // Act & Assert
         assertThrows(Exception.class, () -> fileStorageService.validateFile(multipartFile));
     }
 }

@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,11 +52,11 @@ class HealthServiceTest {
     }
 
     @Test
-    void testPing_ShouldReturnOkStatus() {
-        // When
+    void should_returnOkStatus_when_pingCalled() {
+        // Act
         HealthResponse response = healthService.ping();
 
-        // Then
+        // Assert
         assertNotNull(response, "Response should not be null");
         assertEquals("ok", response.getStatus(), "Status should be 'ok'");
         assertEquals("Backend API is responding", response.getMessage(), "Message should match");
@@ -65,37 +64,35 @@ class HealthServiceTest {
     }
 
     @Test
-    void testCheckDatabase_WhenConnectionIsValid_ShouldReturnOkStatus() throws SQLException {
-        // Given
+    void should_returnOkStatus_when_checkDatabaseCalledWithValidConnection() throws SQLException {
+        // Arrange
         when(connection.isValid(anyInt())).thenReturn(true);
         when(connection.getMetaData()).thenReturn(metaData);
         when(metaData.getDatabaseProductName()).thenReturn("PostgreSQL");
-        when(metaData.getURL()).thenReturn("jdbc:postgresql://localhost:5432/portfolio");
 
-        // When
+        // Act
         DatabaseHealthResponse response = healthService.checkDatabase();
 
-        // Then
+        // Assert
         assertNotNull(response, "Response should not be null");
         assertEquals("ok", response.getStatus(), "Status should be 'ok'");
         assertEquals("Database connection is healthy", response.getMessage(), "Message should match");
         assertEquals("PostgreSQL", response.getDatabase(), "Database name should be PostgreSQL");
-        assertEquals("jdbc:postgresql://localhost:5432/portfolio", response.getUrl(), "URL should match");
         assertNull(response.getError(), "Error should be null for successful connection");
 
         verify(connection).isValid(5);
-        verify(connection, times(2)).getMetaData();
+        verify(connection).getMetaData();
     }
 
     @Test
-    void testCheckDatabase_WhenConnectionIsNotValid_ShouldReturnErrorStatus() throws SQLException {
-        // Given
+    void should_returnErrorStatus_when_checkDatabaseCalledWithInvalidConnection() throws SQLException {
+        // Arrange
         when(connection.isValid(anyInt())).thenReturn(false);
 
-        // When
+        // Act
         DatabaseHealthResponse response = healthService.checkDatabase();
 
-        // Then
+        // Assert
         assertNotNull(response, "Response should not be null");
         assertEquals("error", response.getStatus(), "Status should be 'error'");
         assertEquals("Database connection is not valid", response.getMessage(), "Message should match");
@@ -107,15 +104,15 @@ class HealthServiceTest {
     }
 
     @Test
-    void testCheckDatabase_WhenExceptionThrown_ShouldReturnErrorStatus() throws SQLException {
-        // Given
+    void should_returnErrorStatus_when_checkDatabaseCalledAndExceptionThrown() throws SQLException {
+        // Arrange
         String errorMessage = "Connection failed";
         when(dataSource.getConnection()).thenThrow(new SQLException(errorMessage));
 
-        // When
+        // Act
         DatabaseHealthResponse response = healthService.checkDatabase();
 
-        // Then
+        // Assert
         assertNotNull(response, "Response should not be null");
         assertEquals("error", response.getStatus(), "Status should be 'error'");
         assertEquals("Database connection failed", response.getMessage(), "Message should match");
@@ -124,17 +121,16 @@ class HealthServiceTest {
     }
 
     @Test
-    void testGetCompleteStatus_WhenAllHealthy_ShouldReturnHealthyStatus() throws SQLException {
-        // Given
+    void should_returnHealthyStatus_when_getCompleteStatusCalledWithAllHealthy() throws SQLException {
+        // Arrange
         when(connection.isValid(anyInt())).thenReturn(true);
         when(connection.getMetaData()).thenReturn(metaData);
         when(metaData.getDatabaseProductName()).thenReturn("PostgreSQL");
-        when(metaData.getURL()).thenReturn("jdbc:postgresql://localhost:5432/portfolio");
 
-        // When
+        // Act
         CompleteHealthResponse response = healthService.getCompleteStatus();
 
-        // Then
+        // Assert
         assertNotNull(response, "Response should not be null");
         assertEquals("healthy", response.getStatus(), "Overall status should be 'healthy'");
         assertNotNull(response.getChecks(), "Checks should not be null");
@@ -144,14 +140,14 @@ class HealthServiceTest {
     }
 
     @Test
-    void testGetCompleteStatus_WhenDatabaseUnhealthy_ShouldReturnUnhealthyStatus() throws SQLException {
-        // Given
+    void should_returnUnhealthyStatus_when_getCompleteStatusCalledWithUnhealthyDatabase() throws SQLException {
+        // Arrange
         when(connection.isValid(anyInt())).thenReturn(false);
 
-        // When
+        // Act
         CompleteHealthResponse response = healthService.getCompleteStatus();
 
-        // Then
+        // Assert
         assertNotNull(response, "Response should not be null");
         assertEquals("unhealthy", response.getStatus(), "Overall status should be 'unhealthy'");
         assertNotNull(response.getChecks(), "Checks should not be null");
@@ -160,44 +156,42 @@ class HealthServiceTest {
     }
 
     @Test
-    void testIsDatabaseHealthy_WhenHealthy_ShouldReturnTrue() throws SQLException {
-        // Given
+    void should_returnTrue_when_isDatabaseHealthyCalledWithHealthyDatabase() throws SQLException {
+        // Arrange
         when(connection.isValid(anyInt())).thenReturn(true);
         when(connection.getMetaData()).thenReturn(metaData);
         when(metaData.getDatabaseProductName()).thenReturn("PostgreSQL");
-        when(metaData.getURL()).thenReturn("jdbc:postgresql://localhost:5432/portfolio");
 
-        // When
+        // Act
         boolean isHealthy = healthService.isDatabaseHealthy();
 
-        // Then
+        // Assert
         assertTrue(isHealthy, "Database should be healthy");
     }
 
     @Test
-    void testIsDatabaseHealthy_WhenUnhealthy_ShouldReturnFalse() throws SQLException {
-        // Given
+    void should_returnFalse_when_isDatabaseHealthyCalledWithUnhealthyDatabase() throws SQLException {
+        // Arrange
         when(connection.isValid(anyInt())).thenReturn(false);
 
-        // When
+        // Act
         boolean isHealthy = healthService.isDatabaseHealthy();
 
-        // Then
+        // Assert
         assertFalse(isHealthy, "Database should not be healthy");
     }
 
     @Test
-    void testCheckDatabase_ShouldCloseConnection() throws SQLException {
-        // Given
+    void should_closeConnection_when_checkDatabaseCalled() throws SQLException {
+        // Arrange
         when(connection.isValid(anyInt())).thenReturn(true);
         when(connection.getMetaData()).thenReturn(metaData);
         when(metaData.getDatabaseProductName()).thenReturn("PostgreSQL");
-        when(metaData.getURL()).thenReturn("jdbc:postgresql://localhost:5432/portfolio");
 
-        // When
+        // Act
         healthService.checkDatabase();
 
-        // Then
+        // Assert
         verify(connection).close();
     }
 }

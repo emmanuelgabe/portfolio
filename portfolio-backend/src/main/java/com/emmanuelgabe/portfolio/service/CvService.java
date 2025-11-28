@@ -30,11 +30,24 @@ public interface CvService {
     Optional<CvResponse> getCurrentCv(Long userId);
 
     /**
+     * Get the current CV (public endpoint - any user)
+     * Used for public portfolio display
+     * @return Optional containing current CV if exists
+     */
+    Optional<CvResponse> getCurrentCv();
+
+    /**
      * Get the current CV file as a downloadable resource
      * @param userId User ID
      * @return Resource containing the CV file
      */
     Resource downloadCurrentCv(Long userId);
+
+    /**
+     * Get the current CV file as a downloadable resource (public endpoint)
+     * @return Resource containing the CV file
+     */
+    Resource downloadCurrentCv();
 
     /**
      * Set a specific CV as current for a user

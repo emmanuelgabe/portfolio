@@ -83,7 +83,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_WithValidCredentials_ReturnsAuthResponse() throws Exception {
+    void should_returnAuthResponse_when_loginCalledWithValidCredentials() throws Exception {
         // Arrange
         when(authService.login(any(LoginRequest.class)))
                 .thenReturn(authResponse);
@@ -104,7 +104,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_WithInvalidCredentials_ReturnsUnauthorized() throws Exception {
+    void should_returnUnauthorized_when_loginCalledWithInvalidCredentials() throws Exception {
         // Arrange
         when(authService.login(any(LoginRequest.class)))
                 .thenThrow(new InvalidCredentialsException("Invalid username or password"));
@@ -121,7 +121,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_WithBlankUsername_ReturnsBadRequest() throws Exception {
+    void should_returnBadRequest_when_loginCalledWithBlankUsername() throws Exception {
         // Arrange
         loginRequest.setUsername("");
 
@@ -133,7 +133,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_WithBlankPassword_ReturnsBadRequest() throws Exception {
+    void should_returnBadRequest_when_loginCalledWithBlankPassword() throws Exception {
         // Arrange
         loginRequest.setPassword("");
 
@@ -145,7 +145,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refreshToken_WithValidToken_ReturnsNewAuthResponse() throws Exception {
+    void should_returnNewAuthResponse_when_refreshTokenCalledWithValidToken() throws Exception {
         // Arrange
         when(authService.refreshToken(any(String.class)))
                 .thenReturn(authResponse);
@@ -164,7 +164,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refreshToken_WithInvalidToken_ReturnsUnauthorized() throws Exception {
+    void should_returnUnauthorized_when_refreshTokenCalledWithInvalidToken() throws Exception {
         // Arrange
         when(authService.refreshToken(any(String.class)))
                 .thenThrow(new InvalidTokenException("Invalid or expired refresh token"));
@@ -181,7 +181,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refreshToken_WithBlankToken_ReturnsBadRequest() throws Exception {
+    void should_returnBadRequest_when_refreshTokenCalledWithBlankToken() throws Exception {
         // Arrange
         tokenRefreshRequest.setRefreshToken("");
 
@@ -193,7 +193,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void logout_WithValidToken_ReturnsOk() throws Exception {
+    void should_returnOk_when_logoutCalledWithValidToken() throws Exception {
         // Arrange
         doNothing().when(authService).logout(any(String.class));
 
@@ -207,7 +207,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void logout_WithInvalidToken_ReturnsUnauthorized() throws Exception {
+    void should_returnUnauthorized_when_logoutCalledWithInvalidToken() throws Exception {
         // Arrange
         doThrow(new InvalidTokenException("Invalid refresh token"))
                 .when(authService).logout(any(String.class));
@@ -225,7 +225,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void changePassword_WithValidRequest_ReturnsOk() throws Exception {
+    void should_returnOk_when_changePasswordCalledWithValidRequest() throws Exception {
         // Arrange
         doNothing().when(authService).changePassword(eq("admin"), any(ChangePasswordRequest.class));
 
@@ -240,7 +240,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void changePassword_WithIncorrectCurrentPassword_ReturnsUnauthorized() throws Exception {
+    void should_returnUnauthorized_when_changePasswordCalledWithIncorrectCurrentPassword() throws Exception {
         // Arrange
         doThrow(new InvalidCredentialsException("Current password is incorrect"))
                 .when(authService).changePassword(eq("admin"), any(ChangePasswordRequest.class));
@@ -258,7 +258,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void changePassword_WithMismatchedPasswords_ReturnsBadRequest() throws Exception {
+    void should_returnBadRequest_when_changePasswordCalledWithMismatchedPasswords() throws Exception {
         // Arrange
         doThrow(new IllegalArgumentException("New password and confirmation do not match"))
                 .when(authService).changePassword(eq("admin"), any(ChangePasswordRequest.class));
@@ -274,7 +274,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void changePassword_WithBlankCurrentPassword_ReturnsBadRequest() throws Exception {
+    void should_returnBadRequest_when_changePasswordCalledWithBlankCurrentPassword() throws Exception {
         // Arrange
         changePasswordRequest.setCurrentPassword("");
 
@@ -287,7 +287,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void changePassword_WithBlankNewPassword_ReturnsBadRequest() throws Exception {
+    void should_returnBadRequest_when_changePasswordCalledWithBlankNewPassword() throws Exception {
         // Arrange
         changePasswordRequest.setNewPassword("");
 

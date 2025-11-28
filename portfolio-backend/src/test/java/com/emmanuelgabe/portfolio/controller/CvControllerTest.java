@@ -38,8 +38,14 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CvController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -52,9 +58,6 @@ class CvControllerTest {
 
     @MockBean
     private CvService cvService;
-
-    @MockBean
-    private com.emmanuelgabe.portfolio.config.CvStorageProperties cvStorageProperties;
 
     private CvResponse testCvResponse;
     private MockMultipartFile validPdfFile;
@@ -92,7 +95,7 @@ class CvControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void uploadCv_ShouldReturn201AndCvResponse_WhenValidPdf() throws Exception {
+    void should_return201AndCvResponse_when_uploadCvCalledWithValidPdf() throws Exception {
         // Arrange
         when(cvService.uploadCv(any(), any(User.class))).thenReturn(testCvResponse);
 
@@ -112,9 +115,9 @@ class CvControllerTest {
     }
 
     @Test
-    void getCurrentCv_ShouldReturn200AndCvResponse_WhenCvExists() throws Exception {
+    void should_return200AndCvResponse_when_getCurrentCvCalledWithExistingCv() throws Exception {
         // Arrange
-        when(cvService.getCurrentCv(1L)).thenReturn(Optional.of(testCvResponse));
+        when(cvService.getCurrentCv()).thenReturn(Optional.of(testCvResponse));
 
         // Act & Assert
         mockMvc.perform(get("/api/cv/current"))
@@ -124,54 +127,54 @@ class CvControllerTest {
                 .andExpect(jsonPath("$.fileName", is("cv_20240101_120000_abc123.pdf")))
                 .andExpect(jsonPath("$.current", is(true)));
 
-        verify(cvService).getCurrentCv(1L);
+        verify(cvService).getCurrentCv();
     }
 
     @Test
-    void getCurrentCv_ShouldReturn404_WhenNoCvExists() throws Exception {
+    void should_return204NoContent_when_getCurrentCvCalledWithNoCv() throws Exception {
         // Arrange
-        when(cvService.getCurrentCv(1L)).thenReturn(Optional.empty());
+        when(cvService.getCurrentCv()).thenReturn(Optional.empty());
 
         // Act & Assert
         mockMvc.perform(get("/api/cv/current"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNoContent());
 
-        verify(cvService).getCurrentCv(1L);
+        verify(cvService).getCurrentCv();
     }
 
     @Test
-    void downloadCv_ShouldReturn200AndPdfFile_WhenCvExists() throws Exception {
+    void should_return200AndPdfFile_when_downloadCvCalledWithExistingCv() throws Exception {
         // Arrange
         byte[] pdfContent = new byte[]{0x25, 0x50, 0x44, 0x46}; // %PDF
         Resource resource = new ByteArrayResource(pdfContent);
-        when(cvService.downloadCurrentCv(1L)).thenReturn(resource);
+        when(cvService.downloadCurrentCv()).thenReturn(resource);
 
         // Act & Assert
         mockMvc.perform(get("/api/cv/download"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-                .andExpect(header().string("Content-Disposition", "attachment; filename=\"CV.pdf\""))
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"emmanuel_gabe_cv_developpeur_backend.pdf\""))
                 .andExpect(content().bytes(pdfContent));
 
-        verify(cvService).downloadCurrentCv(1L);
+        verify(cvService).downloadCurrentCv();
     }
 
     @Test
-    void downloadCv_ShouldReturn404_WhenNoCvExists() throws Exception {
+    void should_return404_when_downloadCvCalledWithNoCv() throws Exception {
         // Arrange
-        when(cvService.downloadCurrentCv(1L))
-                .thenThrow(new ResourceNotFoundException("No current CV found for user"));
+        when(cvService.downloadCurrentCv())
+                .thenThrow(new ResourceNotFoundException("No current CV found"));
 
         // Act & Assert
         mockMvc.perform(get("/api/cv/download"))
                 .andExpect(status().isNotFound());
 
-        verify(cvService).downloadCurrentCv(1L);
+        verify(cvService).downloadCurrentCv();
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getAllCvs_ShouldReturn200AndListOfCvs() throws Exception {
+    void should_return200AndListOfCvs_when_getAllCvsCalled() throws Exception {
         // Arrange
         CvResponse cv1 = new CvResponse();
         cv1.setId(1L);
@@ -199,7 +202,7 @@ class CvControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void setCurrentCv_ShouldReturn200AndUpdatedCv() throws Exception {
+    void should_return200AndUpdatedCv_when_setCurrentCvCalled() throws Exception {
         // Arrange
         when(cvService.setCurrentCv(eq(1L), any(User.class))).thenReturn(testCvResponse);
 
@@ -215,7 +218,7 @@ class CvControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void deleteCv_ShouldReturn204_WhenSuccessful() throws Exception {
+    void should_return204_when_deleteCvCalledSuccessfully() throws Exception {
         // Arrange
         doNothing().when(cvService).deleteCv(eq(1L), any(User.class));
 
@@ -228,7 +231,7 @@ class CvControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void deleteCv_ShouldReturn404_WhenCvNotFound() throws Exception {
+    void should_return404_when_deleteCvCalledWithNonExistentCv() throws Exception {
         // Arrange
         doThrow(new ResourceNotFoundException("CV not found"))
                 .when(cvService).deleteCv(eq(999L), any(User.class));
