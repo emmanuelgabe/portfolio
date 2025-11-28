@@ -65,6 +65,6 @@ else
     echo -e "${YELLOW}[WARN] Documentation has suggestions or warnings${NC}"
     echo ""
     echo "To ignore specific rules, update .vale.ini"
-    echo "To add accepted terms, update .vale/styles/Vocab/Portfolio/accept.txt"
+    echo "To add accepted terms, update .vale/styles/config/vocabularies/Portfolio/accept.txt"
     exit 1
 fi

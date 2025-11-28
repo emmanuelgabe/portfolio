@@ -62,40 +62,40 @@ test_endpoint() {
   if response=$(curl -s -o /dev/null -w "%{http_code}" --max-time $TIMEOUT "$url" 2>/dev/null); then
     if [ "$response" -eq "$expected_status" ]; then
       echo -e "${GREEN}[PASS]${NC} (HTTP $response)"
-      ((PASSED++))
+      PASSED=$((PASSED + 1))
       return 0
     else
       echo -e "${RED}[FAIL]${NC} (HTTP $response, expected $expected_status)"
-      ((FAILED++))
+      FAILED=$((FAILED + 1))
       return 1
     fi
   else
     echo -e "${RED}[FAIL]${NC} (Connection failed or timeout)"
-    ((FAILED++))
+    FAILED=$((FAILED + 1))
     return 1
   fi
 }
 
-# Run tests
+# Run tests (use || true to continue on failure and report all results)
 echo -e "${YELLOW}[TEST] Testing Nginx endpoints...${NC}"
-test_endpoint "Nginx health" "$BASE_URL/health"
+test_endpoint "Nginx health" "$BASE_URL/health" || true
 echo ""
 
 echo -e "${YELLOW}[TEST] Testing Frontend...${NC}"
-test_endpoint "Frontend static health" "$FRONTEND_URL/health.json"
+test_endpoint "Frontend static health" "$FRONTEND_URL/health.json" || true
 echo ""
 
 echo -e "${YELLOW}[TEST] Testing Backend...${NC}"
-test_endpoint "Backend ping" "$BACKEND_URL/api/health/ping"
-test_endpoint "Backend actuator" "$BACKEND_URL/actuator/health"
+test_endpoint "Backend ping" "$BACKEND_URL/api/health/ping" || true
+test_endpoint "Backend actuator" "$BACKEND_URL/actuator/health" || true
 echo ""
 
 echo -e "${YELLOW}[TEST] Testing Database connection...${NC}"
-test_endpoint "Database health" "$BACKEND_URL/api/health/db"
+test_endpoint "Database health" "$BACKEND_URL/api/health/db" || true
 echo ""
 
 echo -e "${YELLOW}[TEST] Testing full chain...${NC}"
-test_endpoint "Full health check" "$BASE_URL/health/full"
+test_endpoint "Full health check" "$BASE_URL/health/full" || true
 echo ""
 
 # Summary
