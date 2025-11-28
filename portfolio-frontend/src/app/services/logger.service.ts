@@ -121,9 +121,7 @@ export class LoggerService {
     }
   }
 
-  private logToServer(level: LogLevel, message: string, context?: unknown): void {
-    // TODO: Implement server-side logging endpoint
-    // This could send logs to a centralized logging service in production
-    console.debug('[LOGGER] Would send to server:', { level, message, context });
+  private logToServer(_level: LogLevel, _message: string, _context?: unknown): void {
+    // Server-side logging not implemented - use external service (Sentry, etc.) if needed
   }
 }

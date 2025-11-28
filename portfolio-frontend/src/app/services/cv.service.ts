@@ -19,17 +19,21 @@ export class CvService {
 
   /**
    * Get the current CV metadata
-   * @returns Observable of current CV or null if not found
+   * @returns Observable of current CV or null if not found (204 No Content)
    */
-  getCurrentCv(): Observable<CvResponse> {
+  getCurrentCv(): Observable<CvResponse | null> {
     this.logger.debug('[HTTP_REQUEST] Fetching current CV');
 
     return this.http.get<CvResponse>(`${this.apiUrl}/current`).pipe(
       tap((cv) => {
-        this.logger.info('[HTTP_SUCCESS] Current CV fetched', {
-          id: cv.id,
-          fileName: cv.originalFileName,
-        });
+        if (cv) {
+          this.logger.info('[HTTP_SUCCESS] Current CV fetched', {
+            id: cv.id,
+            fileName: cv.originalFileName,
+          });
+        } else {
+          this.logger.debug('[HTTP_INFO] No current CV available');
+        }
       }),
       catchError((error) => {
         this.logger.error('[HTTP_ERROR] Failed to fetch current CV', {
@@ -102,10 +106,17 @@ export class CvService {
         this.logger.info('[HTTP_SUCCESS] All CVs fetched', { count: cvs.length });
       }),
       catchError((error) => {
-        this.logger.error('[HTTP_ERROR] Failed to fetch all CVs', {
-          status: error.status,
-          message: error.message,
-        });
+        // 404 is expected when no CVs have been uploaded yet
+        if (error.status === 404) {
+          this.logger.debug('[HTTP_INFO] No CVs available (404)', {
+            status: error.status,
+          });
+        } else {
+          this.logger.error('[HTTP_ERROR] Failed to fetch all CVs', {
+            status: error.status,
+            message: error.message,
+          });
+        }
         return throwError(() => error);
       })
     );

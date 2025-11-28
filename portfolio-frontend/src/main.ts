@@ -1,5 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
@@ -19,6 +19,12 @@ bootstrapApplication(AppComponent, {
       progressBar: true,
     }),
     provideHttpClient(withInterceptors([jwtInterceptor, retryInterceptor, loggingInterceptor])),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'disabled',
+        anchorScrolling: 'enabled',
+      })
+    ),
   ],
 }).catch((err) => console.error(err));

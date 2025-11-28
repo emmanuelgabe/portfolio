@@ -7,7 +7,6 @@ import { provideHttpClient } from '@angular/common/http';
 describe('CvService', () => {
   let service: CvService;
   let httpMock: HttpTestingController;
-  const apiUrl = '/api/cv';
 
   const mockCvResponse: CvResponse = {
     id: 1,
@@ -39,11 +38,14 @@ describe('CvService', () => {
     it('should return the current CV', () => {
       service.getCurrentCv().subscribe((cv) => {
         expect(cv).toEqual(mockCvResponse);
-        expect(cv.id).toBe(1);
-        expect(cv.current).toBe(true);
+        expect(cv).not.toBeNull();
+        expect(cv!.id).toBe(1);
+        expect(cv!.current).toBe(true);
       });
 
-      const req = httpMock.expectOne((request) => request.url.includes('/api/cv/current') && request.method === 'GET');
+      const req = httpMock.expectOne(
+        (request) => request.url.includes('/api/cv/current') && request.method === 'GET'
+      );
       expect(req.request.method).toBe('GET');
       req.flush(mockCvResponse);
     });
@@ -88,7 +90,9 @@ describe('CvService', () => {
         expect(cv.fileName).toBe('cv_20240101_120000_abc123.pdf');
       });
 
-      const req = httpMock.expectOne((request) => request.url.includes('/api/cv/upload') && request.method === 'POST');
+      const req = httpMock.expectOne(
+        (request) => request.url.includes('/api/cv/upload') && request.method === 'POST'
+      );
       expect(req.request.method).toBe('POST');
       expect(req.request.body instanceof FormData).toBe(true);
       req.flush(mockCvResponse);
@@ -121,7 +125,9 @@ describe('CvService', () => {
         expect(cvs.length).toBe(2);
       });
 
-      const req = httpMock.expectOne((request) => request.url.includes('/api/cv/all') && request.method === 'GET');
+      const req = httpMock.expectOne(
+        (request) => request.url.includes('/api/cv/all') && request.method === 'GET'
+      );
       expect(req.request.method).toBe('GET');
       req.flush(mockCvs);
     });
@@ -134,7 +140,9 @@ describe('CvService', () => {
         expect(cv.current).toBe(true);
       });
 
-      const req = httpMock.expectOne((request) => request.url.includes('/api/cv/2/set-current') && request.method === 'PUT');
+      const req = httpMock.expectOne(
+        (request) => request.url.includes('/api/cv/2/set-current') && request.method === 'PUT'
+      );
       expect(req.request.method).toBe('PUT');
       req.flush(mockCvResponse);
     });
@@ -146,7 +154,9 @@ describe('CvService', () => {
         expect(true).toBe(true);
       });
 
-      const req = httpMock.expectOne((request) => request.url.includes('/api/cv/2') && request.method === 'DELETE');
+      const req = httpMock.expectOne(
+        (request) => request.url.includes('/api/cv/2') && request.method === 'DELETE'
+      );
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
     });
