@@ -81,8 +81,8 @@ choco install vale
 ```
 
 **Customizing validation:**
-- Add accepted terms to: `.vale/styles/Vocab/Portfolio/accept.txt`
-- Add rejected terms to: `.vale/styles/Vocab/Portfolio/reject.txt`
+- Add accepted terms to: `.vale/styles/config/vocabularies/Portfolio/accept.txt`
+- Add rejected terms to: `.vale/styles/config/vocabularies/Portfolio/reject.txt`
 - Adjust rule severity in: `.vale.ini`
 
 **Note:** The Google style guide is downloaded automatically when running Vale for the first time.
