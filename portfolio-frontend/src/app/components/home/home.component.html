@@ -1,54 +1,53 @@
 <!-- Hero Section -->
 <section id="hero" class="hero-section">
+  <!-- Birds animation background -->
+  <div #birdsAnimation class="birds-background"></div>
+
   <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0">
-        <h1 class="display-3 fw-bold mb-3">
-          Bonjour, je suis <span class="text-primary">Emmanuel Gabe</span>
-        </h1>
-        <h2 class="h3 text-muted mb-4">Développeur Full Stack</h2>
-        <p class="lead mb-4">
-          Je crée des applications web modernes et évolutives avec Angular, Spring Boot
-          et les technologies de pointe. Passionné par le code propre, les bonnes pratiques
-          et la création d'expériences utilisateur exceptionnelles.
-        </p>
-        <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
-          <a href="#projects" class="btn btn-primary btn-lg">
-            <i class="bi bi-folder2-open me-2"></i>
-            Voir mes projets
-          </a>
-          <a href="#contact" class="btn btn-outline-primary btn-lg">
-            <i class="bi bi-envelope me-2"></i>
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8">
+        <div class="terminal-container mb-4">
+          <span class="terminal-text-wrapper">
+            <!-- Invisible placeholder to reserve space for full text width -->
+            <span class="terminal-text-placeholder">{{ fullText }}|</span>
+            <!-- Visible text aligned left within reserved space -->
+            <span class="terminal-text-visible">
+              <span class="terminal-text">{{ displayedText }}</span><span class="terminal-cursor" [class.blink]="showCursor" *ngIf="displayedText">|</span>
+            </span>
+          </span>
+        </div>
+        <div class="lead mb-4 description-container">
+          <p class="mb-2 description-line-wrapper" *ngFor="let line of fullDescriptionLines; let i = index">
+            <!-- Invisible placeholder to reserve space for full line width -->
+            <span class="description-placeholder">{{ line }}</span>
+            <!-- Visible text aligned left within reserved space -->
+            <span class="description-visible">{{ displayedDescriptionLines[i] }}</span>
+          </p>
+        </div>
+        <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap hero-buttons">
+          <a routerLink="/contact" class="btn-style15">
+            <i class="bi bi-envelope"></i>
             Me contacter
           </a>
           <button
-            *ngIf="currentCv && !isLoadingCv"
+            [disabled]="isLoadingCv"
             (click)="downloadCv()"
-            class="btn btn-success btn-lg"
-            type="button">
-            <i class="bi bi-download me-2"></i>
+            type="button"
+            class="btn-style15">
+            <i class="bi bi-download"></i>
             Télécharger mon CV
           </button>
         </div>
-      </div>
-      <div class="col-lg-6 text-center">
-        <div class="hero-image-container">
-          <div class="hero-placeholder">
-            <i class="bi bi-person-circle display-1 text-primary"></i>
-          </div>
-        </div>
+
       </div>
     </div>
   </div>
-</section>
 
-<!-- About Section -->
-<section id="about" class="about-section py-5">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">À propos de moi</h2>
-      <p class="lead text-muted">Développeur passionné par la création d'applications web modernes</p>
-    </div>
+  <!-- Scroll down indicator -->
+  <div class="scroll-arrow">
+    <a href="#skills" class="scroll-link" (click)="scrollToSkills($event)">
+      <div #scrollAnimation class="scroll-animation"></div>
+    </a>
   </div>
 </section>
 
@@ -56,18 +55,26 @@
 <section id="skills" class="skills-section py-5 bg-light">
   <div class="container">
     <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">Compétences Techniques</h2>
-      <p class="lead text-muted">Technologies que je maîtrise</p>
+      <h2 class="display-5 fw-bold mb-3">Competences Techniques</h2>
     </div>
 
     <div class="row g-4">
       <div class="col-6 col-sm-4 col-md-3 col-lg-3" *ngFor="let skill of skills">
         <div class="skill-card text-center p-4 h-100">
           <div class="skill-icon-container mb-3">
+            <!-- Font Awesome Icon -->
             <i
-              [class]="'bi ' + skill.icon + ' display-4'"
+              *ngIf="skill.iconType === 'FONT_AWESOME'"
+              [class]="skill.icon + ' display-4'"
               [style.color]="skill.color"
             ></i>
+            <!-- Custom SVG Icon -->
+            <img
+              *ngIf="skill.iconType === 'CUSTOM_SVG' && skill.customIconUrl"
+              [src]="skill.customIconUrl"
+              [alt]="skill.name"
+              class="skill-svg-icon"
+            />
           </div>
           <h5 class="skill-name mb-0">{{ skill.name }}</h5>
         </div>
@@ -76,148 +83,219 @@
   </div>
 </section>
 
-<!-- Projects Section -->
-<section id="projects" class="projects-section py-5">
+<!-- Timeline Section -->
+<section id="experiences" class="timeline-section py-5">
   <div class="container">
     <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">Projets Réalisés</h2>
-      <p class="lead text-muted">
-        <span *ngIf="!showAllProjects">Découvrez mes meilleures réalisations</span>
-        <span *ngIf="showAllProjects">Tous mes projets</span>
-      </p>
+      <h2 class="display-5 fw-bold mb-3">Experiences</h2>
     </div>
 
     <!-- Loading Spinner -->
-    <div *ngIf="isLoadingProjects" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Loading...</span>
+    @if (isLoadingExperiences) {
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
       </div>
-      <p class="mt-3 text-muted">Chargement des projets...</p>
-    </div>
+    }
 
     <!-- Error Message -->
-    <div *ngIf="projectsError" class="alert alert-warning text-center" role="alert">
-      <i class="bi bi-exclamation-triangle me-2"></i>
-      {{ projectsError }}
-    </div>
+    @if (experiencesError) {
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ experiencesError }}
+      </div>
+    }
 
-    <!-- No Projects -->
-    <div *ngIf="!isLoadingProjects && !projectsError && !hasProjects" class="text-center py-5">
-      <i class="bi bi-inbox display-3 text-muted"></i>
-      <p class="lead mt-3 text-muted">Aucun projet pour le moment</p>
-    </div>
+    <!-- Timeline -->
+    @if (!isLoadingExperiences && !experiencesError && allExperiences.length > 0) {
+      <div class="timeline-container">
+        <div class="timeline-line"></div>
 
-    <!-- Projects Grid -->
-    <div *ngIf="!isLoadingProjects && !projectsError && hasProjects">
-      <!-- Featured Projects Section -->
-      <div *ngIf="featuredProjects.length > 0" class="mb-4">
-        <div class="row g-4">
-          <div class="col-12 col-md-6 col-lg-4" *ngFor="let project of featuredProjects">
-            <app-project-card [project]="project"></app-project-card>
+        @for (experience of allExperiences; track experience.id; let i = $index) {
+          <div
+            class="timeline-item"
+            [ngClass]="i % 2 === 0 ? 'timeline-left' : 'timeline-right'"
+          >
+            <div class="timeline-marker">
+              <i class="bi" [ngClass]="getExperienceIcon(experience.type)"></i>
+            </div>
+
+            <div class="timeline-card">
+              <div class="timeline-card-header">
+                <span class="badge bg-secondary mb-2">
+                  {{ getExperienceTypeLabel(experience.type) }}
+                </span>
+                <h4 class="mb-1">{{ experience.role }}</h4>
+                <h5 class="text-muted mb-2">{{ experience.company }}</h5>
+                <span class="timeline-date text-muted">
+                  <i class="bi bi-calendar3 me-1"></i>
+                  {{ formatExperienceDateRange(experience.startDate, experience.endDate) }}
+                  @if (experience.ongoing) {
+                    <span class="badge bg-success ms-2">En cours</span>
+                  }
+                </span>
+              </div>
+
+              <div class="timeline-card-body">
+                <p class="mb-0">{{ experience.description }}</p>
+              </div>
+            </div>
           </div>
-        </div>
+        }
       </div>
+    }
 
-      <!-- Other Projects Section (shown when expanded) -->
-      <div *ngIf="showAllProjects && otherProjects.length > 0" class="mt-5">
-        <div class="row g-4">
-          <div class="col-12 col-md-6 col-lg-4" *ngFor="let project of otherProjects">
-            <app-project-card [project]="project"></app-project-card>
-          </div>
-        </div>
+    <!-- Empty State -->
+    @if (!isLoadingExperiences && !experiencesError && allExperiences.length === 0) {
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+        <p>Aucune experience disponible pour le moment.</p>
       </div>
-
-      <!-- Toggle Button -->
-      <div *ngIf="hasMoreProjects" class="text-center mt-5">
-        <button
-          (click)="toggleShowAllProjects()"
-          class="btn btn-outline-primary btn-lg"
-        >
-          <i [class]="showAllProjects ? 'bi bi-chevron-up me-2' : 'bi bi-grid-3x3-gap me-2'"></i>
-          <span *ngIf="!showAllProjects">Voir tous les projets ({{ allProjects.length }})</span>
-          <span *ngIf="showAllProjects">Voir moins</span>
-        </button>
-      </div>
-    </div>
+    }
   </div>
 </section>
 
-<!-- Experiences Section -->
-<section id="experiences" class="experiences-section py-5 bg-light">
+<!-- Projects Section -->
+<section id="projects" class="projects-section py-5 bg-light">
   <div class="container">
     <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">Expérience Professionnelle</h2>
-      <p class="lead text-muted">Mon parcours et mes réalisations</p>
+      <h2 class="display-5 fw-bold mb-3">Projets Realises</h2>
     </div>
 
-    <div class="row">
-      <div class="col-lg-10 mx-auto">
-        <p class="text-center text-muted">
-          <i class="bi bi-info-circle me-2"></i>
-          La section Expériences sera disponible prochainement.
-        </p>
-        <!-- TODO: Implement experiences timeline component (task 7.3) -->
+    <!-- Projects content wrapper with min-height to prevent CLS -->
+    <div class="projects-content-wrapper">
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoadingProjects" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-muted">Chargement des projets...</p>
       </div>
-    </div>
-  </div>
-</section>
 
-<!-- Contact Section -->
-<section id="contact" class="contact-section py-5">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">Restons en contact</h2>
-      <p class="lead text-muted">N'hésitez pas à me contacter pour discuter de vos projets</p>
-    </div>
+      <!-- Error Message -->
+      <div *ngIf="projectsError" class="alert alert-warning text-center" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ projectsError }}
+      </div>
 
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <div class="row g-4">
-          <div class="col-md-4 text-center">
-            <div class="contact-card p-4 h-100">
-              <i class="bi bi-envelope display-4 text-primary mb-3"></i>
-              <h5>Email</h5>
-              <p class="mb-0">
-                <a href="mailto:contact@emmanuelgabe.com" class="text-decoration-none">
-                  contact&#64;emmanuelgabe.com
-                </a>
-              </p>
-            </div>
-          </div>
-          <div class="col-md-4 text-center">
-            <div class="contact-card p-4 h-100">
-              <i class="bi bi-linkedin display-4 text-primary mb-3"></i>
-              <h5>LinkedIn</h5>
-              <p class="mb-0">
-                <a href="https://linkedin.com/in/egabe" target="_blank" class="text-decoration-none">
-                  Mon profil
-                </a>
-              </p>
-            </div>
-          </div>
-          <div class="col-md-4 text-center">
-            <div class="contact-card p-4 h-100">
-              <i class="bi bi-github display-4 text-primary mb-3"></i>
-              <h5>GitHub</h5>
-              <p class="mb-0">
-                <a href="https://github.com/emmanuelgabe" target="_blank" class="text-decoration-none">
-                  &#64;emmanuelgabe
-                </a>
-              </p>
+      <!-- No Projects -->
+      <div *ngIf="!isLoadingProjects && !projectsError && !hasProjects" class="text-center py-5">
+        <i class="bi bi-inbox display-3 text-muted"></i>
+        <p class="lead mt-3 text-muted">Aucun projet pour le moment</p>
+      </div>
+
+      <!-- Projects Grid -->
+      <div *ngIf="!isLoadingProjects && !projectsError && hasProjects">
+        <!-- Featured Projects Section -->
+        <div *ngIf="featuredProjects.length > 0" class="mb-4">
+          <div class="row g-4">
+            <div class="col-12 col-md-6 col-lg-4" *ngFor="let project of featuredProjects">
+              <app-project-card [project]="project"></app-project-card>
             </div>
           </div>
         </div>
-        <!-- TODO: Implement contact form component (task 3.5) -->
+
+        <!-- Other Projects Section (shown when expanded) -->
+        <div *ngIf="showAllProjects && otherProjects.length > 0" class="mt-5">
+          <div class="row g-4">
+            <div class="col-12 col-md-6 col-lg-4" *ngFor="let project of otherProjects">
+              <app-project-card [project]="project"></app-project-card>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <div *ngIf="hasMoreProjects" class="text-center mt-5">
+          <button
+            (click)="toggleShowAllProjects()"
+            class="btn btn-outline-primary btn-lg"
+          >
+            <i [class]="showAllProjects ? 'bi bi-chevron-up me-2' : 'bi bi-grid-3x3-gap me-2'"></i>
+            <span *ngIf="!showAllProjects">Voir tous les projets ({{ allProjects.length }})</span>
+            <span *ngIf="showAllProjects">Voir moins</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Footer with version -->
-<footer class="footer py-4 bg-light text-center">
+<!-- Articles Section - shown during loading to prevent CLS -->
+<section id="articles" class="articles-section py-5" *ngIf="isLoadingArticles || hasArticles">
   <div class="container">
-    <p class="text-muted mb-0">
-      <small>Version {{ version }}</small>
-    </p>
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">Articles</h2>
+    </div>
+
+    <div class="articles-content-wrapper">
+      <!-- Loading Spinner -->
+      @if (isLoadingArticles) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+        </div>
+      }
+
+      <!-- Error Message -->
+      @if (articlesError) {
+        <div class="alert alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ articlesError }}
+        </div>
+      }
+
+      <!-- Articles Grid -->
+      @if (!isLoadingArticles && !articlesError && hasArticles) {
+        <div class="row g-4">
+          <div class="col-12 col-md-6 col-lg-4" *ngFor="let article of latestArticles">
+            <app-article-card [article]="article"></app-article-card>
+          </div>
+        </div>
+
+        <!-- Link to all articles -->
+        <div class="text-center mt-5">
+          <a routerLink="/blog" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-journal-text me-2"></i>
+            Voir tous les articles
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <!-- Social Links -->
+    <div class="footer-links">
+      <a [href]="githubUrl" target="_blank" rel="noopener noreferrer"
+         class="footer-link" title="GitHub">
+        <i class="bi bi-github"></i>
+        <span>GitHub</span>
+      </a>
+      <a [href]="linkedinUrl" target="_blank" rel="noopener noreferrer"
+         class="footer-link" title="LinkedIn">
+        <i class="bi bi-linkedin"></i>
+        <span>LinkedIn</span>
+      </a>
+      <a [href]="'mailto:' + contactEmail" class="footer-link" title="Email">
+        <i class="bi bi-envelope"></i>
+        <span>Email</span>
+      </a>
+      <button *ngIf="currentCv" (click)="downloadCv()" class="footer-link" title="Telecharger mon CV">
+        <i class="bi bi-file-earmark-pdf"></i>
+        <span>CV</span>
+      </button>
+    </div>
+
+    <!-- Copyright & Version -->
+    <div class="footer-bottom">
+      <span class="footer-copyright">&copy; {{ currentYear }} {{ fullName }}</span>
+      <span class="footer-separator">|</span>
+      <span class="footer-version">Version {{ version }}</span>
+    </div>
   </div>
 </footer>
