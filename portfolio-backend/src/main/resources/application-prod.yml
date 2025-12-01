@@ -1,3 +1,17 @@
+# Production environment configuration
+app:
+  jwt:
+    # No fallback - JWT_SECRET environment variable MUST be set
+    secret: ${JWT_SECRET}
+  rate-limit:
+    contact:
+      max-requests-per-hour: 5  # Strict limit for production
+    auth:
+      login:
+        max-requests-per-hour: 5  # Strict limit for production
+      refresh:
+        max-requests-per-hour: 10  # Strict limit for production
+
 spring:
   jpa:
     generate-ddl: false  # Flyway manages schema creation
