@@ -1,13 +1,116 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+### Added
+- CV management system with versioning
+  - Upload, download, and version control for CV files
+  - Single "current" CV designation with database constraint
+  - Admin UI for CV management
+  - Public endpoint for current CV download
+- Project image upload with optimization
+  - WebP conversion with Thumbnailator library (quality 0.85)
+  - Automatic thumbnail generation (400x300px, quality 0.8)
+  - Magic bytes validation for security
+  - Old image cleanup on update
+- Complete API documentation suite
+  - 6 API reference files (authentication, projects, skills, cv, files)
+  - 3 security documentation files (authentication, RBAC, password management)
+  - 3 features documentation files (CV management, image processing, file storage)
+  - Medium detail level following project conventions
+- Complete documentation reorganization in `/docs`
+  - Documentation standards with detail level guidelines
+  - Professional structure without emojis
+  - Hierarchical numbering and concise content
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### Changed
+- Test naming convention standardized to `should_when` pattern
+- Documentation detail level reduced to medium (200-400 lines per file)
+- Removed overly detailed implementation sections from documentation
+
+### Fixed
+- Angular proxy configuration to point to correct backend container
+- Nginx configuration to maintain `/api/` prefix
+- Spring Boot Actuator `/actuator/info` configuration
 
 ---
 
-## [Unreleased]
+## [0.3.0] - 2025-11-19
+
+### Added
+- JWT authentication system with Spring Security
+  - Dual-token system (access token: 15min, refresh token: 7 days)
+  - Login, logout, refresh token, and change password endpoints
+  - Role-based access control (ADMIN, USER)
+  - BCrypt password hashing (strength 10)
+- Frontend authentication UI
+  - Login page with Angular reactive forms
+  - Navbar with login/logout functionality
+  - Auth guard and admin guard for route protection
+  - HTTP interceptor for automatic token refresh
+  - Token storage service (localStorage)
+- File upload system
+  - Generic file upload endpoint (`/api/admin/upload`)
+  - Multipart file upload with validation (10MB limit)
+  - Support for PNG, JPG, GIF, WebP formats
+  - Magic bytes validation for security
+  - File storage service with timestamped filenames
+  - Admin UI components for file management
+- Authentication unit tests
+  - AuthService tests with 80%+ coverage
+  - AuthController tests
+  - JwtTokenProvider tests
+  - Role mapping validation tests
+
+### Changed
+- Skill model simplified (removed deprecated level system)
+  - Database migration V7 for skill table cleanup
+  - Updated SkillResponse DTO
+  - Updated frontend skill components
+- Admin endpoints now require JWT authentication
+  - `/api/admin/projects` protected with ROLE_ADMIN
+  - `/api/admin/skills` protected with ROLE_ADMIN
+  - Security configuration with method-level authorization
+- Cross-platform configuration
+  - Updated Prettier config for Windows/Unix compatibility
+  - Updated ESLint config for cross-platform paths
+
+### Fixed
+- Checkstyle configuration for entity suppressions
+- CI/CD pipeline improvements
+  - Backend tests workflow optimization
+  - Correct Gradle task execution order
+
+### Security
+- JWT token security
+  - Short-lived access tokens (15 minutes)
+  - Secure refresh token rotation
+  - Token invalidation on logout and password change
+- Password security
+  - BCrypt hashing with configurable strength
+  - Minimum 8 character requirement
+  - Secure password change workflow
+- CORS configuration for authentication endpoints
+- CSRF protection maintained in staging/production
+
+### Breaking Changes
+- Skill entity schema updated (removed `level` column)
+  - Migration: Run `./gradlew flywayMigrate`
+  - Frontend: Update skill components if custom level logic exists
+- Admin endpoints require authentication
+  - All `/api/admin/**` endpoints now require valid JWT with ROLE_ADMIN
+  - Update API clients to include Authorization header
+- Authentication required for file upload
+  - `/api/admin/upload` now requires authentication
+
+### Migration Notes
+1. Run database migrations: `./gradlew flywayMigrate`
+2. Set JWT_SECRET environment variable (min 256 bits)
+3. Update environment configuration for auth endpoints
+4. Existing admin users need to login with new auth system
+5. Update API clients to handle JWT authentication
+
+---
+
+## [0.2.0] - 2025-11-15
 
 ### Added
 - Complete unit test suite
@@ -17,10 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive documentation restructure
   - Documentation standards guide (`docs/contributing.md`)
   - Separate testing guides (testing.md, backend-tests.md, frontend-tests.md)
-  - Testing quick reference and troubleshooting guides
   - Condensed CI/CD, health checks, and versioning documentation
   - Architecture documentation (`docs/architecture/architecture.md`)
-- Complete documentation reorganization in `/docs`
 - System-wide health checks
   - `/health/full` endpoint for full chain verification
   - Docker healthchecks for all services
@@ -36,17 +137,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed emojis from all documentation
   - Applied hierarchical numbering
   - Condensed redundant content
-  - Separated troubleshooting into dedicated guides
 - Test infrastructure configuration
   - Karma and Jasmine setup for Angular 20
   - Security filters disabled in controller tests
   - Lenient mocking for optional dependencies
 
-### Fixed
-- Angular proxy configuration to point to correct backend container
-- Nginx configuration to maintain `/api/` prefix
-- Spring Boot Actuator `/actuator/info` configuration
-- Vite allowedHosts to accept requests from Nginx
+---
+
+## [0.1.0] - 2025-11-10
+
+### Added
+- Backend clean architecture implementation
+  - MapStruct for DTO mapping
+  - Lombok for code generation
+  - Service layer with transactional support
+- Code quality tools
+  - Checkstyle for code style verification
+  - SpotBugs for static analysis
+  - JaCoCo for code coverage (80% minimum)
+- Frontend portfolio UI components
+  - Project list and detail pages
+  - Skill display components
+  - Responsive Bootstrap 5 layout
+- Skills management system
+  - Full CRUD operations for skills
+  - Skill categories (PROGRAMMING, FRAMEWORK, DATABASE, etc.)
+  - Backend and frontend integration
 
 ---
 
@@ -82,20 +198,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment-specific Spring Security configuration
 - Production security headers (X-Frame-Options, CSP, etc.)
 
----
-
-## Version Notes
-
-### How to Read This Changelog
-
-- **Added:** New features
-- **Changed:** Changes to existing features
-- **Deprecated:** Features to be removed in future releases
-- **Removed:** Removed features
-- **Fixed:** Bug fixes
-- **Security:** Security vulnerability fixes
-
-### Links
-
-- [Unreleased]: Changes not yet deployed
-- [0.0.1]: Initial version (2025-11-07)
