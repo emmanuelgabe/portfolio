@@ -1,0 +1,47 @@
+<div *ngIf="isVisible" class="modal-backdrop" (click)="onLogout()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+          Session expirant bientot
+        </h5>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <p class="mb-3">
+          Votre session va expirer dans :
+        </p>
+        <div class="countdown-display">
+          <i class="bi bi-clock-fill me-2"></i>
+          <span class="countdown-time">{{ formattedTime }}</span>
+        </div>
+        <p class="text-muted mt-3 mb-0">
+          Souhaitez-vous prolonger votre session ?
+        </p>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="onLogout()"
+        >
+          <i class="bi bi-box-arrow-right me-1"></i>
+          Se deconnecter
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="onExtendSession()"
+        >
+          <i class="bi bi-clock-history me-1"></i>
+          Prolonger la session
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+.display-4 {
+  font-size: 3.5rem;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.lead {
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.bi {
+  display: inline-block;
+}
+
+.text-primary {
+  color: #007bff !important;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+/* Contact links - prevent line breaks */
+.card-text a {
+  white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+  .card-text a {
+    font-size: 0.85rem;
+  }
+}

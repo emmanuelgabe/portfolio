@@ -5,6 +5,7 @@ plugins {
     id 'checkstyle'
     id 'com.github.spotbugs' version '6.0.26'
     id 'jacoco'
+    id 'org.sonarqube' version '5.1.0.4882'
 }
 
 group = 'com.emmanuelgabe'
@@ -42,6 +43,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
 
@@ -59,6 +63,16 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // Image processing
+    implementation 'net.coobird:thumbnailator:0.4.20'
+    implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+
+    // Markdown processing
+    implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
+
+    // HTML/SVG sanitization
+    implementation 'org.jsoup:jsoup:1.18.1'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -102,7 +116,7 @@ checkstyleTest {
 // SpotBugs Configuration
 spotbugs {
     toolVersion = '4.8.6'
-    ignoreFailures = true
+    ignoreFailures = false
     effort = 'max'
     reportLevel = 'medium'
     excludeFilter = file("${rootDir}/config/spotbugs/spotbugs-exclude.xml")
@@ -110,13 +124,15 @@ spotbugs {
 
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
     enabled = true
+    ignoreFailures = false
     reports {
         html {
             required = true
             outputLocation = file("$buildDir/reports/spotbugs/${name}.html")
         }
         xml {
-            required = false
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/${name}.xml")
         }
     }
 }
@@ -178,8 +194,7 @@ jacocoTestCoverageVerification {
                 '**/version/**',
                 '**/health/**',
                 '**/security/**',
-                '**/PortfolioBackendApplication.class',
-                '**/controller/FileUploadController.class'
+                '**/PortfolioBackendApplication.class'
             ])
         }))
     }
@@ -187,4 +202,22 @@ jacocoTestCoverageVerification {
 
 check {
     dependsOn jacocoTestCoverageVerification
+}
+
+// SonarQube configuration
+sonar {
+    properties {
+        property 'sonar.projectName', 'Portfolio Backend'
+        property 'sonar.projectKey', 'emmanuelgabe_portfolio'
+        property 'sonar.organization', 'emmanuelgabe'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+        property 'sonar.sources', 'src/main/java'
+        property 'sonar.tests', 'src/test/java'
+        property 'sonar.java.binaries', 'build/classes/java/main'
+        property 'sonar.java.test.binaries', 'build/classes/java/test'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
+        // Exclude POJOs and generated code from analysis
+        property 'sonar.exclusions', '**/entity/**,**/dto/**,**/PortfolioApplication.java'
+        property 'sonar.test.exclusions', 'src/test/**'
+    }
 }

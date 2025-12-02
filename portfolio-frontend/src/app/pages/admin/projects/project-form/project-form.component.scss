@@ -47,4 +47,41 @@
     height: 1rem;
     border-width: 0.15em;
   }
+
+  // Multi-image upload styles
+  .image-card {
+    .card-img-top {
+      height: 120px;
+      object-fit: cover;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+    }
+
+    .btn-group-sm .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+  }
+
+  .pending-card {
+    border-style: dashed !important;
+    border-color: #dee2e6;
+    background-color: #f8f9fa;
+
+    .bi-file-image {
+      color: #6c757d;
+    }
+
+    .form-control-sm {
+      font-size: 0.75rem;
+    }
+  }
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
 }

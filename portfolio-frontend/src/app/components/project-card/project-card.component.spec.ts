@@ -27,10 +27,12 @@ describe('ProjectCardComponent', () => {
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
       featured: true,
+      hasDetails: true,
       tags: [
         { id: 1, name: 'Angular', color: '#dd0031' },
         { id: 2, name: 'TypeScript', color: '#3178c6' },
       ],
+      images: [],
     };
 
     component.project = mockProject;
@@ -80,7 +82,7 @@ describe('ProjectCardComponent', () => {
 
   it('should return placeholder image when no image is available', () => {
     component.project.imageUrl = undefined;
-    expect(component.imageSrc).toBe('assets/images/project-placeholder.png');
+    expect(component.imageSrc).toBe('assets/images/project-placeholder.svg');
   });
 
   it('should return project image when available', () => {
@@ -97,13 +99,13 @@ describe('ProjectCardComponent', () => {
 
   it('should display GitHub button when GitHub URL is available', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const githubButton = compiled.querySelector('a[title="View on GitHub"]');
+    const githubButton = compiled.querySelector('a[title="Voir sur GitHub"]');
     expect(githubButton).toBeTruthy();
   });
 
   it('should display demo button when demo URL is available', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const demoButton = compiled.querySelector('a[title="View Demo"]');
+    const demoButton = compiled.querySelector('a[title="Voir la demo"]');
     expect(demoButton).toBeTruthy();
   });
 });

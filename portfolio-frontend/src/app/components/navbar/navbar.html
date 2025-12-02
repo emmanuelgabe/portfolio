@@ -1,8 +1,8 @@
-<nav class="navbar navbar-expand-lg fixed-top" [class.scrolled]="isScrolled">
-  <div class="container">
+<nav class="navbar navbar-expand-xl fixed-top" [class.scrolled]="isScrolled">
+  <div class="container-fluid">
     <!-- Logo/Brand -->
     <a class="navbar-brand" routerLink="/" (click)="closeNavbar()">
-      <span class="brand-name">Emmanuel Gabe</span>
+      <span class="brand-name">{{ fullName }}</span>
     </a>
 
     <!-- Toggle button for mobile -->
@@ -17,28 +17,20 @@
 
     <!-- Navigation links -->
     <div class="collapse navbar-collapse" [class.show]="!isCollapsed">
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav mx-auto">
         <li class="nav-item">
           <a
             class="nav-link"
             href="#hero"
-            (click)="scrollToSection('hero')">
+            (click)="scrollToSection($event, 'hero')">
             <i class="bi bi-house-door"></i> Accueil
           </a>
         </li>
         <li class="nav-item">
           <a
             class="nav-link"
-            href="#about"
-            (click)="scrollToSection('about')">
-            <i class="bi bi-person"></i> À propos
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link"
             href="#skills"
-            (click)="scrollToSection('skills')">
+            (click)="scrollToSection($event, 'skills')">
             <i class="bi bi-code-slash"></i> Compétences
           </a>
         </li>
@@ -46,7 +38,7 @@
           <a
             class="nav-link"
             href="#experiences"
-            (click)="scrollToSection('experiences')">
+            (click)="scrollToSection($event, 'experiences')">
             <i class="bi bi-briefcase"></i> Expériences
           </a>
         </li>
@@ -54,15 +46,23 @@
           <a
             class="nav-link"
             href="#projects"
-            (click)="scrollToSection('projects')">
+            (click)="scrollToSection($event, 'projects')">
             <i class="bi bi-folder"></i> Portfolio
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="hasArticles">
+          <a
+            class="nav-link"
+            href="#articles"
+            (click)="scrollToSection($event, 'articles')">
+            <i class="bi bi-file-earmark-text"></i> Articles
           </a>
         </li>
         <li class="nav-item">
           <a
             class="nav-link"
-            href="#contact"
-            (click)="scrollToSection('contact')">
+            routerLink="/contact"
+            (click)="closeNavbar()">
             <i class="bi bi-envelope"></i> Contact
           </a>
         </li>
@@ -76,31 +76,17 @@
             <i class="bi bi-gear"></i> Admin
           </a>
         </li>
-
-        <!-- Authentication section -->
-        <li class="nav-item auth-section" *ngIf="!isAuthenticated">
-          <a
-            class="nav-link btn-login"
-            routerLink="/login"
-            (click)="closeNavbar()">
-            <i class="bi bi-box-arrow-in-right"></i> Connexion
-          </a>
-        </li>
-
-        <li class="nav-item auth-section" *ngIf="isAuthenticated">
-          <div class="user-menu">
-            <span class="user-name">
-              <i class="bi bi-person-circle"></i> {{ currentUser?.username }}
-            </span>
-            <button
-              class="btn-logout"
-              (click)="logout()"
-              title="Se déconnecter">
-              <i class="bi bi-box-arrow-right"></i> Déconnexion
-            </button>
-          </div>
-        </li>
       </ul>
+
+      <!-- Logout button (visible only when logged in) - positioned right -->
+      <div class="auth-section" *ngIf="isAuthenticated">
+        <button
+          class="btn-logout-soft"
+          (click)="logout()"
+          title="Se déconnecter">
+          <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </button>
+      </div>
     </div>
   </div>
 </nav>

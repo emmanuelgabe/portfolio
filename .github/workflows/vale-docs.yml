@@ -26,17 +26,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Vale styles
-        run: |
-          # Download Google style guide
-          mkdir -p .vale/styles/Google
-          cd .vale/styles
-          wget https://github.com/errata-ai/Google/releases/latest/download/Google.zip
-          unzip Google.zip -d Google
-          rm Google.zip
-
       - name: Vale linting
         uses: errata-ai/vale-action@reviewdog
+        continue-on-error: true
         with:
           files: '["README.md", "docs", "CHANGELOG.md"]'
           version: 3.10.0

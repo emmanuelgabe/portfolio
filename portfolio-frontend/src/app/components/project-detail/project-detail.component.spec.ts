@@ -27,10 +27,12 @@ describe('ProjectDetailComponent', () => {
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-15T00:00:00Z',
       featured: true,
+      hasDetails: true,
       tags: [
         { id: 1, name: 'Angular', color: '#dd0031' },
         { id: 2, name: 'TypeScript', color: '#3178c6' },
       ],
+      images: [],
     };
 
     mockProjectService = jasmine.createSpyObj('ProjectService', ['getById']);
@@ -69,7 +71,7 @@ describe('ProjectDetailComponent', () => {
     expect(mockProjectService.getById).toHaveBeenCalledWith(1);
     expect(component.project).toEqual(mockProject);
     expect(component.isLoading).toBeFalse();
-    expect(component.error).toBeNull();
+    expect(component.error).toBeUndefined();
   });
 
   it('should display loading spinner while loading', () => {
@@ -101,9 +103,9 @@ describe('ProjectDetailComponent', () => {
     expect(alert?.textContent).toContain('Test error');
   });
 
-  it('should navigate back to projects list', () => {
+  it('should navigate back to projects section on home page', () => {
     component.goBack();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/projects']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/'], { fragment: 'projects' });
   });
 
   it('should retry loading project', () => {
@@ -149,7 +151,7 @@ describe('ProjectDetailComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const githubButton = compiled.querySelector('a.btn-dark');
     expect(githubButton).toBeTruthy();
-    expect(githubButton?.textContent).toContain('GitHub');
+    expect(githubButton?.textContent).toContain('Voir sur GitHub');
   });
 
   it('should display demo button when demo URL is available', () => {
@@ -157,7 +159,7 @@ describe('ProjectDetailComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const demoButton = compiled.querySelector('a.btn-success');
     expect(demoButton).toBeTruthy();
-    expect(demoButton?.textContent).toContain('Live Demo');
+    expect(demoButton?.textContent).toContain('Démo en ligne');
   });
 
   it('should display project image when available', () => {
@@ -202,21 +204,6 @@ describe('ProjectDetailComponent', () => {
     await component.copyLink();
 
     expect(mockClipboard.writeText).toHaveBeenCalled();
-  });
-
-  it('should return true for hasImage when image URL exists', () => {
-    component.project = mockProject;
-    expect(component.hasImage).toBeTrue();
-  });
-
-  it('should return false for hasImage when no image URL', () => {
-    component.project = { ...mockProject, imageUrl: undefined };
-    expect(component.hasImage).toBeFalse();
-  });
-
-  it('should return placeholder image when no image URL', () => {
-    component.project = { ...mockProject, imageUrl: undefined };
-    expect(component.imageSrc).toBe('assets/images/project-placeholder.png');
   });
 
   it('should handle invalid project ID', () => {

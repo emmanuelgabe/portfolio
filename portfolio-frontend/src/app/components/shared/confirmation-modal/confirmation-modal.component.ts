@@ -17,6 +17,7 @@ export class ConfirmationModalComponent {
   @Input() confirmText = 'Confirmer';
   @Input() cancelText = 'Annuler';
   @Input() confirmButtonClass = 'btn-danger';
+  @Input() disableConfirm = false;
 
   confirm(): void {
     this.activeModal.close(true);

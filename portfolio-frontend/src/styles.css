@@ -2,6 +2,10 @@
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 @import 'ngx-toastr/toastr';
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   padding: 20px;
   background-color: #f8f9fa;

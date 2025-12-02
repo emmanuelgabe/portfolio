@@ -6,7 +6,7 @@ set -e
 
 ENV=${1:-local}
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 echo "========================================="
 echo "Validating environment: $ENV"

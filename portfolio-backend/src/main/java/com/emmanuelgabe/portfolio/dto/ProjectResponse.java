@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,9 +19,12 @@ public class ProjectResponse {
     private String techStack;
     private String githubUrl;
     private String imageUrl;
+    private String thumbnailUrl;
     private String demoUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean featured;
+    private boolean hasDetails;
     private Set<TagResponse> tags;
+    private List<ProjectImageResponse> images;
 }

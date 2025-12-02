@@ -75,7 +75,7 @@ class TagServiceTest {
     }
 
     @Test
-    void getAllTags_ShouldReturnListOfTags() {
+    void should_returnListOfTags_when_getAllTagsCalled() {
         // Arrange
         Tag tag2 = new Tag();
         tag2.setId(2L);
@@ -98,7 +98,7 @@ class TagServiceTest {
     }
 
     @Test
-    void getAllTags_WhenNoTags_ShouldReturnEmptyList() {
+    void should_returnEmptyList_when_getAllTagsCalledWithNoTags() {
         // Arrange
         when(tagRepository.findAll()).thenReturn(Arrays.asList());
 
@@ -111,7 +111,7 @@ class TagServiceTest {
     }
 
     @Test
-    void getTagById_WhenTagExists_ShouldReturnTag() {
+    void should_returnTag_when_getTagByIdCalledWithExistingTag() {
         // Arrange
         when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
 
@@ -127,7 +127,7 @@ class TagServiceTest {
     }
 
     @Test
-    void getTagById_WhenTagNotFound_ShouldThrowException() {
+    void should_throwException_when_getTagByIdCalledWithNonExistentTag() {
         // Arrange
         when(tagRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -139,7 +139,7 @@ class TagServiceTest {
     }
 
     @Test
-    void getTagByName_WhenTagExists_ShouldReturnTag() {
+    void should_returnTag_when_getTagByNameCalledWithExistingTag() {
         // Arrange
         when(tagRepository.findByName("Java")).thenReturn(Optional.of(testTag));
 
@@ -154,7 +154,7 @@ class TagServiceTest {
     }
 
     @Test
-    void getTagByName_WhenTagNotFound_ShouldThrowException() {
+    void should_throwException_when_getTagByNameCalledWithNonExistentTag() {
         // Arrange
         when(tagRepository.findByName("Unknown")).thenReturn(Optional.empty());
 
@@ -166,7 +166,7 @@ class TagServiceTest {
     }
 
     @Test
-    void createTag_WhenTagNameIsUnique_ShouldReturnCreatedTag() {
+    void should_returnCreatedTag_when_createTagCalledWithUniqueName() {
         // Arrange
         CreateTagRequest request = new CreateTagRequest();
         request.setName("Java");
@@ -188,7 +188,7 @@ class TagServiceTest {
     }
 
     @Test
-    void createTag_WhenTagNameAlreadyExists_ShouldThrowException() {
+    void should_throwException_when_createTagCalledWithExistingName() {
         // Arrange
         CreateTagRequest request = new CreateTagRequest();
         request.setName("Java");
@@ -205,7 +205,7 @@ class TagServiceTest {
     }
 
     @Test
-    void updateTag_WhenTagExists_ShouldReturnUpdatedTag() {
+    void should_returnUpdatedTag_when_updateTagCalledWithExistingTag() {
         // Arrange
         UpdateTagRequest request = new UpdateTagRequest();
         request.setColor("#FF5733");
@@ -224,7 +224,7 @@ class TagServiceTest {
     }
 
     @Test
-    void updateTag_WhenTagNotFound_ShouldThrowException() {
+    void should_throwException_when_updateTagCalledWithNonExistentTag() {
         // Arrange
         UpdateTagRequest request = new UpdateTagRequest();
         request.setColor("#FF5733");
@@ -240,7 +240,7 @@ class TagServiceTest {
     }
 
     @Test
-    void updateTag_WithNewUniqueName_ShouldUpdateSuccessfully() {
+    void should_updateSuccessfully_when_updateTagCalledWithNewUniqueName() {
         // Arrange
         UpdateTagRequest request = new UpdateTagRequest();
         request.setName("Python");
@@ -261,7 +261,7 @@ class TagServiceTest {
     }
 
     @Test
-    void updateTag_WithExistingName_ShouldThrowException() {
+    void should_throwException_when_updateTagCalledWithExistingName() {
         // Arrange
         UpdateTagRequest request = new UpdateTagRequest();
         request.setName("Spring Boot");
@@ -279,7 +279,7 @@ class TagServiceTest {
     }
 
     @Test
-    void updateTag_WithSameName_ShouldNotCheckDuplicate() {
+    void should_notCheckDuplicate_when_updateTagCalledWithSameName() {
         // Arrange
         UpdateTagRequest request = new UpdateTagRequest();
         request.setName("Java"); // Same as current name
@@ -300,7 +300,7 @@ class TagServiceTest {
     }
 
     @Test
-    void deleteTag_WhenTagExists_ShouldDeleteTag() {
+    void should_deleteTag_when_deleteTagCalledWithExistingTag() {
         // Arrange
         when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
         doNothing().when(tagRepository).delete(testTag);
@@ -314,7 +314,7 @@ class TagServiceTest {
     }
 
     @Test
-    void deleteTag_WhenTagNotFound_ShouldThrowException() {
+    void should_throwException_when_deleteTagCalledWithNonExistentTag() {
         // Arrange
         when(tagRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -327,7 +327,7 @@ class TagServiceTest {
     }
 
     @Test
-    void existsByName_WhenTagExists_ShouldReturnTrue() {
+    void should_returnTrue_when_existsByNameCalledWithExistingTag() {
         // Arrange
         when(tagRepository.existsByName("Java")).thenReturn(true);
 
@@ -340,7 +340,7 @@ class TagServiceTest {
     }
 
     @Test
-    void existsByName_WhenTagDoesNotExist_ShouldReturnFalse() {
+    void should_returnFalse_when_existsByNameCalledWithNonExistentTag() {
         // Arrange
         when(tagRepository.existsByName("Unknown")).thenReturn(false);
 

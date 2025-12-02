@@ -2,7 +2,12 @@
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Gestion des Projets</h1>
-    <a routerLink="/admin/projects/new" class="btn btn-primary">
+    <a
+      routerLink="new"
+      class="btn btn-primary"
+      [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+      [title]="demoModeService.isDemo() ? 'Mode démonstration - Les modifications ne seront pas enregistrées' : 'Créer un nouveau projet'"
+    >
       <i class="bi bi-plus-circle me-2"></i>
       Nouveau Projet
     </a>
@@ -84,17 +89,21 @@
               <!-- Actions -->
               <td class="align-middle text-center">
                 <div class="btn-group" role="group">
+                  <!-- Edit button -->
                   <a
-                    [routerLink]="['/admin/projects', project.id, 'edit']"
+                    [routerLink]="[project.id, 'edit']"
                     class="btn btn-sm btn-outline-primary"
-                    title="Éditer"
+                    [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+                    [title]="demoModeService.isDemo() ? 'Mode démonstration - Les modifications ne seront pas enregistrées' : 'Éditer'"
                   >
                     <i class="bi bi-pencil"></i>
                   </a>
+                  <!-- Delete button -->
                   <button
                     class="btn btn-sm btn-outline-danger"
                     (click)="deleteProject(project)"
-                    title="Supprimer"
+                    [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+                    [title]="demoModeService.isDemo() ? 'Mode démonstration - Action sans effet' : 'Supprimer'"
                   >
                     <i class="bi bi-trash"></i>
                   </button>

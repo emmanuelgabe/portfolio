@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.dto;
 
+import com.emmanuelgabe.portfolio.entity.IconType;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -18,6 +19,11 @@ public class UpdateSkillRequest {
 
     @Size(max = 50, message = "Icon class cannot exceed 50 characters")
     private String icon;
+
+    private IconType iconType;
+
+    @Size(max = 500, message = "Custom icon URL cannot exceed 500 characters")
+    private String customIconUrl;
 
     @Pattern(regexp = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", message = "Color must be a valid hex color code (e.g., #FF5733)")
     private String color;

@@ -88,6 +88,11 @@ export class LoginComponent implements OnInit {
 
         if (error.status === 401) {
           this.toastr.error("Nom d'utilisateur ou mot de passe incorrect", 'Échec de connexion');
+        } else if (error.status === 429) {
+          this.toastr.error(
+            'Limite de tentatives atteinte. Veuillez réessayer dans 1 heure.',
+            'Trop de tentatives'
+          );
         } else if (error.status === 0) {
           this.toastr.error('Impossible de contacter le serveur', 'Erreur réseau');
         } else {

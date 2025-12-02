@@ -1,0 +1,190 @@
+.demo-wrapper {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+// Demo Banner Styles
+.demo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1040;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 0.875rem;
+
+  .demo-separator {
+    opacity: 0.6;
+  }
+
+  .demo-description {
+    opacity: 0.9;
+  }
+
+  .btn-light {
+    border: none;
+    font-weight: 500;
+
+    &:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Navbar Styles (offset by demo banner)
+.navbar {
+  top: 40px;
+  z-index: 1030;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  .navbar-brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+  }
+}
+
+// Sidebar Styles (offset by demo banner + navbar)
+.sidebar {
+  position: fixed;
+  top: 96px;
+  left: 0;
+  width: 250px;
+  height: calc(100vh - 96px);
+  background-color: #343a40;
+  transition: transform 0.3s ease-in-out;
+  overflow-y: auto;
+  z-index: 1020;
+
+  &.collapsed {
+    transform: translateX(-250px);
+  }
+
+  .sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    h5 {
+      color: #fff;
+      margin: 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.875rem;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0;
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+
+      i {
+        font-size: 1.25rem;
+        width: 30px;
+        text-align: center;
+      }
+
+      span {
+        margin-left: 0.75rem;
+        font-weight: 500;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+
+      &.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        border-left-color: #667eea;
+      }
+    }
+  }
+}
+
+// Main Content Styles (offset by demo banner + navbar)
+.main-content {
+  margin-left: 250px;
+  margin-top: 96px;
+  min-height: calc(100vh - 96px);
+  transition: margin-left 0.3s ease-in-out;
+
+  &.sidebar-collapsed {
+    margin-left: 0;
+  }
+
+  .container-fluid {
+    max-width: 1400px;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .demo-banner {
+    .demo-description {
+      display: none;
+    }
+
+    .demo-separator {
+      display: none;
+    }
+  }
+
+  .sidebar {
+    transform: translateX(-250px);
+
+    &:not(.collapsed) {
+      transform: translateX(0);
+    }
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .demo-banner {
+    font-size: 0.75rem;
+    padding: 0.35rem 0;
+
+    .btn-light {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
+  .navbar {
+    top: 35px;
+  }
+
+  .sidebar {
+    top: 91px;
+    height: calc(100vh - 91px);
+  }
+
+  .main-content {
+    margin-top: 91px;
+    min-height: calc(100vh - 91px);
+  }
+}

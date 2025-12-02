@@ -1,0 +1,66 @@
+<div class="icon-picker">
+  <!-- Search -->
+  <div class="mb-3">
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="searchTerm"
+      placeholder="Rechercher une icone..."
+    />
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="activeTab === 'brands'"
+        (click)="setTab('brands')"
+      >
+        <i class="fa-brands fa-font-awesome me-1"></i> Marques
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="activeTab === 'solid'"
+        (click)="setTab('solid')"
+      >
+        <i class="fa-solid fa-icons me-1"></i> Solides
+      </button>
+    </li>
+  </ul>
+
+  <!-- Icon Grid -->
+  <div class="icon-grid">
+    <div
+      *ngFor="let icon of filteredIcons"
+      class="icon-item"
+      [class.selected]="icon.class === selectedIcon"
+      (click)="selectIcon(icon.class)"
+      [title]="icon.name"
+    >
+      <i [class]="icon.class" [style.color]="previewColor"></i>
+      <span class="icon-name">{{ icon.name }}</span>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="filteredIcons.length === 0" class="text-center text-muted py-4">
+    <i class="fa-solid fa-search fa-2x mb-2"></i>
+    <p>Aucune icone trouvee pour "{{ searchTerm }}"</p>
+  </div>
+
+  <!-- Selected preview -->
+  <div *ngIf="selectedIcon" class="selected-preview mt-3 p-3 border rounded">
+    <div class="d-flex align-items-center">
+      <i [class]="selectedIcon + ' fa-3x me-3'" [style.color]="previewColor"></i>
+      <div>
+        <strong>Icone selectionnee:</strong>
+        <code class="ms-2">{{ selectedIcon }}</code>
+      </div>
+    </div>
+  </div>
+</div>

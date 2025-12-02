@@ -2,10 +2,12 @@
 volumes:
   portfolio_db_data:
   portfolio_uploads:
+  portfolio_redis_data:
 
 networks:
   portfolio-net:
-    name: portfolio-network
+    # Network name will be prefixed with project name (e.g., portfolio-prod_portfolio-net)
+    # This ensures staging and production have separate networks
 
 services:
   angular-frontend:
@@ -33,10 +35,16 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://portfolio-db:5432/portfolio
       - SPRING_DATASOURCE_USERNAME=postgres_app
       - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
+      - REDIS_HOST=redis-cache
+      - REDIS_PORT=6379
+      # JWT_SECRET and ADMIN_PASSWORD_HASH are defined in environment-specific override files
+      # (prod.yml, staging.yml) - dev uses defaults from application.yml
     volumes:
       - portfolio_uploads:/app/uploads
     depends_on:
       portfolio-db:
+        condition: service_healthy
+      redis-cache:
         condition: service_healthy
     networks:
       - portfolio-net
@@ -59,11 +67,25 @@ services:
     networks:
       - portfolio-net
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres_app -d $${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "PGPASSWORD=$${POSTGRES_PASSWORD} psql -U postgres_app -d $${POSTGRES_DB} -c 'SELECT 1' -q" ]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 60s
+
+  redis-cache:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    volumes:
+      - portfolio_redis_data:/data
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   nginx-portfolio:
     image: nginx:1.27-alpine
@@ -78,5 +100,10 @@ services:
     networks:
       - portfolio-net
     restart: unless-stopped
-    ports:
-      - "80:80"
+    # ports defined in environment-specific override files (prod.yml, staging.yml, local.yml)
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

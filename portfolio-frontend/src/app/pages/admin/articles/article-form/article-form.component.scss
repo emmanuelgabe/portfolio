@@ -1,0 +1,54 @@
+.article-form {
+  padding: 2rem;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #212529;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+// EasyMDE custom styling
+:host ::ng-deep {
+  .CodeMirror {
+    min-height: 400px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+  }
+
+  .editor-toolbar {
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    border-radius: 0.375rem 0.375rem 0 0;
+  }
+
+  .CodeMirror-scroll {
+    min-height: 400px;
+  }
+
+  .editor-preview,
+  .editor-preview-side {
+    background-color: #fff;
+  }
+
+  .editor-toolbar.fullscreen {
+    z-index: 1050;
+  }
+
+  .CodeMirror-fullscreen {
+    z-index: 1050;
+  }
+}

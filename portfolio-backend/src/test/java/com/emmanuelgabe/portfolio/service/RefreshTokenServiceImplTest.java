@@ -63,7 +63,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void createRefreshToken_WithValidUser_CreatesToken() {
+    void should_createToken_when_createRefreshTokenCalledWithValidUser() {
         // Arrange
         when(refreshTokenRepository.save(any(RefreshToken.class)))
                 .thenReturn(testRefreshToken);
@@ -87,7 +87,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void findByToken_WithExistingToken_ReturnsToken() {
+    void should_returnToken_when_findByTokenCalledWithExistingToken() {
         // Arrange
         when(refreshTokenRepository.findByToken("refresh-token-uuid"))
                 .thenReturn(Optional.of(testRefreshToken));
@@ -104,7 +104,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void findByToken_WithNonExistentToken_ThrowsException() {
+    void should_throwException_when_findByTokenCalledWithNonExistentToken() {
         // Arrange
         when(refreshTokenRepository.findByToken("non-existent-token"))
                 .thenReturn(Optional.empty());
@@ -118,7 +118,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void verifyExpiration_WithValidToken_ReturnsToken() {
+    void should_returnToken_when_verifyExpirationCalledWithValidToken() {
         // Arrange
         testRefreshToken.setExpiryDate(LocalDateTime.now().plusDays(1));
         testRefreshToken.setRevoked(false);
@@ -132,7 +132,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void verifyExpiration_WithExpiredToken_ThrowsException() {
+    void should_throwException_when_verifyExpirationCalledWithExpiredToken() {
         // Arrange
         testRefreshToken.setExpiryDate(LocalDateTime.now().minusDays(1));
         testRefreshToken.setRevoked(false);
@@ -146,7 +146,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void verifyExpiration_WithRevokedToken_ThrowsException() {
+    void should_throwException_when_verifyExpirationCalledWithRevokedToken() {
         // Arrange
         testRefreshToken.setExpiryDate(LocalDateTime.now().plusDays(1));
         testRefreshToken.setRevoked(true);
@@ -158,7 +158,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void revokeToken_WithValidToken_RevokesToken() {
+    void should_revokeToken_when_revokeTokenCalledWithValidToken() {
         // Arrange
         when(refreshTokenRepository.findByToken("refresh-token-uuid"))
                 .thenReturn(Optional.of(testRefreshToken));
@@ -175,7 +175,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void revokeToken_WithNonExistentToken_ThrowsException() {
+    void should_throwException_when_revokeTokenCalledWithNonExistentToken() {
         // Arrange
         when(refreshTokenRepository.findByToken("non-existent-token"))
                 .thenReturn(Optional.empty());
@@ -189,7 +189,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void revokeAllUserTokens_WithValidUser_RevokesAllTokens() {
+    void should_revokeAllTokens_when_revokeAllUserTokensCalledWithValidUser() {
         // Act
         refreshTokenService.revokeAllUserTokens(testUser);
 
@@ -198,7 +198,7 @@ class RefreshTokenServiceImplTest {
     }
 
     @Test
-    void deleteExpiredTokens_DeletesExpiredTokens() {
+    void should_deleteExpiredTokens_when_deleteExpiredTokensCalled() {
         // Act
         refreshTokenService.deleteExpiredTokens();
 

@@ -1,29 +1,70 @@
-Portfolio
-backend
-frontend
-PostgreSQL
-Docker
-Gradle
-Spring Boot
+# Portfolio project vocabulary - accepted terms
+# Add project-specific terms, acronyms, and proper nouns here
+# One term per line (case-insensitive)
+
+# Technology stack
 Angular
 TypeScript
-JavaScript
-API
-REST
-CRUD
-JWT
-OAuth
-GitHub
-CI/CD
-Dockerfile
+RxJS
+PostgreSQL
 Nginx
-JaCoCo
+Docker
+Gradle
+Gradlew
+SpringBoot
+Actuator
+JPA
+Lombok
+MapStruct
+Flyway
+Testcontainers
+Logback
+Logstash
 Checkstyle
 SpotBugs
-Maven
-JUnit
-Mockito
-Testcontainers
-actuator
+JaCoCo
+ESLint
+Prettier
+Husky
+Karma
+Jasmine
+
+# Project-specific terms
+frontend
+backend
 healthcheck
 localhost
+
+# Common technical abbreviations
+API
+REST
+HTTP
+HTTPS
+JSON
+YAML
+YML
+URL
+SQL
+JDBC
+JVM
+CPU
+RAM
+CI/CD
+DevOps
+
+# Environment names
+dev
+staging
+prod
+
+# File types
+Dockerfile
+dockerignore
+gitignore
+
+# Commands and tools
+npm
+npx
+curl
+jq
+chmod

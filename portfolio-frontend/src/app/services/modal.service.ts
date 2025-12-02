@@ -10,6 +10,7 @@ export interface ConfirmationConfig {
   confirmText?: string;
   cancelText?: string;
   confirmButtonClass?: string;
+  disableConfirm?: boolean;
 }
 
 @Injectable({
@@ -36,6 +37,7 @@ export class ModalService {
     if (config.confirmText) instance.confirmText = config.confirmText;
     if (config.cancelText) instance.cancelText = config.cancelText;
     if (config.confirmButtonClass) instance.confirmButtonClass = config.confirmButtonClass;
+    if (config.disableConfirm !== undefined) instance.disableConfirm = config.disableConfirm;
 
     return from(modalRef.result).pipe(
       map(() => true),
@@ -46,15 +48,17 @@ export class ModalService {
   /**
    * Confirmation modal specifically for delete actions
    * @param itemName Name of the item to delete
+   * @param disableConfirm Whether to disable the confirm button (for demo mode)
    * @returns Observable<boolean>
    */
-  confirmDelete(itemName: string): Observable<boolean> {
+  confirmDelete(itemName: string, disableConfirm = false): Observable<boolean> {
     return this.confirm({
       title: 'Êtes-vous sûr ?',
       message: `Cette action est irréversible. Voulez-vous vraiment supprimer "${itemName}" ?`,
       confirmText: 'Supprimer',
       cancelText: 'Annuler',
       confirmButtonClass: 'btn-danger',
+      disableConfirm,
     });
   }
 }

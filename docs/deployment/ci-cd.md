@@ -6,8 +6,9 @@
 
 1. [Overview](#1-overview)
 2. [Pipeline Architecture](#2-pipeline-architecture)
-3. [Deployment Procedures](#3-deployment-procedures)
-4. [Useful Commands](#4-useful-commands)
+3. [GitHub Secrets Configuration](#3-github-secrets-configuration)
+4. [Deployment Procedures](#4-deployment-procedures)
+5. [Useful Commands](#5-useful-commands)
 
 ---
 
@@ -56,13 +57,14 @@ The CI/CD pipeline consists of five automated workflows:
 2. **Clean deployment directory** - Remove old directory to avoid permission conflicts
 3. **Copy artifacts** - Copy source code, .git, nginx config, and Docker Compose files
 4. **Cleanup old containers** - Stop and remove existing containers for the environment
-5. **Deploy with Docker Compose** - Build and start all containers in detached mode
-6. **Wait for healthy status** - Monitor container health (max 5 min, check every 5s)
-7. **Run smoke tests** - Validate frontend, backend, database, and full stack integration
-8. **Tag Docker images** - Tag with version, latest, and environment-specific tags
-9. **Cleanup old images** - Prune dangling images and unused volumes
-10. **Verify deployment** - Display running containers and health status
-11. **Deployment summary** - Output environment, version, branch, and commit info
+5. **Backup database** - Create PostgreSQL dump before deployment (production only)
+6. **Deploy with Docker Compose** - Build and start all containers in detached mode
+7. **Wait for healthy status** - Monitor container health (max 5 min, check every 5s)
+8. **Run smoke tests** - Validate frontend, backend, database, and full stack integration
+9. **Tag Docker images** - Tag with version, latest, and environment-specific tags
+10. **Cleanup old images** - Prune dangling images and unused volumes
+11. **Verify deployment** - Display running containers and health status
+12. **Deployment summary** - Output environment, version, branch, and commit info
 
 **Configuration:**
 - **Triggers:**
@@ -77,6 +79,7 @@ The CI/CD pipeline consists of five automated workflows:
 - **Blocking:** Yes - deployment fails if any step fails
 
 **Critical Safety Features:**
+- Automatic database backup before deployment (production only, keeps last 5)
 - Automatic container cleanup before deployment
 - Real-time health monitoring with timeout
 - Comprehensive smoke tests (4 tests)
@@ -160,9 +163,23 @@ The CI/CD pipeline consists of five automated workflows:
 > **Note:** This workflow tests the development environment only and is NOT triggered on `staging` or `main` branches. Production and staging deployments have their own health checks integrated in the main CI/CD Pipeline workflow. The frontend health check is disabled in local dev mode because the Angular dev server (`ng serve`) takes too long to start reliably in CI environments.
 
 
-## 3. Deployment Procedures
+## 3. GitHub Secrets Configuration
 
-### 3.1 Production Deployment
+### 3.2 Required GitHub Secrets
+
+
+| Secret | Description | Used For |
+|--------|-------------|----------|
+| `DEPLOY_BASE_PATH` | Base deployment path on server | CI/CD only (not in .env) |
+| `DB_PASSWORD` | PostgreSQL password | Passed to .env as `DB_USER_PASSWORD` |
+| `MAIL_USERNAME` | SMTP email address | Passed to .env |
+| `MAIL_APP_PASSWORD` | SMTP application password | Passed to .env |
+
+---
+
+## 4. Deployment Procedures
+
+### 4.1 Production Deployment
 
 **Standard Process:**
 ```bash
@@ -173,7 +190,7 @@ git push origin feature/new-feature
 # Create Pull Request to main branch → Review and merge
 ```
 
-### 3.2 Staging Deployment
+### 4.2 Staging Deployment
 
 ```bash
 # Option 1: Direct push
@@ -184,7 +201,7 @@ git push origin staging
 # Option 2: Pull Request to staging
 ```
 
-### 3.3 Development Branch
+### 4.3 Development Branch
 
 ```bash
 git checkout -b dev/experimental-feature
@@ -195,9 +212,9 @@ git push origin dev/experimental-feature
 ---
 
 
-## 4. Useful Commands
+## 5. Useful Commands
 
-### 4.1 Running Tests Locally
+### 5.1 Running Tests Locally
 
 **Backend Tests:**
 ```bash
@@ -222,7 +239,7 @@ npm test -- --browsers=ChromeHeadlessCI  # Headless mode (like CI)
 ./scripts/validate-docs.sh docs/  # Validate specific directory
 ```
 
-### 4.2 Container Management
+### 5.2 Container Management
 
 ```bash
 docker ps -a
@@ -232,7 +249,7 @@ docker logs -f portfolio-backend-prod
 docker exec -it portfolio-backend-prod bash
 ```
 
-### 4.3 Viewing CI/CD Results
+### 5.3 Viewing CI/CD Results
 
 **GitHub Actions:**
 - Navigate to repository → "Actions" tab
@@ -249,7 +266,7 @@ docker exec -it portfolio-backend-prod bash
 sudo journalctl -u actions.runner.* -f
 ```
 
-### 4.4 Image Management
+### 5.4 Image Management
 
 ```bash
 docker images | grep portfolio
@@ -258,21 +275,50 @@ docker image prune -a
 docker system df
 ```
 
-### 4.5 Volume Management
+### 5.5 Volume Management
 
 ```bash
 docker volume ls | grep portfolio
-docker exec portfolio-db-prod pg_dump -U postgres_app portfolio_prod > backup.sql
-cat backup.sql | docker exec -i portfolio-db-prod psql -U postgres_app -d portfolio_prod
+docker volume inspect portfolio_postgres_data_prod
 ```
 
-### 4.6 Monitoring
+### 5.6 Monitoring
 
 ```bash
 docker stats
 docker ps --format "table {{.Names}}\t{{.Status}}"
 curl http://localhost/health
 curl http://localhost:3000/health
+```
+
+### 5.7 Database Backup & Recovery
+
+**Automatic Backups (Production Only):**
+- Created automatically before each production deployment
+- Location: `$DEPLOY_BASE_PATH/backups/`
+- Naming: `portfolio_prod_YYYYMMDD_HHMMSS.sql`
+- Retention: Last 5 backups kept
+
+**Manual Backup:**
+```bash
+docker exec portfolio-db-prod pg_dump -U postgres_app portfolio_prod > backup.sql
+```
+
+**Restore from Backup:**
+```bash
+# Stop backend to prevent connections
+docker stop portfolio-backend-prod
+
+# Restore database
+docker exec -i portfolio-db-prod psql -U postgres_app portfolio_prod < /path/to/backup.sql
+
+# Restart backend
+docker start portfolio-backend-prod
+```
+
+**List Available Backups:**
+```bash
+ls -lt $DEPLOY_BASE_PATH/backups/portfolio_prod_*.sql
 ```
 
 ---

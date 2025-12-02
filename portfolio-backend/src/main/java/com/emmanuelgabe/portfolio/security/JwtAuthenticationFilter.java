@@ -1,5 +1,9 @@
 package com.emmanuelgabe.portfolio.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +21,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * JWT Authentication Filter
@@ -74,11 +80,65 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.trace("[JWT_FILTER] No JWT token found in request - path={}", request.getRequestURI());
             }
 
+        } catch (ExpiredJwtException ex) {
+            log.warn("[JWT_FILTER] JWT token expired - path={}, username={}",
+                    request.getRequestURI(), ex.getClaims().getSubject());
+            sendUnauthorizedResponse(response, "JWT token has expired");
+            return;
+
+        } catch (SignatureException ex) {
+            log.error("[JWT_FILTER] Invalid JWT signature - path={}, error={}",
+                    request.getRequestURI(), ex.getMessage());
+            sendUnauthorizedResponse(response, "Invalid JWT signature");
+            return;
+
+        } catch (MalformedJwtException ex) {
+            log.error("[JWT_FILTER] Malformed JWT token - path={}, error={}",
+                    request.getRequestURI(), ex.getMessage());
+            sendUnauthorizedResponse(response, "Malformed JWT token");
+            return;
+
+        } catch (UnsupportedJwtException ex) {
+            log.error("[JWT_FILTER] Unsupported JWT token - path={}, error={}",
+                    request.getRequestURI(), ex.getMessage());
+            sendUnauthorizedResponse(response, "Unsupported JWT token");
+            return;
+
+        } catch (IllegalArgumentException ex) {
+            log.error("[JWT_FILTER] JWT claims string is empty - path={}, error={}",
+                    request.getRequestURI(), ex.getMessage());
+            sendUnauthorizedResponse(response, "JWT claims string is empty");
+            return;
+
         } catch (Exception ex) {
-            log.error("[JWT_FILTER] Cannot set user authentication - error={}", ex.getMessage(), ex);
+            log.error("[JWT_FILTER] Cannot set user authentication - path={}, error={}",
+                    request.getRequestURI(), ex.getMessage(), ex);
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Send 401 Unauthorized response with JSON error message
+     * @param response HTTP response
+     * @param message Error message
+     * @throws IOException if writing response fails
+     */
+    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        String jsonResponse = String.format(
+                "{\"status\":401,\"message\":\"%s\",\"timestamp\":\"%s\"}",
+                message, timestamp
+        );
+
+        response.getWriter().write(jsonResponse);
+        response.getWriter().flush();
+
+        log.debug("[JWT_FILTER] Sent 401 Unauthorized response - message={}", message);
     }
 
     /**

@@ -49,8 +49,8 @@ jobs:
 
       - name: Run health check script
         run: |
-          chmod +x ./test-health.sh
-          ./test-health.sh local
+          chmod +x ./scripts/testing/test-health.sh
+          ./scripts/testing/test-health.sh local
 
       - name: Test individual endpoints
         run: |

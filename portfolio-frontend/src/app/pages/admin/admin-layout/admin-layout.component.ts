@@ -15,11 +15,11 @@ export class AdminLayoutComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  currentUser: User | null = null;
+  currentUser: User | undefined;
   isSidebarCollapsed = false;
 
   ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
+    this.currentUser = this.authService.getCurrentUser() ?? undefined;
   }
 
   toggleSidebar(): void {

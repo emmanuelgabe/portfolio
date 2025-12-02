@@ -9,8 +9,6 @@
 3. [Testing Procedures](#3-testing-procedures)
 4. [Docker Health Checks](#4-docker-health-checks)
 5. [CI/CD Integration](#5-cicd-integration)
-6. [System Architecture](#6-system-architecture)
-7. [Pre-Deployment Checklist](#7-pre-deployment-checklist)
 
 ---
 
