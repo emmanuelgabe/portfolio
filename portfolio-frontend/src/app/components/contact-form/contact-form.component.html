@@ -1,0 +1,138 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h3 class="card-title mb-4">Envoyez-moi un message</h3>
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+      <!-- Name -->
+      <div class="mb-3">
+        <label for="name" class="form-label"
+          >Nom <span class="text-danger">*</span></label
+        >
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          formControlName="name"
+          placeholder="Votre nom"
+          [class.is-invalid]="name?.invalid && (name?.touched || submitted)"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="name?.invalid && (name?.touched || submitted)"
+        >
+          <div *ngIf="name?.errors?.['required']">Le nom est requis</div>
+          <div *ngIf="name?.errors?.['minlength']">
+            Le nom doit contenir au moins 2 caractères
+          </div>
+          <div *ngIf="name?.errors?.['maxlength']">
+            Le nom ne peut pas dépasser 100 caractères
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <label for="email" class="form-label"
+          >Email <span class="text-danger">*</span></label
+        >
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          formControlName="email"
+          placeholder="votre.email@exemple.com"
+          [class.is-invalid]="email?.invalid && (email?.touched || submitted)"
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="email?.invalid && (email?.touched || submitted)"
+        >
+          <div *ngIf="email?.errors?.['required']">L'email est requis</div>
+          <div *ngIf="email?.errors?.['email']">
+            Veuillez entrer un email valide
+          </div>
+          <div *ngIf="email?.errors?.['maxlength']">
+            L'email ne peut pas dépasser 100 caractères
+          </div>
+        </div>
+      </div>
+
+      <!-- Subject -->
+      <div class="mb-3">
+        <label for="subject" class="form-label"
+          >Sujet <span class="text-danger">*</span></label
+        >
+        <input
+          type="text"
+          class="form-control"
+          id="subject"
+          formControlName="subject"
+          placeholder="Objet de votre message"
+          [class.is-invalid]="
+            subject?.invalid && (subject?.touched || submitted)
+          "
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="subject?.invalid && (subject?.touched || submitted)"
+        >
+          <div *ngIf="subject?.errors?.['required']">Le sujet est requis</div>
+          <div *ngIf="subject?.errors?.['minlength']">
+            Le sujet doit contenir au moins 3 caractères
+          </div>
+          <div *ngIf="subject?.errors?.['maxlength']">
+            Le sujet ne peut pas dépasser 200 caractères
+          </div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="mb-3">
+        <label for="message" class="form-label"
+          >Message <span class="text-danger">*</span></label
+        >
+        <textarea
+          class="form-control"
+          id="message"
+          formControlName="message"
+          rows="6"
+          placeholder="Votre message..."
+          [class.is-invalid]="
+            message?.invalid && (message?.touched || submitted)
+          "
+        ></textarea>
+        <div
+          class="invalid-feedback"
+          *ngIf="message?.invalid && (message?.touched || submitted)"
+        >
+          <div *ngIf="message?.errors?.['required']">Le message est requis</div>
+          <div *ngIf="message?.errors?.['minlength']">
+            Le message doit contenir au moins 10 caractères
+          </div>
+          <div *ngIf="message?.errors?.['maxlength']">
+            Le message ne peut pas dépasser 5000 caractères
+          </div>
+        </div>
+        <div class="form-text">
+          {{ message?.value?.length || 0 }} / 5000 caractères
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="d-grid">
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg"
+          [disabled]="loading"
+        >
+          <span
+            *ngIf="loading"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          {{ loading ? 'Envoi en cours...' : 'Envoyer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

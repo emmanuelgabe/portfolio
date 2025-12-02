@@ -37,7 +37,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toAuthResponse_WithValidUser_MapsCorrectly() {
+    void should_mapCorrectly_when_toAuthResponseCalledWithValidUser() {
         // Act
         AuthResponse result = userMapper.toAuthResponse(testUser);
 
@@ -55,7 +55,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toAuthResponse_WithGuestUser_MapsCorrectly() {
+    void should_mapCorrectly_when_toAuthResponseCalledWithGuestUser() {
         // Arrange
         testUser.setRole(UserRole.ROLE_GUEST);
 
@@ -70,7 +70,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toAuthResponse_WithNullUser_ReturnsNull() {
+    void should_returnNull_when_toAuthResponseCalledWithNullUser() {
         // Act
         AuthResponse result = userMapper.toAuthResponse(null);
 
@@ -79,7 +79,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toAuthResponse_WithDifferentUserData_MapsCorrectly() {
+    void should_mapCorrectly_when_toAuthResponseCalledWithDifferentUserData() {
         // Arrange
         User differentUser = new User();
         differentUser.setId(2L);
@@ -99,7 +99,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toAuthResponse_DoesNotIncludePassword() {
+    void should_notIncludePassword_when_toAuthResponseCalled() {
         // Act
         AuthResponse result = userMapper.toAuthResponse(testUser);
 

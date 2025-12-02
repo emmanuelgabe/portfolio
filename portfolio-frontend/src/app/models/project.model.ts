@@ -1,3 +1,4 @@
+import { ProjectImageResponse } from './project-image.model';
 import { TagResponse } from './tag.model';
 
 export interface ProjectResponse {
@@ -7,11 +8,14 @@ export interface ProjectResponse {
   techStack: string;
   githubUrl?: string;
   imageUrl?: string;
+  thumbnailUrl?: string;
   demoUrl?: string;
   createdAt: string;
   updatedAt: string;
   featured: boolean;
+  hasDetails: boolean;
   tags: TagResponse[];
+  images: ProjectImageResponse[];
 }
 
 export interface CreateProjectRequest {
@@ -19,9 +23,9 @@ export interface CreateProjectRequest {
   description: string;
   techStack: string;
   githubUrl?: string;
-  imageUrl?: string;
   demoUrl?: string;
   featured?: boolean;
+  hasDetails?: boolean;
   tagIds?: number[];
 }
 
@@ -30,8 +34,8 @@ export interface UpdateProjectRequest {
   description?: string;
   techStack?: string;
   githubUrl?: string;
-  imageUrl?: string;
   demoUrl?: string;
   featured?: boolean;
+  hasDetails?: boolean;
   tagIds?: number[];
 }

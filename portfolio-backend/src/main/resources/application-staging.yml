@@ -1,3 +1,20 @@
+# Staging environment configuration
+app:
+  jwt:
+    # No fallback - JWT_SECRET environment variable MUST be set
+    secret: ${JWT_SECRET}
+    # Staging: Realistic token expiration close to production
+    access-token-expiration: 1800000      # 30 minutes
+    refresh-token-expiration: 604800000   # 7 days (more secure than 14)
+  rate-limit:
+    contact:
+      max-requests-per-hour: 20  # Higher limit for staging testing
+    auth:
+      login:
+        max-requests-per-hour: 20  # Medium limit for staging testing
+      refresh:
+        max-requests-per-hour: 40  # Medium limit for staging testing
+
 spring:
   jpa:
     generate-ddl: false  # Flyway manages schema creation

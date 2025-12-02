@@ -1,222 +1,200 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
-## [Unreleased]
-
----
-
-## [0.2.0] - 2025-11-16
-
 ### Added
-- Skills management system
-  - Complete CRUD API for skills (`/api/skills`)
-  - SkillCategory enum (LANGUAGE, FRAMEWORK, DATABASE, TOOL, CLOUD, TESTING)
-  - Skill entity with proficiency level tracking
-  - Skills repository and service layer
-  - Skills controller with full REST endpoints
-  - Database migration for skills table
-- Projects and tags management system
-  - Complete CRUD API for projects (`/api/projects`)
-  - Tags system for categorizing projects
-  - Many-to-many relationship between projects and tags
-  - Project entity with title, description, technologies, and links
-  - Database migrations for projects and tags tables
-  - Project and tag repositories
-  - Global exception handler for REST API errors
-- Frontend portfolio UI components
-  - Home component with skills and projects display
-  - Navbar component with responsive design
-  - Project list component with filtering
-  - Project detail component with full information display
-  - Project card component for grid view
-  - Angular routing configuration
-  - Project and skill services with HTTP client
-  - TypeScript models for Project, Skill, and Tag
-- Clean architecture refactoring
-  - Service layer separation (interface + implementation)
-  - Mapper layer for DTO/Entity conversions
-  - Improved separation of concerns
-  - OpenAPI documentation configuration
-  - Structured logging with Logback configuration
-- Code quality tools
-  - Checkstyle integration with custom rules
-  - SpotBugs static analysis
-  - Checkstyle suppressions configuration
-- Frontend development tools
-  - ESLint configuration
-  - Prettier code formatter
-  - Husky pre-commit hooks
-  - lint-staged for staged files checking
-- Comprehensive test suite
-  - Entity tests (ProjectEntityTest, SkillEntityTest, TagEntityTest)
-  - Service tests (SkillServiceTest, TagServiceTest, enhanced ProjectServiceTest)
-  - Controller tests (enhanced SkillControllerTest, ProjectControllerTest)
-  - Global exception handler tests
-  - Frontend component tests
-- Enhanced documentation
-  - Local testing guide (`docs/deployment/local-testing.md`)
-  - Code quality guide (`docs/development/code-quality.md`)
-  - Logging conventions (`docs/development/logging-conventions.md`)
-  - Setup guide (`docs/development/setup.md`)
-  - Dependencies reference (`docs/reference/dependencies.md`)
-  - Scripts organization guide (`docs/reference/scripts-organization.md`)
-  - Updated architecture documentation
-- Additional scripts
-  - Cleanup staging script (`scripts/maintenance/cleanup-staging.sh`)
-  - Setup permissions script (`scripts/setup-permissions.sh`)
-  - Run all tests script (`scripts/testing/run-all-tests.sh`)
-  - Testing documentation (`scripts/testing/README.md`)
-- HTTP interceptors
-  - Logging interceptor for request/response tracking
-  - Retry interceptor for failed requests
-- Logger service for frontend
-- Data seeding configuration for development
+- CV management system with versioning
+  - Upload, download, and version control for CV files
+  - Single "current" CV designation with database constraint
+  - Admin UI for CV management
+  - Public endpoint for current CV download
+- Project image upload with optimization
+  - WebP conversion with Thumbnailator library (quality 0.85)
+  - Automatic thumbnail generation (400x300px, quality 0.8)
+  - Magic bytes validation for security
+  - Old image cleanup on update
+- Complete API documentation suite
+  - 6 API reference files (authentication, projects, skills, cv, files)
+  - 3 security documentation files (authentication, RBAC, password management)
+  - 3 features documentation files (CV management, image processing, file storage)
+  - Medium detail level following project conventions
+- Complete documentation reorganization in `/docs`
+  - Documentation standards with detail level guidelines
+  - Professional structure without emojis
+  - Hierarchical numbering and concise content
 
 ### Changed
-- Backend architecture refactored to follow clean architecture principles
-- Service layer split into interfaces and implementations
-- DTO mapping centralized in dedicated mapper classes
-- Enhanced ProjectService with improved error handling
-- Updated CI/CD pipeline with quality checks
-  - Checkstyle validation
-  - SpotBugs analysis
-  - Enhanced test reporting
-- Improved deployment validation script
-- Enhanced sync-prod-to-staging script with better error handling
-- Updated documentation structure and organization
-- Frontend services with enhanced error handling and retry logic
-- Home component with dynamic data loading
-- Angular application configuration updated
-- Docker Compose configuration improvements
-- Vale documentation vocabulary expanded
-- README.md restructured with improved architecture diagram
+- Test naming convention standardized to `should_when` pattern
+- Documentation detail level reduced to medium (200-400 lines per file)
+- Removed overly detailed implementation sections from documentation
 
 ### Fixed
-- Checkstyle configuration issues
-- CI/CD pipeline reliability improvements
-- Code style violations across backend codebase
-- Test coverage gaps in controllers and services
-- Entity relationships and cascade operations
-- Frontend component template formatting
-
-### Removed
-- Redundant documentation files
-  - `docs/development/backend-tests.md` (merged into testing.md)
-  - `docs/development/frontend-tests.md` (merged into testing.md)
-  - `docs/development/testing-quick-ref.md` (integrated into testing.md)
-  - `docs/operations/health-checks.md` (consolidated)
-  - `docs/reference/versioning.md` (simplified)
+- Angular proxy configuration to point to correct backend container
+- Nginx configuration to maintain `/api/` prefix
+- Spring Boot Actuator `/actuator/info` configuration
 
 ---
 
-## [0.1.0] - 2025-11-16
+## [0.3.0] - 2025-11-19
 
 ### Added
-- Complete project infrastructure
-  - Docker and Docker Compose setup
-  - Multi-environment configuration (local, staging, production)
-  - GitHub Actions CI/CD pipelines
-- Backend application (Spring Boot 3.5.5)
-  - Health check system with custom indicators
-  - Database health monitoring
-  - Complete health endpoint (`/api/health/full`)
-  - Version endpoint (`/api/version`)
-  - Environment-specific Spring Security configuration
-  - Spring Boot Actuator for monitoring
-  - JPA/Hibernate with PostgreSQL integration
-  - Gradle build configuration
-  - Dockerized backend with multi-stage builds
-- Frontend application (Angular 18)
-  - Basic application structure
-  - Health check integration
-  - Proxy configuration for development
-  - Automatic version generation script
-  - Bootstrap 5 integration
-  - Dockerized frontend with Nginx
-  - Karma/Jasmine test configuration
-- Database (PostgreSQL 17)
-  - Docker container configuration
-  - Health check integration
-  - Persistent volume configuration
-- Nginx reverse proxy
-  - Environment-specific configurations (local, staging, prod)
-  - API routing with `/api/` prefix preservation
-  - Static file serving
-  - Production security headers
-- GitHub Actions workflows
-  - Backend tests workflow
-  - Frontend tests workflow
-  - CI/CD workflow with multi-environment support
-  - Health check workflow
-  - Vale documentation linting workflow
-- Comprehensive documentation
-  - Architecture documentation (`docs/architecture/architecture.md`)
-  - Contributing guide (`docs/contributing.md`)
-  - CI/CD documentation (`docs/deployment/ci-cd.md`)
-  - Testing guides (`docs/development/`)
-  - Health checks documentation (`docs/operations/health-checks.md`)
-  - Versioning documentation (`docs/reference/versioning.md`)
-- Scripts for automation
-  - Health check testing (`scripts/testing/test-health.sh`)
-  - Documentation validation (`scripts/docs/validate-docs.sh`)
-  - Sync production to staging (`scripts/deployment/sync-prod-to-staging.sh`)
-  - Deployment validation (`scripts/deployment/validate-deployment.sh`)
-- Vale documentation linting
-  - Custom vocabulary for portfolio project
-  - Accept/reject word lists
-- Complete test suite
-  - Backend: HealthService, HealthController, CustomHealthIndicator
-  - Frontend: AppComponent tests
-  - 100% coverage of critical components
-- Environment files examples
-  - `.env.example` for production
-  - `.env.local.example` for local development
-- Makefile for common development tasks
+- JWT authentication system with Spring Security
+  - Dual-token system (access token: 15min, refresh token: 7 days)
+  - Login, logout, refresh token, and change password endpoints
+  - Role-based access control (ADMIN, USER)
+  - BCrypt password hashing (strength 10)
+- Frontend authentication UI
+  - Login page with Angular reactive forms
+  - Navbar with login/logout functionality
+  - Auth guard and admin guard for route protection
+  - HTTP interceptor for automatic token refresh
+  - Token storage service (localStorage)
+- File upload system
+  - Generic file upload endpoint (`/api/admin/upload`)
+  - Multipart file upload with validation (10MB limit)
+  - Support for PNG, JPG, GIF, WebP formats
+  - Magic bytes validation for security
+  - File storage service with timestamped filenames
+  - Admin UI components for file management
+- Authentication unit tests
+  - AuthService tests with 80%+ coverage
+  - AuthController tests
+  - JwtTokenProvider tests
+  - Role mapping validation tests
 
 ### Changed
-- README.md with comprehensive project information
-- .gitignore with comprehensive exclusions
+- Skill model simplified (removed deprecated level system)
+  - Database migration V7 for skill table cleanup
+  - Updated SkillResponse DTO
+  - Updated frontend skill components
+- Admin endpoints now require JWT authentication
+  - `/api/admin/projects` protected with ROLE_ADMIN
+  - `/api/admin/skills` protected with ROLE_ADMIN
+  - Security configuration with method-level authorization
+- Cross-platform configuration
+  - Updated Prettier config for Windows/Unix compatibility
+  - Updated ESLint config for cross-platform paths
+
+### Fixed
+- Checkstyle configuration for entity suppressions
+- CI/CD pipeline improvements
+  - Backend tests workflow optimization
+  - Correct Gradle task execution order
 
 ### Security
-- CSRF protection enabled in staging/production
-- CSRF disabled in development mode only
-- Environment-specific Spring Security configuration
-- Production security headers (X-Frame-Options, CSP, HSTS, etc.)
-- Secure environment variable handling
-- Docker secrets management ready
+- JWT token security
+  - Short-lived access tokens (15 minutes)
+  - Secure refresh token rotation
+  - Token invalidation on logout and password change
+- Password security
+  - BCrypt hashing with configurable strength
+  - Minimum 8 character requirement
+  - Secure password change workflow
+- CORS configuration for authentication endpoints
+- CSRF protection maintained in staging/production
+
+### Breaking Changes
+- Skill entity schema updated (removed `level` column)
+  - Migration: Run `./gradlew flywayMigrate`
+  - Frontend: Update skill components if custom level logic exists
+- Admin endpoints require authentication
+  - All `/api/admin/**` endpoints now require valid JWT with ROLE_ADMIN
+  - Update API clients to include Authorization header
+- Authentication required for file upload
+  - `/api/admin/upload` now requires authentication
+
+### Migration Notes
+1. Run database migrations: `./gradlew flywayMigrate`
+2. Set JWT_SECRET environment variable (min 256 bits)
+3. Update environment configuration for auth endpoints
+4. Existing admin users need to login with new auth system
+5. Update API clients to handle JWT authentication
 
 ---
 
-## [0.0.1] - 2025-11-03
+## [0.2.0] - 2025-11-15
 
 ### Added
-- Initial commit
-- Basic project structure
-- License file (MIT)
-- Initial .gitignore
+- Complete unit test suite
+  - Backend: 24 tests (HealthService, HealthController, CustomHealthIndicator)
+  - Frontend: 11 tests (AppComponent)
+  - Test coverage: 100% of critical components
+- Comprehensive documentation restructure
+  - Documentation standards guide (`docs/contributing.md`)
+  - Separate testing guides (testing.md, backend-tests.md, frontend-tests.md)
+  - Condensed CI/CD, health checks, and versioning documentation
+  - Architecture documentation (`docs/architecture/architecture.md`)
+- System-wide health checks
+  - `/health/full` endpoint for full chain verification
+  - Docker healthchecks for all services
+  - Automated `test-health.sh` script
+- Automatic versioning system based on Git tags
+- CI/CD with GitHub Actions
+  - Automated health check workflow
+  - Staging/production deployment pipeline
+- Environment-specific Nginx configuration (local, staging, prod)
+
+### Changed
+- Documentation now follows professional standards
+  - Removed emojis from all documentation
+  - Applied hierarchical numbering
+  - Condensed redundant content
+- Test infrastructure configuration
+  - Karma and Jasmine setup for Angular 20
+  - Security filters disabled in controller tests
+  - Lenient mocking for optional dependencies
 
 ---
 
-## Version Notes
+## [0.1.0] - 2025-11-10
 
-### How to Read This Changelog
+### Added
+- Backend clean architecture implementation
+  - MapStruct for DTO mapping
+  - Lombok for code generation
+  - Service layer with transactional support
+- Code quality tools
+  - Checkstyle for code style verification
+  - SpotBugs for static analysis
+  - JaCoCo for code coverage (80% minimum)
+- Frontend portfolio UI components
+  - Project list and detail pages
+  - Skill display components
+  - Responsive Bootstrap 5 layout
+- Skills management system
+  - Full CRUD operations for skills
+  - Skill categories (PROGRAMMING, FRAMEWORK, DATABASE, etc.)
+  - Backend and frontend integration
 
-- **Added:** New features
-- **Changed:** Changes to existing features
-- **Deprecated:** Features to be removed in future releases
-- **Removed:** Removed features
-- **Fixed:** Bug fixes
-- **Security:** Security vulnerability fixes
+---
 
-### Links
+## [0.0.1] - 2025-11-07
 
-- [Unreleased]: https://github.com/emmanuelgabe/portfolio/compare/v0.2.0...HEAD
-- [0.2.0]: https://github.com/emmanuelgabe/portfolio/compare/v0.1.0...v0.2.0
-- [0.1.0]: https://github.com/emmanuelgabe/portfolio/compare/5273176...v0.1.0
-- [0.0.1]: https://github.com/emmanuelgabe/portfolio/commit/5273176
+### Added
+- Initial project architecture
+  - Frontend Angular 20
+  - Backend Spring Boot 3.5.5
+  - Database PostgreSQL 17.6
+  - Nginx reverse proxy
+- Multi-environment Docker Compose configuration
+  - Local (port 8081)
+  - Staging (port 3000)
+  - Production (port 80)
+- Backend features
+  - Environment-specific Spring Security configuration
+  - Spring Boot Actuator for monitoring
+  - Custom health check controller (`/api/health/*`)
+  - Version endpoint (`/api/version`)
+- Frontend features
+  - Angular health check service
+  - Proxy configuration for development
+  - Automatic version generation script
+- Infrastructure
+  - Environment-specific Nginx configuration
+  - Docker healthchecks for all services
+  - Secure environment variables
+
+### Security
+- CSRF disabled in dev mode only
+- CSRF enabled with cookie tokens in staging/production
+- Environment-specific Spring Security configuration
+- Production security headers (X-Frame-Options, CSP, etc.)
+

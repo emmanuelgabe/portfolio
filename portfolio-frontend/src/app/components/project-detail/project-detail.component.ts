@@ -1,15 +1,17 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { ProjectResponse } from '../../models';
+import { ProjectImageResponse } from '../../models/project-image.model';
 import { LoggerService } from '../../services/logger.service';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css'],
 })
@@ -20,9 +22,10 @@ export class ProjectDetailComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
 
-  project: ProjectResponse | null = null;
+  project: ProjectResponse | undefined;
   isLoading = true;
-  error: string | null = null;
+  error: string | undefined;
+  currentSlideIndex = 0;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -35,14 +38,50 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
+   * Navigate to previous slide
+   */
+  prevSlide(): void {
+    if (this.sortedImages.length === 0) return;
+    this.currentSlideIndex =
+      this.currentSlideIndex === 0 ? this.sortedImages.length - 1 : this.currentSlideIndex - 1;
+  }
+
+  /**
+   * Navigate to next slide
+   */
+  nextSlide(): void {
+    if (this.sortedImages.length === 0) return;
+    this.currentSlideIndex =
+      this.currentSlideIndex === this.sortedImages.length - 1 ? 0 : this.currentSlideIndex + 1;
+  }
+
+  /**
+   * Go to specific slide
+   */
+  goToSlide(index: number): void {
+    if (index >= 0 && index < this.sortedImages.length) {
+      this.currentSlideIndex = index;
+    }
+  }
+
+  /**
    * Load project details from API
    */
   loadProject(id: number): void {
     this.isLoading = true;
-    this.error = null;
+    this.error = undefined;
+    this.currentSlideIndex = 0;
 
     this.projectService.getById(id).subscribe({
       next: (project) => {
+        // Redirect to home if project has no details page
+        if (!project.hasDetails) {
+          this.logger.info('[NAVIGATION] Project has no details page, redirecting', {
+            projectId: id,
+          });
+          this.router.navigate(['/']);
+          return;
+        }
         this.project = project;
         this.isLoading = false;
       },
@@ -61,7 +100,7 @@ export class ProjectDetailComponent implements OnInit {
    * Navigate back to projects list
    */
   goBack(): void {
-    this.router.navigate(['/projects']);
+    this.router.navigate(['/'], { fragment: 'projects' });
   }
 
   /**
@@ -117,16 +156,57 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
-   * Check if project has an image
+   * Check if project has multiple images (for carousel)
    */
-  get hasImage(): boolean {
-    return !!this.project?.imageUrl;
+  get hasMultipleImages(): boolean {
+    return !!(this.project?.images && this.project.images.length > 0);
   }
 
   /**
-   * Get image source with fallback
+   * Get sorted images for carousel display
    */
-  get imageSrc(): string {
-    return this.project?.imageUrl || 'assets/images/project-placeholder.png';
+  get sortedImages(): ProjectImageResponse[] {
+    if (!this.project?.images) return [];
+    return [...this.project.images].sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
+  /**
+   * Check if project has a single image (legacy fallback)
+   */
+  get hasLegacyImage(): boolean {
+    return !this.hasMultipleImages && !!this.project?.imageUrl;
+  }
+
+  /**
+   * Get legacy image source with fallback
+   */
+  get legacyImageSrc(): string {
+    return this.getFullImageUrl(this.project?.imageUrl || '');
+  }
+
+  /**
+   * Get full URL for an image
+   */
+  getFullImageUrl(imageUrl: string): string {
+    if (!imageUrl) return 'assets/images/project-placeholder.svg';
+    if (imageUrl.startsWith('http')) return imageUrl;
+    return `${environment.apiUrl}${imageUrl}`;
+  }
+
+  /**
+   * Check if project has any links (GitHub or Demo)
+   */
+  get hasLinks(): boolean {
+    return !!(
+      (this.project?.githubUrl && this.project.githubUrl.trim() !== '') ||
+      (this.project?.demoUrl && this.project.demoUrl.trim() !== '')
+    );
+  }
+
+  /**
+   * Check if URL is an internal route (starts with /)
+   */
+  isInternalRoute(url: string): boolean {
+    return url.startsWith('/');
   }
 }

@@ -1,4 +1,4 @@
 // This file is auto-generated. Do not edit manually.
-// Generated on: 2025-11-18T12:14:59.333Z
+// Generated on: 2025-12-02T20:13:09.967Z
 
-export const VERSION = '0.0.1-SNAPSHOT';
+export const VERSION = 'v0.2.0-45-g517cece-dirty';

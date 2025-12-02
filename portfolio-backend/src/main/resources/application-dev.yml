@@ -1,3 +1,18 @@
+# Development environment configuration
+app:
+  jwt:
+    # Development: Comfortable expiration for local development
+    access-token-expiration: 3600000      # 1 hour (60 minutes)
+    refresh-token-expiration: 86400000    # 24 hours
+  rate-limit:
+    contact:
+      max-requests-per-hour: 50  # Higher limit for development testing
+    auth:
+      login:
+        max-requests-per-hour: 100  # Higher limit for development testing
+      refresh:
+        max-requests-per-hour: 200  # Higher limit for development testing
+
 spring:
   jpa:
     generate-ddl: false  # Flyway manages schema creation
@@ -5,7 +20,6 @@ spring:
       ddl-auto: validate  # Only validate schema, Flyway handles migrations
     open-in-view: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
   application:
     name: portfolio-backend
   datasource:
@@ -26,7 +40,7 @@ server:
 
 logging:
   level:
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
     org.hibernate: INFO
     com.emmanuelgabe.portfolio: DEBUG
 

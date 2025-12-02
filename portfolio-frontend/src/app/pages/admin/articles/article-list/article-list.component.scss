@@ -1,0 +1,26 @@
+.article-list {
+  padding: 2rem;
+}
+
+.project-thumbnail {
+  width: 100px;
+  height: 75px;
+  object-fit: cover;
+}
+
+.table {
+  font-size: 0.95rem;
+}
+
+.btn-group {
+  gap: 0.25rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}

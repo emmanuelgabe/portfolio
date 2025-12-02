@@ -41,8 +41,8 @@ class HealthControllerTest {
     private HealthService healthService;
 
     @Test
-    void testPing_ShouldReturnOkStatus() throws Exception {
-        // Given
+    void should_returnOkStatus_when_pingCalled() throws Exception {
+        // Arrange
         HealthResponse healthResponse = new HealthResponse(
             "ok",
             "Backend API is responding",
@@ -50,7 +50,7 @@ class HealthControllerTest {
         );
         when(healthService.ping()).thenReturn(healthResponse);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(get("/api/health/ping"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -60,29 +60,27 @@ class HealthControllerTest {
     }
 
     @Test
-    void testCheckDatabase_WhenHealthy_ShouldReturn200() throws Exception {
-        // Given
+    void should_return200_when_checkDatabaseCalledWithHealthyDatabase() throws Exception {
+        // Arrange
         DatabaseHealthResponse dbResponse = new DatabaseHealthResponse();
         dbResponse.setStatus("ok");
         dbResponse.setMessage("Database connection is healthy");
         dbResponse.setDatabase("PostgreSQL");
-        dbResponse.setUrl("jdbc:postgresql://localhost:5432/portfolio");
 
         when(healthService.checkDatabase()).thenReturn(dbResponse);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(get("/api/health/db"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value("ok"))
             .andExpect(jsonPath("$.message").value("Database connection is healthy"))
-            .andExpect(jsonPath("$.database").value("PostgreSQL"))
-            .andExpect(jsonPath("$.url").value("jdbc:postgresql://localhost:5432/portfolio"));
+            .andExpect(jsonPath("$.database").value("PostgreSQL"));
     }
 
     @Test
-    void testCheckDatabase_WhenUnhealthy_ShouldReturn503() throws Exception {
-        // Given
+    void should_return503_when_checkDatabaseCalledWithUnhealthyDatabase() throws Exception {
+        // Arrange
         DatabaseHealthResponse dbResponse = new DatabaseHealthResponse();
         dbResponse.setStatus("error");
         dbResponse.setMessage("Database connection failed");
@@ -90,7 +88,7 @@ class HealthControllerTest {
 
         when(healthService.checkDatabase()).thenReturn(dbResponse);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(get("/api/health/db"))
             .andExpect(status().isServiceUnavailable())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -100,8 +98,8 @@ class HealthControllerTest {
     }
 
     @Test
-    void testGetStatus_WhenHealthy_ShouldReturn200() throws Exception {
-        // Given
+    void should_return200_when_getStatusCalledWithHealthySystem() throws Exception {
+        // Arrange
         Map<String, Object> checks = new HashMap<>();
         checks.put("api", Map.of("status", "ok", "message", "API is responding"));
         checks.put("database", Map.of("status", "ok", "message", "Database connection is healthy"));
@@ -114,7 +112,7 @@ class HealthControllerTest {
 
         when(healthService.getCompleteStatus()).thenReturn(completeResponse);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(get("/api/health/status"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -125,8 +123,8 @@ class HealthControllerTest {
     }
 
     @Test
-    void testGetStatus_WhenUnhealthy_ShouldReturn503() throws Exception {
-        // Given
+    void should_return503_when_getStatusCalledWithUnhealthySystem() throws Exception {
+        // Arrange
         Map<String, Object> checks = new HashMap<>();
         checks.put("api", Map.of("status", "ok", "message", "API is responding"));
         checks.put("database", Map.of("status", "error", "message", "Database connection failed"));
@@ -139,7 +137,7 @@ class HealthControllerTest {
 
         when(healthService.getCompleteStatus()).thenReturn(completeResponse);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(get("/api/health/status"))
             .andExpect(status().isServiceUnavailable())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -150,8 +148,8 @@ class HealthControllerTest {
     }
 
     @Test
-    void testPing_VerifyContentStructure() throws Exception {
-        // Given
+    void should_verifyContentStructure_when_pingCalled() throws Exception {
+        // Arrange
         HealthResponse healthResponse = new HealthResponse(
             "ok",
             "Backend API is responding",
@@ -159,7 +157,7 @@ class HealthControllerTest {
         );
         when(healthService.ping()).thenReturn(healthResponse);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(get("/api/health/ping"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").exists())
@@ -168,22 +166,22 @@ class HealthControllerTest {
     }
 
     @Test
-    void testCheckDatabase_VerifyEndpointPath() throws Exception {
-        // Given
+    void should_verifyEndpointPath_when_checkDatabaseCalled() throws Exception {
+        // Arrange
         DatabaseHealthResponse dbResponse = new DatabaseHealthResponse();
         dbResponse.setStatus("ok");
         dbResponse.setMessage("Database connection is healthy");
 
         when(healthService.checkDatabase()).thenReturn(dbResponse);
 
-        // When & Then - verify correct endpoint path
+        // Act & Assert - verify correct endpoint path
         mockMvc.perform(get("/api/health/db"))
             .andExpect(status().isOk());
     }
 
     @Test
-    void testGetStatus_VerifyEndpointPath() throws Exception {
-        // Given
+    void should_verifyEndpointPath_when_getStatusCalled() throws Exception {
+        // Arrange
         Map<String, Object> checks = new HashMap<>();
         checks.put("api", Map.of("status", "ok"));
         checks.put("database", Map.of("status", "ok"));
@@ -196,7 +194,7 @@ class HealthControllerTest {
 
         when(healthService.getCompleteStatus()).thenReturn(completeResponse);
 
-        // When & Then - verify correct endpoint path
+        // Act & Assert - verify correct endpoint path
         mockMvc.perform(get("/api/health/status"))
             .andExpect(status().isOk());
     }

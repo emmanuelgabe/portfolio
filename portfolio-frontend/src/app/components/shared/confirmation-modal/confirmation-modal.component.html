@@ -24,6 +24,9 @@
     type="button"
     class="btn {{ confirmButtonClass }}"
     (click)="confirm()"
+    [disabled]="disableConfirm"
+    [style.opacity]="disableConfirm ? '0.65' : '1'"
+    [title]="disableConfirm ? 'Action non disponible en mode démonstration' : ''"
   >
     {{ confirmText }}
   </button>

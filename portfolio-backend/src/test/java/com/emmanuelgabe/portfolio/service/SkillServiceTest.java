@@ -93,7 +93,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getAllSkills_ShouldReturnListOfSkillsOrderedByDisplayOrder() {
+    void should_returnListOfSkillsOrderedByDisplayOrder_when_getAllSkillsCalled() {
         // Arrange
         Skill skill2 = new Skill();
         skill2.setId(2L);
@@ -119,7 +119,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkillById_WhenSkillExists_ShouldReturnSkill() {
+    void should_returnSkill_when_getSkillByIdCalledWithExistingSkill() {
         // Arrange
         when(skillRepository.findById(1L)).thenReturn(Optional.of(testSkill));
 
@@ -135,7 +135,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkillById_WhenSkillNotFound_ShouldThrowException() {
+    void should_throwException_when_getSkillByIdCalledWithNonExistentSkill() {
         // Arrange
         when(skillRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -147,7 +147,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void createSkill_ShouldReturnCreatedSkill() {
+    void should_returnCreatedSkill_when_createSkillCalled() {
         // Arrange
         CreateSkillRequest request = new CreateSkillRequest();
         request.setName("Java");
@@ -170,7 +170,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void updateSkill_WhenSkillExists_ShouldReturnUpdatedSkill() {
+    void should_returnUpdatedSkill_when_updateSkillCalledWithExistingSkill() {
         // Arrange
         UpdateSkillRequest request = new UpdateSkillRequest();
         request.setDisplayOrder(2);
@@ -189,7 +189,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void updateSkill_WhenSkillNotFound_ShouldThrowException() {
+    void should_throwException_when_updateSkillCalledWithNonExistentSkill() {
         // Arrange
         UpdateSkillRequest request = new UpdateSkillRequest();
         request.setDisplayOrder(2);
@@ -205,7 +205,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void updateSkill_WithPartialData_ShouldUpdateOnlyProvidedFields() {
+    void should_updateOnlyProvidedFields_when_updateSkillCalledWithPartialData() {
         // Arrange
         UpdateSkillRequest request = new UpdateSkillRequest();
         request.setDisplayOrder(2); // Only update display order
@@ -223,7 +223,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void deleteSkill_WhenSkillExists_ShouldDeleteSkill() {
+    void should_deleteSkill_when_deleteSkillCalledWithExistingSkill() {
         // Arrange
         when(skillRepository.findById(1L)).thenReturn(Optional.of(testSkill));
         doNothing().when(skillRepository).delete(testSkill);
@@ -237,7 +237,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void deleteSkill_WhenSkillNotFound_ShouldThrowException() {
+    void should_throwException_when_deleteSkillCalledWithNonExistentSkill() {
         // Arrange
         when(skillRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -250,7 +250,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkillsByCategory_ShouldReturnSkillsOfCategory() {
+    void should_returnSkillsOfCategory_when_getSkillsByCategoryCalled() {
         // Arrange
         Skill backendSkill2 = new Skill();
         backendSkill2.setId(2L);
@@ -276,7 +276,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getSkillsByCategory_WhenNoSkillsInCategory_ShouldReturnEmptyList() {
+    void should_returnEmptyList_when_getSkillsByCategoryCalledWithNoSkillsInCategory() {
         // Arrange
         when(skillRepository.findByCategoryOrderByDisplayOrderAsc(SkillCategory.DEVOPS))
                 .thenReturn(Arrays.asList());
@@ -290,7 +290,7 @@ class SkillServiceTest {
     }
 
     @Test
-    void getAllSkills_WhenNoSkills_ShouldReturnEmptyList() {
+    void should_returnEmptyList_when_getAllSkillsCalledWithNoSkills() {
         // Arrange
         when(skillRepository.findAllByOrderByDisplayOrderAsc()).thenReturn(Arrays.asList());
 

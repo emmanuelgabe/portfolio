@@ -30,27 +30,29 @@ export class ProjectCardComponent {
    * Check if project has a valid GitHub URL
    */
   get hasGithubUrl(): boolean {
-    return !!this.project.githubUrl;
+    return !!this.project.githubUrl && this.project.githubUrl.trim() !== '';
   }
 
   /**
    * Check if project has a valid demo URL
    */
   get hasDemoUrl(): boolean {
-    return !!this.project.demoUrl;
+    return !!this.project.demoUrl && this.project.demoUrl.trim() !== '';
   }
 
   /**
    * Check if project has an image
    */
   get hasImage(): boolean {
-    return !!this.project.imageUrl;
+    return !!this.project.thumbnailUrl || !!this.project.imageUrl;
   }
 
   /**
-   * Get placeholder image if no image is available
+   * Get image source - prefers thumbnail for cards (optimized), falls back to full image or placeholder
    */
   get imageSrc(): string {
-    return this.project.imageUrl || 'assets/images/project-placeholder.png';
+    return (
+      this.project.thumbnailUrl || this.project.imageUrl || 'assets/images/project-placeholder.svg'
+    );
   }
 }

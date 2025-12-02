@@ -1,10 +1,31 @@
-<div class="card h-100 shadow-sm project-card">
-  <!-- Project Image -->
+<!-- Clickable card when hasDetails is true -->
+<a
+  *ngIf="project.hasDetails"
+  [routerLink]="['/projects', project.id]"
+  class="card h-100 shadow-sm project-card text-decoration-none"
+>
+  <ng-container *ngTemplateOutlet="cardContent"></ng-container>
+</a>
+
+<!-- Non-clickable card when hasDetails is false -->
+<div
+  *ngIf="!project.hasDetails"
+  class="card h-100 shadow-sm project-card project-card-no-details"
+>
+  <ng-container *ngTemplateOutlet="cardContent"></ng-container>
+</div>
+
+<!-- Shared card content template -->
+<ng-template #cardContent>
+  <!-- Project Image with explicit dimensions to prevent CLS -->
   <img
     [src]="imageSrc"
     [alt]="project.title"
     class="card-img-top"
     [class.placeholder-image]="!hasImage"
+    width="400"
+    height="200"
+    loading="lazy"
   />
 
   <div class="card-body d-flex flex-column">
@@ -27,39 +48,42 @@
       </span>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="card-actions d-flex gap-2">
-      <!-- View Details Button -->
-      <a
-        [routerLink]="['/projects', project.id]"
-        class="btn btn-primary btn-sm flex-grow-1"
-      >
-        <i class="bi bi-eye"></i> View Details
-      </a>
+    <!-- Action Links -->
+    <div class="card-actions d-flex justify-content-between align-items-center">
+      <!-- View Details Link (only shown when hasDetails is true) -->
+      <span *ngIf="project.hasDetails" class="view-details-link">
+        <i class="bi bi-chevron-right"></i> Voir les details
+      </span>
+      <span *ngIf="!project.hasDetails"></span>
 
-      <!-- GitHub Link -->
-      <a
-        *ngIf="hasGithubUrl"
-        [href]="project.githubUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn btn-outline-secondary btn-sm"
-        title="View on GitHub"
-      >
-        <i class="bi bi-github"></i>
-      </a>
+      <!-- External Links -->
+      <div class="external-links d-flex gap-2">
+        <!-- GitHub Link -->
+        <a
+          *ngIf="hasGithubUrl"
+          [href]="project.githubUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-outline-secondary btn-sm"
+          title="Voir sur GitHub"
+          (click)="$event.stopPropagation()"
+        >
+          <i class="bi bi-github"></i>
+        </a>
 
-      <!-- Demo Link -->
-      <a
-        *ngIf="hasDemoUrl"
-        [href]="project.demoUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn btn-outline-success btn-sm"
-        title="View Demo"
-      >
-        <i class="bi bi-box-arrow-up-right"></i>
-      </a>
+        <!-- Demo Link -->
+        <a
+          *ngIf="hasDemoUrl"
+          [href]="project.demoUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-outline-success btn-sm"
+          title="Voir la demo"
+          (click)="$event.stopPropagation()"
+        >
+          <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+      </div>
     </div>
   </div>
-</div>
+</ng-template>

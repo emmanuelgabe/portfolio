@@ -22,7 +22,6 @@ public class CreateProjectRequest {
     @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters")
     private String description;
 
-    @NotBlank(message = "Tech stack is required")
     @Size(max = 500, message = "Tech stack cannot exceed 500 characters")
     private String techStack;
 
@@ -31,8 +30,8 @@ public class CreateProjectRequest {
     @Size(max = 255, message = "GitHub URL cannot exceed 255 characters")
     private String githubUrl;
 
-    @Pattern(regexp = "^(https?://)?([\\w\\-]+\\.)+[\\w\\-]+(/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*)?$|^$",
-            message = "Image URL must be a valid URL")
+    @Pattern(regexp = "^(https?://)?([\\w\\-]+\\.)+[\\w\\-]+(/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*)?$|^/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]+$|^$",
+            message = "Image URL must be a valid URL or path")
     @Size(max = 255, message = "Image URL cannot exceed 255 characters")
     private String imageUrl;
 
@@ -42,6 +41,8 @@ public class CreateProjectRequest {
     private String demoUrl;
 
     private boolean featured = false;
+
+    private boolean hasDetails = true;
 
     private Set<Long> tagIds;
 }

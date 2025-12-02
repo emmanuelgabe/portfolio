@@ -12,6 +12,30 @@
   padding: 0.5rem 0;
 }
 
+.navbar .container-fluid {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  position: relative;
+}
+
+/* Position logo absolutely so nav links can be truly centered */
+@media (min-width: 1200px) {
+  .navbar-brand {
+    position: absolute;
+    left: 1.5rem;
+  }
+
+  .navbar-collapse {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .navbar-nav.mx-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
 .navbar-brand {
   font-weight: 700;
   font-size: 1.5rem;
@@ -24,10 +48,7 @@
 }
 
 .brand-name {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0d6efd;
   font-weight: 800;
 }
 
@@ -55,6 +76,9 @@
   border-radius: 8px;
   transition: all 0.3s ease;
   position: relative;
+  display: inline-flex !important;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .nav-link i {
@@ -90,71 +114,58 @@
   border-radius: 2px;
 }
 
-/* Authentication section */
+/* Authentication section - positioned right */
+@media (min-width: 1200px) {
+  .auth-section {
+    position: absolute;
+    right: 1.5rem;
+  }
+}
+
 .auth-section {
-  margin-left: 0.5rem;
+  display: flex;
+  align-items: center;
 }
 
-.btn-login {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white !important;
-  font-weight: 600;
-  padding: 0.5rem 1.5rem !important;
-  border-radius: 25px;
+/* Bouton deconnexion - Style Soft Elevation */
+.btn-logout-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: 'Fira Code', 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  color: #2c3e50;
+  background-color: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 50px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-}
-
-.btn-login:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-}
-
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: rgba(102, 126, 234, 0.05);
-  border-radius: 25px;
-}
-
-.user-name {
-  color: #555;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.user-name i {
-  font-size: 1.2rem;
-  color: #667eea;
-}
-
-.btn-logout {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  border: none;
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.9rem;
   cursor: pointer;
+}
+
+.btn-logout-soft i {
+  color: #555;
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
 }
 
-.btn-logout:hover {
-  background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+.btn-logout-soft:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  border-color: transparent;
+  color: #2c3e50;
 }
 
-.btn-logout i {
-  font-size: 1rem;
+.btn-logout-soft:hover i {
+  transform: scale(1.1);
+  color: #2c3e50;
+}
+
+.btn-logout-soft:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* Spacer to prevent content from being hidden under fixed navbar */
@@ -163,7 +174,12 @@
 }
 
 /* Mobile responsive */
-@media (max-width: 991px) {
+@media (max-width: 1199px) {
+  .navbar .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .navbar-collapse {
     margin-top: 1rem;
     background-color: white;
@@ -189,18 +205,12 @@
   }
 
   .auth-section {
-    margin-left: 0;
-    margin-top: 0.5rem;
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
   }
 
-  .user-menu {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem;
-  }
-
-  .btn-logout {
+  .btn-logout-soft {
     width: 100%;
     justify-content: center;
   }

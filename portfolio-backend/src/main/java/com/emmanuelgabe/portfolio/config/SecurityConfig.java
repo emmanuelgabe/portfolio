@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.config;
 
+import com.emmanuelgabe.portfolio.security.AuthRateLimitFilter;
 import com.emmanuelgabe.portfolio.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,6 +32,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final AuthRateLimitFilter authRateLimitFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
@@ -70,26 +73,36 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Enable CORS with configuration from CorsConfig
+                .cors(Customizer.withDefaults())
+
                 // Disable CSRF (not needed for JWT stateless authentication)
                 .csrf(AbstractHttpConfigurer::disable)
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/health", "/api/version", "/actuator/health").permitAll()
+                        .requestMatchers("/health", "/api/version", "/actuator/health", "/api/health/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/cv/current", "/api/cv/download").permitAll()
 
-                        // Admin modification endpoints (require ADMIN role)
+                        // Admin endpoints (require ADMIN role)
+                        // Standardized pattern: /api/admin/{resource}/*
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/projects/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/skills/admin/**").hasRole("ADMIN")
 
                         // Public read-only endpoints (GET only)
-                        .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/skills/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
+                        // Note: In Spring Security 6.x, /** does NOT match the root path
+                        // Must include both /api/x and /api/x/** patterns
+                        .requestMatchers(HttpMethod.GET, "/api/projects", "/api/projects/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/skills", "/api/skills/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tags", "/api/tags/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/experiences", "/api/experiences/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/articles", "/api/articles/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/hero", "/api/hero/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/configuration").permitAll()
 
                         // All other requests require authentication
                         .anyRequest().authenticated()
@@ -102,6 +115,9 @@ public class SecurityConfig {
 
                 // Set authentication provider
                 .authenticationProvider(authenticationProvider())
+
+                // Add rate limiting filter before JWT filter for auth endpoints
+                .addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
 
                 // Add JWT filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

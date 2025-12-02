@@ -1,6 +1,13 @@
-alot
-teh
-recieve
-seperate
-occured
-untill
+# Portfolio project vocabulary - rejected terms
+# Add terms that should never be used here
+# Suggest alternatives in comments
+
+# Avoid informal language
+# gonna
+# wanna
+# kinda
+
+# Avoid ambiguous terms (suggest specific alternatives)
+# simply (just remove it)
+# easy (be specific about what makes it straightforward)
+# just (often unnecessary filler word)

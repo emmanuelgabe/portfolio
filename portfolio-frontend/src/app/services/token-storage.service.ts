@@ -21,7 +21,7 @@ export class TokenStorageService {
    */
   saveTokens(authResponse: AuthResponse, rememberMe: boolean = false): void {
     const storage = this.getStorage(rememberMe);
-    const expiresAt = Date.now() + authResponse.expiresIn * 1000;
+    const expiresAt = Date.now() + authResponse.expiresIn;
 
     storage.setItem(this.ACCESS_TOKEN_KEY, authResponse.accessToken);
     storage.setItem(this.REFRESH_TOKEN_KEY, authResponse.refreshToken);

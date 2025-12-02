@@ -1,0 +1,343 @@
+<div class="site-config-form">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Configuration du site</h1>
+    <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!loading">
+    <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+      <!-- Profile Image Section -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Photo de profil</h5>
+        </div>
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <div class="profile-image-container">
+                <img
+                  *ngIf="imagePreview || profileImageUrl"
+                  [src]="imagePreview || profileImageUrl"
+                  alt="Photo de profil"
+                  class="profile-image"
+                />
+                <div *ngIf="!imagePreview && !profileImageUrl" class="profile-placeholder">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="mb-3">
+                <input
+                  type="file"
+                  class="form-control"
+                  id="profileImage"
+                  accept="image/jpeg,image/png,image/webp"
+                  (change)="onFileSelected($event)"
+                  [disabled]="demoModeService.isDemo() || uploadingImage"
+                />
+                <div class="form-text">Formats acceptes: JPEG, PNG, WebP. Taille max: 10 Mo.</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button
+                  *ngIf="selectedFile"
+                  type="button"
+                  class="btn btn-success btn-sm"
+                  (click)="uploadProfileImage()"
+                  [disabled]="uploadingImage || demoModeService.isDemo()"
+                >
+                  <span *ngIf="!uploadingImage">
+                    <i class="bi bi-upload me-1"></i> Telecharger
+                  </span>
+                  <span *ngIf="uploadingImage">
+                    <div class="spinner-border spinner-border-sm me-1" role="status"></div>
+                    Envoi...
+                  </span>
+                </button>
+                <button
+                  *ngIf="selectedFile"
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="cancelImageSelection()"
+                  [disabled]="uploadingImage"
+                >
+                  Annuler
+                </button>
+                <button
+                  *ngIf="profileImageUrl && !selectedFile"
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  (click)="deleteProfileImage()"
+                  [disabled]="uploadingImage || demoModeService.isDemo()"
+                >
+                  <i class="bi bi-trash me-1"></i> Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Identity Section -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-person me-2"></i>Identite</h5>
+        </div>
+        <div class="card-body">
+          <!-- Full Name -->
+          <div class="mb-3">
+            <label for="fullName" class="form-label">
+              Nom complet <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              class="form-control"
+              formControlName="fullName"
+              [class.is-invalid]="isFieldInvalid('fullName')"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="Ex: Emmanuel Gabe"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('fullName', 'required')">
+              Le nom complet est requis
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('fullName', 'minlength')">
+              Le nom doit contenir au moins 2 caracteres
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('fullName', 'maxlength')">
+              Le nom ne peut pas depasser 100 caracteres
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">
+              Email <span class="text-danger">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              formControlName="email"
+              [class.is-invalid]="isFieldInvalid('email')"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="Ex: contact@exemple.com"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('email', 'required')">
+              L'email est requis
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('email', 'email')">
+              Format d'email invalide
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-stars me-2"></i>Section Hero</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">
+            Ces informations sont affichees sur la page d'accueil avec une animation de typing.
+          </p>
+
+          <!-- Hero Title -->
+          <div class="mb-3">
+            <label for="heroTitle" class="form-label">
+              Titre <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              id="heroTitle"
+              class="form-control"
+              formControlName="heroTitle"
+              [class.is-invalid]="isFieldInvalid('heroTitle')"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="Ex: Developpeur Backend"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('heroTitle', 'required')">
+              Le titre est requis
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('heroTitle', 'minlength')">
+              Le titre doit contenir au moins 2 caracteres
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('heroTitle', 'maxlength')">
+              Le titre ne peut pas depasser 200 caracteres
+            </div>
+          </div>
+
+          <!-- Hero Description -->
+          <div class="mb-3">
+            <label for="heroDescription" class="form-label">
+              Description <span class="text-danger">*</span>
+            </label>
+            <textarea
+              id="heroDescription"
+              class="form-control"
+              formControlName="heroDescription"
+              [class.is-invalid]="isFieldInvalid('heroDescription')"
+              [readonly]="demoModeService.isDemo()"
+              rows="4"
+              placeholder="Decrivez-vous en quelques phrases..."
+            ></textarea>
+            <div class="invalid-feedback" *ngIf="hasError('heroDescription', 'required')">
+              La description est requise
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO Section -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-search me-2"></i>SEO</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">
+            Informations pour le referencement et l'affichage dans les resultats de recherche.
+          </p>
+
+          <!-- Site Title -->
+          <div class="mb-3">
+            <label for="siteTitle" class="form-label">
+              Titre du site <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              id="siteTitle"
+              class="form-control"
+              formControlName="siteTitle"
+              [class.is-invalid]="isFieldInvalid('siteTitle')"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="Ex: Portfolio - Emmanuel Gabe"
+            />
+            <div class="form-text">Affiche dans l'onglet du navigateur.</div>
+            <div class="invalid-feedback" *ngIf="hasError('siteTitle', 'required')">
+              Le titre du site est requis
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('siteTitle', 'maxlength')">
+              Le titre ne peut pas depasser 100 caracteres
+            </div>
+          </div>
+
+          <!-- SEO Description -->
+          <div class="mb-3">
+            <label for="seoDescription" class="form-label">
+              Meta description <span class="text-danger">*</span>
+            </label>
+            <textarea
+              id="seoDescription"
+              class="form-control"
+              formControlName="seoDescription"
+              [class.is-invalid]="isFieldInvalid('seoDescription')"
+              [readonly]="demoModeService.isDemo()"
+              rows="3"
+              placeholder="Description pour les moteurs de recherche..."
+              maxlength="300"
+            ></textarea>
+            <div class="form-text">
+              {{ configForm.get('seoDescription')?.value?.length || 0 }}/300 caracteres
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('seoDescription', 'required')">
+              La meta description est requise
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('seoDescription', 'maxlength')">
+              La description ne peut pas depasser 300 caracteres
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Links Section -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Liens sociaux</h5>
+        </div>
+        <div class="card-body">
+          <!-- GitHub URL -->
+          <div class="mb-3">
+            <label for="githubUrl" class="form-label">
+              <i class="bi bi-github me-1"></i>GitHub <span class="text-danger">*</span>
+            </label>
+            <input
+              type="url"
+              id="githubUrl"
+              class="form-control"
+              formControlName="githubUrl"
+              [class.is-invalid]="isFieldInvalid('githubUrl')"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="https://github.com/username"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('githubUrl', 'required')">
+              L'URL GitHub est requise
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('githubUrl', 'pattern')">
+              L'URL doit commencer par http:// ou https://
+            </div>
+          </div>
+
+          <!-- LinkedIn URL -->
+          <div class="mb-3">
+            <label for="linkedinUrl" class="form-label">
+              <i class="bi bi-linkedin me-1"></i>LinkedIn <span class="text-danger">*</span>
+            </label>
+            <input
+              type="url"
+              id="linkedinUrl"
+              class="form-control"
+              formControlName="linkedinUrl"
+              [class.is-invalid]="isFieldInvalid('linkedinUrl')"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="https://linkedin.com/in/username"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('linkedinUrl', 'required')">
+              L'URL LinkedIn est requise
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('linkedinUrl', 'pattern')">
+              L'URL doit commencer par http:// ou https://
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="d-flex justify-content-between pt-3">
+        <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="configForm.invalid || submitting || demoModeService.isDemo()"
+          [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+          [title]="demoModeService.isDemo() ? 'Action desactivee en mode demonstration' : ''"
+        >
+          <span *ngIf="!submitting">
+            <i class="bi bi-check-lg me-2"></i>
+            Enregistrer
+          </span>
+          <span *ngIf="submitting">
+            <div class="spinner-border spinner-border-sm me-2" role="status">
+              <span class="visually-hidden">Envoi...</span>
+            </div>
+            Envoi...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

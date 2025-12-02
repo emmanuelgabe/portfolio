@@ -2,10 +2,10 @@
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>{{ isEditMode ? 'Éditer le Projet' : 'Nouveau Projet' }}</h1>
-    <a routerLink="/admin/projects" class="btn btn-outline-secondary">
+    <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
       <i class="bi bi-arrow-left me-2"></i>
       Retour
-    </a>
+    </button>
   </div>
 
   <!-- Loading State -->
@@ -31,6 +31,7 @@
               class="form-control"
               formControlName="title"
               [class.is-invalid]="isFieldInvalid('title')"
+              [readonly]="demoModeService.isDemo()"
               placeholder="Nom du projet"
             />
             <div class="invalid-feedback" *ngIf="hasError('title', 'required')">
@@ -42,8 +43,8 @@
           </div>
 
           <!-- Featured -->
-          <div class="col-md-6 mb-3">
-            <label class="form-label d-block">Projet mis en avant</label>
+          <div class="col-md-3 mb-3">
+            <label class="form-label d-block">Mise en avant</label>
             <div class="form-check form-switch">
               <input
                 class="form-check-input"
@@ -52,7 +53,24 @@
                 formControlName="featured"
               />
               <label class="form-check-label" for="featured">
-                Afficher sur la page d'accueil
+                Page d'accueil
+              </label>
+            </div>
+          </div>
+
+          <!-- Has Details -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label d-block">Page de details</label>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="hasDetails"
+                formControlName="hasDetails"
+                (change)="onHasDetailsChange()"
+              />
+              <label class="form-check-label" for="hasDetails">
+                Activer
               </label>
             </div>
           </div>
@@ -68,6 +86,7 @@
             class="form-control"
             formControlName="description"
             [class.is-invalid]="isFieldInvalid('description')"
+            [readonly]="demoModeService.isDemo()"
             rows="4"
             placeholder="Décrivez votre projet..."
           ></textarea>
@@ -82,7 +101,8 @@
         <!-- Technologies -->
         <div class="mb-3">
           <label for="techStack" class="form-label">
-            Technologies <span class="text-danger">*</span>
+            Technologies
+            <span class="text-danger" *ngIf="projectForm.get('hasDetails')?.value">*</span>
           </label>
           <input
             type="text"
@@ -90,14 +110,43 @@
             class="form-control"
             formControlName="techStack"
             [class.is-invalid]="isFieldInvalid('techStack')"
-            placeholder="Angular, TypeScript, Spring Boot (séparées par des virgules)"
+            [readonly]="demoModeService.isDemo()"
+            placeholder="Angular, TypeScript, Spring Boot (separees par des virgules)"
           />
-          <div class="form-text">
-            Séparez les technologies par des virgules
+          <div class="form-text" *ngIf="projectForm.get('hasDetails')?.value">
+            Separees les technologies par des virgules
+          </div>
+          <div class="form-text text-muted" *ngIf="!projectForm.get('hasDetails')?.value">
+            Optionnel car le projet n'a pas de page de details
           </div>
           <div class="invalid-feedback" *ngIf="hasError('techStack', 'required')">
             Les technologies sont requises
           </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="mb-3">
+          <label class="form-label">Tags</label>
+          <div class="tags-container">
+            <button
+              *ngFor="let tag of availableTags"
+              type="button"
+              class="btn btn-sm me-2 mb-2"
+              [class.btn-primary]="isTagSelected(tag.id)"
+              [class.btn-outline-secondary]="!isTagSelected(tag.id)"
+              [style.background-color]="isTagSelected(tag.id) ? tag.color : 'transparent'"
+              [style.border-color]="tag.color"
+              [style.color]="isTagSelected(tag.id) ? '#fff' : tag.color"
+              [disabled]="demoModeService.isDemo()"
+              [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+              (click)="toggleTag(tag.id)"
+            >
+              {{ tag.name }}
+            </button>
+          </div>
+          <small class="text-muted" *ngIf="availableTags.length === 0">
+            Aucun tag disponible. Créez-en dans la section Tags.
+          </small>
         </div>
 
         <div class="row">
@@ -111,6 +160,7 @@
               id="githubUrl"
               class="form-control"
               formControlName="githubUrl"
+              [readonly]="demoModeService.isDemo()"
               placeholder="https://github.com/username/repo"
             />
           </div>
@@ -125,62 +175,174 @@
               id="demoUrl"
               class="form-control"
               formControlName="demoUrl"
+              [readonly]="demoModeService.isDemo()"
               placeholder="https://demo.example.com"
             />
           </div>
         </div>
 
-        <!-- Image Upload -->
+        <!-- Multi-Image Upload (Both Create and Edit Mode) -->
         <div class="mb-4">
-          <label class="form-label">Image du projet</label>
+          <label class="form-label">
+            Images du projet
+            <span class="badge bg-secondary ms-2">{{ projectImages.length + pendingFiles.length }}/10</span>
+          </label>
 
-          <!-- Upload Button -->
-          <div class="mb-3">
-            <label for="imageFile" class="btn btn-outline-primary">
+          <!-- Existing Images Gallery (Edit Mode only) -->
+          <div class="row g-3 mb-3" *ngIf="projectImages.length > 0">
+            <div class="col-6 col-md-4 col-lg-3" *ngFor="let image of projectImages; let i = index">
+              <div class="card h-100 position-relative image-card">
+                <img
+                  [src]="getFullImageUrl(image.thumbnailUrl)"
+                  [alt]="image.altText || 'Image projet'"
+                  class="card-img-top"
+                />
+                <span
+                  *ngIf="image.primary"
+                  class="badge bg-primary position-absolute top-0 start-0 m-2"
+                >
+                  Principal
+                </span>
+                <div class="card-body p-2">
+                  <div class="btn-group btn-group-sm w-100">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="moveImageUp(i)"
+                      [disabled]="i === 0 || demoModeService.isDemo()"
+                      title="Monter"
+                    >
+                      <i class="bi bi-arrow-up"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="moveImageDown(i)"
+                      [disabled]="i === projectImages.length - 1 || demoModeService.isDemo()"
+                      title="Descendre"
+                    >
+                      <i class="bi bi-arrow-down"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary"
+                      (click)="setImageAsPrimary(image.id)"
+                      [disabled]="image.primary || demoModeService.isDemo()"
+                      title="Definir comme image principale"
+                    >
+                      <i class="bi bi-star"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger"
+                      (click)="deleteProjectImage(image.id)"
+                      [disabled]="demoModeService.isDemo()"
+                      title="Supprimer"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Files Preview -->
+          <div class="row g-3 mb-3" *ngIf="pendingFiles.length > 0">
+            <div class="col-6 col-md-4 col-lg-3" *ngFor="let pending of pendingFiles; let i = index">
+              <div class="card h-100 border-dashed pending-card">
+                <img
+                  *ngIf="pending.preview"
+                  [src]="pending.preview"
+                  [alt]="pending.file.name"
+                  class="card-img-top"
+                />
+                <div *ngIf="!pending.preview" class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 120px;">
+                  <i class="bi bi-file-image fs-1 text-muted"></i>
+                </div>
+                <div class="card-body p-2 text-center">
+                  <p class="small mb-1 text-truncate" [title]="pending.file.name">
+                    {{ pending.file.name }}
+                  </p>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm mb-2"
+                    [(ngModel)]="pending.altText"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Alt text (optionnel)"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="removePendingFile(i)"
+                  >
+                    <i class="bi bi-x"></i> Retirer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Buttons -->
+          <div class="d-flex gap-2 flex-wrap">
+            <label
+              for="imageFiles"
+              class="btn btn-outline-primary"
+              [class.disabled]="!canAddMoreImages || demoModeService.isDemo()"
+              [style.pointer-events]="!canAddMoreImages || demoModeService.isDemo() ? 'none' : 'auto'"
+            >
               <i class="bi bi-cloud-upload me-2"></i>
-              Choisir une image
+              Ajouter des images
             </label>
             <input
               type="file"
-              id="imageFile"
+              id="imageFiles"
               class="d-none"
               accept="image/*"
-              (change)="onFileSelected($event)"
-              [disabled]="uploadingImage"
+              multiple
+              (change)="onFilesSelected($event)"
+              [disabled]="!canAddMoreImages || demoModeService.isDemo()"
             />
-            <span *ngIf="uploadingImage" class="ms-3">
-              <div class="spinner-border spinner-border-sm text-primary" role="status">
-                <span class="visually-hidden">Upload...</span>
-              </div>
-              <span class="ms-2">Upload en cours...</span>
-            </span>
+
+            <button
+              *ngIf="pendingFiles.length > 0 && isEditMode"
+              type="button"
+              class="btn btn-primary"
+              (click)="uploadPendingImages()"
+              [disabled]="uploadingImageCount > 0 || demoModeService.isDemo()"
+            >
+              <span *ngIf="uploadingImageCount === 0">
+                <i class="bi bi-upload me-2"></i>
+                Uploader ({{ pendingFiles.length }})
+              </span>
+              <span *ngIf="uploadingImageCount > 0">
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                Upload en cours...
+              </span>
+            </button>
           </div>
 
-          <!-- Image Preview -->
-          <div *ngIf="imagePreview" class="image-preview-container">
-            <div class="position-relative d-inline-block">
-              <img [src]="imagePreview" alt="Preview" class="image-preview" />
-              <button
-                type="button"
-                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
-                (click)="removeImage()"
-                [disabled]="uploadingImage"
-              >
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </div>
-          </div>
+          <small class="text-muted d-block mt-2">
+            <ng-container *ngIf="!isEditMode && pendingFiles.length > 0">
+              Les images seront uploadees apres la creation du projet.
+            </ng-container>
+            <ng-container *ngIf="isEditMode || pendingFiles.length === 0">
+              Formats acceptes: JPEG, PNG, WebP. Max 10 Mo par image. Ratio 16:9 recommande.
+            </ng-container>
+          </small>
         </div>
 
         <!-- Form Actions -->
         <div class="d-flex justify-content-between pt-3 border-top">
-          <a routerLink="/admin/projects" class="btn btn-outline-secondary">
+          <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
             Annuler
-          </a>
+          </button>
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="projectForm.invalid || submitting || uploadingImage"
+            [disabled]="projectForm.invalid || submitting || uploadingImageCount > 0 || demoModeService.isDemo()"
+            [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+            [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
           >
             <span *ngIf="!submitting">
               <i class="bi bi-check-lg me-2"></i>

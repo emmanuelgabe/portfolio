@@ -24,7 +24,9 @@ describe('ProjectListComponent', () => {
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
         featured: true,
+        hasDetails: false,
         tags: [{ id: 1, name: 'Angular', color: '#dd0031' }],
+        images: [],
       },
       {
         id: 2,
@@ -36,7 +38,9 @@ describe('ProjectListComponent', () => {
         createdAt: '2024-01-02T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
         featured: false,
+        hasDetails: false,
         tags: [{ id: 2, name: 'React', color: '#61dafb' }],
+        images: [],
       },
     ];
 

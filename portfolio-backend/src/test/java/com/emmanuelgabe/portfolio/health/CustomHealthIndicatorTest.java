@@ -24,32 +24,32 @@ class CustomHealthIndicatorTest {
     }
 
     @Test
-    void testHealth_ShouldReturnUpStatus() {
-        // When
+    void should_returnUpStatus_when_healthCalled() {
+        // Act
         Health health = customHealthIndicator.health();
 
-        // Then
+        // Assert
         assertNotNull(health, "Health should not be null");
         assertEquals(Status.UP, health.getStatus(), "Status should be UP");
     }
 
     @Test
-    void testHealth_ShouldContainAppDetail() {
-        // When
+    void should_containAppDetail_when_healthCalled() {
+        // Act
         Health health = customHealthIndicator.health();
 
-        // Then
+        // Assert
         assertNotNull(health.getDetails(), "Details should not be null");
         assertTrue(health.getDetails().containsKey("app"), "Details should contain 'app' key");
         assertEquals("Portfolio Backend", health.getDetails().get("app"), "App name should match");
     }
 
     @Test
-    void testHealth_ShouldContainStatusDetail() {
-        // When
+    void should_containStatusDetail_when_healthCalled() {
+        // Act
         Health health = customHealthIndicator.health();
 
-        // Then
+        // Assert
         assertNotNull(health.getDetails(), "Details should not be null");
         assertTrue(health.getDetails().containsKey("status"), "Details should contain 'status' key");
         assertEquals("Application is running smoothly", health.getDetails().get("status"),
@@ -57,21 +57,21 @@ class CustomHealthIndicatorTest {
     }
 
     @Test
-    void testHealth_ShouldNotContainErrorDetails() {
-        // When
+    void should_notContainErrorDetails_when_healthCalled() {
+        // Act
         Health health = customHealthIndicator.health();
 
-        // Then
+        // Assert
         assertNotNull(health.getDetails(), "Details should not be null");
         assertFalse(health.getDetails().containsKey("error"), "Details should not contain 'error' key when healthy");
     }
 
     @Test
-    void testHealth_VerifyDetailsStructure() {
-        // When
+    void should_haveCorrectDetailsStructure_when_healthCalled() {
+        // Act
         Health health = customHealthIndicator.health();
 
-        // Then
+        // Assert
         assertNotNull(health.getDetails(), "Details should not be null");
         assertEquals(2, health.getDetails().size(), "Details should contain exactly 2 entries");
         assertTrue(health.getDetails().containsKey("app"), "Should contain app detail");
@@ -79,12 +79,12 @@ class CustomHealthIndicatorTest {
     }
 
     @Test
-    void testHealth_MultipleCallsReturnConsistentResults() {
-        // When
+    void should_returnConsistentResults_when_calledMultipleTimes() {
+        // Act
         Health health1 = customHealthIndicator.health();
         Health health2 = customHealthIndicator.health();
 
-        // Then
+        // Assert
         assertEquals(health1.getStatus(), health2.getStatus(), "Status should be consistent");
         assertEquals(health1.getDetails().get("app"), health2.getDetails().get("app"),
             "App detail should be consistent");
@@ -93,11 +93,11 @@ class CustomHealthIndicatorTest {
     }
 
     @Test
-    void testHealth_ReturnsBuiltHealthObject() {
-        // When
+    void should_returnBuiltHealthObject_when_healthCalled() {
+        // Act
         Health health = customHealthIndicator.health();
 
-        // Then
+        // Assert
         assertNotNull(health, "Health should not be null");
         assertNotNull(health.getStatus(), "Status should not be null");
         assertNotNull(health.getDetails(), "Details should not be null");

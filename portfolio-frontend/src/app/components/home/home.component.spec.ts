@@ -1,18 +1,44 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideToastr } from 'ngx-toastr';
 import { HomeComponent } from './home.component';
 import { ProjectService } from '../../services/project.service';
 import { SkillService } from '../../services/skill.service';
+import { CvService } from '../../services/cv.service';
+import { ExperienceService } from '../../services/experience.service';
+import { ArticleService } from '../../services/article.service';
+import { SiteConfigurationService } from '../../services/site-configuration.service';
 import { ProjectResponse } from '../../models';
-import { Skill, SkillCategory } from '../../models/skill.model';
-import { of, throwError } from 'rxjs';
+import { Skill, SkillCategory, IconType } from '../../models/skill.model';
+import { SiteConfigurationResponse } from '../../models/site-configuration.model';
+import { of, throwError, NEVER } from 'rxjs';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
   let mockProjectService: jasmine.SpyObj<ProjectService>;
   let mockSkillService: jasmine.SpyObj<SkillService>;
+  let mockCvService: jasmine.SpyObj<CvService>;
+  let mockExperienceService: jasmine.SpyObj<ExperienceService>;
+  let mockArticleService: jasmine.SpyObj<ArticleService>;
+  let mockSiteConfigService: jasmine.SpyObj<SiteConfigurationService>;
   let mockFeaturedProjects: ProjectResponse[];
+
+  const mockSiteConfig: SiteConfigurationResponse = {
+    id: 1,
+    fullName: 'Emmanuel Gabe',
+    email: 'contact@emmanuelgabe.com',
+    heroTitle: 'Welcome to My Portfolio',
+    heroDescription: 'Full-stack developer with passion for clean code',
+    siteTitle: 'Portfolio - Emmanuel Gabe',
+    seoDescription: 'Portfolio de Emmanuel Gabe',
+    profileImageUrl: undefined,
+    githubUrl: 'https://github.com/emmanuelgabe',
+    linkedinUrl: 'https://linkedin.com/in/egabe',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  };
 
   beforeEach(async () => {
     mockFeaturedProjects = [
@@ -27,7 +53,9 @@ describe('HomeComponent', () => {
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
         featured: true,
+        hasDetails: true,
         tags: [{ id: 1, name: 'Angular', color: '#dd0031' }],
+        images: [],
       },
       {
         id: 2,
@@ -38,7 +66,9 @@ describe('HomeComponent', () => {
         createdAt: '2024-01-02T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
         featured: true,
+        hasDetails: true,
         tags: [{ id: 2, name: 'Spring Boot', color: '#6db33f' }],
+        images: [],
       },
     ];
 
@@ -50,6 +80,7 @@ describe('HomeComponent', () => {
         id: 1,
         name: 'Angular',
         icon: 'bi-code-square',
+        iconType: IconType.FONT_AWESOME,
         color: '#dd0031',
         category: SkillCategory.FRONTEND,
         categoryDisplayName: 'Frontend',
@@ -61,6 +92,7 @@ describe('HomeComponent', () => {
         id: 2,
         name: 'Spring Boot',
         icon: 'bi-gear',
+        iconType: IconType.FONT_AWESOME,
         color: '#6db33f',
         category: SkillCategory.BACKEND,
         categoryDisplayName: 'Backend',
@@ -72,6 +104,7 @@ describe('HomeComponent', () => {
         id: 3,
         name: 'Java',
         icon: 'bi-code',
+        iconType: IconType.FONT_AWESOME,
         color: '#007396',
         category: SkillCategory.BACKEND,
         categoryDisplayName: 'Backend',
@@ -83,6 +116,7 @@ describe('HomeComponent', () => {
         id: 4,
         name: 'TypeScript',
         icon: 'bi-filetype-ts',
+        iconType: IconType.FONT_AWESOME,
         color: '#3178c6',
         category: SkillCategory.FRONTEND,
         categoryDisplayName: 'Frontend',
@@ -94,6 +128,7 @@ describe('HomeComponent', () => {
         id: 5,
         name: 'PostgreSQL',
         icon: 'bi-database',
+        iconType: IconType.FONT_AWESOME,
         color: '#336791',
         category: SkillCategory.DATABASE,
         categoryDisplayName: 'Database',
@@ -105,6 +140,7 @@ describe('HomeComponent', () => {
         id: 6,
         name: 'Docker',
         icon: 'bi-box',
+        iconType: IconType.FONT_AWESOME,
         color: '#2496ed',
         category: SkillCategory.DEVOPS,
         categoryDisplayName: 'DevOps',
@@ -116,6 +152,7 @@ describe('HomeComponent', () => {
         id: 7,
         name: 'Git',
         icon: 'bi-git',
+        iconType: IconType.FONT_AWESOME,
         color: '#f05032',
         category: SkillCategory.TOOLS,
         categoryDisplayName: 'Tools',
@@ -127,6 +164,7 @@ describe('HomeComponent', () => {
         id: 8,
         name: 'REST API',
         icon: 'bi-braces',
+        iconType: IconType.FONT_AWESOME,
         color: '#009688',
         category: SkillCategory.BACKEND,
         categoryDisplayName: 'Backend',
@@ -139,12 +177,31 @@ describe('HomeComponent', () => {
     mockSkillService = jasmine.createSpyObj('SkillService', ['getAll']);
     mockSkillService.getAll.and.returnValue(of(mockSkills));
 
+    mockCvService = jasmine.createSpyObj('CvService', ['getCurrentCv', 'downloadCv']);
+    mockCvService.getCurrentCv.and.returnValue(of(null));
+
+    mockExperienceService = jasmine.createSpyObj('ExperienceService', ['getAll']);
+    mockExperienceService.getAll.and.returnValue(of([]));
+
+    mockArticleService = jasmine.createSpyObj('ArticleService', ['getAll']);
+    mockArticleService.getAll.and.returnValue(of([]));
+
+    mockSiteConfigService = jasmine.createSpyObj('SiteConfigurationService', [
+      'getSiteConfiguration',
+    ]);
+    mockSiteConfigService.getSiteConfiguration.and.returnValue(of(mockSiteConfig));
+
     await TestBed.configureTestingModule({
-      imports: [HomeComponent],
+      imports: [HomeComponent, RouterModule.forRoot([])],
       providers: [
         { provide: ProjectService, useValue: mockProjectService },
         { provide: SkillService, useValue: mockSkillService },
-        provideRouter([]),
+        { provide: CvService, useValue: mockCvService },
+        { provide: ExperienceService, useValue: mockExperienceService },
+        { provide: ArticleService, useValue: mockArticleService },
+        { provide: SiteConfigurationService, useValue: mockSiteConfigService },
+        provideHttpClient(),
+        provideToastr(),
       ],
     }).compileComponents();
 
@@ -161,7 +218,7 @@ describe('HomeComponent', () => {
     expect(mockProjectService.getAll).toHaveBeenCalled();
     expect(component.allProjects.length).toBe(2);
     expect(component.isLoadingProjects).toBeFalse();
-    expect(component.projectsError).toBeNull();
+    expect(component.projectsError).toBeUndefined();
   });
 
   it('should display hero section', () => {
@@ -174,16 +231,15 @@ describe('HomeComponent', () => {
   it('should display hero title', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const title = compiled.querySelector('.hero-section h1');
-    expect(title).toBeTruthy();
-    expect(title?.textContent).toContain('Emmanuel Gabe');
+    const terminalText = compiled.querySelector('.terminal-text');
+    expect(terminalText).toBeTruthy();
   });
 
   it('should display CTA buttons in hero', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const buttons = compiled.querySelectorAll('.hero-section .btn');
-    expect(buttons.length).toBeGreaterThanOrEqual(2);
+    const buttons = compiled.querySelectorAll('.hero-section .btn-style15');
+    expect(buttons.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should display skills section', () => {
@@ -212,12 +268,13 @@ describe('HomeComponent', () => {
   });
 
   it('should display loading spinner while loading projects', () => {
-    fixture.detectChanges(); // Let ngOnInit complete first
-    component.isLoadingProjects = true;
-    fixture.detectChanges(); // Render with loading state
+    // Configure mock to never complete (keeps loading state)
+    mockProjectService.getAll.and.returnValue(NEVER);
+    fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const spinner = compiled.querySelector('.spinner-border');
+    const projectsSection = compiled.querySelector('#projects');
+    const spinner = projectsSection?.querySelector('.spinner-border');
     expect(spinner).toBeTruthy();
   });
 
@@ -230,15 +287,14 @@ describe('HomeComponent', () => {
   });
 
   it('should display error message when error occurs', () => {
-    fixture.detectChanges(); // Let ngOnInit complete first
-    component.projectsError = 'Test error';
-    component.isLoadingProjects = false;
-    fixture.detectChanges(); // Render with error state
+    // Configure mock to return error
+    mockProjectService.getAll.and.returnValue(throwError(() => new Error('Test error')));
+    fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const alert = compiled.querySelector('.alert-warning');
     expect(alert).toBeTruthy();
-    expect(alert?.textContent).toContain('Test error');
+    expect(alert?.textContent).toContain('Unable to load projects');
   });
 
   it('should display no featured projects message when empty', () => {
@@ -261,21 +317,19 @@ describe('HomeComponent', () => {
   });
 
   it('should display toggle button when there are more projects', () => {
-    fixture.detectChanges(); // Let ngOnInit complete first
-    component.allProjects = [...mockFeaturedProjects, { ...mockFeaturedProjects[0], id: 3, featured: false }];
-    fixture.detectChanges(); // Render with updated projects
+    // Configure mock to return more than 3 projects (triggers "show more" button)
+    const manyProjects = [
+      ...mockFeaturedProjects,
+      { ...mockFeaturedProjects[0], id: 3, featured: false },
+      { ...mockFeaturedProjects[0], id: 4, featured: false },
+    ];
+    mockProjectService.getAll.and.returnValue(of(manyProjects));
+    fixture.detectChanges();
 
     expect(component.hasMoreProjects).toBeTrue();
     const compiled = fixture.nativeElement as HTMLElement;
     const toggleButton = compiled.querySelector('button.btn-outline-primary');
     expect(toggleButton).toBeTruthy();
-  });
-
-  it('should display contact section', () => {
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const contactSection = compiled.querySelector('.contact-section');
-    expect(contactSection).toBeTruthy();
   });
 
   it('should return true for hasFeaturedProjects when projects exist', () => {

@@ -1,0 +1,173 @@
+<div class="article-form">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ isEditMode ? 'Modifier l\'article' : 'Nouvel article' }}</h1>
+    <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="bi bi-x-circle me-2"></i>
+      Annuler
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement de l'article...</p>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!loading">
+    <form [formGroup]="articleForm" (ngSubmit)="saveDraft()">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <!-- Title -->
+          <div class="mb-3">
+            <label for="title" class="form-label">
+              Titre <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              formControlName="title"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="Titre de l'article"
+              [class.is-invalid]="articleForm.get('title')?.invalid && articleForm.get('title')?.touched"
+            />
+            <div class="invalid-feedback" *ngIf="articleForm.get('title')?.invalid && articleForm.get('title')?.touched">
+              <div *ngIf="articleForm.get('title')?.errors?.['required']">
+                Le titre est requis
+              </div>
+              <div *ngIf="articleForm.get('title')?.errors?.['maxlength']">
+                Le titre ne peut pas dépasser 200 caractères
+              </div>
+            </div>
+            <small class="text-muted">
+              {{ articleForm.get('title')?.value?.length || 0 }} / 200 caractères
+            </small>
+          </div>
+
+          <!-- Excerpt -->
+          <div class="mb-3">
+            <label for="excerpt" class="form-label">
+              Extrait (résumé)
+            </label>
+            <textarea
+              class="form-control"
+              id="excerpt"
+              formControlName="excerpt"
+              rows="2"
+              [readonly]="demoModeService.isDemo()"
+              placeholder="Résumé court de l'article (optionnel)"
+              [class.is-invalid]="articleForm.get('excerpt')?.invalid && articleForm.get('excerpt')?.touched"
+            ></textarea>
+            <div class="invalid-feedback" *ngIf="articleForm.get('excerpt')?.invalid && articleForm.get('excerpt')?.touched">
+              <div *ngIf="articleForm.get('excerpt')?.errors?.['maxlength']">
+                L'extrait ne peut pas dépasser 500 caractères
+              </div>
+            </div>
+            <small class="text-muted">
+              {{ articleForm.get('excerpt')?.value?.length || 0 }} / 500 caractères
+            </small>
+          </div>
+
+          <!-- Tags -->
+          <div class="mb-3">
+            <label class="form-label">Tags</label>
+            <div class="tags-container">
+              <button
+                *ngFor="let tag of availableTags"
+                type="button"
+                class="btn btn-sm me-2 mb-2"
+                [class.btn-primary]="isTagSelected(tag.id)"
+                [class.btn-outline-secondary]="!isTagSelected(tag.id)"
+                [disabled]="demoModeService.isDemo()"
+                [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+                [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+                (click)="toggleTag(tag.id)"
+              >
+                {{ tag.name }}
+              </button>
+            </div>
+            <small class="text-muted" *ngIf="availableTags.length === 0">
+              Aucun tag disponible. Créez-en dans la section Compétences.
+            </small>
+          </div>
+
+          <!-- Content (EasyMDE) -->
+          <div class="mb-3">
+            <label for="content-editor" class="form-label">
+              Contenu <span class="text-danger">*</span>
+            </label>
+            <div *ngIf="!isEditMode" class="alert alert-info mb-2">
+              <i class="bi bi-info-circle me-2"></i>
+              Pour ajouter des images, sauvegardez d'abord l'article en brouillon.
+            </div>
+            <div *ngIf="uploadingImage" class="alert alert-primary mb-2">
+              <div class="spinner-border spinner-border-sm me-2" role="status">
+                <span class="visually-hidden">Upload...</span>
+              </div>
+              Upload de l'image en cours...
+            </div>
+            <textarea
+              id="content-editor"
+              formControlName="content"
+              style="display: none;"
+            ></textarea>
+            <div class="invalid-feedback d-block" *ngIf="articleForm.get('content')?.invalid && articleForm.get('content')?.touched">
+              <div *ngIf="articleForm.get('content')?.errors?.['required']">
+                Le contenu est requis
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+          <i class="bi bi-x-circle me-2"></i>
+          Annuler
+        </button>
+
+        <div class="btn-group" role="group">
+          <button
+            type="submit"
+            class="btn btn-outline-primary"
+            [disabled]="submitting || articleForm.invalid || demoModeService.isDemo()"
+            [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+            [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+          >
+            <span *ngIf="!submitting">
+              <i class="bi bi-save me-2"></i>
+              Sauvegarder brouillon
+            </span>
+            <span *ngIf="submitting">
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              Sauvegarde...
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-success"
+            (click)="saveAndPublish()"
+            [disabled]="submitting || articleForm.invalid || demoModeService.isDemo()"
+            [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+            [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+          >
+            <span *ngIf="!submitting">
+              <i class="bi bi-upload me-2"></i>
+              {{ isEditMode ? 'Mettre à jour et publier' : 'Créer et publier' }}
+            </span>
+            <span *ngIf="submitting">
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              Publication...
+            </span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

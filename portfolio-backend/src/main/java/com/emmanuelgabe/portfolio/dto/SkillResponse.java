@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.dto;
 
+import com.emmanuelgabe.portfolio.entity.IconType;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,8 @@ public class SkillResponse {
     private Long id;
     private String name;
     private String icon;
+    private IconType iconType;
+    private String customIconUrl;
     private String color;
     private SkillCategory category;
     private String categoryDisplayName;

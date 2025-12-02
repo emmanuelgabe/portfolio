@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -29,7 +31,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = "tags")
+@ToString(exclude = {"tags", "images"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Project {
 
@@ -48,9 +50,8 @@ public class Project {
     @Column(nullable = false, length = 2000, columnDefinition = "TEXT")
     private String description;
 
-    @NotBlank(message = "Tech stack is required")
     @Size(max = 500, message = "Tech stack cannot exceed 500 characters")
-    @Column(name = "tech_stack", nullable = false, length = 500)
+    @Column(name = "tech_stack", length = 500)
     private String techStack;
 
     @Size(max = 255, message = "GitHub URL cannot exceed 255 characters")
@@ -60,6 +61,10 @@ public class Project {
     @Size(max = 255, message = "Image URL cannot exceed 255 characters")
     @Column(name = "image_url", length = 255)
     private String imageUrl;
+
+    @Size(max = 255, message = "Thumbnail URL cannot exceed 255 characters")
+    @Column(name = "thumbnail_url", length = 255)
+    private String thumbnailUrl;
 
     @Size(max = 255, message = "Demo URL cannot exceed 255 characters")
     @Column(name = "demo_url", length = 255)
@@ -76,6 +81,9 @@ public class Project {
     @Column(nullable = false)
     private boolean featured = false;
 
+    @Column(name = "has_details", nullable = false)
+    private boolean hasDetails = true;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "project_tags",
@@ -83,6 +91,10 @@ public class Project {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    private Set<ProjectImage> images = new HashSet<>();
 
     // Helper methods for managing bidirectional relationship
     public void addTag(Tag tag) {
@@ -99,6 +111,44 @@ public class Project {
         }
         this.tags.remove(tag);
         tag.getProjects().remove(this);
+    }
+
+    // Helper methods for managing images bidirectional relationship
+    public void addImage(ProjectImage image) {
+        if (image == null) {
+            throw new IllegalArgumentException("Image cannot be null");
+        }
+        this.images.add(image);
+        image.setProject(this);
+    }
+
+    public void removeImage(ProjectImage image) {
+        if (image == null) {
+            throw new IllegalArgumentException("Image cannot be null");
+        }
+        this.images.remove(image);
+        image.setProject(null);
+    }
+
+    /**
+     * Get the primary image for this project.
+     * Falls back to the first image if no primary is set.
+     * @return the primary ProjectImage or null if no images exist
+     */
+    public ProjectImage getPrimaryImage() {
+        return this.images.stream()
+                .filter(ProjectImage::isPrimary)
+                .findFirst()
+                .orElse(this.images.isEmpty() ? null : this.images.iterator().next());
+    }
+
+    /**
+     * Check if this project has any images (either in the new images collection or legacy field).
+     * @return true if project has at least one image
+     */
+    public boolean hasImages() {
+        return (this.images != null && !this.images.isEmpty())
+                || (this.imageUrl != null && !this.imageUrl.trim().isEmpty());
     }
 
     /**
@@ -126,8 +176,8 @@ public class Project {
         if (this.tags == null || this.tags.isEmpty()) {
             throw new IllegalStateException("Cannot feature project without tags");
         }
-        if (this.imageUrl == null || this.imageUrl.trim().isEmpty()) {
-            throw new IllegalStateException("Cannot feature project without an image URL");
+        if (!hasImages()) {
+            throw new IllegalStateException("Cannot feature project without an image");
         }
     }
 
@@ -136,7 +186,6 @@ public class Project {
      * @return true if project meets featured criteria
      */
     public boolean canBeFeatured() {
-        return this.tags != null && !this.tags.isEmpty()
-                && this.imageUrl != null && !this.imageUrl.trim().isEmpty();
+        return this.tags != null && !this.tags.isEmpty() && hasImages();
     }
 }

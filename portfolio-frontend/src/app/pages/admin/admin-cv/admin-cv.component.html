@@ -1,0 +1,109 @@
+<div class="container-fluid py-4">
+  <h2 class="mb-4"><i class="bi bi-file-earmark-pdf me-2"></i>Gestion des CVs</h2>
+
+  <!-- Upload Section -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Upload nouveau CV</h5>
+      <div class="mb-3">
+        <input
+          type="file"
+          class="form-control"
+          accept=".pdf"
+          (change)="onFileSelected($event)"
+          [disabled]="isUploading || demoModeService.isDemo()"
+          [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+          [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''" />
+        <small class="text-muted">PDF uniquement, max 10MB</small>
+      </div>
+      <button
+        class="btn btn-primary"
+        (click)="uploadCv()"
+        [disabled]="!selectedFile || isUploading || demoModeService.isDemo()"
+        [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+        [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''">
+        <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!isUploading" class="bi bi-upload me-2"></i>
+        {{ isUploading ? 'Upload en cours...' : 'Upload CV' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = undefined"></button>
+  </div>
+
+  <!-- CVs List -->
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Liste des CVs</h5>
+
+      <div *ngIf="isLoading" class="text-center py-4">
+        <div class="spinner-border"></div>
+      </div>
+
+      <div *ngIf="!isLoading && cvs.length === 0" class="text-center py-4 text-muted">
+        Aucun CV trouvé
+      </div>
+
+      <div *ngIf="!isLoading && cvs.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Nom du fichier</th>
+              <th>Taille</th>
+              <th>Date d'upload</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let cv of cvs">
+              <td>
+                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                {{ cv.originalFileName }}
+              </td>
+              <td>{{ formatFileSize(cv.fileSize) }}</td>
+              <td>{{ cv.uploadedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <span *ngIf="cv.current" class="badge bg-success">
+                  <i class="bi bi-check-circle me-1"></i>Public
+                </span>
+                <span *ngIf="!cv.current" class="badge bg-secondary">Archivé</span>
+              </td>
+              <td>
+                <button
+                  *ngIf="!cv.current"
+                  class="btn btn-sm btn-outline-primary me-2"
+                  (click)="setCurrentCv(cv.id)"
+                  [disabled]="demoModeService.isDemo()"
+                  [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+                  [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : 'Définir comme CV public'">
+                  <i class="bi bi-check-circle"></i>
+                </button>
+                <a
+                  [href]="getFullFileUrl(cv.fileUrl)"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary me-2"
+                  title="Télécharger">
+                  <i class="bi bi-download"></i>
+                </a>
+                <button
+                  *ngIf="!cv.current || cvs.length === 1"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="deleteCv(cv.id)"
+                  [disabled]="demoModeService.isDemo()"
+                  [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
+                  [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : 'Supprimer'">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

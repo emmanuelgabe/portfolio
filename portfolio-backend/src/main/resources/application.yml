@@ -15,6 +15,22 @@ app:
     # Token audience identifier
     audience: ${JWT_AUDIENCE:portfolio-frontend}
 
+  # Admin user configuration
+  # Password hash MUST be set via environment variable
+  # Generate hash: ./scripts/security/generate-bcrypt-hash.sh
+  admin:
+    password-hash: ${ADMIN_PASSWORD_HASH:}
+
+  # Rate limiting configuration
+  rate-limit:
+    contact:
+      max-requests-per-hour: ${RATE_LIMIT_MAX_REQUESTS:5}  # Default 5 for production
+    auth:
+      login:
+        max-requests-per-hour: ${RATE_LIMIT_AUTH_LOGIN:5}  # Default 5 for production
+      refresh:
+        max-requests-per-hour: ${RATE_LIMIT_AUTH_REFRESH:10}  # Default 10 for production
+
 # File upload configuration
 file:
   upload:
@@ -33,6 +49,48 @@ file:
       - image/gif
       - image/webp
 
+# CV upload configuration
+cv:
+  storage:
+    upload-dir: ${CV_UPLOAD_DIR:uploads/cvs}
+    base-path: ${CV_BASE_PATH:/uploads/cvs}
+    max-file-size: ${CV_MAX_FILE_SIZE:10485760}  # 10MB in bytes
+    allowed-extensions:
+      - pdf
+    allowed-mime-types:
+      - application/pdf
+
+# Image upload configuration (for project images)
+image:
+  storage:
+    upload-dir: ${IMAGE_UPLOAD_DIR:uploads/projects}
+    base-path: ${IMAGE_BASE_PATH:/uploads/projects}
+    max-file-size: ${IMAGE_MAX_FILE_SIZE:10485760}  # 10MB in bytes
+    image-max-width: ${IMAGE_MAX_WIDTH:1200}  # Max width for optimized images
+    thumbnail-size: ${THUMBNAIL_SIZE:300}  # Thumbnail size (square crop)
+    jpeg-quality: ${JPEG_QUALITY:0.85}  # JPEG compression quality (0.0 - 1.0)
+    thumbnail-quality: ${THUMBNAIL_QUALITY:0.80}  # Thumbnail compression quality
+    allowed-extensions:
+      - jpg
+      - jpeg
+      - png
+      - webp
+    allowed-mime-types:
+      - image/jpeg
+      - image/png
+      - image/webp
+
+# SVG icon upload configuration (for skill icons)
+svg:
+  storage:
+    upload-dir: ${SVG_UPLOAD_DIR:uploads/icons}
+    base-path: ${SVG_BASE_PATH:/uploads/icons}
+    max-file-size: ${SVG_MAX_FILE_SIZE:102400}  # 100KB in bytes
+    allowed-extensions:
+      - svg
+    allowed-mime-types:
+      - image/svg+xml
+
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
@@ -43,6 +101,48 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 5MB
-      max-request-size: 5MB
+      max-file-size: 10MB
+      max-request-size: 10MB
       file-size-threshold: 2KB
+
+  # Mail configuration (Gmail SMTP)
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
+  # Redis configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  # Cache configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000  # 1 hour in milliseconds
+
+# Management endpoints configuration
+management:
+  health:
+    mail:
+      enabled: false  # Disable mail health check to avoid blocking startup if credentials are not configured

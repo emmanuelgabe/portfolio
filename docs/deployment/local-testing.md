@@ -8,7 +8,10 @@
 2. [Prerequisites](#2-prerequisites)
 3. [Quick Start](#3-quick-start)
 4. [Testing Procedures](#4-testing-procedures)
-5. [Troubleshooting](#5-troubleshooting)
+5. [Access URLs](#5-access-urls)
+6. [Development Workflow](#6-development-workflow)
+7. [Performance Testing](#7-performance-testing)
+8. [Next Steps](#8-next-steps)
 
 ---
 
@@ -132,91 +135,9 @@ This script performs:
 
 ---
 
-## 5. Troubleshooting
+## 5. Access URLs
 
-### 5.1 Common Issues
-
-**Issue: Containers not starting**
-
-```bash
-# Check container status
-docker ps -a --filter "name=portfolio-.*-local"
-
-# View container logs
-docker logs portfolio-backend-local
-docker logs portfolio-frontend-local
-docker logs portfolio-db-local
-```
-
-**Issue: Port already in use**
-
-```bash
-# Check what is using the port
-netstat -ano | findstr :8081
-netstat -ano | findstr :8080
-netstat -ano | findstr :5435
-
-# Stop conflicting containers
-docker stop $(docker ps -q --filter "publish=8081")
-```
-
-**Issue: Database connection failed**
-
-```bash
-# Verify database is healthy
-docker inspect portfolio-db-local | grep -A 5 Health
-
-# Check database logs
-docker logs portfolio-db-local --tail 50
-
-# Manually connect to database
-docker exec -it portfolio-db-local psql -U postgres_app -d portfolio_local
-```
-
-**Issue: Frontend not building**
-
-```bash
-# Check frontend logs
-docker logs portfolio-frontend-local --tail 100
-
-# Rebuild frontend
-docker-compose -p portfolio-local \
-  -f docker-compose.yml -f docker-compose.local.yml \
-  up --build -d angular-frontend
-```
-
-### 5.2 Clean Slate Restart
-
-If everything fails, perform a complete cleanup:
-
-```bash
-# Stop and remove all containers
-make clean-local
-
-# Remove all portfolio images
-docker images | grep portfolio | awk '{print $3}' | xargs docker rmi -f
-
-# Remove all volumes
-docker volume ls | grep portfolio | awk '{print $2}' | xargs docker volume rm
-
-# Restart from scratch
-make validate-local
-```
-
-### 5.3 Verify Deployment Script
-
-Before committing, always run the validation script:
-
-```bash
-# This script is used in pre-commit hooks
-./scripts/deployment/validate-deployment.sh local
-```
-
----
-
-## 6. Access URLs
-
-### 6.1 Local Environment
+### 5.1 Local Environment
 
 | Service | URL |
 |---------|-----|
@@ -227,7 +148,7 @@ Before committing, always run the validation script:
 | Nginx (Full Stack) | http://localhost:8081 |
 | PostgreSQL | localhost:5435 |
 
-### 6.2 Database Access
+### 5.2 Database Access
 
 ```bash
 # Using psql
@@ -243,9 +164,9 @@ Password: (from .env file)
 
 ---
 
-## 7. Development Workflow
+## 6. Development Workflow
 
-### 7.1 Recommended Testing Flow
+### 6.1 Recommended Testing Flow
 
 1. Make code changes
 2. Run validation: `make validate-local`
@@ -254,7 +175,7 @@ Password: (from .env file)
 5. If staging passes, merge to staging branch
 6. After staging deployment, test production locally: `make validate-prod`
 
-### 7.2 Continuous Integration
+### 6.2 Continuous Integration
 
 The `health-check.yml` workflow runs these same tests on every push to develop:
 
@@ -267,9 +188,9 @@ The `health-check.yml` workflow runs these same tests on every push to develop:
 
 ---
 
-## 8. Performance Testing
+## 7. Performance Testing
 
-### 8.1 Load Testing (Optional)
+### 7.1 Load Testing (Optional)
 
 Using Apache Bench:
 
@@ -281,7 +202,7 @@ ab -n 1000 -c 10 http://localhost:8080/api/health/ping
 ab -n 1000 -c 10 http://localhost:8081/
 ```
 
-### 8.2 Resource Monitoring
+### 7.2 Resource Monitoring
 
 ```bash
 # Monitor resource usage
@@ -290,7 +211,7 @@ docker stats portfolio-frontend-local portfolio-backend-local portfolio-db-local
 
 ---
 
-## 9. Next Steps
+## 8. Next Steps
 
 After successful local testing:
 

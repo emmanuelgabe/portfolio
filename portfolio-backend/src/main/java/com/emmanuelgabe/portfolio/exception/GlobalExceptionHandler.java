@@ -180,14 +180,58 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle IllegalStateException
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
+        log.warn("[EXCEPTION] Illegal state - message={}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
      * Handle FileStorageException
+     * Returns 400 Bad Request for validation errors (invalid file type, size limit exceeded)
+     * Returns 500 Internal Server Error for actual storage failures
      */
     @ExceptionHandler(FileStorageException.class)
     public ResponseEntity<ErrorResponse> handleFileStorageException(FileStorageException ex) {
-        log.error("[EXCEPTION] File storage error - message={}", ex.getMessage());
+        // Check if it's a validation error (client's fault) or storage error (server's fault)
+        boolean isValidationError = ex.getMessage().contains("File type not allowed")
+                || ex.getMessage().contains("exceeds maximum")
+                || ex.getMessage().contains("empty")
+                || ex.getMessage().contains("Invalid file name")
+                || ex.getMessage().contains("not a valid");
+
+        HttpStatus status = isValidationError ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
+
+        if (isValidationError) {
+            log.warn("[EXCEPTION] File validation error - message={}", ex.getMessage());
+        } else {
+            log.error("[EXCEPTION] File storage error - message={}", ex.getMessage());
+        }
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                status.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    /**
+     * Handle EmailException
+     */
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<ErrorResponse> handleEmailException(EmailException ex) {
+        log.error("[EXCEPTION] Email sending failed - message={}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage(),
+                "Failed to send email. Please try again later.",
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);

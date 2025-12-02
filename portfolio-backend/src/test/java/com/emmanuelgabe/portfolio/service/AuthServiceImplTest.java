@@ -117,7 +117,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void login_WithValidCredentials_ReturnsAuthResponse() {
+    void should_returnAuthResponse_when_loginCalledWithValidCredentials() {
         // Arrange
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
@@ -144,7 +144,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void login_WithInvalidCredentials_ThrowsInvalidCredentialsException() {
+    void should_throwInvalidCredentialsException_when_loginCalledWithInvalidCredentials() {
         // Arrange
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Invalid credentials"));
@@ -158,7 +158,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void refreshToken_WithValidToken_ReturnsAuthResponse() {
+    void should_returnAuthResponse_when_refreshTokenCalledWithValidToken() {
         // Arrange
         when(refreshTokenService.findByToken("refresh-token-uuid"))
                 .thenReturn(testRefreshToken);
@@ -184,7 +184,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void refreshToken_WithInvalidToken_ThrowsInvalidTokenException() {
+    void should_throwInvalidTokenException_when_refreshTokenCalledWithInvalidToken() {
         // Arrange
         when(refreshTokenService.findByToken("invalid-token"))
                 .thenThrow(new RuntimeException("Refresh token not found"));
@@ -198,7 +198,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void refreshToken_WithExpiredToken_ThrowsInvalidTokenException() {
+    void should_throwInvalidTokenException_when_refreshTokenCalledWithExpiredToken() {
         // Arrange
         when(refreshTokenService.findByToken("expired-token"))
                 .thenReturn(testRefreshToken);
@@ -215,7 +215,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void logout_WithValidToken_RevokesToken() {
+    void should_revokeToken_when_logoutCalledWithValidToken() {
         // Arrange - no exceptions thrown means success
 
         // Act
@@ -226,7 +226,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void logout_WithInvalidToken_ThrowsInvalidTokenException() {
+    void should_throwInvalidTokenException_when_logoutCalledWithInvalidToken() {
         // Arrange
         doThrow(new RuntimeException("Refresh token not found"))
                 .when(refreshTokenService).revokeToken("invalid-token");
@@ -240,7 +240,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void changePassword_WithValidRequest_ChangesPassword() {
+    void should_changePassword_when_changePasswordCalledWithValidRequest() {
         // Arrange
         when(userRepository.findByUsername("admin"))
                 .thenReturn(Optional.of(testUser));
@@ -263,7 +263,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void changePassword_WithMismatchedPasswords_ThrowsIllegalArgumentException() {
+    void should_throwIllegalArgumentException_when_changePasswordCalledWithMismatchedPasswords() {
         // Arrange
         changePasswordRequest.setConfirmPassword("differentPassword");
 
@@ -274,7 +274,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void changePassword_WithNonExistentUser_ThrowsUsernameNotFoundException() {
+    void should_throwUsernameNotFoundException_when_changePasswordCalledWithNonExistentUser() {
         // Arrange
         when(userRepository.findByUsername("nonexistent"))
                 .thenReturn(Optional.empty());
@@ -288,7 +288,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void changePassword_WithIncorrectCurrentPassword_ThrowsInvalidCredentialsException() {
+    void should_throwInvalidCredentialsException_when_changePasswordCalledWithIncorrectCurrentPassword() {
         // Arrange
         when(userRepository.findByUsername("admin"))
                 .thenReturn(Optional.of(testUser));
@@ -305,7 +305,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void changePassword_WithSamePassword_ThrowsIllegalArgumentException() {
+    void should_throwIllegalArgumentException_when_changePasswordCalledWithSamePassword() {
         // Arrange
         changePasswordRequest.setNewPassword("OldPassword123!");
         changePasswordRequest.setConfirmPassword("OldPassword123!");
