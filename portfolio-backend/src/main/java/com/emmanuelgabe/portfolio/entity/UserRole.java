@@ -6,13 +6,6 @@ package com.emmanuelgabe.portfolio.entity;
  * ROLE_GUEST: Read-only access to public content
  */
 public enum UserRole {
-    /**
-     * Administrator with full access
-     */
     ROLE_ADMIN,
-
-    /**
-     * Guest user with read-only access
-     */
     ROLE_GUEST
 }

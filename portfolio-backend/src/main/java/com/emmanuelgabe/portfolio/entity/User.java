@@ -82,8 +82,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    // UserDetails implementation
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
@@ -119,16 +117,10 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    /**
-     * Check if user has admin role
-     */
     public boolean isAdmin() {
         return role == UserRole.ROLE_ADMIN;
     }
 
-    /**
-     * Check if user has guest role
-     */
     public boolean isGuest() {
         return role == UserRole.ROLE_GUEST;
     }
