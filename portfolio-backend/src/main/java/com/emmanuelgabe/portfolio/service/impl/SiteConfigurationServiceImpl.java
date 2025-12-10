@@ -1,5 +1,7 @@
 package com.emmanuelgabe.portfolio.service.impl;
 
+import com.emmanuelgabe.portfolio.audit.AuditAction;
+import com.emmanuelgabe.portfolio.audit.Auditable;
 import com.emmanuelgabe.portfolio.config.ImageStorageProperties;
 import com.emmanuelgabe.portfolio.dto.ImageUploadResponse;
 import com.emmanuelgabe.portfolio.dto.SiteConfigurationResponse;
@@ -12,6 +14,8 @@ import com.emmanuelgabe.portfolio.service.ImageService;
 import com.emmanuelgabe.portfolio.service.SiteConfigurationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +38,7 @@ public class SiteConfigurationServiceImpl implements SiteConfigurationService {
     private final ImageStorageProperties imageStorageProperties;
 
     @Override
+    @Cacheable(value = "siteConfig", key = "'current'")
     @Transactional(readOnly = true)
     public SiteConfigurationResponse getSiteConfiguration() {
         log.debug("[GET_SITE_CONFIG] Fetching site configuration");
@@ -46,6 +51,9 @@ public class SiteConfigurationServiceImpl implements SiteConfigurationService {
     }
 
     @Override
+    @CacheEvict(value = "siteConfig", allEntries = true)
+    @Auditable(action = AuditAction.UPDATE, entityType = "SiteConfiguration",
+            entityIdExpression = "1L", entityNameExpression = "'Site Configuration'")
     public SiteConfigurationResponse updateSiteConfiguration(UpdateSiteConfigurationRequest request) {
         log.debug("[UPDATE_SITE_CONFIG] Updating site configuration - fullName={}", request.getFullName());
 
@@ -62,6 +70,7 @@ public class SiteConfigurationServiceImpl implements SiteConfigurationService {
     }
 
     @Override
+    @CacheEvict(value = "siteConfig", allEntries = true)
     public SiteConfigurationResponse uploadProfileImage(MultipartFile file) {
         log.info("[PROFILE_IMAGE] Uploading profile image - fileName={}, size={}",
                 file.getOriginalFilename(), file.getSize());
@@ -94,6 +103,7 @@ public class SiteConfigurationServiceImpl implements SiteConfigurationService {
     }
 
     @Override
+    @CacheEvict(value = "siteConfig", allEntries = true)
     public SiteConfigurationResponse deleteProfileImage() {
         log.info("[PROFILE_IMAGE] Deleting profile image");
 

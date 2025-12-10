@@ -1,29 +1,44 @@
 package com.emmanuelgabe.portfolio.service.impl;
 
+import com.emmanuelgabe.portfolio.audit.AuditAction;
+import com.emmanuelgabe.portfolio.audit.Auditable;
 import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.ImageUploadResponse;
+import com.emmanuelgabe.portfolio.dto.PreparedImageInfo;
 import com.emmanuelgabe.portfolio.dto.ProjectImageResponse;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.ReorderProjectImagesRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectImageRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import com.emmanuelgabe.portfolio.entity.Project;
 import com.emmanuelgabe.portfolio.entity.ProjectImage;
 import com.emmanuelgabe.portfolio.entity.Tag;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.mapper.ProjectImageMapper;
+
+import static com.emmanuelgabe.portfolio.util.EntityHelper.findOrThrow;
+import static com.emmanuelgabe.portfolio.util.EntityHelper.findImageByUrl;
+
 import com.emmanuelgabe.portfolio.mapper.ProjectMapper;
+import com.emmanuelgabe.portfolio.messaging.event.ImageProcessingEvent;
+import com.emmanuelgabe.portfolio.messaging.publisher.EventPublisher;
 import com.emmanuelgabe.portfolio.repository.ProjectImageRepository;
+import com.emmanuelgabe.portfolio.search.event.ProjectIndexEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import com.emmanuelgabe.portfolio.repository.ProjectRepository;
 import com.emmanuelgabe.portfolio.repository.TagRepository;
 import com.emmanuelgabe.portfolio.service.ImageService;
 import com.emmanuelgabe.portfolio.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -48,8 +63,11 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
     private final ProjectImageMapper projectImageMapper;
     private final ImageService imageService;
+    private final EventPublisher eventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
+    @Cacheable(value = "projects", key = "'all'")
     @Transactional(readOnly = true)
     public List<ProjectResponse> getAllProjects() {
         log.debug("[LIST_PROJECTS] Fetching all projects");
@@ -57,22 +75,33 @@ public class ProjectServiceImpl implements ProjectService {
         log.debug("[LIST_PROJECTS] Found {} projects", projects.size());
         return projects.stream()
                 .map(projectMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
+    @Cacheable(value = "projects", key = "#id")
     @Transactional(readOnly = true)
     public ProjectResponse getProjectById(Long id) {
         log.debug("[GET_PROJECT] Fetching project - id={}", id);
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("[GET_PROJECT] Project not found - id={}", id);
-                    return new ResourceNotFoundException("Project", "id", id);
-                });
+        Project project = findOrThrow(projectRepository.findById(id), "Project", "id", id);
         return projectMapper.toResponse(project);
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ProjectResponse> getProjectsByIds(Collection<Long> ids) {
+        log.debug("[LIST_PROJECTS] Fetching projects by IDs - count={}", ids.size());
+        List<Project> projects = projectRepository.findAllById(ids);
+        log.debug("[LIST_PROJECTS] Found {} projects by IDs", projects.size());
+        return projects.stream()
+                .map(projectMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @CacheEvict(value = "projects", allEntries = true)
+    @Auditable(action = AuditAction.CREATE, entityType = "Project",
+            entityIdExpression = "#result.id", entityNameExpression = "#result.title")
     public ProjectResponse createProject(CreateProjectRequest request) {
         log.debug("[CREATE_PROJECT] Creating project - title={}", request.getTitle());
 
@@ -84,19 +113,12 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project project = projectMapper.toEntity(request);
 
-        // Associate tags if provided
+        // Associate tags if provided (batch loading with validation)
         if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
             log.debug("[CREATE_PROJECT] Associating tags - count={}", request.getTagIds().size());
-            Set<Tag> tags = new HashSet<>();
-            for (Long tagId : request.getTagIds()) {
-                Tag tag = tagRepository.findById(tagId)
-                        .orElseThrow(() -> {
-                            log.warn("[CREATE_PROJECT] Tag not found - tagId={}", tagId);
-                            return new ResourceNotFoundException("Tag", "id", tagId);
-                        });
-                tags.add(tag);
-            }
-            project.setTags(tags);
+            List<Tag> tags = tagRepository.findAllById(request.getTagIds());
+            validateAllTagsFound(request.getTagIds(), tags);
+            project.setTags(new HashSet<>(tags));
         }
 
         // Set featured status directly during creation
@@ -108,20 +130,20 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         Project savedProject = projectRepository.save(project);
+        applicationEventPublisher.publishEvent(ProjectIndexEvent.forIndex(savedProject));
         log.info("[CREATE_PROJECT] Project created - id={}, title={}, featured={}, tagsCount={}",
                 savedProject.getId(), savedProject.getTitle(), savedProject.isFeatured(), savedProject.getTags().size());
         return projectMapper.toResponse(savedProject);
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
+    @Auditable(action = AuditAction.UPDATE, entityType = "Project",
+            entityIdExpression = "#id", entityNameExpression = "#result.title")
     public ProjectResponse updateProject(Long id, UpdateProjectRequest request) {
         log.debug("[UPDATE_PROJECT] Updating project - id={}", id);
 
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("[UPDATE_PROJECT] Project not found - id={}", id);
-                    return new ResourceNotFoundException("Project", "id", id);
-                });
+        Project project = findOrThrow(projectRepository.findById(id), "Project", "id", id);
 
         // Determine effective hasDetails value (from request or existing)
         boolean effectiveHasDetails = request.getHasDetails() != null
@@ -145,22 +167,14 @@ public class ProjectServiceImpl implements ProjectService {
         // Update only provided fields using MapStruct
         projectMapper.updateEntityFromRequest(request, project);
 
-        // Update tags if provided
+        // Update tags if provided (batch loading with validation)
         if (request.getTagIds() != null) {
             log.debug("[UPDATE_PROJECT] Updating tags - id={}, tagsCount={}", id, request.getTagIds().size());
             project.getTags().clear();
-
             if (!request.getTagIds().isEmpty()) {
-                Set<Tag> tags = new HashSet<>();
-                for (Long tagId : request.getTagIds()) {
-                    Tag tag = tagRepository.findById(tagId)
-                            .orElseThrow(() -> {
-                                log.warn("[UPDATE_PROJECT] Tag not found - tagId={}", tagId);
-                                return new ResourceNotFoundException("Tag", "id", tagId);
-                            });
-                    tags.add(tag);
-                }
-                project.setTags(tags);
+                List<Tag> tags = tagRepository.findAllById(request.getTagIds());
+                validateAllTagsFound(request.getTagIds(), tags);
+                project.setTags(new HashSet<>(tags));
             }
         }
 
@@ -181,26 +195,27 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         Project updatedProject = projectRepository.save(project);
+        applicationEventPublisher.publishEvent(ProjectIndexEvent.forIndex(updatedProject));
         log.info("[UPDATE_PROJECT] Project updated - id={}, title={}, featured={}",
                 updatedProject.getId(), updatedProject.getTitle(), updatedProject.isFeatured());
         return projectMapper.toResponse(updatedProject);
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
+    @Auditable(action = AuditAction.DELETE, entityType = "Project", entityIdExpression = "#id")
     public void deleteProject(Long id) {
         log.debug("[DELETE_PROJECT] Deleting project - id={}", id);
 
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("[DELETE_PROJECT] Project not found - id={}", id);
-                    return new ResourceNotFoundException("Project", "id", id);
-                });
+        Project project = findOrThrow(projectRepository.findById(id), "Project", "id", id);
 
         projectRepository.delete(project);
+        applicationEventPublisher.publishEvent(ProjectIndexEvent.forRemove(project));
         log.info("[DELETE_PROJECT] Project deleted - id={}", id);
     }
 
     @Override
+    @Cacheable(value = "projects", key = "'featured'")
     @Transactional(readOnly = true)
     public List<ProjectResponse> getFeaturedProjects() {
         log.debug("[LIST_FEATURED_PROJECTS] Fetching featured projects");
@@ -208,7 +223,7 @@ public class ProjectServiceImpl implements ProjectService {
         log.debug("[LIST_FEATURED_PROJECTS] Found {} featured projects", projects.size());
         return projects.stream()
                 .map(projectMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -219,7 +234,7 @@ public class ProjectServiceImpl implements ProjectService {
         log.debug("[SEARCH_PROJECTS_TITLE] Found {} projects", projects.size());
         return projects.stream()
                 .map(projectMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -230,20 +245,17 @@ public class ProjectServiceImpl implements ProjectService {
         log.debug("[SEARCH_PROJECTS_TECH] Found {} projects", projects.size());
         return projects.stream()
                 .map(projectMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public void updateImageUrls(Long id, String imageUrl, String thumbnailUrl) {
         log.debug("[UPDATE_IMAGE_URLS] Updating image URLs - projectId={}, imageUrl={}, thumbnailUrl={}",
                 id, imageUrl, thumbnailUrl);
 
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("[UPDATE_IMAGE_URLS] Project not found - id={}", id);
-                    return new ResourceNotFoundException("Project", "id", id);
-                });
+        Project project = findOrThrow(projectRepository.findById(id), "Project", "id", id);
 
         project.setImageUrl(imageUrl);
         project.setThumbnailUrl(thumbnailUrl);
@@ -253,6 +265,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public ImageUploadResponse uploadAndAssignProjectImage(Long id, MultipartFile file) {
         log.info("[UPLOAD_ASSIGN_IMAGE] Starting image upload and assignment - projectId={}, fileName={}",
@@ -271,6 +284,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public void deleteProjectImage(Long id) {
         log.info("[DELETE_PROJECT_IMAGE] Starting image deletion - projectId={}", id);
@@ -293,16 +307,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public ProjectImageResponse addImageToProject(Long projectId, MultipartFile file, String altText, String caption) {
         log.info("[ADD_PROJECT_IMAGE] Adding image - projectId={}, fileName={}",
                 projectId, file.getOriginalFilename());
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> {
-                    log.warn("[ADD_PROJECT_IMAGE] Project not found - projectId={}", projectId);
-                    return new ResourceNotFoundException("Project", "id", projectId);
-                });
+        Project project = findOrThrow(projectRepository.findById(projectId), "Project", "id", projectId);
 
         int currentCount = projectImageRepository.countByProjectId(projectId);
         if (currentCount >= MAX_IMAGES_PER_PROJECT) {
@@ -310,51 +321,58 @@ public class ProjectServiceImpl implements ProjectService {
             throw new IllegalStateException("Maximum " + MAX_IMAGES_PER_PROJECT + " images allowed per project");
         }
 
-        ImageUploadResponse uploadResponse = imageService.uploadProjectCarouselImage(projectId, currentCount, file);
+        // Step 1: Prepare image (save temp file, generate URLs)
+        PreparedImageInfo preparedImage = imageService.prepareCarouselImage(projectId, currentCount, file);
 
+        // Step 2: Create and save entity with PROCESSING status
         ProjectImage projectImage = new ProjectImage(
                 project,
-                uploadResponse.getImageUrl(),
-                uploadResponse.getThumbnailUrl(),
+                preparedImage.getImageUrl(),
+                preparedImage.getThumbnailUrl(),
                 altText,
                 caption
         );
         projectImage.setDisplayOrder(currentCount);
+        projectImage.setStatus(ImageStatus.PROCESSING);
 
         project.addImage(projectImage);
         projectRepository.save(project);
 
         // Find the saved image to get the generated ID
-        ProjectImage savedImage = project.getImages().stream()
-                .filter(img -> img.getImageUrl().equals(uploadResponse.getImageUrl()))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("ProjectImage", "imageUrl", uploadResponse.getImageUrl()));
+        ProjectImage savedImage = findImageByUrl(project.getImages(), preparedImage.getImageUrl(),
+                ProjectImage::getImageUrl, "ProjectImage");
+
+        // Step 3: Publish event with the saved entity ID
+        ImageProcessingEvent event = ImageProcessingEvent.forCarousel(
+                projectId,
+                savedImage.getId(),
+                currentCount,
+                preparedImage.getTempFilePath(),
+                preparedImage.getOptimizedFilePath(),
+                preparedImage.getThumbnailFilePath()
+        );
+        eventPublisher.publishImageEvent(event);
 
         // Set as primary if no primary exists (handles race conditions by checking after save)
         ensureSinglePrimaryImage(projectId, savedImage);
 
-        log.info("[ADD_PROJECT_IMAGE] Success - projectId={}, imageId={}", projectId, savedImage.getId());
+        log.info("[ADD_PROJECT_IMAGE] Success - projectId={}, imageId={}, status=PROCESSING",
+                projectId, savedImage.getId());
         return projectImageMapper.toResponse(savedImage);
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public void removeImageFromProject(Long projectId, Long imageId) {
         log.info("[REMOVE_PROJECT_IMAGE] Removing image - projectId={}, imageId={}", projectId, imageId);
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> {
-                    log.warn("[REMOVE_PROJECT_IMAGE] Project not found - projectId={}", projectId);
-                    return new ResourceNotFoundException("Project", "id", projectId);
-                });
+        Project project = findOrThrow(projectRepository.findById(projectId), "Project", "id", projectId);
 
         ProjectImage imageToRemove = project.getImages().stream()
                 .filter(img -> img.getId().equals(imageId))
                 .findFirst()
-                .orElseThrow(() -> {
-                    log.warn("[REMOVE_PROJECT_IMAGE] Image not found - projectId={}, imageId={}", projectId, imageId);
-                    return new ResourceNotFoundException("ProjectImage", "id", imageId);
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("ProjectImage", "id", imageId));
 
         boolean wasPrimary = imageToRemove.isPrimary();
         int removedOrder = imageToRemove.getDisplayOrder();
@@ -384,15 +402,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public ProjectImageResponse updateProjectImage(Long projectId, Long imageId, UpdateProjectImageRequest request) {
         log.info("[UPDATE_PROJECT_IMAGE] Updating image - projectId={}, imageId={}", projectId, imageId);
 
-        ProjectImage image = projectImageRepository.findByIdAndProjectId(imageId, projectId)
-                .orElseThrow(() -> {
-                    log.warn("[UPDATE_PROJECT_IMAGE] Image not found - projectId={}, imageId={}", projectId, imageId);
-                    return new ResourceNotFoundException("ProjectImage", "id", imageId);
-                });
+        ProjectImage image = findOrThrow(
+                projectImageRepository.findByIdAndProjectId(imageId, projectId), "ProjectImage", "id", imageId);
 
         projectImageMapper.updateFromRequest(request, image);
         ProjectImage saved = projectImageRepository.save(image);
@@ -402,15 +418,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public void setPrimaryImage(Long projectId, Long imageId) {
         log.info("[SET_PRIMARY_IMAGE] Setting primary - projectId={}, imageId={}", projectId, imageId);
 
-        ProjectImage newPrimary = projectImageRepository.findByIdAndProjectId(imageId, projectId)
-                .orElseThrow(() -> {
-                    log.warn("[SET_PRIMARY_IMAGE] Image not found - projectId={}, imageId={}", projectId, imageId);
-                    return new ResourceNotFoundException("ProjectImage", "id", imageId);
-                });
+        ProjectImage newPrimary = findOrThrow(
+                projectImageRepository.findByIdAndProjectId(imageId, projectId), "ProjectImage", "id", imageId);
 
         // Clear current primary
         projectImageRepository.clearPrimaryForProject(projectId);
@@ -423,15 +437,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public void reorderImages(Long projectId, ReorderProjectImagesRequest request) {
         log.info("[REORDER_IMAGES] Reordering - projectId={}, count={}", projectId, request.getImageIds().size());
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> {
-                    log.warn("[REORDER_IMAGES] Project not found - projectId={}", projectId);
-                    return new ResourceNotFoundException("Project", "id", projectId);
-                });
+        Project project = findOrThrow(projectRepository.findById(projectId), "Project", "id", projectId);
 
         List<Long> imageIds = request.getImageIds();
         int order = 0;
@@ -439,10 +450,7 @@ public class ProjectServiceImpl implements ProjectService {
             ProjectImage image = project.getImages().stream()
                     .filter(img -> img.getId().equals(id))
                     .findFirst()
-                    .orElseThrow(() -> {
-                        log.warn("[REORDER_IMAGES] Image not found in project - projectId={}, imageId={}", projectId, id);
-                        return new ResourceNotFoundException("ProjectImage", "id", id);
-                    });
+                    .orElseThrow(() -> new ResourceNotFoundException("ProjectImage", "id", id));
             image.setDisplayOrder(order++);
         }
 
@@ -463,6 +471,19 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectImage> images = projectImageRepository.findByProjectIdOrderByDisplayOrderAsc(projectId);
         log.debug("[GET_PROJECT_IMAGES] Found {} images - projectId={}", images.size(), projectId);
         return projectImageMapper.toResponseList(images);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ImageStatus getImageStatus(Long projectId, Long imageId) {
+        log.debug("[GET_IMAGE_STATUS] Checking status - projectId={}, imageId={}", projectId, imageId);
+
+        ProjectImage image = findOrThrow(
+                projectImageRepository.findByIdAndProjectId(imageId, projectId), "ProjectImage", "id", imageId);
+
+        log.debug("[GET_IMAGE_STATUS] Status retrieved - projectId={}, imageId={}, status={}",
+                projectId, imageId, image.getStatus());
+        return image.getStatus();
     }
 
     // ========== Private Helper Methods ==========
@@ -501,5 +522,26 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
         // If exactly one primary image exists, do nothing
+    }
+
+    /**
+     * Validates that all requested tag IDs were found in the database.
+     * @param requestedIds The IDs requested by the user
+     * @param foundTags The tags actually found in the database
+     * @throws ResourceNotFoundException if any tag ID was not found
+     */
+    private void validateAllTagsFound(Set<Long> requestedIds, List<Tag> foundTags) {
+        if (foundTags.size() != requestedIds.size()) {
+            Set<Long> foundIds = foundTags.stream()
+                    .map(Tag::getId)
+                    .collect(Collectors.toSet());
+            Long missingId = requestedIds.stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .findFirst()
+                    .orElse(null);
+            if (missingId != null) {
+                throw new ResourceNotFoundException("Tag", "id", missingId);
+            }
+        }
     }
 }
