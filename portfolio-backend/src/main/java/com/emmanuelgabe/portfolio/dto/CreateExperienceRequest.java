@@ -33,7 +33,7 @@ public class CreateExperienceRequest {
     private LocalDate startDate;
 
     @PastOrPresent(message = "End date cannot be in the future")
-    private LocalDate endDate; // Nullable for ongoing experiences
+    private LocalDate endDate;
 
     @NotBlank(message = "Description is required")
     @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters")

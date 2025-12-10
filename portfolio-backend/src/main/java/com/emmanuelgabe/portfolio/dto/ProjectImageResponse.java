@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.dto;
 
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,8 @@ public class ProjectImageResponse {
     private Integer displayOrder;
 
     private boolean primary;
+
+    private ImageStatus status;
 
     private LocalDateTime uploadedAt;
 }
