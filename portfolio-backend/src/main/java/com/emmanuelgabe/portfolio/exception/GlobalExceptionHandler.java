@@ -6,24 +6,40 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final MessageSource messageSource;
+
+    /**
+     * Get localized message from MessageSource
+     */
+    private String getMessage(String key, Object... args) {
+        Locale locale = LocaleContextHolder.getLocale();
+        return messageSource.getMessage(key, args, key, locale);
+    }
 
     /**
      * Handle ResourceNotFoundException
@@ -31,9 +47,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         log.warn("[EXCEPTION] Resource not found - message={}", ex.getMessage());
+        String message = getMessage("error.notfound.resource");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
@@ -45,9 +62,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex) {
         log.warn("[EXCEPTION] Invalid credentials - message={}", ex.getMessage());
+        String message = getMessage("error.auth.invalid");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -59,9 +77,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
         log.warn("[EXCEPTION] Invalid token - message={}", ex.getMessage());
+        String message = getMessage("error.jwt.invalid");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -73,9 +92,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ErrorResponse> handleTokenExpiredException(TokenExpiredException ex) {
         log.warn("[EXCEPTION] Token expired - message={}", ex.getMessage());
+        String message = getMessage("error.jwt.expired");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -87,9 +107,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException ex) {
         log.error("[EXCEPTION] JWT signature invalid - message={}", ex.getMessage());
+        String message = getMessage("error.jwt.signature");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "Invalid JWT signature",
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -101,9 +122,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
         log.warn("[EXCEPTION] JWT token expired - message={}", ex.getMessage());
+        String message = getMessage("error.jwt.expired");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "JWT token has expired",
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -115,9 +137,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException ex) {
         log.error("[EXCEPTION] JWT token malformed - message={}", ex.getMessage());
+        String message = getMessage("error.jwt.invalid");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "Invalid JWT token",
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -129,9 +152,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnsupportedJwtException.class)
     public ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException ex) {
         log.error("[EXCEPTION] JWT token unsupported - message={}", ex.getMessage());
+        String message = getMessage("error.jwt.unsupported");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "Unsupported JWT token",
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -143,9 +167,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
         log.warn("[EXCEPTION] Authentication failed - message={}", ex.getMessage());
+        String message = getMessage("error.auth.unauthorized");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "Authentication failed: " + ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -157,9 +182,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
         log.warn("[EXCEPTION] Access denied - message={}", ex.getMessage());
+        String message = getMessage("error.auth.forbidden");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
-                "Access denied: " + ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
@@ -171,9 +197,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.warn("[EXCEPTION] Illegal argument - message={}", ex.getMessage());
+        String message = getMessage("error.bad.request");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
@@ -185,6 +212,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
         log.warn("[EXCEPTION] Illegal state - message={}", ex.getMessage());
+        String message = getMessage("error.bad.request");
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                message,
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
+     * Handle FileValidationException (subclass of FileStorageException).
+     * Returns 400 Bad Request for validation errors (invalid file type, size limit exceeded, etc.).
+     */
+    @ExceptionHandler(FileValidationException.class)
+    public ResponseEntity<ErrorResponse> handleFileValidationException(FileValidationException ex) {
+        log.warn("[EXCEPTION] File validation error - message={}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
@@ -194,33 +237,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle FileStorageException
-     * Returns 400 Bad Request for validation errors (invalid file type, size limit exceeded)
-     * Returns 500 Internal Server Error for actual storage failures
+     * Handle FileStorageException (storage/IO errors).
+     * Returns 500 Internal Server Error for actual storage failures.
      */
     @ExceptionHandler(FileStorageException.class)
     public ResponseEntity<ErrorResponse> handleFileStorageException(FileStorageException ex) {
-        // Check if it's a validation error (client's fault) or storage error (server's fault)
-        boolean isValidationError = ex.getMessage().contains("File type not allowed")
-                || ex.getMessage().contains("exceeds maximum")
-                || ex.getMessage().contains("empty")
-                || ex.getMessage().contains("Invalid file name")
-                || ex.getMessage().contains("not a valid");
-
-        HttpStatus status = isValidationError ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
-
-        if (isValidationError) {
-            log.warn("[EXCEPTION] File validation error - message={}", ex.getMessage());
-        } else {
-            log.error("[EXCEPTION] File storage error - message={}", ex.getMessage());
-        }
-
+        log.error("[EXCEPTION] File storage error - message={}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
-                status.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 ex.getMessage(),
                 LocalDateTime.now()
         );
-        return ResponseEntity.status(status).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     /**
@@ -232,6 +260,21 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Failed to send email. Please try again later.",
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    /**
+     * Handle AuditExportException
+     */
+    @ExceptionHandler(AuditExportException.class)
+    public ResponseEntity<ErrorResponse> handleAuditExportException(AuditExportException ex) {
+        log.error("[EXCEPTION] Audit export failed - message={}", ex.getMessage());
+        String message = getMessage("error.audit.export");
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -261,14 +304,30 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle missing request header exceptions
+     */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+        log.warn("[EXCEPTION] Missing request header - header={}", ex.getHeaderName());
+        String message = getMessage("error.bad.request");
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                message,
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
      * Handle generic exceptions
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
         log.error("[EXCEPTION] Unexpected error - type={}, message={}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
+        String message = getMessage("error.generic");
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "An unexpected error occurred: " + ex.getMessage(),
+                message,
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);

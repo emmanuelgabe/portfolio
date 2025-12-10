@@ -51,6 +51,13 @@ public class ImageStorageProperties {
     private float thumbnailQuality = 0.80f;
 
     /**
+     * Keep original files after WebP conversion for future reprocessing.
+     * When enabled, original uploads are preserved as .original files
+     * allowing batch reprocessing when quality settings change.
+     */
+    private boolean keepOriginals = true;
+
+    /**
      * Allowed file extensions
      */
     private String[] allowedExtensions = {"jpg", "jpeg", "png", "webp"};
