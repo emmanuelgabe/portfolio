@@ -1,11 +1,10 @@
 package com.emmanuelgabe.portfolio.controller;
 
 import com.emmanuelgabe.portfolio.config.TestSecurityConfig;
-import com.emmanuelgabe.portfolio.dto.ImageUploadResponse;
 import com.emmanuelgabe.portfolio.dto.article.ArticleImageResponse;
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.service.ArticleService;
-import com.emmanuelgabe.portfolio.service.ImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +45,9 @@ class ArticleImageControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ImageService imageService;
-
     @MockBean
     private ArticleService articleService;
 
-    private ImageUploadResponse imageUploadResponse;
     private ArticleImageResponse articleImageResponse;
     private MockMultipartFile mockFile;
 
@@ -60,17 +55,11 @@ class ArticleImageControllerTest {
     void setUp() {
         LocalDateTime now = LocalDateTime.now();
 
-        imageUploadResponse = new ImageUploadResponse(
-            "/uploads/articles/article_1.webp",
-            "/uploads/articles/article_1_thumb.webp",
-            1024L,
-            now
-        );
-
         articleImageResponse = new ArticleImageResponse(
             1L,
             "/uploads/articles/article_1.webp",
             "/uploads/articles/article_1_thumb.webp",
+            ImageStatus.PROCESSING,
             now
         );
 
@@ -88,12 +77,7 @@ class ArticleImageControllerTest {
     @WithMockUser(roles = "ADMIN")
     void should_return201AndImageResponse_when_uploadImageWithValidFile() throws Exception {
         // Arrange
-        when(imageService.uploadArticleImage(eq(1L), any())).thenReturn(imageUploadResponse);
-        when(articleService.addImageToArticle(
-            eq(1L),
-            eq(imageUploadResponse.getImageUrl()),
-            eq(imageUploadResponse.getThumbnailUrl())
-        )).thenReturn(articleImageResponse);
+        when(articleService.addImageToArticle(eq(1L), any())).thenReturn(articleImageResponse);
 
         // Act / Assert
         mockMvc.perform(multipart("/api/admin/articles/1/images")
@@ -102,22 +86,17 @@ class ArticleImageControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id", is(1)))
             .andExpect(jsonPath("$.imageUrl", is("/uploads/articles/article_1.webp")))
-            .andExpect(jsonPath("$.thumbnailUrl", is("/uploads/articles/article_1_thumb.webp")));
+            .andExpect(jsonPath("$.thumbnailUrl", is("/uploads/articles/article_1_thumb.webp")))
+            .andExpect(jsonPath("$.status", is("PROCESSING")));
 
-        verify(imageService).uploadArticleImage(eq(1L), any());
-        verify(articleService).addImageToArticle(
-            eq(1L),
-            eq(imageUploadResponse.getImageUrl()),
-            eq(imageUploadResponse.getThumbnailUrl())
-        );
+        verify(articleService).addImageToArticle(eq(1L), any());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void should_return404_when_uploadImageToNonexistentArticle() throws Exception {
         // Arrange
-        when(imageService.uploadArticleImage(eq(999L), any())).thenReturn(imageUploadResponse);
-        when(articleService.addImageToArticle(eq(999L), any(), any()))
+        when(articleService.addImageToArticle(eq(999L), any()))
             .thenThrow(new ResourceNotFoundException("Article not found with ID: 999"));
 
         // Act / Assert
@@ -125,7 +104,7 @@ class ArticleImageControllerTest {
                 .file(mockFile))
             .andExpect(status().isNotFound());
 
-        verify(imageService).uploadArticleImage(eq(999L), any());
+        verify(articleService).addImageToArticle(eq(999L), any());
     }
 
     // ========== Delete Image Tests ==========

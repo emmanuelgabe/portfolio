@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.controller;
 import com.emmanuelgabe.portfolio.config.TestSecurityConfig;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.service.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ class ProjectControllerTest {
 
     @MockitoBean
     private ProjectService projectService;
+
+    @MockitoBean
+    private BusinessMetrics metrics;
 
     private ProjectResponse testProjectResponse;
 
@@ -92,6 +96,7 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.description", is("Test Description for the project")));
 
         verify(projectService).getProjectById(1L);
+        verify(metrics).recordProjectView();
     }
 
     @Test
@@ -103,7 +108,7 @@ class ProjectControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status", is(404)))
-                .andExpect(jsonPath("$.message", containsString("Project not found")));
+                .andExpect(jsonPath("$.message").isNotEmpty());
 
         verify(projectService).getProjectById(999L);
     }

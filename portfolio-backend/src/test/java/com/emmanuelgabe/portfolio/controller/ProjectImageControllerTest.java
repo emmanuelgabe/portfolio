@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.controller;
 import com.emmanuelgabe.portfolio.config.TestSecurityConfig;
 import com.emmanuelgabe.portfolio.dto.ProjectImageResponse;
 import com.emmanuelgabe.portfolio.dto.ReorderProjectImagesRequest;
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectImageRequest;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.service.ProjectService;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -55,7 +56,7 @@ class ProjectImageControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private ProjectService projectService;
 
     private ProjectImageResponse imageResponse;
@@ -74,6 +75,7 @@ class ProjectImageControllerTest {
             "Test caption",
             0,
             true,
+            ImageStatus.READY,
             now
         );
 
@@ -146,7 +148,7 @@ class ProjectImageControllerTest {
         ProjectImageResponse image2 = new ProjectImageResponse(
             2L, "/uploads/projects/project_1_img_1.webp",
             "/uploads/projects/project_1_img_1_thumb.webp",
-            null, null, 1, false, now
+            null, null, 1, false, ImageStatus.READY, now
         );
         List<ProjectImageResponse> images = Arrays.asList(imageResponse, image2);
         when(projectService.getProjectImages(1L)).thenReturn(images);
@@ -229,7 +231,7 @@ class ProjectImageControllerTest {
         ProjectImageResponse updatedResponse = new ProjectImageResponse(
             1L, "/uploads/projects/project_1_img_0.webp",
             "/uploads/projects/project_1_img_0_thumb.webp",
-            "Updated alt", "Updated caption", 0, true, now
+            "Updated alt", "Updated caption", 0, true, ImageStatus.READY, now
         );
         when(projectService.updateProjectImage(eq(1L), eq(10L), any())).thenReturn(updatedResponse);
 
