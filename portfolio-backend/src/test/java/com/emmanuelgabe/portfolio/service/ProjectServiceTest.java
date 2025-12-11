@@ -2,17 +2,20 @@ package com.emmanuelgabe.portfolio.service;
 
 import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.ImageUploadResponse;
+import com.emmanuelgabe.portfolio.dto.PreparedImageInfo;
 import com.emmanuelgabe.portfolio.dto.ProjectImageResponse;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.ReorderProjectImagesRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectImageRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import com.emmanuelgabe.portfolio.entity.Project;
 import com.emmanuelgabe.portfolio.entity.ProjectImage;
 import com.emmanuelgabe.portfolio.entity.Tag;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.mapper.ProjectImageMapper;
 import com.emmanuelgabe.portfolio.mapper.ProjectMapper;
+import com.emmanuelgabe.portfolio.messaging.publisher.EventPublisher;
 import com.emmanuelgabe.portfolio.repository.ProjectImageRepository;
 import com.emmanuelgabe.portfolio.repository.ProjectRepository;
 import com.emmanuelgabe.portfolio.repository.TagRepository;
@@ -23,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -66,6 +70,12 @@ class ProjectServiceTest {
 
     @Mock
     private ImageService imageService;
+
+    @Mock
+    private EventPublisher eventPublisher;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private ProjectServiceImpl projectService;
@@ -212,7 +222,7 @@ class ProjectServiceTest {
         request.setTechStack("Java, Spring");
         request.setTagIds(new HashSet<>(Collections.singletonList(1L)));
 
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(tagRepository.findAllById(any())).thenReturn(List.of(testTag));
         when(projectRepository.save(any(Project.class))).thenReturn(testProject);
 
         // Act
@@ -221,7 +231,7 @@ class ProjectServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getTags()).hasSize(1);
-        verify(tagRepository, times(1)).findById(1L);
+        verify(tagRepository, times(1)).findAllById(any());
         verify(projectRepository, times(1)).save(any(Project.class));
     }
 
@@ -234,13 +244,13 @@ class ProjectServiceTest {
         request.setTechStack("Java, Spring");
         request.setTagIds(new HashSet<>(Collections.singletonList(999L)));
 
-        when(tagRepository.findById(999L)).thenReturn(Optional.empty());
+        when(tagRepository.findAllById(any())).thenReturn(Collections.emptyList());
 
         // Act & Assert
         assertThatThrownBy(() -> projectService.createProject(request))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Tag not found");
-        verify(tagRepository, times(1)).findById(999L);
+        verify(tagRepository, times(1)).findAllById(any());
         verify(projectRepository, never()).save(any(Project.class));
     }
 
@@ -286,7 +296,7 @@ class ProjectServiceTest {
         request.setTagIds(new HashSet<>(Collections.singletonList(1L)));
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(tagRepository.findAllById(any())).thenReturn(List.of(testTag));
         when(projectRepository.save(any(Project.class))).thenReturn(testProject);
 
         // Act
@@ -294,7 +304,7 @@ class ProjectServiceTest {
 
         // Assert
         assertThat(result).isNotNull();
-        verify(tagRepository, times(1)).findById(1L);
+        verify(tagRepository, times(1)).findAllById(any());
         verify(projectRepository, times(1)).save(any(Project.class));
     }
 
@@ -530,23 +540,38 @@ class ProjectServiceTest {
     void should_addImageToProject_when_validRequest() {
         // Arrange
         Long projectId = 1L;
+        String imageUrl = "/uploads/projects/project_1_img0.webp";
+        String thumbnailUrl = "/uploads/projects/project_1_img0_thumb.webp";
         MultipartFile mockFile = org.mockito.Mockito.mock(MultipartFile.class);
         when(mockFile.getOriginalFilename()).thenReturn("test.jpg");
+
+        // Add image collection to testProject
+        testProject.setImages(new HashSet<>());
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(testProject));
         when(projectImageRepository.countByProjectId(projectId)).thenReturn(0);
 
-        ImageUploadResponse uploadResponse = new ImageUploadResponse();
-        uploadResponse.setImageUrl("/uploads/projects/project_1_img0.webp");
-        uploadResponse.setThumbnailUrl("/uploads/projects/project_1_img0_thumb.webp");
-        when(imageService.uploadProjectCarouselImage(eq(projectId), eq(0), any())).thenReturn(uploadResponse);
+        PreparedImageInfo preparedImage = new PreparedImageInfo(
+                imageUrl, thumbnailUrl, "/tmp/test.tmp", imageUrl, thumbnailUrl, 1024L);
+        when(imageService.prepareCarouselImage(eq(projectId), eq(0), any())).thenReturn(preparedImage);
 
-        when(projectRepository.save(any(Project.class))).thenReturn(testProject);
+        // Setup saved project with image
+        Project savedProject = new Project();
+        savedProject.setId(projectId);
+        savedProject.setImages(new HashSet<>());
+        ProjectImage savedImage = new ProjectImage(savedProject, imageUrl, thumbnailUrl, "alt text", "caption");
+        savedImage.setId(1L);
+        savedImage.setDisplayOrder(0);
+        savedImage.setStatus(ImageStatus.PROCESSING);
+        savedProject.getImages().add(savedImage);
+
+        when(projectRepository.save(any(Project.class))).thenReturn(savedProject);
         when(projectImageRepository.findByProjectIdOrderByDisplayOrderAsc(projectId)).thenReturn(new ArrayList<>());
 
         ProjectImageResponse expectedResponse = new ProjectImageResponse();
         expectedResponse.setId(1L);
-        expectedResponse.setImageUrl(uploadResponse.getImageUrl());
+        expectedResponse.setImageUrl(imageUrl);
+        expectedResponse.setStatus(ImageStatus.PROCESSING);
         when(projectImageMapper.toResponse(any(ProjectImage.class))).thenReturn(expectedResponse);
 
         // Act
@@ -554,8 +579,10 @@ class ProjectServiceTest {
 
         // Assert
         assertThat(result).isNotNull();
-        verify(imageService, times(1)).uploadProjectCarouselImage(eq(projectId), eq(0), any());
+        assertThat(result.getStatus()).isEqualTo(ImageStatus.PROCESSING);
+        verify(imageService, times(1)).prepareCarouselImage(eq(projectId), eq(0), any());
         verify(projectRepository, times(1)).save(any(Project.class));
+        verify(eventPublisher).publishImageEvent(any());
     }
 
     @Test
