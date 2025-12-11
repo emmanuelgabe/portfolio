@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for production
 # Stage 1: Build the application
-FROM gradle:8-jdk21 AS build
+FROM gradle:8.11.1-jdk21-alpine AS build
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY src ./src
 RUN gradle clean bootJar -x test --no-daemon
 
 # Stage 2: Runtime image
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21.0.5_11-jre-alpine
 
 WORKDIR /app
 

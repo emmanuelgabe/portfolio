@@ -45,20 +45,38 @@ logging:
     org.springframework.web: INFO
     org.hibernate: WARN
 
+# GraphQL security - disabled by default in staging
+spring.graphql:
+  graphiql:
+    enabled: ${GRAPHQL_GRAPHIQL_ENABLED:false}
+  schema:
+    printer:
+      enabled: ${GRAPHQL_SCHEMA_PRINTER_ENABLED:false}
+    introspection:
+      enabled: ${GRAPHQL_INTROSPECTION_ENABLED:false}
+
 # Staging specific configs
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
       base-path: /actuator
   endpoint:
     health:
       show-details: always
       probes:
         enabled: true
+    prometheus:
+      enabled: true
   health:
     db:
       enabled: true
     diskspace:
-      enabled: true 
+      enabled: true
+
+# Sentry configuration for staging
+sentry:
+  environment: staging
+  traces-sample-rate: 0.1
+  release: ${VERSION:unknown}

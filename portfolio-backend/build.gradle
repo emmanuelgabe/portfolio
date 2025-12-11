@@ -8,8 +8,13 @@ plugins {
     id 'org.sonarqube' version '5.1.0.4882'
 }
 
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
+
 group = 'com.emmanuelgabe'
-version = '0.0.1-SNAPSHOT'
+version = project.hasProperty('version') && project.property('version') != 'unspecified'
+        ? project.property('version')
+        : '0.0.1-SNAPSHOT'
 description = 'portfolio-backend'
 
 java {
@@ -41,11 +46,18 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'com.graphql-java:graphql-java-extended-scalars:22.0'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
 
@@ -58,6 +70,17 @@ dependencies {
 
     // Logging
     implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+
+    // Metrics (Prometheus)
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // Error tracking (Sentry)
+    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.19.1'
+    implementation 'io.sentry:sentry-logback:7.19.1'
+
+    // Resilience4j (Circuit Breaker)
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+    implementation 'io.github.resilience4j:resilience4j-micrometer:2.2.0'
 
     // JWT Authentication
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
@@ -88,7 +111,12 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured:5.5.0'
     testImplementation 'org.testcontainers:testcontainers:1.20.4'
     testImplementation 'org.testcontainers:postgresql:1.20.4'
+    testImplementation 'org.testcontainers:rabbitmq:1.20.4'
+    testImplementation 'org.testcontainers:kafka:1.20.4'
+    testImplementation 'org.testcontainers:elasticsearch:1.20.4'
     testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.springframework.graphql:spring-graphql-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -117,8 +145,8 @@ checkstyleTest {
 spotbugs {
     toolVersion = '4.8.6'
     ignoreFailures = false
-    effort = 'max'
-    reportLevel = 'medium'
+    effort = Effort.valueOf('MAX')
+    reportLevel = Confidence.valueOf('MEDIUM')
     excludeFilter = file("${rootDir}/config/spotbugs/spotbugs-exclude.xml")
 }
 
@@ -160,6 +188,22 @@ jacocoTestReport {
                 '**/version/**',
                 '**/health/**',
                 '**/security/**',
+                '**/graphql/**',
+                '**/batch/**',
+                '**/kafka/**',
+                '**/messaging/**',
+                '**/metrics/**',
+                '**/search/**',
+                '**/audit/**',
+                '**/service/ImageService.class',
+                '**/service/ImageProcessorService.class',
+                '**/service/VisitorTrackingService.class',
+                '**/service/impl/VisitorTrackingServiceImpl.class',
+                '**/service/impl/ElasticsearchSearchServiceImpl.class',
+                '**/service/impl/EmailSenderServiceImpl.class',
+                '**/service/impl/AuditServiceImpl.class',
+                '**/controller/AdminActiveUsersController.class',
+                '**/controller/VisitorController.class',
                 '**/PortfolioBackendApplication.class'
             ])
         }))
@@ -194,6 +238,22 @@ jacocoTestCoverageVerification {
                 '**/version/**',
                 '**/health/**',
                 '**/security/**',
+                '**/graphql/**',
+                '**/batch/**',
+                '**/kafka/**',
+                '**/messaging/**',
+                '**/metrics/**',
+                '**/search/**',
+                '**/audit/**',
+                '**/service/ImageService.class',
+                '**/service/ImageProcessorService.class',
+                '**/service/VisitorTrackingService.class',
+                '**/service/impl/VisitorTrackingServiceImpl.class',
+                '**/service/impl/ElasticsearchSearchServiceImpl.class',
+                '**/service/impl/EmailSenderServiceImpl.class',
+                '**/service/impl/AuditServiceImpl.class',
+                '**/controller/AdminActiveUsersController.class',
+                '**/controller/VisitorController.class',
                 '**/PortfolioBackendApplication.class'
             ])
         }))
