@@ -3,6 +3,10 @@ volumes:
   portfolio_db_data:
   portfolio_uploads:
   portfolio_redis_data:
+  portfolio_rabbitmq_data:
+  portfolio_kafka_data:
+  portfolio_zookeeper_data:
+  portfolio_elasticsearch_data:
 
 networks:
   portfolio-net:
@@ -15,6 +19,7 @@ services:
       context: ./portfolio-frontend
       args:
         VERSION: ${VERSION:-0.0.1-SNAPSHOT}
+        SENTRY_DSN_FRONTEND: ${SENTRY_DSN_FRONTEND:-}
     image: portfolio-angular-frontend:latest
     restart: unless-stopped
     networks:
@@ -37,14 +42,34 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
       - REDIS_HOST=redis-cache
       - REDIS_PORT=6379
-      # JWT_SECRET and ADMIN_PASSWORD_HASH are defined in environment-specific override files
-      # (prod.yml, staging.yml) - dev uses defaults from application.yml
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_ENABLED=${KAFKA_ENABLED:-true}
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - ELASTICSEARCH_ENABLED=${ELASTICSEARCH_ENABLED:-true}
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD:-changeme}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_APP_PASSWORD=${MAIL_APP_PASSWORD:-}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-}
+      - JWT_SECRET=${JWT_SECRET:-}
+      - SENTRY_DSN=${SENTRY_DSN:-}
     volumes:
       - portfolio_uploads:/app/uploads
     depends_on:
       portfolio-db:
         condition: service_healthy
       redis-cache:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
     networks:
       - portfolio-net
@@ -74,7 +99,7 @@ services:
       start_period: 60s
 
   redis-cache:
-    image: redis:7.4-alpine
+    image: redis:7.4.1-alpine
     restart: unless-stopped
     volumes:
       - portfolio_redis_data:/data
@@ -87,8 +112,94 @@ services:
       retries: 5
       start_period: 10s
 
+  rabbitmq:
+    image: rabbitmq:3.13.7-management-alpine
+    container_name: portfolio-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+      # Enable prometheus metrics plugin
+      RABBITMQ_PLUGINS: "rabbitmq_management,rabbitmq_prometheus"
+    volumes:
+      - portfolio_rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: portfolio-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - portfolio_zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: portfolio-kafka
+    restart: unless-stopped
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - portfolio_kafka_data:/var/lib/kafka/data
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.5
+    container_name: portfolio-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD:-changeme}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - portfolio_elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - portfolio-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -u elastic:${ELASTICSEARCH_PASSWORD:-changeme} http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   nginx-portfolio:
-    image: nginx:1.27-alpine
+    image: nginx:1.27.3-alpine
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
