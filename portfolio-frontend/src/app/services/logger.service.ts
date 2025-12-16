@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import * as Sentry from '@sentry/angular';
 import { environment } from '../../environments/environment';
 
 export enum LogLevel {
@@ -102,6 +103,7 @@ export class LoggerService {
     }
   }
 
+  /* eslint-disable no-console -- Logger service intentionally uses all console methods */
   private logToConsole(level: LogLevel, message: string): void {
     switch (level) {
       case LogLevel.TRACE:
@@ -120,8 +122,42 @@ export class LoggerService {
         break;
     }
   }
+  /* eslint-enable no-console */
 
-  private logToServer(_level: LogLevel, _message: string, _context?: unknown): void {
-    // Server-side logging not implemented - use external service (Sentry, etc.) if needed
+  private logToServer(level: LogLevel, message: string, context?: unknown): void {
+    if (!environment.sentry.enabled) {
+      return;
+    }
+
+    const sentryLevel = this.mapToSentryLevel(level);
+
+    if (level >= LogLevel.ERROR) {
+      Sentry.captureMessage(message, {
+        level: sentryLevel,
+        extra: context as Record<string, unknown>,
+      });
+    } else {
+      Sentry.addBreadcrumb({
+        category: 'log',
+        message: message,
+        level: sentryLevel,
+        data: context as Record<string, unknown>,
+      });
+    }
+  }
+
+  private mapToSentryLevel(level: LogLevel): Sentry.SeverityLevel {
+    switch (level) {
+      case LogLevel.FATAL:
+        return 'fatal';
+      case LogLevel.ERROR:
+        return 'error';
+      case LogLevel.WARN:
+        return 'warning';
+      case LogLevel.INFO:
+        return 'info';
+      default:
+        return 'debug';
+    }
   }
 }

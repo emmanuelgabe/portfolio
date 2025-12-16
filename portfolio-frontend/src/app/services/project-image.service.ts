@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { interval, Observable, throwError } from 'rxjs';
+import { catchError, filter, map, switchMap, take, takeWhile } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import {
+  ImageStatus,
   ProjectImageResponse,
   ReorderProjectImagesRequest,
   UpdateProjectImageRequest,
@@ -157,6 +158,49 @@ export class ProjectImageService {
           error: error.message,
         });
         return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get the processing status of an image.
+   */
+  getImageStatus(projectId: number, imageId: number): Observable<ImageStatus> {
+    return this.http.get<ImageStatus>(`${this.apiUrl}/${projectId}/images/${imageId}/status`).pipe(
+      catchError((error) => {
+        this.logger.error('[HTTP_ERROR] Get image status failed', {
+          projectId,
+          imageId,
+          error: error.message,
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Poll for image status until READY or FAILED.
+   * @param projectId Project ID
+   * @param imageId Image ID
+   * @param intervalMs Polling interval in milliseconds (default: 1000)
+   * @param maxAttempts Maximum polling attempts (default: 30)
+   */
+  pollImageStatus(
+    projectId: number,
+    imageId: number,
+    intervalMs = 1000,
+    maxAttempts = 30
+  ): Observable<ImageStatus> {
+    this.logger.info('[POLL] Starting image status polling', { projectId, imageId });
+
+    return interval(intervalMs).pipe(
+      take(maxAttempts),
+      switchMap(() => this.getImageStatus(projectId, imageId)),
+      takeWhile((status) => status === 'PROCESSING', true),
+      filter((status) => status !== 'PROCESSING'),
+      map((status) => {
+        this.logger.info('[POLL] Image status resolved', { projectId, imageId, status });
+        return status;
       })
     );
   }
