@@ -1,0 +1,24 @@
+<div class="search-container">
+  <i class="bi search-icon" [ngClass]="loading ? 'bi-hourglass-split' : 'bi-search'"></i>
+  <input
+    type="text"
+    class="search-input"
+    [placeholder]="placeholder | translate"
+    [value]="searchQuery"
+    (input)="onInputChange($any($event.target).value)"
+    (keydown)="onKeydown($event)"
+    [attr.aria-label]="placeholder | translate"
+  />
+  <button
+    *ngIf="searchQuery"
+    type="button"
+    class="clear-btn"
+    (click)="onClear()"
+    [title]="'admin.common.clearSearch' | translate"
+  >
+    <i class="bi bi-x-lg"></i>
+  </button>
+  <small *ngIf="searchQuery && searchQuery.length < minLength" class="hint-text">
+    {{ 'admin.common.searchMinLength' | translate: { min: minLength } }}
+  </small>
+</div>

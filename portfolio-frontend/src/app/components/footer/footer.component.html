@@ -1,0 +1,42 @@
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <!-- Social Links -->
+    <nav class="footer-links" [attr.aria-label]="'accessibility.socialLinks' | translate">
+      <a [href]="githubUrl" target="_blank" rel="noopener noreferrer"
+         class="footer-link" title="GitHub">
+        <i class="bi bi-github" aria-hidden="true"></i>
+        <span>GitHub</span>
+        <span class="visually-hidden">{{ 'footer.opensInNewTab' | translate }}</span>
+      </a>
+      <a [href]="linkedinUrl" target="_blank" rel="noopener noreferrer"
+         class="footer-link" title="LinkedIn">
+        <i class="bi bi-linkedin" aria-hidden="true"></i>
+        <span>LinkedIn</span>
+        <span class="visually-hidden">{{ 'footer.opensInNewTab' | translate }}</span>
+      </a>
+      <a [href]="'mailto:' + contactEmail" class="footer-link" title="Email">
+        <i class="bi bi-envelope" aria-hidden="true"></i>
+        <span>Email</span>
+      </a>
+      <button *ngIf="currentCv" (click)="downloadCv()" class="footer-link" [title]="'footer.downloadCv' | translate">
+        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+        <span>CV</span>
+      </button>
+    </nav>
+
+    <!-- Copyright, Legal Links & Version -->
+    <div class="footer-bottom" role="navigation" [attr.aria-label]="'accessibility.legalLinks' | translate">
+      <span class="footer-copyright">&copy; {{ currentYear }} {{ fullName }}</span>
+      <span class="footer-separator" aria-hidden="true">|</span>
+      <a routerLink="/privacy-policy" class="footer-legal-link">
+        {{ 'footer.privacyPolicy' | translate }}
+      </a>
+      <span class="footer-separator" aria-hidden="true">|</span>
+      <a routerLink="/legal" class="footer-legal-link">
+        {{ 'footer.legalNotice' | translate }}
+      </a>
+      <span class="footer-separator" aria-hidden="true">|</span>
+      <span class="footer-version">{{ version }}</span>
+    </div>
+  </div>
+</footer>
