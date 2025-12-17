@@ -1,3 +1,4 @@
+import { ImageStatus } from './project-image.model';
 import { TagResponse } from './tag.model';
 
 /**
@@ -28,6 +29,7 @@ export interface ArticleImageResponse {
   imageUrl: string;
   thumbnailUrl: string;
   uploadedAt: string;
+  status: ImageStatus;
 }
 
 /**

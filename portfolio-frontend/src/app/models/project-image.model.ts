@@ -1,4 +1,9 @@
 /**
+ * Image processing status.
+ */
+export type ImageStatus = 'PROCESSING' | 'READY' | 'FAILED';
+
+/**
  * Response DTO for project image data.
  */
 export interface ProjectImageResponse {
@@ -10,6 +15,7 @@ export interface ProjectImageResponse {
   displayOrder: number;
   primary: boolean;
   uploadedAt: string;
+  status: ImageStatus;
 }
 
 /**
