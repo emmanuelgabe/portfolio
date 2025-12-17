@@ -1,5 +1,5 @@
 <div class="dashboard">
-  <h1 class="mb-4">Tableau de Bord</h1>
+  <h1 class="mb-4">{{ 'admin.dashboard.title' | translate }}</h1>
 
   <div class="row g-4">
     <!-- Stats Cards -->
@@ -8,7 +8,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="text-muted text-uppercase mb-2">{{ stat.title }}</h6>
+              <h6 class="text-muted text-uppercase mb-2">{{ stat.titleKey | translate }}</h6>
               <h2 class="mb-0">{{ stat.count }}</h2>
             </div>
             <div class="stat-icon text-{{ stat.color }}">
@@ -17,7 +17,7 @@
           </div>
           <div class="mt-3">
             <a [routerLink]="stat.link" class="btn btn-sm btn-{{ stat.color }}">
-              Gérer <i class="bi bi-arrow-right ms-1"></i>
+              {{ 'admin.dashboard.manage' | translate }} <i class="bi bi-arrow-right ms-1"></i>
             </a>
           </div>
         </div>
@@ -25,4 +25,228 @@
     </div>
   </div>
 
+  <!-- Tools Section -->
+  <div class="mt-5">
+    <h2 class="mb-4">{{ 'admin.dashboard.tools' | translate }}</h2>
+
+    <div class="row g-4">
+      <!-- Active Users Card -->
+      <div class="col-md-6">
+        <div class="card shadow-sm tool-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-people me-2"></i>
+                {{ 'admin.dashboard.visitors' | translate }}
+              </h5>
+              <div class="d-flex align-items-center gap-2">
+                <button
+                  *ngIf="visitorTrackingEnabled"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="toggleVisitorsChart()"
+                  [title]="'admin.dashboard.toggleChart' | translate">
+                  <i class="bi" [ngClass]="showVisitorsChart ? 'bi-graph-down' : 'bi-graph-up'"></i>
+                </button>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'bg-warning text-dark': !visitorTrackingEnabled,
+                    'bg-success': visitorTrackingEnabled && activeUsersConnected,
+                    'bg-secondary': visitorTrackingEnabled && !activeUsersConnected
+                  }"
+                  [title]="!visitorTrackingEnabled ? ('admin.dashboard.trackingDisabledTooltip' | translate) : ''">
+                  {{ !visitorTrackingEnabled
+                     ? ('admin.dashboard.trackingDisabled' | translate)
+                     : (activeUsersConnected ? ('admin.dashboard.live' | translate) : ('admin.dashboard.offline' | translate))
+                  }}
+                </span>
+              </div>
+            </div>
+
+            <div class="visitor-stats">
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <span class="text-muted">{{ 'admin.dashboard.currentVisitors' | translate }}</span>
+                <span class="h4 mb-0 fw-bold" [ngClass]="visitorTrackingEnabled ? 'text-primary' : 'text-muted'">
+                  {{ visitorTrackingEnabled ? activeUsersCount : '--' }}
+                </span>
+              </div>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <span class="text-muted">{{ 'admin.dashboard.lastMonth' | translate }}</span>
+                <span class="h4 mb-0 fw-bold" [ngClass]="visitorTrackingEnabled ? 'text-secondary' : 'text-muted'">
+                  {{ visitorTrackingEnabled ? lastMonthVisitorsCount : '--' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Expandable Chart Section (only when tracking enabled) -->
+            <div *ngIf="visitorTrackingEnabled && showVisitorsChart" class="mt-3 pt-3 border-top">
+              <h6 class="text-muted mb-2">{{ 'admin.dashboard.last7Days' | translate }}</h6>
+              <app-visitors-chart [dailyData]="dailyVisitorData"></app-visitors-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Reprocessing Card -->
+      <div class="col-md-6">
+        <div class="card shadow-sm tool-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h5 class="card-title mb-1">
+                  <i class="bi bi-image me-2"></i>
+                  {{ 'admin.dashboard.imageReprocessing' | translate }}
+                </h5>
+                <p class="text-muted small mb-0">
+                  {{ 'admin.dashboard.imageReprocessingDesc' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Loading state -->
+            <div *ngIf="batchLoading" class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+
+            <!-- Stats display -->
+            <div *ngIf="!batchLoading && reprocessingStats">
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">{{ 'admin.dashboard.eligibleImages' | translate }}</span>
+                  <span class="badge bg-primary">{{ reprocessingStats.totalEligible }}</span>
+                </div>
+                <div class="small text-muted">
+                  {{ 'admin.dashboard.projectImages' | translate }}: {{ reprocessingStats.projectImagesEligible }} |
+                  {{ 'admin.dashboard.articleImages' | translate }}: {{ reprocessingStats.articleImagesEligible }}
+                </div>
+              </div>
+
+              <!-- Last job info -->
+              <div *ngIf="lastJobInfo" class="mb-3 p-2 bg-light rounded">
+                <div class="small">
+                  <strong>{{ 'admin.dashboard.lastJob' | translate }}:</strong>
+                  <span *ngIf="lastJobInfo.lastJobDate" class="ms-2">
+                    {{ lastJobInfo.lastJobDate | date:'dd/MM/yyyy HH:mm' }}
+                    <span
+                      class="badge ms-1"
+                      [ngClass]="lastJobInfo.lastJobStatus === 'COMPLETED' ? 'bg-success' : 'bg-danger'">
+                      {{ lastJobInfo.lastJobStatus }}
+                    </span>
+                    <span class="text-muted ms-2">
+                      ({{ lastJobInfo.processedCount }} {{ 'admin.dashboard.processed' | translate }})
+                    </span>
+                  </span>
+                  <span *ngIf="!lastJobInfo.lastJobDate" class="ms-2 text-muted">
+                    {{ 'admin.dashboard.noJobYet' | translate }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Job result message -->
+              <div *ngIf="jobResult" class="alert mb-3" [ngClass]="jobResult.success ? 'alert-success' : 'alert-danger'">
+                <i class="bi" [ngClass]="jobResult.success ? 'bi-check-circle' : 'bi-exclamation-triangle'"></i>
+                {{ jobResult.message }}
+              </div>
+
+              <!-- Action button -->
+              <button
+                class="btn btn-primary w-100"
+                [disabled]="isJobRunning || reprocessingStats.totalEligible === 0 || demoModeService.isDemo()"
+                [class.opacity-50]="demoModeService.isDemo()"
+                [title]="demoModeService.isDemo() ? 'Non disponible en mode demonstration' : ''"
+                (click)="openConfirmModal()">
+                <span *ngIf="!isJobRunning">
+                  <i class="bi bi-arrow-repeat me-2"></i>
+                  {{ 'admin.dashboard.runReprocessing' | translate }}
+                </span>
+                <span *ngIf="isJobRunning">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  {{ 'admin.dashboard.processing' | translate }}
+                </span>
+              </button>
+            </div>
+
+            <!-- Error state when stats failed to load -->
+            <div *ngIf="!batchLoading && !reprocessingStats" class="text-center py-3 text-muted">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              {{ 'admin.dashboard.batchUnavailable' | translate }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Circuit Breaker Status Card -->
+      <div class="col-md-6">
+        <div class="card shadow-sm tool-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-shield-check me-2"></i>
+                {{ 'admin.dashboard.circuitBreakers' | translate }}
+              </h5>
+            </div>
+
+            <div *ngIf="circuitBreakerLoading" class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+
+            <div *ngIf="!circuitBreakerLoading && circuitBreakers.length > 0">
+              <div
+                *ngFor="let cb of circuitBreakers"
+                class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                  <span class="fw-medium">{{ cb.name }}</span>
+                  <div class="small text-muted">
+                    {{ 'admin.dashboard.cbFailures' | translate }}: {{ cb.metrics.failureCount }} |
+                    {{ 'admin.dashboard.cbSuccesses' | translate }}: {{ cb.metrics.successCount }}
+                  </div>
+                </div>
+                <span class="badge" [ngClass]="getCircuitBreakerStateClass(cb.state)">
+                  {{ cb.state }}
+                </span>
+              </div>
+            </div>
+
+            <div *ngIf="!circuitBreakerLoading && circuitBreakers.length === 0" class="text-center py-3 text-muted">
+              <i class="bi bi-info-circle me-2"></i>
+              {{ 'admin.dashboard.noCircuitBreakers' | translate }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div
+  *ngIf="showConfirmModal"
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'admin.dashboard.confirmTitle' | translate }}</h5>
+        <button type="button" class="btn-close" (click)="closeConfirmModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ 'admin.dashboard.confirmMessage' | translate:{ count: reprocessingStats?.totalEligible } }}</p>
+        <p class="text-muted small mb-0">{{ 'admin.dashboard.confirmNote' | translate }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeConfirmModal()">
+          {{ 'admin.dashboard.cancel' | translate }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="runReprocessingJob()">
+          {{ 'admin.dashboard.confirm' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
