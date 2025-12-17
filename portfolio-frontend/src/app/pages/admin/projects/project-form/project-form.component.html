@@ -1,17 +1,17 @@
 <div class="project-form">
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>{{ isEditMode ? 'Éditer le Projet' : 'Nouveau Projet' }}</h1>
+    <h1>{{ (isEditMode ? 'admin.projects.edit' : 'admin.projects.new') | translate }}</h1>
     <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
       <i class="bi bi-arrow-left me-2"></i>
-      Retour
+      {{ 'admin.common.back' | translate }}
     </button>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Chargement...</span>
+      <span class="visually-hidden">{{ 'admin.common.loading' | translate }}</span>
     </div>
   </div>
 
@@ -23,7 +23,7 @@
           <!-- Title -->
           <div class="col-md-6 mb-3">
             <label for="title" class="form-label">
-              Titre <span class="text-danger">*</span>
+              {{ 'admin.projects.titleField' | translate }} <span class="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -32,19 +32,18 @@
               formControlName="title"
               [class.is-invalid]="isFieldInvalid('title')"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Nom du projet"
             />
             <div class="invalid-feedback" *ngIf="hasError('title', 'required')">
-              Le titre est requis
+              {{ 'admin.projects.titleRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('title', 'minlength')">
-              Le titre doit contenir au moins 3 caractères
+              {{ 'admin.projects.titleMinLength' | translate }}
             </div>
           </div>
 
           <!-- Featured -->
           <div class="col-md-3 mb-3">
-            <label class="form-label d-block">Mise en avant</label>
+            <label class="form-label d-block">{{ 'admin.projects.featured' | translate }}</label>
             <div class="form-check form-switch">
               <input
                 class="form-check-input"
@@ -53,14 +52,14 @@
                 formControlName="featured"
               />
               <label class="form-check-label" for="featured">
-                Page d'accueil
+                {{ 'admin.projects.showOnHome' | translate }}
               </label>
             </div>
           </div>
 
           <!-- Has Details -->
           <div class="col-md-3 mb-3">
-            <label class="form-label d-block">Page de details</label>
+            <label class="form-label d-block">{{ 'admin.projects.hasDetails' | translate }}</label>
             <div class="form-check form-switch">
               <input
                 class="form-check-input"
@@ -70,7 +69,7 @@
                 (change)="onHasDetailsChange()"
               />
               <label class="form-check-label" for="hasDetails">
-                Activer
+                {{ 'admin.projects.activate' | translate }}
               </label>
             </div>
           </div>
@@ -79,7 +78,7 @@
         <!-- Description -->
         <div class="mb-3">
           <label for="description" class="form-label">
-            Description <span class="text-danger">*</span>
+            {{ 'admin.projects.description' | translate }} <span class="text-danger">*</span>
           </label>
           <textarea
             id="description"
@@ -88,20 +87,19 @@
             [class.is-invalid]="isFieldInvalid('description')"
             [readonly]="demoModeService.isDemo()"
             rows="4"
-            placeholder="Décrivez votre projet..."
           ></textarea>
           <div class="invalid-feedback" *ngIf="hasError('description', 'required')">
-            La description est requise
+            {{ 'admin.projects.descriptionRequired' | translate }}
           </div>
           <div class="invalid-feedback" *ngIf="hasError('description', 'minlength')">
-            La description doit contenir au moins 10 caractères
+            {{ 'admin.projects.descriptionMinLength' | translate }}
           </div>
         </div>
 
         <!-- Technologies -->
         <div class="mb-3">
           <label for="techStack" class="form-label">
-            Technologies
+            {{ 'admin.projects.technologies' | translate }}
             <span class="text-danger" *ngIf="projectForm.get('hasDetails')?.value">*</span>
           </label>
           <input
@@ -111,22 +109,22 @@
             formControlName="techStack"
             [class.is-invalid]="isFieldInvalid('techStack')"
             [readonly]="demoModeService.isDemo()"
-            placeholder="Angular, TypeScript, Spring Boot (separees par des virgules)"
+            placeholder="Angular, TypeScript, Spring Boot"
           />
           <div class="form-text" *ngIf="projectForm.get('hasDetails')?.value">
-            Separees les technologies par des virgules
+            {{ 'admin.projects.technologiesSeparator' | translate }}
           </div>
           <div class="form-text text-muted" *ngIf="!projectForm.get('hasDetails')?.value">
-            Optionnel car le projet n'a pas de page de details
+            {{ 'admin.projects.technologiesOptional' | translate }}
           </div>
           <div class="invalid-feedback" *ngIf="hasError('techStack', 'required')">
-            Les technologies sont requises
+            {{ 'admin.projects.technologiesRequired' | translate }}
           </div>
         </div>
 
         <!-- Tags -->
         <div class="mb-3">
-          <label class="form-label">Tags</label>
+          <label class="form-label">{{ 'admin.projects.tags' | translate }}</label>
           <div class="tags-container">
             <button
               *ngFor="let tag of availableTags"
@@ -145,7 +143,7 @@
             </button>
           </div>
           <small class="text-muted" *ngIf="availableTags.length === 0">
-            Aucun tag disponible. Créez-en dans la section Tags.
+            {{ 'admin.projects.noTags' | translate }}
           </small>
         </div>
 
@@ -153,7 +151,7 @@
           <!-- GitHub URL -->
           <div class="col-md-6 mb-3">
             <label for="githubUrl" class="form-label">
-              URL GitHub
+              {{ 'admin.projects.githubUrl' | translate }}
             </label>
             <input
               type="url"
@@ -168,7 +166,7 @@
           <!-- Demo URL -->
           <div class="col-md-6 mb-3">
             <label for="demoUrl" class="form-label">
-              URL Démo
+              {{ 'admin.projects.demoUrl' | translate }}
             </label>
             <input
               type="url"
@@ -184,7 +182,7 @@
         <!-- Multi-Image Upload (Both Create and Edit Mode) -->
         <div class="mb-4">
           <label class="form-label">
-            Images du projet
+            {{ 'admin.projects.images' | translate }}
             <span class="badge bg-secondary ms-2">{{ projectImages.length + pendingFiles.length }}/10</span>
           </label>
 
@@ -192,16 +190,32 @@
           <div class="row g-3 mb-3" *ngIf="projectImages.length > 0">
             <div class="col-6 col-md-4 col-lg-3" *ngFor="let image of projectImages; let i = index">
               <div class="card h-100 position-relative image-card">
+                <!-- Processing overlay -->
+                <div *ngIf="image.status === 'PROCESSING'" class="processing-overlay">
+                  <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">{{ 'admin.projects.processing' | translate }}</span>
+                  </div>
+                  <span class="text-light small mt-2">{{ 'admin.projects.processing' | translate }}</span>
+                </div>
+                <!-- Failed overlay -->
+                <div *ngIf="image.status === 'FAILED'" class="failed-overlay">
+                  <i class="bi bi-exclamation-triangle text-warning fs-3"></i>
+                  <span class="text-light small mt-2">{{ 'admin.projects.processingFailed' | translate }}</span>
+                </div>
                 <img
-                  [src]="getFullImageUrl(image.thumbnailUrl)"
+                  *ngIf="image.status === 'READY'"
+                  [appAsyncImage]="getFullImageUrl(image.thumbnailUrl)"
                   [alt]="image.altText || 'Image projet'"
                   class="card-img-top"
                 />
+                <div *ngIf="image.status !== 'READY'" class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 120px;">
+                  <i class="bi bi-image text-muted fs-1"></i>
+                </div>
                 <span
                   *ngIf="image.primary"
                   class="badge bg-primary position-absolute top-0 start-0 m-2"
                 >
-                  Principal
+                  {{ 'admin.projects.mainImage' | translate }}
                 </span>
                 <div class="card-body p-2">
                   <div class="btn-group btn-group-sm w-100">
@@ -209,8 +223,8 @@
                       type="button"
                       class="btn btn-outline-secondary"
                       (click)="moveImageUp(i)"
-                      [disabled]="i === 0 || demoModeService.isDemo()"
-                      title="Monter"
+                      [disabled]="i === 0 || demoModeService.isDemo() || image.status !== 'READY'"
+                      [title]="'admin.projects.moveUp' | translate"
                     >
                       <i class="bi bi-arrow-up"></i>
                     </button>
@@ -218,8 +232,8 @@
                       type="button"
                       class="btn btn-outline-secondary"
                       (click)="moveImageDown(i)"
-                      [disabled]="i === projectImages.length - 1 || demoModeService.isDemo()"
-                      title="Descendre"
+                      [disabled]="i === projectImages.length - 1 || demoModeService.isDemo() || image.status !== 'READY'"
+                      [title]="'admin.projects.moveDown' | translate"
                     >
                       <i class="bi bi-arrow-down"></i>
                     </button>
@@ -227,8 +241,8 @@
                       type="button"
                       class="btn btn-outline-primary"
                       (click)="setImageAsPrimary(image.id)"
-                      [disabled]="image.primary || demoModeService.isDemo()"
-                      title="Definir comme image principale"
+                      [disabled]="image.primary || demoModeService.isDemo() || image.status !== 'READY'"
+                      [title]="'admin.projects.setAsMain' | translate"
                     >
                       <i class="bi bi-star"></i>
                     </button>
@@ -237,7 +251,7 @@
                       class="btn btn-outline-danger"
                       (click)="deleteProjectImage(image.id)"
                       [disabled]="demoModeService.isDemo()"
-                      title="Supprimer"
+                      [title]="'admin.common.delete' | translate"
                     >
                       <i class="bi bi-trash"></i>
                     </button>
@@ -269,14 +283,14 @@
                     class="form-control form-control-sm mb-2"
                     [(ngModel)]="pending.altText"
                     [ngModelOptions]="{standalone: true}"
-                    placeholder="Alt text (optionnel)"
+                    placeholder="Alt text"
                   />
                   <button
                     type="button"
                     class="btn btn-sm btn-outline-danger"
                     (click)="removePendingFile(i)"
                   >
-                    <i class="bi bi-x"></i> Retirer
+                    <i class="bi bi-x"></i>
                   </button>
                 </div>
               </div>
@@ -292,7 +306,7 @@
               [style.pointer-events]="!canAddMoreImages || demoModeService.isDemo() ? 'none' : 'auto'"
             >
               <i class="bi bi-cloud-upload me-2"></i>
-              Ajouter des images
+              {{ 'admin.projects.addImages' | translate }}
             </label>
             <input
               type="file"
@@ -313,21 +327,21 @@
             >
               <span *ngIf="uploadingImageCount === 0">
                 <i class="bi bi-upload me-2"></i>
-                Uploader ({{ pendingFiles.length }})
+                ({{ pendingFiles.length }})
               </span>
               <span *ngIf="uploadingImageCount > 0">
                 <span class="spinner-border spinner-border-sm me-1"></span>
-                Upload en cours...
+                {{ 'admin.common.uploading' | translate }}
               </span>
             </button>
           </div>
 
           <small class="text-muted d-block mt-2">
             <ng-container *ngIf="!isEditMode && pendingFiles.length > 0">
-              Les images seront uploadees apres la creation du projet.
+              {{ 'admin.projects.imagesAfterCreate' | translate }}
             </ng-container>
             <ng-container *ngIf="isEditMode || pendingFiles.length === 0">
-              Formats acceptes: JPEG, PNG, WebP. Max 10 Mo par image. Ratio 16:9 recommande.
+              {{ 'admin.projects.imagesFormat' | translate }}
             </ng-container>
           </small>
         </div>
@@ -335,24 +349,24 @@
         <!-- Form Actions -->
         <div class="d-flex justify-content-between pt-3 border-top">
           <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
-            Annuler
+            {{ 'admin.common.cancel' | translate }}
           </button>
           <button
             type="submit"
             class="btn btn-primary"
             [disabled]="projectForm.invalid || submitting || uploadingImageCount > 0 || demoModeService.isDemo()"
             [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-            [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+            [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
           >
             <span *ngIf="!submitting">
               <i class="bi bi-check-lg me-2"></i>
-              {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+              {{ (isEditMode ? 'admin.common.update' : 'admin.common.create') | translate }}
             </span>
             <span *ngIf="submitting">
               <div class="spinner-border spinner-border-sm me-2" role="status">
-                <span class="visually-hidden">Envoi...</span>
+                <span class="visually-hidden">{{ 'admin.common.sending' | translate }}</span>
               </div>
-              Envoi...
+              {{ 'admin.common.sending' | translate }}
             </span>
           </button>
         </div>

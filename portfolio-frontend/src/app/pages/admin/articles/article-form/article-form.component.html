@@ -1,19 +1,19 @@
 <div class="article-form">
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>{{ isEditMode ? 'Modifier l\'article' : 'Nouvel article' }}</h1>
+    <h1>{{ (isEditMode ? 'admin.articles.edit' : 'admin.articles.new') | translate }}</h1>
     <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
       <i class="bi bi-x-circle me-2"></i>
-      Annuler
+      {{ 'admin.common.cancel' | translate }}
     </button>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Chargement...</span>
+      <span class="visually-hidden">{{ 'admin.common.loading' | translate }}</span>
     </div>
-    <p class="mt-3 text-muted">Chargement de l'article...</p>
+    <p class="mt-3 text-muted">{{ 'admin.articles.loadingArticle' | translate }}</p>
   </div>
 
   <!-- Form -->
@@ -24,7 +24,7 @@
           <!-- Title -->
           <div class="mb-3">
             <label for="title" class="form-label">
-              Titre <span class="text-danger">*</span>
+              {{ 'admin.articles.titleField' | translate }} <span class="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -32,26 +32,26 @@
               id="title"
               formControlName="title"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Titre de l'article"
+              [placeholder]="'admin.articles.titlePlaceholder' | translate"
               [class.is-invalid]="articleForm.get('title')?.invalid && articleForm.get('title')?.touched"
             />
             <div class="invalid-feedback" *ngIf="articleForm.get('title')?.invalid && articleForm.get('title')?.touched">
               <div *ngIf="articleForm.get('title')?.errors?.['required']">
-                Le titre est requis
+                {{ 'admin.articles.titleRequired' | translate }}
               </div>
               <div *ngIf="articleForm.get('title')?.errors?.['maxlength']">
-                Le titre ne peut pas dépasser 200 caractères
+                {{ 'admin.articles.titleMaxLength' | translate }}
               </div>
             </div>
             <small class="text-muted">
-              {{ articleForm.get('title')?.value?.length || 0 }} / 200 caractères
+              {{ articleForm.get('title')?.value?.length || 0 }} / 200 {{ 'admin.common.characters' | translate }}
             </small>
           </div>
 
           <!-- Excerpt -->
           <div class="mb-3">
             <label for="excerpt" class="form-label">
-              Extrait (résumé)
+              {{ 'admin.articles.excerpt' | translate }}
             </label>
             <textarea
               class="form-control"
@@ -59,22 +59,22 @@
               formControlName="excerpt"
               rows="2"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Résumé court de l'article (optionnel)"
+              [placeholder]="'admin.articles.excerptPlaceholder' | translate"
               [class.is-invalid]="articleForm.get('excerpt')?.invalid && articleForm.get('excerpt')?.touched"
             ></textarea>
             <div class="invalid-feedback" *ngIf="articleForm.get('excerpt')?.invalid && articleForm.get('excerpt')?.touched">
               <div *ngIf="articleForm.get('excerpt')?.errors?.['maxlength']">
-                L'extrait ne peut pas dépasser 500 caractères
+                {{ 'admin.articles.excerptMaxLength' | translate }}
               </div>
             </div>
             <small class="text-muted">
-              {{ articleForm.get('excerpt')?.value?.length || 0 }} / 500 caractères
+              {{ articleForm.get('excerpt')?.value?.length || 0 }} / 500 {{ 'admin.common.characters' | translate }}
             </small>
           </div>
 
           <!-- Tags -->
           <div class="mb-3">
-            <label class="form-label">Tags</label>
+            <label class="form-label">{{ 'admin.articles.tags' | translate }}</label>
             <div class="tags-container">
               <button
                 *ngFor="let tag of availableTags"
@@ -84,31 +84,31 @@
                 [class.btn-outline-secondary]="!isTagSelected(tag.id)"
                 [disabled]="demoModeService.isDemo()"
                 [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-                [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+                [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
                 (click)="toggleTag(tag.id)"
               >
                 {{ tag.name }}
               </button>
             </div>
             <small class="text-muted" *ngIf="availableTags.length === 0">
-              Aucun tag disponible. Créez-en dans la section Compétences.
+              {{ 'admin.articles.noTags' | translate }}
             </small>
           </div>
 
           <!-- Content (EasyMDE) -->
           <div class="mb-3">
             <label for="content-editor" class="form-label">
-              Contenu <span class="text-danger">*</span>
+              {{ 'admin.articles.content' | translate }} <span class="text-danger">*</span>
             </label>
             <div *ngIf="!isEditMode" class="alert alert-info mb-2">
               <i class="bi bi-info-circle me-2"></i>
-              Pour ajouter des images, sauvegardez d'abord l'article en brouillon.
+              {{ 'admin.articles.saveBeforeImages' | translate }}
             </div>
             <div *ngIf="uploadingImage" class="alert alert-primary mb-2">
               <div class="spinner-border spinner-border-sm me-2" role="status">
-                <span class="visually-hidden">Upload...</span>
+                <span class="visually-hidden">{{ 'admin.common.uploading' | translate }}</span>
               </div>
-              Upload de l'image en cours...
+              {{ 'admin.articles.uploadingImage' | translate }}
             </div>
             <textarea
               id="content-editor"
@@ -117,7 +117,7 @@
             ></textarea>
             <div class="invalid-feedback d-block" *ngIf="articleForm.get('content')?.invalid && articleForm.get('content')?.touched">
               <div *ngIf="articleForm.get('content')?.errors?.['required']">
-                Le contenu est requis
+                {{ 'admin.articles.contentRequired' | translate }}
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@
       <div class="d-flex justify-content-between">
         <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
           <i class="bi bi-x-circle me-2"></i>
-          Annuler
+          {{ 'admin.common.cancel' | translate }}
         </button>
 
         <div class="btn-group" role="group">
@@ -137,15 +137,15 @@
             class="btn btn-outline-primary"
             [disabled]="submitting || articleForm.invalid || demoModeService.isDemo()"
             [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-            [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+            [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
           >
             <span *ngIf="!submitting">
               <i class="bi bi-save me-2"></i>
-              Sauvegarder brouillon
+              {{ 'admin.articles.saveDraft' | translate }}
             </span>
             <span *ngIf="submitting">
               <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-              Sauvegarde...
+              {{ 'admin.articles.saving' | translate }}
             </span>
           </button>
 
@@ -155,15 +155,15 @@
             (click)="saveAndPublish()"
             [disabled]="submitting || articleForm.invalid || demoModeService.isDemo()"
             [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-            [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+            [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
           >
             <span *ngIf="!submitting">
               <i class="bi bi-upload me-2"></i>
-              {{ isEditMode ? 'Mettre à jour et publier' : 'Créer et publier' }}
+              {{ (isEditMode ? 'admin.articles.updateAndPublish' : 'admin.articles.createAndPublish') | translate }}
             </span>
             <span *ngIf="submitting">
               <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-              Publication...
+              {{ 'admin.articles.publishing' | translate }}
             </span>
           </button>
         </div>

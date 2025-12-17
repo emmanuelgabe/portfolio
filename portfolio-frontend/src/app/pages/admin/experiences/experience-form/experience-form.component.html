@@ -2,9 +2,9 @@
   <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>{{ isEditMode ? 'Modifier' : 'Nouvelle' }} Expérience</h2>
+        <h2>{{ (isEditMode ? 'admin.experiences.edit' : 'admin.experiences.new') | translate }}</h2>
         <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
-          <i class="bi bi-arrow-left me-2"></i>Retour
+          <i class="bi bi-arrow-left me-2"></i>{{ 'admin.common.back' | translate }}
         </button>
       </div>
 
@@ -18,38 +18,38 @@
             <form [formGroup]="experienceForm" (ngSubmit)="onSubmit()">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Entreprise/Organisation *</label>
+                  <label class="form-label">{{ 'admin.experiences.company' | translate }} *</label>
                   <input type="text" class="form-control" formControlName="company" [readonly]="demoModeService.isDemo()" />
                   @if (experienceForm.get('company')?.invalid && experienceForm.get('company')?.touched) {
-                    <small class="text-danger">Requis (min 2 caractères)</small>
+                    <small class="text-danger">{{ 'admin.experiences.companyRequired' | translate }}</small>
                   }
                 </div>
 
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Rôle/Poste *</label>
+                  <label class="form-label">{{ 'admin.experiences.role' | translate }} *</label>
                   <input type="text" class="form-control" formControlName="role" [readonly]="demoModeService.isDemo()" />
                   @if (experienceForm.get('role')?.invalid && experienceForm.get('role')?.touched) {
-                    <small class="text-danger">Requis (min 2 caractères)</small>
+                    <small class="text-danger">{{ 'admin.experiences.roleRequired' | translate }}</small>
                   }
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">Date de début *</label>
+                  <label class="form-label">{{ 'admin.experiences.startDate' | translate }} *</label>
                   <input type="date" class="form-control" formControlName="startDate" />
                   @if (experienceForm.get('startDate')?.invalid && experienceForm.get('startDate')?.touched) {
-                    <small class="text-danger">Requis</small>
+                    <small class="text-danger">{{ 'admin.common.required' | translate }}</small>
                   }
                 </div>
 
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">Date de fin (vide si en cours)</label>
+                  <label class="form-label">{{ 'admin.experiences.endDate' | translate }}</label>
                   <input type="date" class="form-control" formControlName="endDate" />
                 </div>
 
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">Type *</label>
+                  <label class="form-label">{{ 'admin.experiences.type' | translate }} *</label>
                   <select class="form-select" formControlName="type">
                     @for (type of experienceTypes; track type) {
                       <option [value]="type">{{ getTypeLabel(type) }}</option>
@@ -59,26 +59,26 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Description *</label>
+                <label class="form-label">{{ 'admin.experiences.description' | translate }} *</label>
                 <textarea class="form-control" formControlName="description" rows="5" [readonly]="demoModeService.isDemo()"></textarea>
                 @if (experienceForm.get('description')?.invalid && experienceForm.get('description')?.touched) {
-                  <small class="text-danger">Requis (min 10 caractères)</small>
+                  <small class="text-danger">{{ 'admin.experiences.descriptionRequired' | translate }}</small>
                 }
               </div>
 
               <div class="d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+                <button type="button" class="btn btn-secondary" (click)="goBack()">{{ 'admin.common.cancel' | translate }}</button>
                 <button
                   type="submit"
                   class="btn btn-primary"
                   [disabled]="submitting || demoModeService.isDemo()"
                   [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-                  [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+                  [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
                 >
                   @if (submitting) {
                     <span class="spinner-border spinner-border-sm me-2"></span>
                   }
-                  {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+                  {{ (isEditMode ? 'admin.common.update' : 'admin.common.create') | translate }}
                 </button>
               </div>
             </form>

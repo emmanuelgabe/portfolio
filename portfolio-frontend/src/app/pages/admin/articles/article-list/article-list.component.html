@@ -1,15 +1,16 @@
 <div class="article-list">
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Gestion des Articles</h1>
+    <h1>{{ 'admin.articles.title' | translate }}</h1>
     <a routerLink="new" class="btn btn-primary">
       <i class="bi bi-plus-circle me-2"></i>
-      Nouvel Article
+      {{ 'admin.articles.new' | translate }}
     </a>
   </div>
 
-  <!-- Filter Buttons -->
-  <div class="mb-3">
+  <!-- Filter and Search Row -->
+  <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+    <!-- Filter Buttons -->
     <div class="btn-group" role="group">
       <button
         type="button"
@@ -17,7 +18,7 @@
         [class.active]="filterStatus === 'all'"
         (click)="filterStatus = 'all'"
       >
-        Tous ({{ articles.length }})
+        {{ 'admin.articles.all' | translate }} ({{ articles.length }})
       </button>
       <button
         type="button"
@@ -25,7 +26,7 @@
         [class.active]="filterStatus === 'published'"
         (click)="filterStatus = 'published'"
       >
-        Publiés ({{ publishedCount }})
+        {{ 'admin.articles.published' | translate }} ({{ publishedCount }})
       </button>
       <button
         type="button"
@@ -33,17 +34,39 @@
         [class.active]="filterStatus === 'draft'"
         (click)="filterStatus = 'draft'"
       >
-        Brouillons ({{ draftCount }})
+        {{ 'admin.articles.drafts' | translate }} ({{ draftCount }})
       </button>
     </div>
+
+    <!-- Search Input -->
+    <app-search-input
+      [loading]="isSearching"
+      (search)="onSearch($event)"
+      (clear)="onSearchClear()"
+    ></app-search-input>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Chargement...</span>
+  <!-- Loading Skeletons -->
+  <div *ngIf="loading" class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{{ 'admin.articles.titleField' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.articles.status' | translate }}</th>
+              <th style="width: 150px">{{ 'admin.articles.publishDate' | translate }}</th>
+              <th style="width: 200px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of [1,2,3,4,5]; track i) {
+              <app-skeleton-table-row [columns]="[{width: '45%'}, {width: '120px'}, {width: '150px'}, {width: '200px'}]" />
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
-    <p class="mt-3 text-muted">Chargement des articles...</p>
   </div>
 
   <!-- Error State -->
@@ -52,7 +75,7 @@
     {{ error }}
     <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadArticles()">
       <i class="bi bi-arrow-clockwise me-1"></i>
-      Réessayer
+      {{ 'common.retry' | translate }}
     </button>
   </div>
 
@@ -61,13 +84,13 @@
     <div class="card-body p-0">
       <!-- Empty State -->
       <div *ngIf="filteredArticles.length === 0" class="text-center py-5">
-        <i class="bi bi-file-earmark-text display-1 text-muted"></i>
+        <i class="bi" [ngClass]="isSearchActive ? 'bi-search' : 'bi-file-earmark-text'" class="display-1 text-muted"></i>
         <p class="mt-3 text-muted">
-          {{ filterStatus === 'all' ? 'Aucun article trouvé' : 'Aucun article ' + (filterStatus === 'published' ? 'publié' : 'brouillon') }}
+          {{ isSearchActive ? ('admin.common.noSearchResults' | translate) : getEmptyMessage() }}
         </p>
-        <a routerLink="new" class="btn btn-primary">
+        <a *ngIf="!isSearchActive" routerLink="new" class="btn btn-primary">
           <i class="bi bi-plus-circle me-2"></i>
-          Créer le premier article
+          {{ 'admin.articles.createFirst' | translate }}
         </a>
       </div>
 
@@ -76,10 +99,10 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th>Titre</th>
-              <th style="width: 120px">Statut</th>
-              <th style="width: 150px">Date publication</th>
-              <th style="width: 200px" class="text-center">Actions</th>
+              <th>{{ 'admin.articles.titleField' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.articles.status' | translate }}</th>
+              <th style="width: 150px">{{ 'admin.articles.publishDate' | translate }}</th>
+              <th style="width: 200px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -122,7 +145,7 @@
                   <a
                     [routerLink]="[article.id, 'edit']"
                     class="btn btn-sm btn-outline-primary"
-                    title="Éditer"
+                    [title]="'admin.common.edit' | translate"
                   >
                     <i class="bi bi-pencil"></i>
                   </a>
@@ -130,14 +153,14 @@
                     class="btn btn-sm"
                     [ngClass]="article.draft ? 'btn-outline-success' : 'btn-outline-warning'"
                     (click)="togglePublish(article)"
-                    [title]="article.draft ? 'Publier' : 'Dépublier'"
+                    [title]="(article.draft ? 'admin.articles.publish' : 'admin.articles.unpublish') | translate"
                   >
                     <i class="bi" [ngClass]="article.draft ? 'bi-upload' : 'bi-x-circle'"></i>
                   </button>
                   <button
                     class="btn btn-sm btn-outline-danger"
                     (click)="deleteArticle(article)"
-                    title="Supprimer"
+                    [title]="'admin.common.delete' | translate"
                   >
                     <i class="bi bi-trash"></i>
                   </button>
@@ -153,8 +176,8 @@
     <div *ngIf="filteredArticles.length > 0" class="card-footer text-muted">
       <small>
         <i class="bi bi-info-circle me-1"></i>
-        Affichage: {{ filteredArticles.length }} article{{ filteredArticles.length > 1 ? 's' : '' }}
-        | Total: {{ articles.length }}
+        {{ 'admin.articles.display' | translate }}: {{ filteredArticles.length }}
+        | {{ 'admin.common.total' | translate }}: {{ articles.length }}
       </small>
     </div>
   </div>
