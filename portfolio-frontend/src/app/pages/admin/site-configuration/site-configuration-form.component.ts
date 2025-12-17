@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SiteConfigurationService } from '../../../services/site-configuration.service';
 import { LoggerService } from '../../../services/logger.service';
 import { DemoModeService } from '../../../services/demo-mode.service';
@@ -14,7 +15,7 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-site-configuration-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
   templateUrl: './site-configuration-form.component.html',
   styleUrls: ['./site-configuration-form.component.css'],
 })
@@ -25,6 +26,7 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
   readonly demoModeService = inject(DemoModeService);
+  private readonly translate = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
 
   configForm!: FormGroup;
@@ -94,7 +96,7 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.logger.error('[SITE_CONFIG_FORM] Failed to load configuration', { error });
-          this.toastr.error('Erreur lors du chargement de la configuration');
+          this.toastr.error(this.translate.instant('admin.siteConfig.loadError'));
           this.loading = false;
         },
       });
@@ -106,8 +108,8 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
     }
 
     if (this.configForm.invalid) {
-      this.markFormGroupTouched(this.configForm);
-      this.toastr.warning('Veuillez remplir tous les champs requis');
+      this.configForm.markAllAsTouched();
+      this.toastr.warning(this.translate.instant('admin.common.fillRequired'));
       return;
     }
 
@@ -139,12 +141,12 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
           this.logger.info('[SITE_CONFIG_FORM] Configuration updated', {
             fullName: config.fullName,
           });
-          this.toastr.success('Configuration mise a jour avec succes');
+          this.toastr.success(this.translate.instant('admin.siteConfig.updateSuccess'));
           this.submitting = false;
         },
         error: (error) => {
           this.logger.error('[SITE_CONFIG_FORM] Failed to update configuration', { error });
-          this.toastr.error('Erreur lors de la mise a jour de la configuration');
+          this.toastr.error(this.translate.instant('admin.siteConfig.updateError'));
           this.submitting = false;
         },
       });
@@ -187,12 +189,12 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
             : undefined;
           this.selectedFile = undefined;
           this.imagePreview = undefined;
-          this.toastr.success('Photo de profil mise a jour');
+          this.toastr.success(this.translate.instant('admin.siteConfig.imageUploadSuccess'));
           this.uploadingImage = false;
         },
         error: (error) => {
           this.logger.error('[SITE_CONFIG_FORM] Failed to upload profile image', { error });
-          this.toastr.error('Erreur lors du telechargement de la photo');
+          this.toastr.error(this.translate.instant('admin.siteConfig.imageUploadError'));
           this.uploadingImage = false;
         },
       });
@@ -213,12 +215,12 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
         next: () => {
           this.logger.info('[SITE_CONFIG_FORM] Profile image deleted');
           this.profileImageUrl = undefined;
-          this.toastr.success('Photo de profil supprimee');
+          this.toastr.success(this.translate.instant('admin.siteConfig.imageDeleteSuccess'));
           this.uploadingImage = false;
         },
         error: (error) => {
           this.logger.error('[SITE_CONFIG_FORM] Failed to delete profile image', { error });
-          this.toastr.error('Erreur lors de la suppression de la photo');
+          this.toastr.error(this.translate.instant('admin.siteConfig.imageDeleteError'));
           this.uploadingImage = false;
         },
       });
@@ -237,14 +239,6 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
   hasError(fieldName: string, errorType: string): boolean {
     const field = this.configForm.get(fieldName);
     return !!(field?.hasError(errorType) && (field?.touched || field?.dirty));
-  }
-
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-      control?.markAsDirty();
-    });
   }
 
   goBack(): void {

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CvService } from '../../../services/cv.service';
 import { DemoModeService } from '../../../services/demo-mode.service';
 import { CvResponse } from '../../../models/cv.model';
@@ -10,13 +11,14 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-admin-cv',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './admin-cv.component.html',
   styleUrls: ['./admin-cv.component.css'],
 })
 export class AdminCvComponent implements OnInit, OnDestroy {
   private cvService = inject(CvService);
   readonly demoModeService = inject(DemoModeService);
+  private readonly translate = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
 
   cvs: CvResponse[] = [];
@@ -47,7 +49,7 @@ export class AdminCvComponent implements OnInit, OnDestroy {
           if (err.status === 404) {
             this.cvs = [];
           } else {
-            this.error = 'Erreur lors du chargement des CVs';
+            this.error = this.translate.instant('admin.cv.loadError');
           }
           this.isLoading = false;
         },
@@ -86,7 +88,7 @@ export class AdminCvComponent implements OnInit, OnDestroy {
           if (input) input.value = '';
         },
         error: (_err) => {
-          this.error = "Erreur lors de l'upload";
+          this.error = this.translate.instant('admin.cv.uploadError');
           this.isUploading = false;
         },
       });
@@ -101,7 +103,7 @@ export class AdminCvComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => this.loadCvs(),
-        error: (_err) => (this.error = 'Erreur lors de la mise a jour'),
+        error: (_err) => (this.error = this.translate.instant('admin.cv.setCurrentError')),
       });
   }
 
@@ -109,14 +111,14 @@ export class AdminCvComponent implements OnInit, OnDestroy {
     if (this.demoModeService.isDemo()) {
       return;
     }
-    if (!confirm('Etes-vous sur de vouloir supprimer ce CV ?')) return;
+    if (!confirm(this.translate.instant('admin.cv.deleteConfirm'))) return;
 
     this.cvService
       .deleteCv(cvId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => this.loadCvs(),
-        error: (_err) => (this.error = 'Erreur lors de la suppression'),
+        error: (_err) => (this.error = this.translate.instant('admin.cv.deleteError')),
       });
   }
 

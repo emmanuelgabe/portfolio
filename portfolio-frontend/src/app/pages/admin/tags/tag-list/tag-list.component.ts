@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SkeletonTableRowComponent } from '../../../../components/shared/skeleton';
 import { TagService } from '../../../../services/tag.service';
 import { ModalService } from '../../../../services/modal.service';
 import { LoggerService } from '../../../../services/logger.service';
@@ -13,7 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-tag-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule, SkeletonTableRowComponent],
   templateUrl: './tag-list.component.html',
   styleUrl: './tag-list.component.scss',
 })
@@ -22,6 +24,7 @@ export class TagListComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(ModalService);
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
   readonly demoModeService = inject(DemoModeService);
   private readonly destroy$ = new Subject<void>();
 
@@ -46,7 +49,7 @@ export class TagListComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (err) => {
-          this.error = 'Failed to load tags';
+          this.error = this.translate.instant('admin.tags.loadError');
           this.loading = false;
           this.logger.error('[HTTP_ERROR] Failed to load tags', {
             error: err.message || err,
@@ -58,17 +61,17 @@ export class TagListComponent implements OnInit, OnDestroy {
   confirmDelete(tag: TagResponse): void {
     this.modalService
       .confirm({
-        title: 'Confirmer la suppression',
-        message: `Voulez-vous vraiment supprimer le tag "${tag.name}" ?`,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler',
+        title: this.translate.instant('admin.common.confirmDelete'),
+        message: this.translate.instant('admin.tags.deleteConfirm', { name: tag.name }),
+        confirmText: this.translate.instant('admin.common.delete'),
+        cancelText: this.translate.instant('admin.common.cancel'),
         confirmButtonClass: 'btn-danger',
         disableConfirm: this.demoModeService.isDemo(),
       })
       .subscribe((confirmed) => {
         if (confirmed) {
           if (this.demoModeService.isDemo()) {
-            this.toastr.info('Action non disponible en mode démonstration');
+            this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
             return;
           }
           this.deleteTag(tag.id);

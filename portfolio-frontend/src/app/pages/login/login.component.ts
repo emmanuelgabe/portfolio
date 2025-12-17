@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { LoggerService } from '../../services/logger.service';
 import { LoginRequest } from '../../models/auth.model';
@@ -15,7 +16,7 @@ import { LoginRequest } from '../../models/auth.model';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
@@ -25,6 +26,7 @@ export class LoginComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
   private readonly logger = inject(LoggerService);
 
   loginForm!: FormGroup;
@@ -32,17 +34,14 @@ export class LoginComponent implements OnInit {
   returnUrl = '/';
 
   ngOnInit(): void {
-    // Redirect if already logged in
     if (this.authService.isAuthenticated()) {
       this.logger.info('[LOGIN] Already authenticated, redirecting');
       this.router.navigate(['/']);
       return;
     }
 
-    // Get return URL from query params or default to home
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
 
-    // Initialize login form
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -55,8 +54,11 @@ export class LoginComponent implements OnInit {
    */
   onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.markFormGroupTouched(this.loginForm);
-      this.toastr.warning('Veuillez remplir tous les champs correctement', 'Formulaire invalide');
+      this.loginForm.markAllAsTouched();
+      this.toastr.warning(
+        this.translate.instant('login.fillFields'),
+        this.translate.instant('login.formInvalid')
+      );
       return;
     }
 
@@ -67,14 +69,16 @@ export class LoginComponent implements OnInit {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password,
     };
-    const rememberMe = this.loginForm.value.rememberMe;
 
     this.logger.info('[LOGIN] Login attempt', { username: credentials.username });
 
-    this.authService.login(credentials, rememberMe).subscribe({
+    this.authService.login(credentials).subscribe({
       next: () => {
         this.logger.info('[LOGIN] Login successful, redirecting', { returnUrl: this.returnUrl });
-        this.toastr.success(`Bienvenue ${credentials.username} !`, 'Connexion réussie');
+        this.toastr.success(
+          `${this.translate.instant('login.welcome')} ${credentials.username} !`,
+          this.translate.instant('login.successTitle')
+        );
         this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
@@ -87,28 +91,27 @@ export class LoginComponent implements OnInit {
         });
 
         if (error.status === 401) {
-          this.toastr.error("Nom d'utilisateur ou mot de passe incorrect", 'Échec de connexion');
+          this.toastr.error(
+            this.translate.instant('login.invalidCredentials'),
+            this.translate.instant('login.failedTitle')
+          );
         } else if (error.status === 429) {
           this.toastr.error(
-            'Limite de tentatives atteinte. Veuillez réessayer dans 1 heure.',
-            'Trop de tentatives'
+            this.translate.instant('login.rateLimited'),
+            this.translate.instant('login.rateLimitedTitle')
           );
         } else if (error.status === 0) {
-          this.toastr.error('Impossible de contacter le serveur', 'Erreur réseau');
+          this.toastr.error(
+            this.translate.instant('login.networkError'),
+            this.translate.instant('login.networkErrorTitle')
+          );
         } else {
-          this.toastr.error('Une erreur est survenue lors de la connexion', 'Erreur');
+          this.toastr.error(
+            this.translate.instant('login.genericError'),
+            this.translate.instant('login.failedTitle')
+          );
         }
       },
-    });
-  }
-
-  /**
-   * Mark all form fields as touched to trigger validation messages
-   */
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
     });
   }
 

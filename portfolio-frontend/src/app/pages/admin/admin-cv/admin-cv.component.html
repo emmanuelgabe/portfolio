@@ -1,10 +1,10 @@
 <div class="container-fluid py-4">
-  <h2 class="mb-4"><i class="bi bi-file-earmark-pdf me-2"></i>Gestion des CVs</h2>
+  <h2 class="mb-4"><i class="bi bi-file-earmark-pdf me-2"></i>{{ 'admin.cv.title' | translate }}</h2>
 
   <!-- Upload Section -->
   <div class="card mb-4">
     <div class="card-body">
-      <h5 class="card-title">Upload nouveau CV</h5>
+      <h5 class="card-title">{{ 'admin.cv.uploadNew' | translate }}</h5>
       <div class="mb-3">
         <input
           type="file"
@@ -13,18 +13,18 @@
           (change)="onFileSelected($event)"
           [disabled]="isUploading || demoModeService.isDemo()"
           [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-          [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''" />
-        <small class="text-muted">PDF uniquement, max 10MB</small>
+          [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''" />
+        <small class="text-muted">{{ 'admin.cv.fileFormat' | translate }}</small>
       </div>
       <button
         class="btn btn-primary"
         (click)="uploadCv()"
         [disabled]="!selectedFile || isUploading || demoModeService.isDemo()"
         [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-        [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''">
+        [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''">
         <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2"></span>
         <i *ngIf="!isUploading" class="bi bi-upload me-2"></i>
-        {{ isUploading ? 'Upload en cours...' : 'Upload CV' }}
+        {{ isUploading ? ('admin.common.uploading' | translate) : ('admin.cv.uploadCv' | translate) }}
       </button>
     </div>
   </div>
@@ -38,25 +38,25 @@
   <!-- CVs List -->
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title">Liste des CVs</h5>
+      <h5 class="card-title">{{ 'admin.cv.list' | translate }}</h5>
 
       <div *ngIf="isLoading" class="text-center py-4">
         <div class="spinner-border"></div>
       </div>
 
       <div *ngIf="!isLoading && cvs.length === 0" class="text-center py-4 text-muted">
-        Aucun CV trouvé
+        {{ 'admin.cv.noCvs' | translate }}
       </div>
 
       <div *ngIf="!isLoading && cvs.length > 0" class="table-responsive">
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>Nom du fichier</th>
-              <th>Taille</th>
-              <th>Date d'upload</th>
-              <th>Statut</th>
-              <th>Actions</th>
+              <th>{{ 'admin.cv.fileName' | translate }}</th>
+              <th>{{ 'admin.cv.size' | translate }}</th>
+              <th>{{ 'admin.cv.uploadDate' | translate }}</th>
+              <th>{{ 'admin.cv.status' | translate }}</th>
+              <th>{{ 'admin.common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -69,9 +69,9 @@
               <td>{{ cv.uploadedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
               <td>
                 <span *ngIf="cv.current" class="badge bg-success">
-                  <i class="bi bi-check-circle me-1"></i>Public
+                  <i class="bi bi-check-circle me-1"></i>{{ 'admin.cv.public' | translate }}
                 </span>
-                <span *ngIf="!cv.current" class="badge bg-secondary">Archivé</span>
+                <span *ngIf="!cv.current" class="badge bg-secondary">{{ 'admin.cv.archived' | translate }}</span>
               </td>
               <td>
                 <button
@@ -80,14 +80,14 @@
                   (click)="setCurrentCv(cv.id)"
                   [disabled]="demoModeService.isDemo()"
                   [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-                  [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : 'Définir comme CV public'">
+                  [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ('admin.cv.setAsPublic' | translate)">
                   <i class="bi bi-check-circle"></i>
                 </button>
                 <a
                   [href]="getFullFileUrl(cv.fileUrl)"
                   target="_blank"
                   class="btn btn-sm btn-outline-secondary me-2"
-                  title="Télécharger">
+                  [title]="'admin.cv.download' | translate">
                   <i class="bi bi-download"></i>
                 </a>
                 <button
@@ -96,7 +96,7 @@
                   (click)="deleteCv(cv.id)"
                   [disabled]="demoModeService.isDemo()"
                   [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-                  [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : 'Supprimer'">
+                  [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ('admin.common.delete' | translate)">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>

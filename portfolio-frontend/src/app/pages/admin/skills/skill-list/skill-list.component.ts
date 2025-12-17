@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SkeletonTableRowComponent } from '../../../../components/shared/skeleton';
 import { SkillService } from '../../../../services/skill.service';
 import { ModalService } from '../../../../services/modal.service';
 import { LoggerService } from '../../../../services/logger.service';
@@ -13,7 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-skill-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule, SkeletonTableRowComponent],
   templateUrl: './skill-list.component.html',
   styleUrls: ['./skill-list.component.scss'],
 })
@@ -22,6 +24,7 @@ export class SkillListComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(ModalService);
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
   readonly demoModeService = inject(DemoModeService);
   private readonly destroy$ = new Subject<void>();
 
@@ -49,10 +52,10 @@ export class SkillListComponent implements OnInit, OnDestroy {
           this.logger.info('[ADMIN_SKILLS] Skills loaded', { count: skills.length });
         },
         error: (error) => {
-          this.error = 'Failed to load skills';
+          this.error = this.translate.instant('admin.skills.loadError');
           this.loading = false;
           this.logger.error('[ADMIN_SKILLS] Failed to load skills', { error });
-          this.toastr.error('Erreur lors du chargement des competences');
+          this.toastr.error(this.translate.instant('admin.skills.loadError'));
         },
       });
   }
@@ -64,7 +67,7 @@ export class SkillListComponent implements OnInit, OnDestroy {
       next: (confirmed) => {
         if (confirmed) {
           if (this.demoModeService.isDemo()) {
-            this.toastr.info('Action non disponible en mode démonstration');
+            this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
             return;
           }
           this.performDelete(skill);
@@ -88,11 +91,13 @@ export class SkillListComponent implements OnInit, OnDestroy {
         next: () => {
           this.skills = this.skills.filter((s) => s.id !== skill.id);
           this.logger.info('[ADMIN_SKILLS] Skill deleted', { id: skill.id });
-          this.toastr.success(`Competence "${skill.name}" supprimee`, 'Suppression reussie');
+          this.toastr.success(
+            this.translate.instant('admin.skills.deleteSuccess', { name: skill.name })
+          );
         },
         error: (error) => {
           this.logger.error('[ADMIN_SKILLS] Failed to delete skill', { id: skill.id, error });
-          this.toastr.error('Erreur lors de la suppression', 'Erreur');
+          this.toastr.error(this.translate.instant('admin.skills.deleteError'));
         },
       });
   }

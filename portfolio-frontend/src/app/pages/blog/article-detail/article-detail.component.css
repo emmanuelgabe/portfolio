@@ -109,3 +109,15 @@
   border: 0;
   border-top: 1px solid #dee2e6;
 }
+
+.not-found-container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.not-found-image {
+  max-width: 100%;
+  height: auto;
+  max-height: 250px;
+  border-radius: 8px;
+}

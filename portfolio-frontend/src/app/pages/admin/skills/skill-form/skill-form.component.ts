@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SkillService } from '../../../../services/skill.service';
 import { LoggerService } from '../../../../services/logger.service';
 import { DemoModeService } from '../../../../services/demo-mode.service';
@@ -19,7 +20,7 @@ import {
 @Component({
   selector: 'app-skill-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, IconPickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule, IconPickerComponent],
   templateUrl: './skill-form.component.html',
   styleUrls: ['./skill-form.component.scss'],
 })
@@ -31,6 +32,7 @@ export class SkillFormComponent implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
   readonly demoModeService = inject(DemoModeService);
   private readonly destroy$ = new Subject<void>();
 
@@ -54,7 +56,7 @@ export class SkillFormComponent implements OnInit, OnDestroy {
 
   iconTypes = [
     { value: IconType.FONT_AWESOME, label: 'Font Awesome' },
-    { value: IconType.CUSTOM_SVG, label: 'SVG personnalise' },
+    { value: IconType.CUSTOM_SVG, label: 'SVG personnalisé' },
   ];
 
   ngOnInit(): void {
@@ -101,20 +103,23 @@ export class SkillFormComponent implements OnInit, OnDestroy {
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith('.svg')) {
-      this.toastr.error('Seuls les fichiers SVG sont acceptes');
+      this.toastr.error(this.translate.instant('admin.skills.svgOnlyError'));
       return;
     }
 
     // Validate file size (100KB max)
     if (file.size > 102400) {
-      this.toastr.error('Le fichier ne doit pas depasser 100KB');
+      this.toastr.error(this.translate.instant('admin.skills.svgSizeError'));
       return;
     }
 
     // Preview SVG
     const reader = new FileReader();
     reader.onload = (e) => {
-      this.svgPreview = e.target?.result as string;
+      const result = e.target?.result;
+      if (typeof result === 'string') {
+        this.svgPreview = result;
+      }
     };
     reader.readAsDataURL(file);
 
@@ -145,12 +150,12 @@ export class SkillFormComponent implements OnInit, OnDestroy {
             iconType: IconType.CUSTOM_SVG,
             customIconUrl: skill.customIconUrl,
           });
-          this.toastr.success('Icone uploadee avec succes');
+          this.toastr.success(this.translate.instant('admin.skills.iconUploadSuccess'));
           this.uploadingIcon = false;
         },
         error: (error) => {
           this.logger.error('[SKILL_FORM] Failed to upload SVG icon', { error });
-          this.toastr.error("Erreur lors de l'upload de l'icone");
+          this.toastr.error(this.translate.instant('admin.skills.iconUploadError'));
           this.uploadingIcon = false;
         },
       });
@@ -215,7 +220,7 @@ export class SkillFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.logger.error('[SKILL_FORM] Failed to load skill', { id, error });
-          this.toastr.error('Erreur lors du chargement de la competence');
+          this.toastr.error(this.translate.instant('admin.skills.loadError'));
           this.loading = false;
           this.router.navigate(['/admin/skills']);
         },
@@ -228,8 +233,8 @@ export class SkillFormComponent implements OnInit, OnDestroy {
     }
 
     if (this.skillForm.invalid) {
-      this.markFormGroupTouched(this.skillForm);
-      this.toastr.warning('Veuillez remplir tous les champs requis');
+      this.skillForm.markAllAsTouched();
+      this.toastr.warning(this.translate.instant('admin.common.fillRequiredFields'));
       return;
     }
 
@@ -270,13 +275,15 @@ export class SkillFormComponent implements OnInit, OnDestroy {
             this.pendingSvgFile = undefined;
           }
 
-          this.toastr.success(`Competence "${skill.name}" creee avec succes`);
+          this.toastr.success(
+            this.translate.instant('admin.skills.createSuccess', { name: skill.name })
+          );
           this.submitting = false;
           this.router.navigate(['/admin/skills']);
         },
         error: (error) => {
           this.logger.error('[SKILL_FORM] Failed to create skill', { error });
-          this.toastr.error('Erreur lors de la creation de la competence');
+          this.toastr.error(this.translate.instant('admin.skills.createError'));
           this.submitting = false;
         },
       });
@@ -306,13 +313,15 @@ export class SkillFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (skill) => {
           this.logger.info('[SKILL_FORM] Skill updated', { id: skill.id });
-          this.toastr.success(`Competence "${skill.name}" mise a jour avec succes`);
+          this.toastr.success(
+            this.translate.instant('admin.skills.updateSuccess', { name: skill.name })
+          );
           this.submitting = false;
           this.router.navigate(['/admin/skills']);
         },
         error: (error) => {
           this.logger.error('[SKILL_FORM] Failed to update skill', { error });
-          this.toastr.error('Erreur lors de la mise a jour de la competence');
+          this.toastr.error(this.translate.instant('admin.skills.updateError'));
           this.submitting = false;
         },
       });
@@ -326,14 +335,6 @@ export class SkillFormComponent implements OnInit, OnDestroy {
   hasError(fieldName: string, errorType: string): boolean {
     const field = this.skillForm.get(fieldName);
     return !!(field?.hasError(errorType) && (field?.touched || field?.dirty));
-  }
-
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-      control?.markAsDirty();
-    });
   }
 
   getCategoryLabel(categoryValue: string): string {

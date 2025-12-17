@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Location } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { SiteConfigurationFormComponent } from './site-configuration-form.component';
 import { SiteConfigurationService } from '../../../services/site-configuration.service';
@@ -22,10 +23,10 @@ describe('SiteConfigurationFormComponent', () => {
     id: 1,
     fullName: 'Emmanuel Gabe',
     email: 'contact@emmanuelgabe.com',
-    heroTitle: 'Developpeur Backend',
-    heroDescription: 'Je cree des applications web modernes et evolutives.',
+    heroTitle: 'Développeur Backend',
+    heroDescription: 'Je crée des applications web modernes et évolutives.',
     siteTitle: 'Portfolio - Emmanuel Gabe',
-    seoDescription: 'Portfolio de Emmanuel Gabe, developpeur backend Java/Spring Boot.',
+    seoDescription: 'Portfolio de Emmanuel Gabe, développeur backend Java/Spring Boot.',
     profileImageUrl: '/uploads/profile/profile.webp',
     githubUrl: 'https://github.com/emmanuelgabe',
     linkedinUrl: 'https://linkedin.com/in/egabe',
@@ -49,7 +50,12 @@ describe('SiteConfigurationFormComponent', () => {
     siteConfigServiceSpy.getSiteConfiguration.and.returnValue(of(mockConfig));
 
     await TestBed.configureTestingModule({
-      imports: [SiteConfigurationFormComponent, ReactiveFormsModule, RouterModule.forRoot([])],
+      imports: [
+        SiteConfigurationFormComponent,
+        ReactiveFormsModule,
+        RouterModule.forRoot([]),
+        TranslateModule.forRoot(),
+      ],
       providers: [
         { provide: SiteConfigurationService, useValue: siteConfigServiceSpy },
         { provide: LoggerService, useValue: loggerServiceSpy },
