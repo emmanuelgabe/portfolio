@@ -143,9 +143,3 @@ Configuration and reference material:
 ## Contributing
 
 See [Contributing Guide](./contributing.md) for contribution guidelines.
-
----
-
-## Documentation Standards
-
-See [Documentation Guide](./DOCUMENTATION_GUIDE.md) for documentation standards.
