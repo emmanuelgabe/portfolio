@@ -2,6 +2,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
+import { TranslateModule } from '@ngx-translate/core';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 
@@ -16,7 +17,7 @@ describe('AppComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), provideHttpClient(), provideToastr()],
     }).compileComponents();
 

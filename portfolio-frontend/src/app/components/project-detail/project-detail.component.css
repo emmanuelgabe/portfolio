@@ -324,3 +324,16 @@ h1.display-4 {
     height: 16px;
   }
 }
+
+/* Not Found State */
+.not-found-container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.not-found-image {
+  max-width: 100%;
+  height: auto;
+  max-height: 250px;
+  border-radius: 8px;
+}

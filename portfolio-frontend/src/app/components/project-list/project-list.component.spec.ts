@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ProjectListComponent } from './project-list.component';
 import { ProjectService } from '../../services/project.service';
+import { LoggerService } from '../../services/logger.service';
 import { ProjectResponse } from '../../models';
 import { of, throwError } from 'rxjs';
 
@@ -9,6 +11,7 @@ describe('ProjectListComponent', () => {
   let component: ProjectListComponent;
   let fixture: ComponentFixture<ProjectListComponent>;
   let mockProjectService: jasmine.SpyObj<ProjectService>;
+  let mockLoggerService: jasmine.SpyObj<LoggerService>;
   let mockProjects: ProjectResponse[];
 
   beforeEach(async () => {
@@ -46,10 +49,15 @@ describe('ProjectListComponent', () => {
 
     mockProjectService = jasmine.createSpyObj('ProjectService', ['getAll']);
     mockProjectService.getAll.and.returnValue(of(mockProjects));
+    mockLoggerService = jasmine.createSpyObj('LoggerService', ['info', 'warn', 'error', 'debug']);
 
     await TestBed.configureTestingModule({
-      imports: [ProjectListComponent],
-      providers: [{ provide: ProjectService, useValue: mockProjectService }, provideRouter([])],
+      imports: [ProjectListComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: ProjectService, useValue: mockProjectService },
+        { provide: LoggerService, useValue: mockLoggerService },
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectListComponent);
@@ -65,16 +73,16 @@ describe('ProjectListComponent', () => {
     expect(mockProjectService.getAll).toHaveBeenCalled();
     expect(component.projects.length).toBe(2);
     expect(component.isLoading).toBeFalse();
-    expect(component.error).toBeNull();
+    expect(component.error).toBeUndefined();
   });
 
-  it('should display loading spinner while loading', () => {
+  it('should display loading skeleton while loading', () => {
     fixture.detectChanges(); // Let ngOnInit complete first
     component.isLoading = true;
     fixture.detectChanges(); // Now render with isLoading = true
     const compiled = fixture.nativeElement as HTMLElement;
-    const spinner = compiled.querySelector('.spinner-border');
-    expect(spinner).toBeTruthy();
+    const skeleton = compiled.querySelector('app-skeleton-project-card');
+    expect(skeleton).toBeTruthy();
   });
 
   it('should display error message on error', () => {
@@ -149,7 +157,7 @@ describe('ProjectListComponent', () => {
     const closeButton = compiled.querySelector('.btn-close') as HTMLButtonElement;
     closeButton.click();
 
-    expect(component.error).toBeNull();
+    expect(component.error).toBeUndefined();
   });
 
   it('should return false for hasNoProjects when loading', () => {
@@ -167,7 +175,7 @@ describe('ProjectListComponent', () => {
 
   it('should return true for hasNoProjects when no error, not loading, and empty array', () => {
     component.isLoading = false;
-    component.error = null;
+    component.error = undefined;
     component.projects = [];
     expect(component.hasNoProjects).toBeTrue();
   });

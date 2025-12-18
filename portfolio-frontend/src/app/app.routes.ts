@@ -21,6 +21,10 @@ import { ArticleFormComponent } from './pages/admin/articles/article-form/articl
 import { TagListComponent } from './pages/admin/tags/tag-list/tag-list.component';
 import { TagFormComponent } from './pages/admin/tags/tag-form/tag-form.component';
 import { SiteConfigurationFormComponent } from './pages/admin/site-configuration/site-configuration-form.component';
+import { AdminAuditListComponent } from './pages/admin/audit/audit-list/audit-list.component';
+import { ErrorComponent } from './pages/error/error.component';
+import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
+import { LegalNoticeComponent } from './pages/legal/legal-notice/legal-notice.component';
 
 /**
  * Shared admin child routes used by both /admin and /admindemo
@@ -98,6 +102,10 @@ const adminChildRoutes: Route[] = [
     path: 'configuration',
     component: SiteConfigurationFormComponent,
   },
+  {
+    path: 'audit',
+    component: AdminAuditListComponent,
+  },
 ];
 
 export const routes: Routes = [
@@ -137,7 +145,19 @@ export const routes: Routes = [
     children: adminChildRoutes,
   },
   {
+    path: 'privacy-policy',
+    component: PrivacyPolicyComponent,
+  },
+  {
+    path: 'legal',
+    component: LegalNoticeComponent,
+  },
+  {
+    path: 'error/:code',
+    component: ErrorComponent,
+  },
+  {
     path: '**',
-    redirectTo: '',
+    redirectTo: 'error/404',
   },
 ];

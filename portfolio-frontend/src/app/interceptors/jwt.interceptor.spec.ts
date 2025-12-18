@@ -5,7 +5,7 @@ import { jwtInterceptor } from './jwt.interceptor';
 import { AuthService } from '../services/auth.service';
 import { LoggerService } from '../services/logger.service';
 import { TokenStorageService } from '../services/token-storage.service';
-import { AuthResponse } from '../models/auth.model';
+import { AccessTokenResponse } from '../models/auth.model';
 import { of, throwError } from 'rxjs';
 
 describe('jwtInterceptor', () => {
@@ -15,11 +15,12 @@ describe('jwtInterceptor', () => {
   let loggerSpy: jasmine.SpyObj<LoggerService>;
   let tokenStorageSpy: jasmine.SpyObj<TokenStorageService>;
 
-  const mockAuthResponse: AuthResponse = {
+  const mockAccessTokenResponse: AccessTokenResponse = {
     accessToken: 'new-access-token',
-    refreshToken: 'new-refresh-token',
     tokenType: 'Bearer',
     expiresIn: 900000,
+    username: 'admin',
+    role: 'ROLE_ADMIN',
   };
 
   beforeEach(() => {
@@ -52,7 +53,7 @@ describe('jwtInterceptor', () => {
   // ========== Authorization Header Tests ==========
 
   describe('Authorization header', () => {
-    it('should add Authorization header when token exists', () => {
+    it('should_addAuthHeader_when_requestMadeWithValidToken', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('mock-access-token');
 
@@ -66,7 +67,7 @@ describe('jwtInterceptor', () => {
       req.flush([]);
     });
 
-    it('should not add Authorization header when no token', () => {
+    it('should_notAddAuthHeader_when_requestMadeWithNoToken', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue(null);
 
@@ -79,7 +80,7 @@ describe('jwtInterceptor', () => {
       req.flush([]);
     });
 
-    it('should not add Authorization header to auth endpoints', () => {
+    it('should_notAddAuthHeader_when_requestMadeToAuthEndpoint', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('mock-access-token');
 
@@ -92,7 +93,7 @@ describe('jwtInterceptor', () => {
       req.flush({});
     });
 
-    it('should not add Authorization header to refresh endpoint', () => {
+    it('should_notAddAuthHeader_when_requestMadeToRefreshEndpoint', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('mock-access-token');
 
@@ -109,10 +110,10 @@ describe('jwtInterceptor', () => {
   // ========== 401 Error Handling Tests ==========
 
   describe('401 error handling', () => {
-    it('should attempt token refresh on 401 error', () => {
+    it('should_refreshToken_when_requestFailsWith401', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValues('old-token', 'new-token');
-      authServiceSpy.refreshToken.and.returnValue(of(mockAuthResponse));
+      authServiceSpy.refreshToken.and.returnValue(of(mockAccessTokenResponse));
 
       // Act
       httpClient.get('/api/admin/projects').subscribe();
@@ -130,7 +131,7 @@ describe('jwtInterceptor', () => {
       expect(authServiceSpy.refreshToken).toHaveBeenCalled();
     });
 
-    it('should logout when token refresh fails on 401', () => {
+    it('should_logout_when_refreshTokenFailsAfter401', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('expired-token');
       authServiceSpy.refreshToken.and.returnValue(
@@ -151,7 +152,7 @@ describe('jwtInterceptor', () => {
       expect(authServiceSpy.logout).toHaveBeenCalled();
     });
 
-    it('should not attempt refresh for auth endpoints on 401', () => {
+    it('should_notRefreshToken_when_authEndpointFailsWith401', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('mock-token');
 
@@ -173,11 +174,11 @@ describe('jwtInterceptor', () => {
   // ========== 403 Error Handling Tests ==========
 
   describe('403 error handling', () => {
-    it('should attempt token refresh on 403 when token is expired', () => {
+    it('should_refreshToken_when_requestFailsWith403AndTokenExpired', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValues('expired-token', 'new-token');
       tokenStorageSpy.isTokenExpired.and.returnValue(true);
-      authServiceSpy.refreshToken.and.returnValue(of(mockAuthResponse));
+      authServiceSpy.refreshToken.and.returnValue(of(mockAccessTokenResponse));
 
       // Act
       httpClient.get('/api/admin/projects').subscribe();
@@ -195,7 +196,7 @@ describe('jwtInterceptor', () => {
       expect(authServiceSpy.refreshToken).toHaveBeenCalled();
     });
 
-    it('should not attempt refresh on 403 when token is not expired', () => {
+    it('should_notRefreshToken_when_requestFailsWith403AndTokenValid', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('valid-token');
       tokenStorageSpy.isTokenExpired.and.returnValue(false);
@@ -214,7 +215,7 @@ describe('jwtInterceptor', () => {
       expect(authServiceSpy.refreshToken).not.toHaveBeenCalled();
     });
 
-    it('should not attempt refresh for auth endpoints on 403', () => {
+    it('should_notRefreshToken_when_authEndpointFailsWith403', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('mock-token');
       tokenStorageSpy.isTokenExpired.and.returnValue(true);
@@ -237,7 +238,7 @@ describe('jwtInterceptor', () => {
   // ========== Other Error Handling Tests ==========
 
   describe('other errors', () => {
-    it('should pass through 404 errors without refresh attempt', () => {
+    it('should_notRefreshToken_when_requestFailsWith404', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('valid-token');
 
@@ -255,7 +256,7 @@ describe('jwtInterceptor', () => {
       expect(authServiceSpy.refreshToken).not.toHaveBeenCalled();
     });
 
-    it('should pass through 500 errors without refresh attempt', () => {
+    it('should_notRefreshToken_when_requestFailsWith500', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('valid-token');
 
@@ -277,7 +278,7 @@ describe('jwtInterceptor', () => {
   // ========== Logging Tests ==========
 
   describe('logging', () => {
-    it('should log debug when adding Authorization header', () => {
+    it('should_logDebug_when_authHeaderAdded', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValue('mock-token');
 
@@ -297,10 +298,10 @@ describe('jwtInterceptor', () => {
       );
     });
 
-    it('should log warning on 401 error', () => {
+    it('should_logWarning_when_401ErrorReceived', () => {
       // Arrange
       authServiceSpy.getToken.and.returnValues('old-token', 'new-token');
-      authServiceSpy.refreshToken.and.returnValue(of(mockAuthResponse));
+      authServiceSpy.refreshToken.and.returnValue(of(mockAccessTokenResponse));
 
       // Act
       httpClient.get('/api/admin/projects').subscribe();

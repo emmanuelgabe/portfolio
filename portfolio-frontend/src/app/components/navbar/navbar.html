@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-xl fixed-top" [class.scrolled]="isScrolled">
+<nav class="navbar navbar-expand-xl fixed-top" [class.scrolled]="isScrolled" [attr.aria-label]="'accessibility.mainNavigation' | translate">
   <div class="container-fluid">
     <!-- Logo/Brand -->
     <a class="navbar-brand" routerLink="/" (click)="closeNavbar()">
@@ -23,7 +23,7 @@
             class="nav-link"
             href="#hero"
             (click)="scrollToSection($event, 'hero')">
-            <i class="bi bi-house-door"></i> Accueil
+            <i class="bi bi-house-door" aria-hidden="true"></i> {{ 'nav.home' | translate }}
           </a>
         </li>
         <li class="nav-item">
@@ -31,7 +31,7 @@
             class="nav-link"
             href="#skills"
             (click)="scrollToSection($event, 'skills')">
-            <i class="bi bi-code-slash"></i> Compétences
+            <i class="bi bi-code-slash" aria-hidden="true"></i> {{ 'nav.skills' | translate }}
           </a>
         </li>
         <li class="nav-item">
@@ -39,7 +39,7 @@
             class="nav-link"
             href="#experiences"
             (click)="scrollToSection($event, 'experiences')">
-            <i class="bi bi-briefcase"></i> Expériences
+            <i class="bi bi-briefcase" aria-hidden="true"></i> {{ 'nav.experiences' | translate }}
           </a>
         </li>
         <li class="nav-item">
@@ -47,7 +47,7 @@
             class="nav-link"
             href="#projects"
             (click)="scrollToSection($event, 'projects')">
-            <i class="bi bi-folder"></i> Portfolio
+            <i class="bi bi-folder" aria-hidden="true"></i> {{ 'nav.portfolio' | translate }}
           </a>
         </li>
         <li class="nav-item" *ngIf="hasArticles">
@@ -55,7 +55,7 @@
             class="nav-link"
             href="#articles"
             (click)="scrollToSection($event, 'articles')">
-            <i class="bi bi-file-earmark-text"></i> Articles
+            <i class="bi bi-file-earmark-text" aria-hidden="true"></i> {{ 'nav.articles' | translate }}
           </a>
         </li>
         <li class="nav-item">
@@ -63,7 +63,7 @@
             class="nav-link"
             routerLink="/contact"
             (click)="closeNavbar()">
-            <i class="bi bi-envelope"></i> Contact
+            <i class="bi bi-envelope" aria-hidden="true"></i> {{ 'nav.contact' | translate }}
           </a>
         </li>
 
@@ -73,18 +73,22 @@
             class="nav-link"
             routerLink="/admin"
             (click)="closeNavbar()">
-            <i class="bi bi-gear"></i> Admin
+            <i class="bi bi-gear" aria-hidden="true"></i> {{ 'nav.admin' | translate }}
           </a>
         </li>
       </ul>
 
-      <!-- Logout button (visible only when logged in) - positioned right -->
-      <div class="auth-section" *ngIf="isAuthenticated">
+      <!-- Language selector and auth section -->
+      <div class="navbar-actions">
+        <app-language-selector></app-language-selector>
+
+        <!-- Logout button (visible only when logged in) -->
         <button
+          *ngIf="isAuthenticated"
           class="btn-logout-soft"
           (click)="logout()"
-          title="Se déconnecter">
-          <i class="bi bi-box-arrow-right"></i> Déconnexion
+          [title]="'nav.logoutTitle' | translate">
+          <i class="bi bi-box-arrow-right" aria-hidden="true"></i> {{ 'nav.logout' | translate }}
         </button>
       </div>
     </div>

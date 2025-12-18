@@ -62,10 +62,10 @@ export const adminGuard: CanActivateFn = (route, state): boolean | UrlTree => {
     });
   }
 
-  logger.warn('[ADMIN_GUARD] Insufficient permissions, redirecting to home', {
+  logger.warn('[ADMIN_GUARD] Insufficient permissions, redirecting to error 403', {
     url,
     isAdmin,
   });
 
-  return router.createUrlTree(['/']);
+  return router.createUrlTree(['/error/403']);
 };
