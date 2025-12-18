@@ -2,20 +2,28 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+function ensureVersionPrefix(version) {
+    // Always ensure version starts with 'v'
+    if (version && !version.startsWith('v')) {
+        return `v${version}`;
+    }
+    return version;
+}
+
 function getGitVersion() {
     // Check if VERSION is provided as environment variable (used in Docker builds)
     if (process.env.VERSION) {
         console.log(`Using VERSION from environment: ${process.env.VERSION}`);
-        return process.env.VERSION;
+        return ensureVersionPrefix(process.env.VERSION);
     }
 
     // Try to get version from git
     try {
         const version = execSync('git describe --tags --always --dirty', { encoding: 'utf-8' }).trim();
-        return version || '0.0.1-SNAPSHOT';
+        return ensureVersionPrefix(version || '0.0.1-SNAPSHOT');
     } catch (error) {
-        console.warn('Unable to get Git version, using default: 0.0.1-SNAPSHOT');
-        return '0.0.1-SNAPSHOT';
+        console.warn('Unable to get Git version, using default: v0.0.1-SNAPSHOT');
+        return 'v0.0.1-SNAPSHOT';
     }
 }
 
