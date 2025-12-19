@@ -51,6 +51,27 @@ cd portfolio-frontend && npm list
 ### Logging
 - **Logstash Logback Encoder** - Structured JSON logs
 
+### Messaging
+- **spring-boot-starter-amqp** - RabbitMQ integration
+- **spring-kafka** - Apache Kafka integration
+
+### Search
+- **spring-boot-starter-data-elasticsearch** - Elasticsearch integration
+
+### Batch Processing
+- **spring-boot-starter-batch** - Scheduled batch jobs
+
+### Caching
+- **spring-boot-starter-cache** - Cache abstraction
+- **Caffeine** - High-performance local cache
+
+### Resilience
+- **resilience4j-spring-boot3** - Circuit breaker, retry patterns
+- **resilience4j-micrometer** - Metrics integration
+
+### GraphQL
+- **spring-boot-starter-graphql** - GraphQL API support
+
 ### Testing
 - **Spring Boot Test** - JUnit 5, Mockito, AssertJ
 - **REST Assured** - REST API testing
@@ -72,6 +93,20 @@ cd portfolio-frontend && npm list
 ### Utilities
 - **date-fns** - Modern date library
 
+### Charts and Visualization
+- **chart.js** - Charting library
+- **ng2-charts** - Angular Chart.js wrapper
+
+### PWA (Progressive Web App)
+- **@angular/service-worker** - Service worker support
+
+### Internationalization (i18n)
+- **@ngx-translate/core** - Translation core
+- **@ngx-translate/http-loader** - JSON translation loader
+
+### Performance Monitoring
+- **web-vitals** - Core Web Vitals metrics
+
 ### Development Tools
 - **ESLint + Prettier** - Linting and formatting
 - **Husky + lint-staged** - Git hooks for automated checks
@@ -92,3 +127,27 @@ cd portfolio-frontend && npm list
 - `eclipse-temurin:21-jdk-alpine` - Backend build
 - `eclipse-temurin:21-jre-alpine` - Backend runtime
 - `postgres:17-alpine` - Database
+
+### Messaging Infrastructure
+- **RabbitMQ** (`rabbitmq:3-management-alpine`) - Message broker
+- **Apache Kafka** + Zookeeper - Event streaming
+
+### Search Infrastructure
+- **Elasticsearch** - Full-text search engine
+
+### Monitoring Stack
+- **Prometheus** - Metrics collection
+- **Grafana** - Dashboards and visualization
+- **Loki** - Log aggregation
+- **Promtail** - Log collector
+
+### Cache Infrastructure
+- **Redis** - Distributed cache and rate limiting
+
+---
+
+## Related Documentation
+
+- [Observability](../operations/observability.md) - Monitoring stack details
+- [Environments](./environments.md) - Service URLs by environment
+- [Configuration Properties](./configuration-properties.md) - All configuration options

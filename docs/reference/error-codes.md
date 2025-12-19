@@ -51,6 +51,7 @@
 | 409 | Conflict | Duplicate resource | Unique constraint violation |
 | 429 | Too Many Requests | Rate limit exceeded | Contact form spam prevention |
 | 500 | Internal Server Error | Server error | Unexpected exceptions, storage failures |
+| 503 | Service Unavailable | External service down | Circuit breaker open, Elasticsearch unavailable |
 
 ---
 
@@ -131,6 +132,35 @@
 | Scenario | Error Message |
 |----------|---------------|
 | Send failure | `Failed to send email. Please try again later.` |
+
+### Search Errors (503)
+
+| Scenario | Error Message |
+|----------|---------------|
+| Elasticsearch unavailable | `Search service temporarily unavailable` |
+| Search timeout | `Search request timed out` |
+
+### Batch Job Errors (500)
+
+| Scenario | Error Message |
+|----------|---------------|
+| Job already running | `Job is already running` |
+| Job start failure | `Failed to start batch job` |
+| Job not found | `Job execution not found with id: {id}` |
+
+### Audit Errors (500)
+
+| Scenario | Error Message |
+|----------|---------------|
+| Export failure | `Failed to export audit logs` |
+| Invalid date range | `Start date must be before end date` |
+
+### Circuit Breaker Errors (503)
+
+| Scenario | Error Message |
+|----------|---------------|
+| Service unavailable | `Service temporarily unavailable. Please try again later.` |
+| Circuit open | `External service is currently unavailable` |
 
 ---
 
