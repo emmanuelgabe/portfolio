@@ -99,6 +99,12 @@ docker-compose -f docker-compose.yml -f docker-compose.staging.yml up --build -d
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 ```
 
+**With Monitoring Stack (any environment):**
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.local.yml \
+  -f docker-compose.monitoring.yml up --build -d
+```
+
 ### 3.2 Access Points
 
 Once services are running:
@@ -111,6 +117,9 @@ Once services are running:
 | **Health Check** | http://localhost:8081/health | Simple health status |
 | **Full Health** | http://localhost:8081/health/full | Detailed health status |
 | **Database** | localhost:5432 | PostgreSQL (local env) |
+| **Grafana** | http://localhost:3001 | Monitoring dashboards |
+| **Prometheus** | http://localhost:9090 | Metrics collection |
+| **RabbitMQ Management** | http://localhost:15672 | Message queue UI |
 
 ### 3.3 Verify Installation
 
@@ -286,9 +295,37 @@ JWT_SECRET=your_jwt_secret_key_min_32_chars
 
 ---
 
+## 6. Optional Services
+
+### Messaging (RabbitMQ)
+
+```bash
+RABBITMQ_HOST=localhost
+RABBITMQ_PORT=5672
+RABBITMQ_USERNAME=guest
+RABBITMQ_PASSWORD=guest
+```
+
+### Search (Elasticsearch)
+
+```bash
+ELASTICSEARCH_HOST=localhost
+ELASTICSEARCH_PORT=9200
+```
+
+### Monitoring
+
+```bash
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=admin
+```
+
+---
+
 ## Additional Resources
 
-- [Architecture Guide](../architecture/architecture.md) - System design
+- [Architecture Guide](../architecture/README.md) - System design
 - [Testing Guide](./testing-guide.md) - Running tests
 - [CI/CD Guide](../deployment/ci-cd.md) - Deployment process
-- [Initial Setup](../security/initial-setup.md) - Security configuration
+- [Observability](../operations/observability.md) - Monitoring stack
+- [Configuration Properties](../reference/configuration-properties.md) - All configuration options
