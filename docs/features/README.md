@@ -13,13 +13,13 @@
 
 ## 1. Introduction
 
-This document provides an overview of the Portfolio application features. Each feature is documented in detail in its respective documentation file.
+Overview of the Portfolio application features. Each feature is documented in detail in its respective file.
 
 **Feature Categories**:
 - Content Management: Blog articles, experiences, CV management, site configuration
 - User Interaction: Contact form with rate limiting
 - Media Processing: Image optimization, file storage
-- Infrastructure: Security, validation, error handling
+- Infrastructure: Messaging, event streaming, caching, resilience
 
 ---
 
@@ -29,22 +29,9 @@ This document provides an overview of the Portfolio application features. Each f
 
 **File**: [blog-articles.md](./blog-articles.md)
 
-**Description**: Full-featured blog system with Markdown rendering, GitHub Flavored Markdown support, and draft/publish workflow.
+Markdown blog system with GitHub Flavored Markdown support.
 
-**Key Capabilities**:
-- Markdown content with Flexmark renderer
-- GitHub Flavored Markdown extensions (tables, strikethrough, task lists)
-- Automatic slug generation from title
-- Reading time calculation (200 words/minute)
-- Draft/publish status management
-- Tag-based categorization
-- Inline image support with Azure Blob Storage
-
-**API Endpoints**:
-- Public: `GET /api/articles`, `GET /api/articles/{slug}`
-- Admin: `POST /api/articles/admin`, `PUT /api/articles/admin/{id}/publish`
-
-**Technologies**: Flexmark (Markdown rendering), MapStruct (DTO mapping)
+**Capabilities**: Flexmark rendering, slug generation, reading time calculation, draft/publish workflow, tag categorization
 
 ---
 
@@ -52,21 +39,9 @@ This document provides an overview of the Portfolio application features. Each f
 
 **File**: [experience-management.md](./experience-management.md)
 
-**Description**: Timeline-based experience management for work history, education, certifications, and volunteering.
+Timeline-based experience management (work, education, certifications, volunteering).
 
-**Key Capabilities**:
-- Four experience types: WORK, EDUCATION, CERTIFICATION, VOLUNTEERING
-- Date range validation (end_date >= start_date)
-- Ongoing experiences support (null endDate)
-- Type-based filtering
-- Recent experiences endpoint (configurable limit)
-- Chronological ordering (most recent first)
-
-**API Endpoints**:
-- Public: `GET /api/experiences`, `GET /api/experiences/type/{type}`, `GET /api/experiences/ongoing`
-- Admin: `POST /api/experiences/admin`, `PUT /api/experiences/admin/{id}`
-
-**Use Cases**: Professional timeline, education history, certifications showcase
+**Capabilities**: Four experience types, date validation, ongoing experiences, type-based filtering
 
 ---
 
@@ -74,22 +49,9 @@ This document provides an overview of the Portfolio application features. Each f
 
 **File**: [cv-management.md](./cv-management.md)
 
-**Description**: Complete CV/resume management system with versioning and public download capability.
+CV/resume management system with versioning.
 
-**Key Capabilities**:
-- Multiple CV versions support
-- Single "current" CV designation (enforced by database constraint)
-- PDF validation (magic bytes)
-- User tracking (who uploaded each CV)
-- Public access to current CV
-- Admin-only upload and management
-- Historical version preservation
-
-**API Endpoints**:
-- Public: `GET /api/cv/current`, `GET /api/cv/download/{id}`
-- Admin: `POST /api/admin/cv/upload`, `PUT /api/admin/cv/{id}/set-current`
-
-**Database**: Unique partial index ensures only one `is_current = true` at a time
+**Capabilities**: Multiple versions, single "current" designation, PDF validation, public download
 
 ---
 
@@ -97,21 +59,9 @@ This document provides an overview of the Portfolio application features. Each f
 
 **File**: [site-configuration.md](./site-configuration.md)
 
-**Description**: Centralized configuration for all site-wide settings including personal identity, hero section content, SEO metadata, and social links.
+Centralized site-wide settings (identity, hero, SEO, social links).
 
-**Key Capabilities**:
-- Personal identity management (full name, email)
-- Hero section content (title, description)
-- SEO metadata (site title, meta description)
-- Social links (GitHub, LinkedIn URLs)
-- Profile image upload with WebP optimization
-- Singleton pattern (single configuration row)
-
-**API Endpoints**:
-- Public: `GET /api/configuration`
-- Admin: `PUT /api/admin/configuration`, `POST /api/admin/configuration/profile-image`
-
-**Database**: Single row constraint ensures only one configuration exists
+**Capabilities**: Profile image upload, WebP optimization, singleton pattern
 
 ---
 
@@ -121,24 +71,9 @@ This document provides an overview of the Portfolio application features. Each f
 
 **File**: [contact-form.md](./contact-form.md)
 
-**Description**: Rate-limited contact form with email notification and spam prevention.
+Rate-limited contact form with email notification.
 
-**Key Capabilities**:
-- IP-based rate limiting (Redis-backed)
-- Configurable rate limits per environment
-- Email notification to admin
-- Request validation (name, email, message)
-- X-Forwarded-For header support (proxy-aware)
-- Atomic Redis operations for thread safety
-
-**API Endpoint**: `POST /api/contact` (public, rate-limited)
-
-**Rate Limits**:
-- Development: 10 requests/hour per IP
-- Staging: 5 requests/hour per IP
-- Production: 3 requests/hour per IP
-
-**Technologies**: Redis (rate limiting), Spring Mail (email sending)
+**Capabilities**: IP-based rate limiting (Redis), email notification, validation, proxy support
 
 ---
 
@@ -148,24 +83,9 @@ This document provides an overview of the Portfolio application features. Each f
 
 **File**: [image-processing.md](./image-processing.md)
 
-**Description**: Automatic image optimization with WebP conversion and thumbnail generation.
+Automatic image optimization with WebP conversion.
 
-**Key Capabilities**:
-- Automatic WebP conversion (from JPEG, PNG, WebP)
-- Thumbnail generation (400×300px, quality 0.8)
-- Full image optimization (quality 0.85)
-- MIME type validation (magic bytes)
-- Old image cleanup (prevents orphaned files)
-- 25-35% file size reduction vs JPEG
-
-**Technologies**: Thumbnailator (Java image processing library)
-
-**Performance**:
-- Processing time: ~350ms per image (full + thumbnail)
-- File size savings: 72% vs PNG, 30% vs JPEG
-- Bandwidth savings: 93% reduction with thumbnails
-
-**Use Cases**: Project images, portfolio gallery, optimized page load times
+**Capabilities**: WebP conversion, thumbnail generation (400x300px), MIME validation, 25-35% size reduction
 
 ---
 
@@ -173,140 +93,138 @@ This document provides an overview of the Portfolio application features. Each f
 
 **File**: [file-storage.md](./file-storage.md)
 
-**Description**: Secure, organized file storage architecture with validation and cleanup.
+Secure file storage with validation and cleanup.
 
-**Key Capabilities**:
-- Organized directory structure (`uploads/projects/`, `uploads/cvs/`)
-- Timestamped filenames (prevents collisions)
-- MIME type validation (magic bytes, not extensions)
-- File size limits (10 MB default)
-- Path traversal prevention
-- Old file cleanup on updates
-
-**Storage Structure**:
-```
-uploads/
-├── projects/           # Project images (WebP)
-│   ├── project_1_1700000000.webp
-│   └── project_1_1700000000_thumb.webp
-├── cvs/                # CV documents (PDF)
-│   └── cv_1_1700000000.pdf
-└── articles/           # Article images (JPEG, PNG, WebP)
-    └── article_1_1700000000.webp
-```
-
-**Security**:
-- Magic bytes validation (content-based, not extension-based)
-- Path sanitization (prevents directory traversal)
-- File size limits (Spring Boot enforced)
-- Content-Type validation
+**Capabilities**: Organized directory structure, timestamped filenames, MIME validation, path traversal prevention
 
 ---
 
 ## 5. Infrastructure Features
 
-### 5.1 File Validation
+### 5.1 Messaging (RabbitMQ)
 
-**Cross-Feature**: All file upload features (projects, CVs, articles)
+**File**: [messaging.md](./messaging.md)
 
-**Validation Layers**:
+Asynchronous message processing for email, image processing, audit logging.
 
-1. **MIME Type Validation** (magic bytes):
-   - JPEG: `FF D8 FF`
-   - PNG: `89 50 4E 47 0D 0A 1A 0A`
-   - WebP: `52 49 46 46 ... 57 45 42 50`
-   - PDF: `25 50 44 46`
-
-2. **File Size Validation**:
-   - Max size: 10 MB (configurable)
-   - Enforced by Spring Boot and service layer
-
-3. **Path Validation**:
-   - Filename sanitization
-   - Directory traversal prevention
-   - Absolute path verification
-
-**Implementation**: `FileStorageService`, `ImageService`
+**Capabilities**: Non-blocking operations, dead letter queue, automatic retries
 
 ---
 
-### 5.2 Markdown Rendering
+### 5.2 Event Streaming (Kafka)
 
-**Feature**: Blog Articles
+**File**: [event-streaming.md](./event-streaming.md)
 
-**GitHub Flavored Markdown Extensions**:
-- Tables
-- Strikethrough (`~~text~~`)
-- Task lists (`- [ ]`, `- [x]`)
-- Autolinks (URLs automatically converted)
-- Fenced code blocks with syntax highlighting support
+Event-driven architecture for admin actions, analytics, activity tracking.
 
-**Implementation**:
-```java
-Parser parser = Parser.builder()
-    .extensions(Arrays.asList(
-        TablesExtension.create(),
-        StrikethroughExtension.create(),
-        TaskListExtension.create(),
-        AutolinkExtension.create()
-    ))
-    .build();
-
-Node document = parser.parse(markdownContent);
-String html = renderer.render(document);
-```
-
-**Service**: `MarkdownService` (converts Markdown → HTML)
+**Capabilities**: Admin events, analytics events, activity events, 3 partitions per topic
 
 ---
 
-### 5.3 Slug Generation
+### 5.3 Audit System
 
-**Feature**: Blog Articles
+**File**: [audit-system.md](./audit-system.md)
 
-**Algorithm**:
-1. Convert title to lowercase
-2. Trim whitespace
-3. Remove special characters (keep only a-z, 0-9, spaces, hyphens)
-4. Replace spaces with hyphens
-5. Collapse multiple hyphens
-6. Remove leading/trailing hyphens
+AOP-based audit logging for administrative actions.
 
-**Example**:
-```
-"My First Blog Post!" → "my-first-blog-post"
-"Angular 18: What's New?" → "angular-18-whats-new"
-"C++ Tutorial (Part 1)" → "c-tutorial-part-1"
-```
-
-**Implementation**: Entity lifecycle listener (`@PrePersist`, `@PreUpdate`)
+**Capabilities**: @Auditable annotation, old/new value capture, CSV/JSON/PDF export, 90-day retention
 
 ---
 
-### 5.4 Reading Time Calculation
+### 5.4 Full-text Search
 
-**Feature**: Blog Articles
+**File**: [search.md](./search.md)
 
-**Algorithm**: Words per minute (WPM) calculation
+Elasticsearch-based full-text search.
 
-**Formula**: `readingTime = Math.ceil(wordCount / 200)`
+**Capabilities**: Articles/projects/experiences search, JPA fallback, weekly reindex
 
-**Examples**:
-- 500 words → 3 minutes
-- 1000 words → 5 minutes
-- 1500 words → 8 minutes
+---
 
-**Implementation**: Automatic calculation in `Article` entity on save
+### 5.5 Batch Processing
+
+**File**: [batch-processing.md](./batch-processing.md)
+
+Spring Batch jobs for scheduled maintenance.
+
+**Capabilities**: Audit cleanup, report generation, stats aggregation, sitemap regeneration
+
+---
+
+### 5.6 Visitor Tracking
+
+**File**: [visitor-tracking.md](./visitor-tracking.md)
+
+Real-time visitor tracking using Redis and SSE.
+
+**Capabilities**: Active visitors count, daily unique visitors, SSE stream, 7-day chart
+
+---
+
+### 5.7 Circuit Breaker
+
+**File**: [circuit-breaker.md](./circuit-breaker.md)
+
+Resilience patterns for external service calls.
+
+**Capabilities**: Circuit breaker (email), retry with backoff, fallback handling
+
+---
+
+### 5.8 PWA (Offline Support)
+
+**File**: [pwa.md](./pwa.md)
+
+Progressive Web App with Service Worker.
+
+**Capabilities**: Offline access, asset caching, installable as native app
+
+---
+
+### 5.9 Internationalization (i18n)
+
+**File**: [i18n.md](./i18n.md)
+
+Multi-language support (10 languages including RTL).
+
+**Capabilities**: Browser detection, localStorage persistence, Arabic RTL support
+
+---
+
+### 5.10 SEO
+
+**File**: [seo.md](./seo.md)
+
+Search engine optimization.
+
+**Capabilities**: Dynamic meta tags, OpenGraph/Twitter Cards, JSON-LD structured data
+
+---
+
+### 5.11 Sitemap
+
+**File**: [sitemap.md](./sitemap.md)
+
+Dynamic sitemap.xml generation.
+
+**Capabilities**: All projects/articles, daily updates, priority attributes
+
+---
+
+### 5.12 Application Caching
+
+**File**: [caching.md](./caching.md)
+
+Redis-based application caching.
+
+**Capabilities**: 5 caches (siteConfig, skills, projects, experiences, tags), TTL expiration, auto-eviction
 
 ---
 
 ## Related Documentation
 
-- [API Documentation](../api/README.md) - API endpoints for all features
+- [API Documentation](../api/README.md) - API endpoints
 - [Architecture: Database Schema](../architecture/database-schema.md) - Database design
 - [Architecture: Frontend](../architecture/frontend-architecture.md) - Angular architecture
-- [Architecture: Error Handling](../architecture/error-handling.md) - Error handling strategy
 - [Security: JWT Implementation](../security/jwt-implementation.md) - Authentication
-- [Security: Rate Limiting](../security/rate-limiting.md) - Rate limiting details
 - [Reference: Configuration Properties](../reference/configuration-properties.md) - Configuration
-- [Reference: Error Codes](../reference/error-codes.md) - Error codes reference
