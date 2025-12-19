@@ -354,6 +354,7 @@ cors:
 - [RBAC](./rbac.md) - Role-based access control
 - [Password Management](./password-management.md) - BCrypt hashing and password security
 - [Rate Limiting](./rate-limiting.md) - IP-based rate limiting
+- [GDPR Compliance](./gdpr-compliance.md) - Privacy features and cookie consent
 
 **Related Modules**:
 - [API: Authentication](../api/authentication.md) - Authentication API endpoints
