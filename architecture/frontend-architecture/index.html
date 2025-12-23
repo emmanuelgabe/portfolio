@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -431,44 +431,6 @@
     
   
   Contribuer
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../DOCUMENTATION_GUIDE/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Guide Documentation
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../COVERAGE/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Couverture
 
       </a>
     </li>
@@ -1194,17 +1156,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#key-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1221,17 +1172,6 @@
   
     <nav class="md-nav" aria-label="3. Project Structure">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#directory-organization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Directory Organization
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#file-naming-conventions" class="md-nav__link">
@@ -1260,17 +1200,6 @@
   
     <nav class="md-nav" aria-label="4. Routing Architecture">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#route-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Route Configuration
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#public-vs-admin-routes" class="md-nav__link">
@@ -1312,10 +1241,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#service-architecture" class="md-nav__link">
+  <a href="#services-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Architecture
+        Services Overview
       
     </span>
   </a>
@@ -1323,10 +1252,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#service-patterns" class="md-nav__link">
+  <a href="#service-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Patterns
+        Service Pattern
       
     </span>
   </a>
@@ -1519,6 +1448,56 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Directives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Directives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lazyimagedirective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LazyImageDirective
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asyncimagedirective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AsyncImageDirective
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-skeleton-loaders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Skeleton Loaders
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2958,60 +2937,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../DOCUMENTATION_GUIDE/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guide Documentation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../COVERAGE/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Couverture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -3105,17 +3030,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#key-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -3132,17 +3046,6 @@
   
     <nav class="md-nav" aria-label="3. Project Structure">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#directory-organization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Directory Organization
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#file-naming-conventions" class="md-nav__link">
@@ -3171,17 +3074,6 @@
   
     <nav class="md-nav" aria-label="4. Routing Architecture">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#route-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Route Configuration
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#public-vs-admin-routes" class="md-nav__link">
@@ -3223,10 +3115,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#service-architecture" class="md-nav__link">
+  <a href="#services-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Architecture
+        Services Overview
       
     </span>
   </a>
@@ -3234,10 +3126,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#service-patterns" class="md-nav__link">
+  <a href="#service-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Patterns
+        Service Pattern
       
     </span>
   </a>
@@ -3434,6 +3326,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#9-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Directives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Directives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lazyimagedirective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LazyImageDirective
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asyncimagedirective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AsyncImageDirective
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-skeleton-loaders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Skeleton Loaders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3479,7 +3421,7 @@
 </ol>
 <hr />
 <h2 id="1-overview">1. Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
-<p>The frontend is built with <strong>Angular 18</strong> using <strong>standalone components</strong> architecture. Follows modern Angular patterns with functional guards, HTTP interceptors, and dependency injection.</p>
+<p>The frontend is built with <strong>Angular 18</strong> using <strong>standalone components</strong> architecture.</p>
 <p><strong>Key Architectural Decisions</strong>:
 - Standalone components (no NgModules)
 - Functional route guards (<code>CanActivateFn</code>)
@@ -3510,110 +3452,50 @@
 <li><strong>ESLint + Prettier</strong> (code quality)</li>
 <li><strong>Husky + lint-staged</strong> (pre-commit hooks)</li>
 </ul>
-<h3 id="key-dependencies">Key Dependencies<a class="headerlink" href="#key-dependencies" title="Permanent link">&para;</a></h3>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">&quot;@angular/core&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.x&quot;</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">&quot;@angular/common&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.x&quot;</span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">&quot;@angular/router&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.x&quot;</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;bootstrap&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.3.x&quot;</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;bootstrap-icons&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.11.x&quot;</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">&quot;date-fns&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^3.x&quot;</span><span class="p">,</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">&quot;ngx-toastr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.x&quot;</span><span class="p">,</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">&quot;rxjs&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^7.x&quot;</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
-</span></code></pre></div>
 <hr />
 <h2 id="3-project-structure">3. Project Structure<a class="headerlink" href="#3-project-structure" title="Permanent link">&para;</a></h2>
-<h3 id="directory-organization">Directory Organization<a class="headerlink" href="#directory-organization" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>src/app/
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── components/          # Reusable UI components
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── article-card/    # Article preview card
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── contact-form/    # Contact form widget
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   ├── home/            # Homepage component
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   ├── navbar/          # Navigation bar
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   ├── project-card/    # Project preview card
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── project-detail/  # Project detail view
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── project-list/    # Projects listing
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   └── shared/          # Shared components
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│       └── session-expiry-modal/  # Session timeout modal
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── pages/               # Page-level components
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│   ├── admin/           # Admin area (protected)
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   │   ├── admin-layout/      # Admin shell layout
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   │   ├── dashboard/         # Admin dashboard
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>│   │   ├── articles/          # Article management
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│   │   ├── experiences/       # Experience management
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   │   ├── projects/          # Project management
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   │   ├── skills/            # Skill management
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   │   ├── tags/              # Tag management
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>│   │   └── admin-cv/          # CV management
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│   ├── blog/            # Blog public area
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│   │   ├── article-list/      # Blog listing
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>│   │   └── article-detail/    # Article reading
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   ├── contact/         # Contact page
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   ├── login/           # Login page
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│   └── timeline/        # Timeline page
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>├── services/            # Business logic and API communication
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>├── guards/              # Route protection
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>├── interceptors/        # HTTP middleware
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>├── models/              # TypeScript interfaces
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>└── app.routes.ts        # Route configuration
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>src/app/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── components/          # Reusable UI components
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── article-card/
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── contact-form/
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── footer/
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── home/
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── navbar/
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── project-card/
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── project-detail/
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   ├── project-list/
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   └── shared/
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│       ├── language-selector/
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│       ├── search-input/
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│       ├── session-expiry-modal/
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│       ├── skeleton/
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│       └── visitors-chart/
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>├── pages/               # Page-level components
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   ├── admin/           # Admin area (protected)
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   │   ├── admin-layout/
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   │   ├── dashboard/
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   │   ├── articles/
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│   │   ├── projects/
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│   │   └── ...
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│   ├── blog/
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│   ├── contact/
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│   ├── error/
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│   └── login/
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>├── services/            # Business logic and API
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>├── guards/              # Route protection
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>├── interceptors/        # HTTP middleware
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>├── models/              # TypeScript interfaces
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>└── app.routes.ts        # Route configuration
 </span></code></pre></div>
 <h3 id="file-naming-conventions">File Naming Conventions<a class="headerlink" href="#file-naming-conventions" title="Permanent link">&para;</a></h3>
-<p><strong>Components</strong>:
-- <code>component-name.component.ts</code> - Component class
-- <code>component-name.component.html</code> - Template
-- <code>component-name.component.scss</code> - Styles
-- <code>component-name.component.spec.ts</code> - Unit tests</p>
-<p><strong>Services</strong>:
-- <code>service-name.service.ts</code> - Service class
-- <code>service-name.service.spec.ts</code> - Unit tests</p>
+<ul>
+<li><code>component-name.component.ts</code> - Component class</li>
+<li><code>component-name.component.html</code> - Template</li>
+<li><code>component-name.component.scss</code> - Styles</li>
+<li><code>service-name.service.ts</code> - Service class</li>
+</ul>
 <hr />
 <h2 id="4-routing-architecture">4. Routing Architecture<a class="headerlink" href="#4-routing-architecture" title="Permanent link">&para;</a></h2>
-<h3 id="route-configuration">Route Configuration<a class="headerlink" href="#route-configuration" title="Permanent link">&para;</a></h3>
-<p><strong>File</strong>: <code>app.routes.ts</code></p>
-<p><strong>Route Structure</strong>:
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">routes</span><span class="o">:</span><span class="w"> </span><span class="kt">Routes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="c1">// Public routes</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">HomeComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;login&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">LoginComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;projects&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ProjectListComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;projects/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ProjectDetailComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;contact&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ContactComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;blog&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ArticleListComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;blog/:slug&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ArticleDetailComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="c1">// Admin routes (protected by adminGuard)</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;admin&#39;</span><span class="p">,</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nx">canActivate</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">adminGuard</span><span class="p">],</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">AdminLayoutComponent</span><span class="p">,</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nx">children</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">DashboardComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;projects&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">AdminProjectListComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;projects/new&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ProjectFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;projects/:id/edit&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ProjectFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;skills&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">SkillListComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;skills/new&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">SkillFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;skills/:id/edit&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">SkillFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tags&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">TagListComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tags/new&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">TagFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tags/:id/edit&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">TagFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;cv&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">AdminCvComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;experiences&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ExperienceListComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;experiences/new&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ExperienceFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;experiences/edit/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ExperienceFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;articles&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">AdminArticleListComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;articles/new&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ArticleFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;articles/:id/edit&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">ArticleFormComponent</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">    </span><span class="p">],</span>
-</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">  </span><span class="p">},</span>
-</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>
-</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="w">  </span><span class="c1">// Catch-all route</span>
-</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;**&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">redirectTo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="p">];</span>
-</span></code></pre></div></p>
 <h3 id="public-vs-admin-routes">Public vs Admin Routes<a class="headerlink" href="#public-vs-admin-routes" title="Permanent link">&para;</a></h3>
 <p><strong>Public Routes</strong> (unauthenticated access):
 - <code>/</code> - Homepage with featured projects
@@ -3622,304 +3504,203 @@
 - <code>/blog</code> - Blog articles listing
 - <code>/blog/:slug</code> - Article reading view
 - <code>/contact</code> - Contact form
-- <code>/login</code> - Authentication</p>
+- <code>/login</code> - Authentication
+- <code>/privacy-policy</code> - Privacy policy (GDPR)
+- <code>/legal</code> - Legal notice (mentions legales)
+- <code>/error</code> - Dynamic error page (404, 500)</p>
 <p><strong>Admin Routes</strong> (requires <code>ROLE_ADMIN</code>):
 - <code>/admin</code> - Dashboard
-- <code>/admin/projects</code> - Manage projects (list/create/edit/delete)
+- <code>/admin/projects</code> - Manage projects
 - <code>/admin/skills</code> - Manage skills
 - <code>/admin/tags</code> - Manage tags
 - <code>/admin/cv</code> - Upload/manage CV
-- <code>/admin/experiences</code> - Manage timeline experiences
-- <code>/admin/articles</code> - Manage blog articles</p>
+- <code>/admin/experiences</code> - Manage experiences
+- <code>/admin/articles</code> - Manage blog articles
+- <code>/admin/audit</code> - Audit logs viewer</p>
+<p><strong>Demo Routes</strong> (no authentication required):
+- <code>/admindemo</code> - Demo admin with mock data (read-only)</p>
 <h3 id="nested-admin-routes">Nested Admin Routes<a class="headerlink" href="#nested-admin-routes" title="Permanent link">&para;</a></h3>
-<p><strong>Pattern</strong>: Admin routes use nested routing with <code>AdminLayoutComponent</code> as shell</p>
-<p><strong>Benefits</strong>:
+<p>Admin routes use nested routing with <code>AdminLayoutComponent</code> as shell:
 - Shared admin navigation and header
-- Consistent admin UI layout
 - Single guard protection for all admin routes
-- Lazy loading potential for admin modules</p>
+- Consistent admin UI layout</p>
 <hr />
 <h2 id="5-service-layer">5. Service Layer<a class="headerlink" href="#5-service-layer" title="Permanent link">&para;</a></h2>
-<h3 id="service-architecture">Service Architecture<a class="headerlink" href="#service-architecture" title="Permanent link">&para;</a></h3>
-<p><strong>Services</strong> (<code>src/app/services/</code>):</p>
+<h3 id="services-overview">Services Overview<a class="headerlink" href="#services-overview" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
 <th>Service</th>
 <th>Purpose</th>
-<th>Key Methods</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>AuthService</code></td>
 <td>Authentication management</td>
-<td><code>login()</code>, <code>logout()</code>, <code>refreshToken()</code>, <code>isAuthenticated()</code>, <code>isAdmin()</code></td>
 </tr>
 <tr>
 <td><code>TokenStorageService</code></td>
 <td>JWT token storage</td>
-<td><code>saveToken()</code>, <code>getToken()</code>, <code>clearToken()</code>, <code>isTokenExpired()</code></td>
 </tr>
 <tr>
 <td><code>ProjectService</code></td>
 <td>Project CRUD operations</td>
-<td><code>getAll()</code>, <code>getById()</code>, <code>create()</code>, <code>update()</code>, <code>delete()</code>, <code>uploadImage()</code></td>
 </tr>
 <tr>
 <td><code>ArticleService</code></td>
 <td>Article management</td>
-<td><code>getAllPublished()</code>, <code>getBySlug()</code>, <code>create()</code>, <code>update()</code>, <code>publish()</code></td>
 </tr>
 <tr>
 <td><code>ExperienceService</code></td>
 <td>Experience management</td>
-<td><code>getAll()</code>, <code>getByType()</code>, <code>getOngoing()</code>, <code>getRecent()</code></td>
 </tr>
 <tr>
 <td><code>SkillService</code></td>
 <td>Skills management</td>
-<td><code>getAll()</code>, <code>create()</code>, <code>update()</code>, <code>delete()</code></td>
 </tr>
 <tr>
 <td><code>TagService</code></td>
 <td>Tag management</td>
-<td><code>getAll()</code>, <code>create()</code>, <code>update()</code>, <code>delete()</code></td>
 </tr>
 <tr>
 <td><code>ContactService</code></td>
 <td>Contact form submission</td>
-<td><code>sendMessage()</code></td>
 </tr>
 <tr>
 <td><code>CvService</code></td>
 <td>CV management</td>
-<td><code>upload()</code>, <code>getCurrent()</code>, <code>getAll()</code></td>
-</tr>
-<tr>
-<td><code>ImageService</code></td>
-<td>Image upload</td>
-<td><code>uploadProjectImage()</code>, <code>deleteProjectImage()</code></td>
-</tr>
-<tr>
-<td><code>ArticleImageService</code></td>
-<td>Article image upload</td>
-<td><code>uploadImage()</code>, <code>deleteImage()</code></td>
 </tr>
 <tr>
 <td><code>LoggerService</code></td>
 <td>Centralized logging</td>
-<td><code>debug()</code>, <code>info()</code>, <code>warn()</code>, <code>error()</code></td>
 </tr>
 <tr>
-<td><code>ModalService</code></td>
-<td>Modal management</td>
-<td><code>openSessionExpiryModal()</code></td>
+<td><code>SearchService</code></td>
+<td>Full-text search (Elasticsearch)</td>
 </tr>
 <tr>
-<td><code>ActivityMonitorService</code></td>
-<td>User activity tracking</td>
-<td><code>startMonitoring()</code>, <code>resetTimer()</code></td>
+<td><code>BatchService</code></td>
+<td>Batch jobs management</td>
 </tr>
 <tr>
-<td><code>I18nService</code></td>
-<td>Internationalization</td>
-<td><code>translate()</code>, <code>setLanguage()</code></td>
+<td><code>CircuitBreakerService</code></td>
+<td>Circuit breaker status</td>
+</tr>
+<tr>
+<td><code>ActiveUsersService</code></td>
+<td>Real-time active users (SSE)</td>
+</tr>
+<tr>
+<td><code>VisitorTrackerService</code></td>
+<td>Visitor tracking</td>
+</tr>
+<tr>
+<td><code>SeoService</code></td>
+<td>Dynamic SEO management</td>
 </tr>
 </tbody>
 </table>
-<h3 id="service-patterns">Service Patterns<a class="headerlink" href="#service-patterns" title="Permanent link">&para;</a></h3>
-<p><strong>HTTP Service Pattern</strong>:
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">@Injectable</span><span class="p">({</span><span class="w"> </span><span class="nx">providedIn</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;root&#39;</span><span class="w"> </span><span class="p">})</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">ProjectService</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">http</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">HttpClient</span><span class="p">);</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">LoggerService</span><span class="p">);</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">apiUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">environment</span><span class="p">.</span><span class="nx">apiUrl</span><span class="si">}</span><span class="sb">/api/projects`</span><span class="p">;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nx">getAll</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">ProjectResponse</span><span class="p">[]</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="nx">get</span><span class="o">&lt;</span><span class="nx">ProjectResponse</span><span class="p">[]</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">apiUrl</span><span class="p">).</span><span class="nx">pipe</span><span class="p">(</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">      </span><span class="nx">catchError</span><span class="p">(</span><span class="nx">error</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;[HTTP] Get projects failed&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">          </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">error.status</span><span class="p">,</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">          </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="kt">error.message</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">        </span><span class="p">});</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">throwError</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">      </span><span class="p">})</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="p">);</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="p">}</span>
-</span></code></pre></div></p>
-<p><strong>Key Patterns</strong>:
-- <code>providedIn: 'root'</code> for singleton services
-- <code>inject()</code> function for dependency injection
-- RxJS operators for error handling
-- Centralized logging via <code>LoggerService</code></p>
+<h3 id="service-pattern">Service Pattern<a class="headerlink" href="#service-pattern" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>providedIn: 'root'</code> for singleton services</li>
+<li><code>inject()</code> function for dependency injection</li>
+<li>RxJS operators for error handling</li>
+<li>Centralized logging via <code>LoggerService</code></li>
+</ul>
 <hr />
 <h2 id="6-guards-and-interceptors">6. Guards and Interceptors<a class="headerlink" href="#6-guards-and-interceptors" title="Permanent link">&para;</a></h2>
 <h3 id="route-guards">Route Guards<a class="headerlink" href="#route-guards" title="Permanent link">&para;</a></h3>
-<p><strong>File</strong>: <code>guards/auth.guard.ts</code></p>
-<p><strong>Guards Implemented</strong>:</p>
 <h4 id="authguard">authGuard<a class="headerlink" href="#authguard" title="Permanent link">&para;</a></h4>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">authGuard</span><span class="o">:</span><span class="w"> </span><span class="kt">CanActivateFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">route</span><span class="p">,</span><span class="w"> </span><span class="nx">state</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">UrlTree</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">authService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">AuthService</span><span class="p">);</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">Router</span><span class="p">);</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">authService</span><span class="p">.</span><span class="nx">isAuthenticated</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">router</span><span class="p">.</span><span class="nx">createUrlTree</span><span class="p">([</span><span class="s1">&#39;/login&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nx">queryParams</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">returnUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">state.url</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="p">});</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">};</span>
-</span></code></pre></div>
 <p><strong>Purpose</strong>: Protect routes requiring authentication</p>
 <p><strong>Behavior</strong>:
 - Allows access if authenticated
 - Redirects to <code>/login</code> with <code>returnUrl</code> parameter if not</p>
-<hr />
 <h4 id="adminguard">adminGuard<a class="headerlink" href="#adminguard" title="Permanent link">&para;</a></h4>
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">adminGuard</span><span class="o">:</span><span class="w"> </span><span class="kt">CanActivateFn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">route</span><span class="p">,</span><span class="w"> </span><span class="nx">state</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">UrlTree</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">authService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">AuthService</span><span class="p">);</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inject</span><span class="p">(</span><span class="nx">Router</span><span class="p">);</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">authService</span><span class="p">.</span><span class="nx">isAuthenticated</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">authService</span><span class="p">.</span><span class="nx">isAdmin</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">authService</span><span class="p">.</span><span class="nx">isAuthenticated</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">router</span><span class="p">.</span><span class="nx">createUrlTree</span><span class="p">([</span><span class="s1">&#39;/login&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">      </span><span class="nx">queryParams</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">returnUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">state.url</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="p">});</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">router</span><span class="p">.</span><span class="nx">createUrlTree</span><span class="p">([</span><span class="s1">&#39;/&#39;</span><span class="p">]);</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="p">};</span>
-</span></code></pre></div>
 <p><strong>Purpose</strong>: Protect admin-only routes</p>
 <p><strong>Behavior</strong>:
 - Allows access if authenticated AND has <code>ROLE_ADMIN</code>
 - Redirects to <code>/login</code> if not authenticated
 - Redirects to <code>/</code> (home) if authenticated but not admin</p>
-<hr />
 <h3 id="http-interceptors">HTTP Interceptors<a class="headerlink" href="#http-interceptors" title="Permanent link">&para;</a></h3>
-<p><strong>Files</strong>: <code>interceptors/*.interceptor.ts</code></p>
-<p><strong>Interceptors Implemented</strong>:</p>
 <h4 id="jwt-interceptor">JWT Interceptor<a class="headerlink" href="#jwt-interceptor" title="Permanent link">&para;</a></h4>
-<p><strong>File</strong>: <code>jwt.interceptor.ts</code></p>
 <p><strong>Responsibilities</strong>:
-- Attach <code>Authorization: Bearer {token}</code> header to requests
+- Attach <code>Authorization: Bearer {token}</code> header
 - Handle 401 Unauthorized errors
 - Attempt automatic token refresh
-- Retry failed requests with new token
-- Handle 403 Forbidden for expired tokens</p>
+- Retry failed requests with new token</p>
 <p><strong>Token Refresh Flow</strong>:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>1. Request fails with 401
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>2. Attempt token refresh
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>3. If refresh succeeds:
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>   → Retry original request with new token
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>4. If refresh fails:
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>   → Logout user
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>   → Redirect to login
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>1. Request fails with 401
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>2. Attempt token refresh
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>3. If refresh succeeds → Retry original request
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>4. If refresh fails → Logout user, redirect to login
 </span></code></pre></div></p>
-<hr />
 <h4 id="retry-interceptor">Retry Interceptor<a class="headerlink" href="#retry-interceptor" title="Permanent link">&para;</a></h4>
-<p><strong>File</strong>: <code>retry.interceptor.ts</code></p>
 <p><strong>Purpose</strong>: Retry failed HTTP requests with exponential backoff</p>
 <p><strong>Configuration</strong>:
-- Max retries: Configurable (default: 3)
+- Max retries: 3
 - Delay strategy: Exponential backoff
 - Retryable errors: 5xx server errors, network failures</p>
-<hr />
 <h4 id="logging-interceptor">Logging Interceptor<a class="headerlink" href="#logging-interceptor" title="Permanent link">&para;</a></h4>
-<p><strong>File</strong>: <code>logging.interceptor.ts</code></p>
-<p><strong>Purpose</strong>: Log all HTTP requests and responses for debugging</p>
-<p><strong>Logged Information</strong>:
-- Request method and URL
-- Response status and timing
-- Error details</p>
+<p><strong>Purpose</strong>: Log HTTP requests and responses for debugging</p>
 <hr />
 <h2 id="7-component-organization">7. Component Organization<a class="headerlink" href="#7-component-organization" title="Permanent link">&para;</a></h2>
 <h3 id="public-components">Public Components<a class="headerlink" href="#public-components" title="Permanent link">&para;</a></h3>
 <p><strong>Reusable Components</strong> (<code>components/</code>):
-- <code>HomeComponent</code> - Homepage with featured projects and skills
-- <code>NavbarComponent</code> - Navigation bar with authentication state
-- <code>ProjectCardComponent</code> - Project preview card (used in listings)
-- <code>ProjectListComponent</code> - Projects grid display
-- <code>ProjectDetailComponent</code> - Single project detailed view
+- <code>HomeComponent</code> - Homepage with featured projects
+- <code>NavbarComponent</code> - Navigation bar with auth state
+- <code>ProjectCardComponent</code> - Project preview card
 - <code>ArticleCardComponent</code> - Article preview card
 - <code>ContactFormComponent</code> - Contact form widget</p>
 <p><strong>Page Components</strong> (<code>pages/</code>):
 - <code>LoginComponent</code> - Authentication page
-- <code>ContactComponent</code> - Contact page with form
-- <code>ArticleListComponent</code> - Blog listing page
-- <code>ArticleDetailComponent</code> - Article reading page
-- <code>TimelineComponent</code> - Career timeline page</p>
-<hr />
+- <code>ContactComponent</code> - Contact page
+- <code>ArticleListComponent</code> - Blog listing
+- <code>ArticleDetailComponent</code> - Article reading</p>
 <h3 id="admin-components">Admin Components<a class="headerlink" href="#admin-components" title="Permanent link">&para;</a></h3>
 <p><strong>Admin Layout</strong> (<code>pages/admin/admin-layout/</code>):
 - Shell component for all admin pages
 - Shared admin navigation sidebar
-- Logout functionality
 - Session monitoring</p>
-<p><strong>Admin Pages</strong> (<code>pages/admin/</code>):</p>
+<p><strong>Admin Pages Pattern</strong>:
+- <strong>List Component</strong>: Display, filter, delete operations
+- <strong>Form Component</strong>: Create and edit operations (reused for both)</p>
 <table>
 <thead>
 <tr>
 <th>Module</th>
 <th>List Component</th>
 <th>Form Component</th>
-<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Dashboard</td>
-<td><code>DashboardComponent</code></td>
-<td>N/A</td>
-<td>Admin overview</td>
-</tr>
-<tr>
 <td>Projects</td>
 <td><code>AdminProjectListComponent</code></td>
 <td><code>ProjectFormComponent</code></td>
-<td>Manage projects</td>
 </tr>
 <tr>
 <td>Skills</td>
 <td><code>SkillListComponent</code></td>
 <td><code>SkillFormComponent</code></td>
-<td>Manage skills</td>
 </tr>
 <tr>
 <td>Tags</td>
 <td><code>TagListComponent</code></td>
 <td><code>TagFormComponent</code></td>
-<td>Manage tags</td>
-</tr>
-<tr>
-<td>Experiences</td>
-<td><code>ExperienceListComponent</code></td>
-<td><code>ExperienceFormComponent</code></td>
-<td>Manage timeline</td>
 </tr>
 <tr>
 <td>Articles</td>
 <td><code>AdminArticleListComponent</code></td>
 <td><code>ArticleFormComponent</code></td>
-<td>Manage blog</td>
 </tr>
 <tr>
-<td>CV</td>
-<td><code>AdminCvComponent</code></td>
-<td>N/A</td>
-<td>Upload/manage CV</td>
+<td>Experiences</td>
+<td><code>ExperienceListComponent</code></td>
+<td><code>ExperienceFormComponent</code></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Component Pattern</strong>:
-- <strong>List Component</strong>: Display, filter, delete operations
-- <strong>Form Component</strong>: Create and edit operations (reused for both)</p>
 <hr />
 <h2 id="8-state-management">8. State Management<a class="headerlink" href="#8-state-management" title="Permanent link">&para;</a></h2>
 <h3 id="token-storage">Token Storage<a class="headerlink" href="#token-storage" title="Permanent link">&para;</a></h3>
@@ -3929,20 +3710,102 @@
 - Access token (JWT)
 - Refresh token (UUID)
 - Token expiration timestamp</p>
-<p><strong>Methods</strong>:
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nx">saveToken</span><span class="p">(</span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nx">getToken</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nx">clearToken</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nx">isTokenExpired</span><span class="p">(</span><span class="nx">bufferSeconds</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span>
-</span></code></pre></div></p>
 <h3 id="authentication-state">Authentication State<a class="headerlink" href="#authentication-state" title="Permanent link">&para;</a></h3>
 <p><strong>Service</strong>: <code>AuthService</code></p>
 <p><strong>State Methods</strong>:
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nx">isAuthenticated</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w">  </span><span class="c1">// Check if user has valid token</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nx">isAdmin</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w">          </span><span class="c1">// Check if user has ROLE_ADMIN</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nx">getToken</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w">   </span><span class="c1">// Retrieve access token</span>
-</span></code></pre></div></p>
+- <code>isAuthenticated()</code> - Check if user has valid token
+- <code>isAdmin()</code> - Check if user has ROLE_ADMIN
+- <code>getToken()</code> - Retrieve access token</p>
 <p><strong>No Global State Library</strong>: Uses service-based state management instead of Redux/NgRx</p>
+<hr />
+<h2 id="9-directives">9. Directives<a class="headerlink" href="#9-directives" title="Permanent link">&para;</a></h2>
+<p>Custom directives for reusable DOM behaviors.</p>
+<table>
+<thead>
+<tr>
+<th>Directive</th>
+<th>Purpose</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LazyImageDirective</code></td>
+<td>Lazy load images when entering viewport</td>
+<td>Uses Intersection Observer API</td>
+</tr>
+<tr>
+<td><code>AsyncImageDirective</code></td>
+<td>Load processing images with retry</td>
+<td>Exponential backoff for images being processed</td>
+</tr>
+<tr>
+<td><code>ClickOutsideDirective</code></td>
+<td>Detect clicks outside element</td>
+<td>Close dropdowns, modals</td>
+</tr>
+<tr>
+<td><code>DemoDisabledDirective</code></td>
+<td>Disable controls in demo mode</td>
+<td>Prevent mutations in demo admin</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lazyimagedirective">LazyImageDirective<a class="headerlink" href="#lazyimagedirective" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>directives/lazy-image.directive.ts</code></p>
+<p>Delays image loading until the element enters the viewport, improving initial page load performance.</p>
+<h3 id="asyncimagedirective">AsyncImageDirective<a class="headerlink" href="#asyncimagedirective" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>directives/async-image.directive.ts</code></p>
+<p>Handles images that may still be processing on the backend (WebP conversion). Implements exponential backoff retry logic until the image is available.</p>
+<hr />
+<h2 id="10-skeleton-loaders">10. Skeleton Loaders<a class="headerlink" href="#10-skeleton-loaders" title="Permanent link">&para;</a></h2>
+<p>Loading state components displaying shimmer animations while content loads.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SkeletonArticleCardComponent</code></td>
+<td>Article card loading state</td>
+</tr>
+<tr>
+<td><code>SkeletonArticleDetailComponent</code></td>
+<td>Article detail page loading state</td>
+</tr>
+<tr>
+<td><code>SkeletonProjectCardComponent</code></td>
+<td>Project card loading state</td>
+</tr>
+<tr>
+<td><code>SkeletonProjectDetailComponent</code></td>
+<td>Project detail page loading state</td>
+</tr>
+<tr>
+<td><code>SkeletonSkillCardComponent</code></td>
+<td>Skill card loading state</td>
+</tr>
+<tr>
+<td><code>SkeletonTableRowComponent</code></td>
+<td>Table row loading state (audit logs)</td>
+</tr>
+<tr>
+<td><code>SkeletonTimelineItemComponent</code></td>
+<td>Timeline item loading state (experiences)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Location</strong>: <code>components/shared/skeleton/</code></p>
+<p><strong>Usage Pattern</strong>:
+<div class="language-html highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>@if (loading) {
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  <span class="p">&lt;</span><span class="nt">app-skeleton-project-card</span> <span class="p">/&gt;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>} @else {
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  <span class="p">&lt;</span><span class="nt">app-project-card</span> <span class="err">[</span><span class="na">project</span><span class="err">]=&quot;</span><span class="na">project</span><span class="err">&quot;</span> <span class="p">/&gt;</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>}
+</span></code></pre></div></p>
 <hr />
 <h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>
@@ -4019,10 +3882,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

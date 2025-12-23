@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -431,44 +431,6 @@
     
   
   Contribuer
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../DOCUMENTATION_GUIDE/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Guide Documentation
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../COVERAGE/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Couverture
 
       </a>
     </li>
@@ -2505,60 +2467,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../DOCUMENTATION_GUIDE/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guide Documentation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../COVERAGE/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Couverture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -2748,10 +2656,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#51-file-validation" class="md-nav__link">
+  <a href="#51-messaging-rabbitmq" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.1 File Validation
+        5.1 Messaging (RabbitMQ)
       
     </span>
   </a>
@@ -2759,10 +2667,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#52-markdown-rendering" class="md-nav__link">
+  <a href="#52-event-streaming-kafka" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.2 Markdown Rendering
+        5.2 Event Streaming (Kafka)
       
     </span>
   </a>
@@ -2770,10 +2678,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#53-slug-generation" class="md-nav__link">
+  <a href="#53-audit-system" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.3 Slug Generation
+        5.3 Audit System
       
     </span>
   </a>
@@ -2781,10 +2689,98 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#54-reading-time-calculation" class="md-nav__link">
+  <a href="#54-full-text-search" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.4 Reading Time Calculation
+        5.4 Full-text Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-batch-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 Batch Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-visitor-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6 Visitor Tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57-circuit-breaker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.7 Circuit Breaker
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-pwa-offline-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8 PWA (Offline Support)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59-internationalization-i18n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.9 Internationalization (i18n)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#510-seo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10 SEO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#511-sitemap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.11 Sitemap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#512-application-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.12 Application Caching
       
     </span>
   </a>
@@ -2839,225 +2835,119 @@
 </ol>
 <hr />
 <h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
-<p>This document provides an overview of the Portfolio application features. Each feature is documented in detail in its respective documentation file.</p>
+<p>Overview of the Portfolio application features. Each feature is documented in detail in its respective file.</p>
 <p><strong>Feature Categories</strong>:
 - Content Management: Blog articles, experiences, CV management, site configuration
 - User Interaction: Contact form with rate limiting
 - Media Processing: Image optimization, file storage
-- Infrastructure: Security, validation, error handling</p>
+- Infrastructure: Messaging, event streaming, caching, resilience</p>
 <hr />
 <h2 id="2-content-management-features">2. Content Management Features<a class="headerlink" href="#2-content-management-features" title="Permanent link">&para;</a></h2>
 <h3 id="21-blog-articles">2.1 Blog Articles<a class="headerlink" href="#21-blog-articles" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <a href="blog-articles/">blog-articles.md</a></p>
-<p><strong>Description</strong>: Full-featured blog system with Markdown rendering, GitHub Flavored Markdown support, and draft/publish workflow.</p>
-<p><strong>Key Capabilities</strong>:
-- Markdown content with Flexmark renderer
-- GitHub Flavored Markdown extensions (tables, strikethrough, task lists)
-- Automatic slug generation from title
-- Reading time calculation (200 words/minute)
-- Draft/publish status management
-- Tag-based categorization
-- Inline image support with Azure Blob Storage</p>
-<p><strong>API Endpoints</strong>:
-- Public: <code>GET /api/articles</code>, <code>GET /api/articles/{slug}</code>
-- Admin: <code>POST /api/articles/admin</code>, <code>PUT /api/articles/admin/{id}/publish</code></p>
-<p><strong>Technologies</strong>: Flexmark (Markdown rendering), MapStruct (DTO mapping)</p>
+<p>Markdown blog system with GitHub Flavored Markdown support.</p>
+<p><strong>Capabilities</strong>: Flexmark rendering, slug generation, reading time calculation, draft/publish workflow, tag categorization</p>
 <hr />
 <h3 id="22-experience-management">2.2 Experience Management<a class="headerlink" href="#22-experience-management" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <a href="experience-management/">experience-management.md</a></p>
-<p><strong>Description</strong>: Timeline-based experience management for work history, education, certifications, and volunteering.</p>
-<p><strong>Key Capabilities</strong>:
-- Four experience types: WORK, EDUCATION, CERTIFICATION, VOLUNTEERING
-- Date range validation (end_date &gt;= start_date)
-- Ongoing experiences support (null endDate)
-- Type-based filtering
-- Recent experiences endpoint (configurable limit)
-- Chronological ordering (most recent first)</p>
-<p><strong>API Endpoints</strong>:
-- Public: <code>GET /api/experiences</code>, <code>GET /api/experiences/type/{type}</code>, <code>GET /api/experiences/ongoing</code>
-- Admin: <code>POST /api/experiences/admin</code>, <code>PUT /api/experiences/admin/{id}</code></p>
-<p><strong>Use Cases</strong>: Professional timeline, education history, certifications showcase</p>
+<p>Timeline-based experience management (work, education, certifications, volunteering).</p>
+<p><strong>Capabilities</strong>: Four experience types, date validation, ongoing experiences, type-based filtering</p>
 <hr />
 <h3 id="23-cv-management">2.3 CV Management<a class="headerlink" href="#23-cv-management" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <a href="cv-management/">cv-management.md</a></p>
-<p><strong>Description</strong>: Complete CV/resume management system with versioning and public download capability.</p>
-<p><strong>Key Capabilities</strong>:
-- Multiple CV versions support
-- Single "current" CV designation (enforced by database constraint)
-- PDF validation (magic bytes)
-- User tracking (who uploaded each CV)
-- Public access to current CV
-- Admin-only upload and management
-- Historical version preservation</p>
-<p><strong>API Endpoints</strong>:
-- Public: <code>GET /api/cv/current</code>, <code>GET /api/cv/download/{id}</code>
-- Admin: <code>POST /api/admin/cv/upload</code>, <code>PUT /api/admin/cv/{id}/set-current</code></p>
-<p><strong>Database</strong>: Unique partial index ensures only one <code>is_current = true</code> at a time</p>
+<p>CV/resume management system with versioning.</p>
+<p><strong>Capabilities</strong>: Multiple versions, single "current" designation, PDF validation, public download</p>
 <hr />
 <h3 id="24-site-configuration">2.4 Site Configuration<a class="headerlink" href="#24-site-configuration" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <a href="site-configuration/">site-configuration.md</a></p>
-<p><strong>Description</strong>: Centralized configuration for all site-wide settings including personal identity, hero section content, SEO metadata, and social links.</p>
-<p><strong>Key Capabilities</strong>:
-- Personal identity management (full name, email)
-- Hero section content (title, description)
-- SEO metadata (site title, meta description)
-- Social links (GitHub, LinkedIn URLs)
-- Profile image upload with WebP optimization
-- Singleton pattern (single configuration row)</p>
-<p><strong>API Endpoints</strong>:
-- Public: <code>GET /api/configuration</code>
-- Admin: <code>PUT /api/admin/configuration</code>, <code>POST /api/admin/configuration/profile-image</code></p>
-<p><strong>Database</strong>: Single row constraint ensures only one configuration exists</p>
+<p>Centralized site-wide settings (identity, hero, SEO, social links).</p>
+<p><strong>Capabilities</strong>: Profile image upload, WebP optimization, singleton pattern</p>
 <hr />
 <h2 id="3-user-interaction-features">3. User Interaction Features<a class="headerlink" href="#3-user-interaction-features" title="Permanent link">&para;</a></h2>
 <h3 id="31-contact-form">3.1 Contact Form<a class="headerlink" href="#31-contact-form" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <a href="contact-form/">contact-form.md</a></p>
-<p><strong>Description</strong>: Rate-limited contact form with email notification and spam prevention.</p>
-<p><strong>Key Capabilities</strong>:
-- IP-based rate limiting (Redis-backed)
-- Configurable rate limits per environment
-- Email notification to admin
-- Request validation (name, email, message)
-- X-Forwarded-For header support (proxy-aware)
-- Atomic Redis operations for thread safety</p>
-<p><strong>API Endpoint</strong>: <code>POST /api/contact</code> (public, rate-limited)</p>
-<p><strong>Rate Limits</strong>:
-- Development: 10 requests/hour per IP
-- Staging: 5 requests/hour per IP
-- Production: 3 requests/hour per IP</p>
-<p><strong>Technologies</strong>: Redis (rate limiting), Spring Mail (email sending)</p>
+<p>Rate-limited contact form with email notification.</p>
+<p><strong>Capabilities</strong>: IP-based rate limiting (Redis), email notification, validation, proxy support</p>
 <hr />
 <h2 id="4-media-processing-features">4. Media Processing Features<a class="headerlink" href="#4-media-processing-features" title="Permanent link">&para;</a></h2>
 <h3 id="41-image-processing">4.1 Image Processing<a class="headerlink" href="#41-image-processing" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <a href="image-processing/">image-processing.md</a></p>
-<p><strong>Description</strong>: Automatic image optimization with WebP conversion and thumbnail generation.</p>
-<p><strong>Key Capabilities</strong>:
-- Automatic WebP conversion (from JPEG, PNG, WebP)
-- Thumbnail generation (400×300px, quality 0.8)
-- Full image optimization (quality 0.85)
-- MIME type validation (magic bytes)
-- Old image cleanup (prevents orphaned files)
-- 25-35% file size reduction vs JPEG</p>
-<p><strong>Technologies</strong>: Thumbnailator (Java image processing library)</p>
-<p><strong>Performance</strong>:
-- Processing time: ~350ms per image (full + thumbnail)
-- File size savings: 72% vs PNG, 30% vs JPEG
-- Bandwidth savings: 93% reduction with thumbnails</p>
-<p><strong>Use Cases</strong>: Project images, portfolio gallery, optimized page load times</p>
+<p>Automatic image optimization with WebP conversion.</p>
+<p><strong>Capabilities</strong>: WebP conversion, thumbnail generation (400x300px), MIME validation, 25-35% size reduction</p>
 <hr />
 <h3 id="42-file-storage">4.2 File Storage<a class="headerlink" href="#42-file-storage" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <a href="file-storage/">file-storage.md</a></p>
-<p><strong>Description</strong>: Secure, organized file storage architecture with validation and cleanup.</p>
-<p><strong>Key Capabilities</strong>:
-- Organized directory structure (<code>uploads/projects/</code>, <code>uploads/cvs/</code>)
-- Timestamped filenames (prevents collisions)
-- MIME type validation (magic bytes, not extensions)
-- File size limits (10 MB default)
-- Path traversal prevention
-- Old file cleanup on updates</p>
-<p><strong>Storage Structure</strong>:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uploads/
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── projects/           # Project images (WebP)
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── project_1_1700000000.webp
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   └── project_1_1700000000_thumb.webp
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── cvs/                # CV documents (PDF)
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   └── cv_1_1700000000.pdf
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└── articles/           # Article images (JPEG, PNG, WebP)
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    └── article_1_1700000000.webp
-</span></code></pre></div></p>
-<p><strong>Security</strong>:
-- Magic bytes validation (content-based, not extension-based)
-- Path sanitization (prevents directory traversal)
-- File size limits (Spring Boot enforced)
-- Content-Type validation</p>
+<p>Secure file storage with validation and cleanup.</p>
+<p><strong>Capabilities</strong>: Organized directory structure, timestamped filenames, MIME validation, path traversal prevention</p>
 <hr />
 <h2 id="5-infrastructure-features">5. Infrastructure Features<a class="headerlink" href="#5-infrastructure-features" title="Permanent link">&para;</a></h2>
-<h3 id="51-file-validation">5.1 File Validation<a class="headerlink" href="#51-file-validation" title="Permanent link">&para;</a></h3>
-<p><strong>Cross-Feature</strong>: All file upload features (projects, CVs, articles)</p>
-<p><strong>Validation Layers</strong>:</p>
-<ol>
-<li><strong>MIME Type Validation</strong> (magic bytes):</li>
-<li>JPEG: <code>FF D8 FF</code></li>
-<li>PNG: <code>89 50 4E 47 0D 0A 1A 0A</code></li>
-<li>WebP: <code>52 49 46 46 ... 57 45 42 50</code></li>
-<li>
-<p>PDF: <code>25 50 44 46</code></p>
-</li>
-<li>
-<p><strong>File Size Validation</strong>:</p>
-</li>
-<li>Max size: 10 MB (configurable)</li>
-<li>
-<p>Enforced by Spring Boot and service layer</p>
-</li>
-<li>
-<p><strong>Path Validation</strong>:</p>
-</li>
-<li>Filename sanitization</li>
-<li>Directory traversal prevention</li>
-<li>Absolute path verification</li>
-</ol>
-<p><strong>Implementation</strong>: <code>FileStorageService</code>, <code>ImageService</code></p>
+<h3 id="51-messaging-rabbitmq">5.1 Messaging (RabbitMQ)<a class="headerlink" href="#51-messaging-rabbitmq" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="messaging/">messaging.md</a></p>
+<p>Asynchronous message processing for email, image processing, audit logging.</p>
+<p><strong>Capabilities</strong>: Non-blocking operations, dead letter queue, automatic retries</p>
 <hr />
-<h3 id="52-markdown-rendering">5.2 Markdown Rendering<a class="headerlink" href="#52-markdown-rendering" title="Permanent link">&para;</a></h3>
-<p><strong>Feature</strong>: Blog Articles</p>
-<p><strong>GitHub Flavored Markdown Extensions</strong>:
-- Tables
-- Strikethrough (<code>~~text~~</code>)
-- Task lists (<code>- [ ]</code>, <code>- [x]</code>)
-- Autolinks (URLs automatically converted)
-- Fenced code blocks with syntax highlighting support</p>
-<p><strong>Implementation</strong>:
-<div class="language-java highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">Parser</span><span class="w"> </span><span class="n">parser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Parser</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">.</span><span class="na">extensions</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="n">TablesExtension</span><span class="p">.</span><span class="na">create</span><span class="p">(),</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="n">StrikethroughExtension</span><span class="p">.</span><span class="na">create</span><span class="p">(),</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="n">TaskListExtension</span><span class="p">.</span><span class="na">create</span><span class="p">(),</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="n">AutolinkExtension</span><span class="p">.</span><span class="na">create</span><span class="p">()</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">))</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">Node</span><span class="w"> </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parser</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">markdownContent</span><span class="p">);</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">String</span><span class="w"> </span><span class="n">html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">renderer</span><span class="p">.</span><span class="na">render</span><span class="p">(</span><span class="n">document</span><span class="p">);</span>
-</span></code></pre></div></p>
-<p><strong>Service</strong>: <code>MarkdownService</code> (converts Markdown → HTML)</p>
+<h3 id="52-event-streaming-kafka">5.2 Event Streaming (Kafka)<a class="headerlink" href="#52-event-streaming-kafka" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="event-streaming/">event-streaming.md</a></p>
+<p>Event-driven architecture for admin actions, analytics, activity tracking.</p>
+<p><strong>Capabilities</strong>: Admin events, analytics events, activity events, 3 partitions per topic</p>
 <hr />
-<h3 id="53-slug-generation">5.3 Slug Generation<a class="headerlink" href="#53-slug-generation" title="Permanent link">&para;</a></h3>
-<p><strong>Feature</strong>: Blog Articles</p>
-<p><strong>Algorithm</strong>:
-1. Convert title to lowercase
-2. Trim whitespace
-3. Remove special characters (keep only a-z, 0-9, spaces, hyphens)
-4. Replace spaces with hyphens
-5. Collapse multiple hyphens
-6. Remove leading/trailing hyphens</p>
-<p><strong>Example</strong>:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>&quot;My First Blog Post!&quot; → &quot;my-first-blog-post&quot;
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>&quot;Angular 18: What&#39;s New?&quot; → &quot;angular-18-whats-new&quot;
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>&quot;C++ Tutorial (Part 1)&quot; → &quot;c-tutorial-part-1&quot;
-</span></code></pre></div></p>
-<p><strong>Implementation</strong>: Entity lifecycle listener (<code>@PrePersist</code>, <code>@PreUpdate</code>)</p>
+<h3 id="53-audit-system">5.3 Audit System<a class="headerlink" href="#53-audit-system" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="audit-system/">audit-system.md</a></p>
+<p>AOP-based audit logging for administrative actions.</p>
+<p><strong>Capabilities</strong>: @Auditable annotation, old/new value capture, CSV/JSON/PDF export, 90-day retention</p>
 <hr />
-<h3 id="54-reading-time-calculation">5.4 Reading Time Calculation<a class="headerlink" href="#54-reading-time-calculation" title="Permanent link">&para;</a></h3>
-<p><strong>Feature</strong>: Blog Articles</p>
-<p><strong>Algorithm</strong>: Words per minute (WPM) calculation</p>
-<p><strong>Formula</strong>: <code>readingTime = Math.ceil(wordCount / 200)</code></p>
-<p><strong>Examples</strong>:
-- 500 words → 3 minutes
-- 1000 words → 5 minutes
-- 1500 words → 8 minutes</p>
-<p><strong>Implementation</strong>: Automatic calculation in <code>Article</code> entity on save</p>
+<h3 id="54-full-text-search">5.4 Full-text Search<a class="headerlink" href="#54-full-text-search" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="search/">search.md</a></p>
+<p>Elasticsearch-based full-text search.</p>
+<p><strong>Capabilities</strong>: Articles/projects/experiences search, JPA fallback, weekly reindex</p>
+<hr />
+<h3 id="55-batch-processing">5.5 Batch Processing<a class="headerlink" href="#55-batch-processing" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="batch-processing/">batch-processing.md</a></p>
+<p>Spring Batch jobs for scheduled maintenance.</p>
+<p><strong>Capabilities</strong>: Audit cleanup, report generation, stats aggregation, sitemap regeneration</p>
+<hr />
+<h3 id="56-visitor-tracking">5.6 Visitor Tracking<a class="headerlink" href="#56-visitor-tracking" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="visitor-tracking/">visitor-tracking.md</a></p>
+<p>Real-time visitor tracking using Redis and SSE.</p>
+<p><strong>Capabilities</strong>: Active visitors count, daily unique visitors, SSE stream, 7-day chart</p>
+<hr />
+<h3 id="57-circuit-breaker">5.7 Circuit Breaker<a class="headerlink" href="#57-circuit-breaker" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="circuit-breaker/">circuit-breaker.md</a></p>
+<p>Resilience patterns for external service calls.</p>
+<p><strong>Capabilities</strong>: Circuit breaker (email), retry with backoff, fallback handling</p>
+<hr />
+<h3 id="58-pwa-offline-support">5.8 PWA (Offline Support)<a class="headerlink" href="#58-pwa-offline-support" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="pwa/">pwa.md</a></p>
+<p>Progressive Web App with Service Worker.</p>
+<p><strong>Capabilities</strong>: Offline access, asset caching, installable as native app</p>
+<hr />
+<h3 id="59-internationalization-i18n">5.9 Internationalization (i18n)<a class="headerlink" href="#59-internationalization-i18n" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="i18n/">i18n.md</a></p>
+<p>Multi-language support (10 languages including RTL).</p>
+<p><strong>Capabilities</strong>: Browser detection, localStorage persistence, Arabic RTL support</p>
+<hr />
+<h3 id="510-seo">5.10 SEO<a class="headerlink" href="#510-seo" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="seo/">seo.md</a></p>
+<p>Search engine optimization.</p>
+<p><strong>Capabilities</strong>: Dynamic meta tags, OpenGraph/Twitter Cards, JSON-LD structured data</p>
+<hr />
+<h3 id="511-sitemap">5.11 Sitemap<a class="headerlink" href="#511-sitemap" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="sitemap/">sitemap.md</a></p>
+<p>Dynamic sitemap.xml generation.</p>
+<p><strong>Capabilities</strong>: All projects/articles, daily updates, priority attributes</p>
+<hr />
+<h3 id="512-application-caching">5.12 Application Caching<a class="headerlink" href="#512-application-caching" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="caching/">caching.md</a></p>
+<p>Redis-based application caching.</p>
+<p><strong>Capabilities</strong>: 5 caches (siteConfig, skills, projects, experiences, tags), TTL expiration, auto-eviction</p>
 <hr />
 <h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../api/">API Documentation</a> - API endpoints for all features</li>
+<li><a href="../api/">API Documentation</a> - API endpoints</li>
 <li><a href="../architecture/database-schema/">Architecture: Database Schema</a> - Database design</li>
 <li><a href="../architecture/frontend-architecture/">Architecture: Frontend</a> - Angular architecture</li>
-<li><a href="../architecture/error-handling/">Architecture: Error Handling</a> - Error handling strategy</li>
 <li><a href="../security/jwt-implementation/">Security: JWT Implementation</a> - Authentication</li>
-<li><a href="../security/rate-limiting/">Security: Rate Limiting</a> - Rate limiting details</li>
 <li><a href="../reference/configuration-properties/">Reference: Configuration Properties</a> - Configuration</li>
-<li><a href="../reference/error-codes/">Reference: Error Codes</a> - Error codes reference</li>
 </ul>
 
 
@@ -3127,10 +3017,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -431,44 +431,6 @@
     
   
   Contribuer
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../DOCUMENTATION_GUIDE/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Guide Documentation
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../COVERAGE/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Couverture
 
       </a>
     </li>
@@ -2505,60 +2467,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../DOCUMENTATION_GUIDE/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guide Documentation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../COVERAGE/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Couverture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -2880,10 +2788,76 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#711-health-check" class="md-nav__link">
+  <a href="#711-graphql-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.11 Health Check
+        7.11 GraphQL API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#712-search-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.12 Search API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#713-audit-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.13 Audit API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#714-visitors-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.14 Visitors API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#715-batch-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.15 Batch API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#716-circuit-breakers-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.16 Circuit Breakers API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#717-health-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.17 Health Check
       
     </span>
   </a>
@@ -3683,7 +3657,221 @@
 </tbody>
 </table>
 <p>See <a href="site-configuration/">site-configuration.md</a> for details.</p>
-<h3 id="711-health-check">7.11 Health Check<a class="headerlink" href="#711-health-check" title="Permanent link">&para;</a></h3>
+<h3 id="711-graphql-api">7.11 GraphQL API<a class="headerlink" href="#711-graphql-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/graphql</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/graphql</code></td>
+<td>Public/Admin</td>
+<td>GraphQL endpoint</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/graphiql</code></td>
+<td>Public</td>
+<td>GraphiQL interactive UI</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="graphql/">graphql.md</a> for schema and queries.</p>
+<h3 id="712-search-api">7.12 Search API<a class="headerlink" href="#712-search-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/admin/search</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/search/articles</code></td>
+<td>Admin</td>
+<td>Search articles</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/search/projects</code></td>
+<td>Admin</td>
+<td>Search projects</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/search/experiences</code></td>
+<td>Admin</td>
+<td>Search experiences</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/search/reindex</code></td>
+<td>Admin</td>
+<td>Rebuild indices</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="search/">search.md</a> for details.</p>
+<h3 id="713-audit-api">7.13 Audit API<a class="headerlink" href="#713-audit-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/admin/audit</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/audit</code></td>
+<td>Admin</td>
+<td>List audit logs</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/audit/entity/{type}/{id}</code></td>
+<td>Admin</td>
+<td>Entity history</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/audit/stats</code></td>
+<td>Admin</td>
+<td>Audit statistics</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/audit/export/csv</code></td>
+<td>Admin</td>
+<td>Export to CSV</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/audit/export/json</code></td>
+<td>Admin</td>
+<td>Export to JSON</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="audit/">audit.md</a> for details.</p>
+<h3 id="714-visitors-api">7.14 Visitors API<a class="headerlink" href="#714-visitors-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/visitors</code> (public), <code>/api/admin/visitors</code> (admin)</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/api/visitors/heartbeat</code></td>
+<td>Public</td>
+<td>Register heartbeat</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/visitors/stream</code></td>
+<td>Admin</td>
+<td>SSE stream</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/visitors/count</code></td>
+<td>Admin</td>
+<td>Active count</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/visitors/stats</code></td>
+<td>Admin</td>
+<td>Visitor stats</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/visitors/daily</code></td>
+<td>Admin</td>
+<td>Daily data</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="visitors/">visitors.md</a> for details.</p>
+<h3 id="715-batch-api">7.15 Batch API<a class="headerlink" href="#715-batch-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/admin/batch</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/batch/image-reprocessing/stats</code></td>
+<td>Admin</td>
+<td>Reprocessing stats</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/batch/image-reprocessing/last</code></td>
+<td>Admin</td>
+<td>Last job info</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/batch/image-reprocessing/run</code></td>
+<td>Admin</td>
+<td>Run job</td>
+</tr>
+</tbody>
+</table>
+<h3 id="716-circuit-breakers-api">7.16 Circuit Breakers API<a class="headerlink" href="#716-circuit-breakers-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/admin/circuit-breakers</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/circuit-breakers</code></td>
+<td>Admin</td>
+<td>All circuit breakers</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/circuit-breakers/{name}</code></td>
+<td>Admin</td>
+<td>Specific breaker</td>
+</tr>
+</tbody>
+</table>
+<h3 id="717-health-check">7.17 Health Check<a class="headerlink" href="#717-health-check" title="Permanent link">&para;</a></h3>
 <p><strong>Base Path</strong>: <code>/actuator</code></p>
 <table>
 <thead>
@@ -3808,10 +3996,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
