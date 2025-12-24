@@ -1,0 +1,57 @@
+<div class="legal-page">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <a routerLink="/" class="btn btn-outline-secondary mb-4">
+          <i class="bi bi-arrow-left me-2"></i>{{ 'common.back' | translate }}
+        </a>
+
+        <h1 class="legal-title">{{ 'legal.privacyPolicy.title' | translate }}</h1>
+        <p class="legal-updated">
+          {{ 'legal.privacyPolicy.lastUpdated' | translate }}: {{ lastUpdated }}
+        </p>
+
+        <p class="legal-intro">{{ 'legal.privacyPolicy.intro' | translate }}</p>
+
+        <!-- Data Collected -->
+        <section class="legal-section">
+          <h2>{{ 'legal.privacyPolicy.dataCollected.title' | translate }}</h2>
+          <p>{{ 'legal.privacyPolicy.dataCollected.contactForm' | translate }}</p>
+          <ul>
+            <li>{{ 'legal.privacyPolicy.dataCollected.noStorage' | translate }}</li>
+            <li>{{ 'legal.privacyPolicy.dataCollected.emailOnly' | translate }}</li>
+          </ul>
+        </section>
+
+        <!-- Purpose -->
+        <section class="legal-section">
+          <h2>{{ 'legal.privacyPolicy.purpose.title' | translate }}</h2>
+          <p>{{ 'legal.privacyPolicy.purpose.description' | translate }}</p>
+        </section>
+
+        <!-- Retention -->
+        <section class="legal-section">
+          <h2>{{ 'legal.privacyPolicy.retention.title' | translate }}</h2>
+          <p>{{ 'legal.privacyPolicy.retention.description' | translate }}</p>
+        </section>
+
+        <!-- Rights -->
+        <section class="legal-section">
+          <h2>{{ 'legal.privacyPolicy.rights.title' | translate }}</h2>
+          <p>{{ 'legal.privacyPolicy.rights.description' | translate }}</p>
+          <p>
+            {{ 'legal.privacyPolicy.rights.contact' | translate }}:
+            <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>
+          </p>
+        </section>
+
+        <!-- Tracking -->
+        <section class="legal-section">
+          <h2>{{ 'legal.privacyPolicy.tracking.title' | translate }}</h2>
+          <p>{{ 'legal.privacyPolicy.tracking.description' | translate }}</p>
+          <p class="text-muted">{{ 'legal.privacyPolicy.tracking.optional' | translate }}</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

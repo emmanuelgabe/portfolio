@@ -1,13 +1,15 @@
 package com.emmanuelgabe.portfolio.security;
 
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.service.AuthRateLimitService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -31,6 +33,9 @@ class AuthRateLimitFilterTest {
     private AuthRateLimitService authRateLimitService;
 
     @Mock
+    private BusinessMetrics metrics;
+
+    @Mock
     private HttpServletRequest request;
 
     @Mock
@@ -39,8 +44,15 @@ class AuthRateLimitFilterTest {
     @Mock
     private FilterChain filterChain;
 
-    @InjectMocks
+    private ObjectMapper objectMapper;
+
     private AuthRateLimitFilter authRateLimitFilter;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+        authRateLimitFilter = new AuthRateLimitFilter(authRateLimitService, metrics, objectMapper);
+    }
 
     // ========== shouldNotFilter Tests ==========
 

@@ -1,2 +1,7 @@
+<a href="#main-content" class="skip-link">{{ 'accessibility.skipToContent' | translate }}</a>
+<app-offline-banner></app-offline-banner>
 <app-navbar *ngIf="!isAdminRoute"></app-navbar>
-<router-outlet></router-outlet>
+<main class="main-content" id="main-content" role="main" tabindex="-1">
+  <router-outlet></router-outlet>
+</main>
+<app-footer *ngIf="!isAdminRoute"></app-footer>

@@ -18,7 +18,23 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "DB_USER_PASSWORD=test_password_ci" > .env
+          {
+            echo "DB_USER_PASSWORD=test_password_ci"
+            echo "REDIS_PASSWORD="
+            echo "RABBITMQ_USERNAME=portfolio_app"
+            echo "RABBITMQ_PASSWORD=test_rabbitmq_password"
+            echo "ELASTICSEARCH_PASSWORD=test_elastic_password"
+            echo "JWT_SECRET=test_jwt_secret_for_ci_health_check_minimum_64_characters_long"
+            echo "MAIL_USERNAME=ci-test@example.com"
+            echo "MAIL_APP_PASSWORD=fake_app_password"
+            echo "KAFKA_ENABLED=false"
+            echo "ELASTICSEARCH_ENABLED=true"
+            echo "RABBITMQ_ENABLED=true"
+            echo "BATCH_ENABLED=false"
+            echo "SENTRY_ENABLED=false"
+            echo "WEB_VITALS_ENABLED=false"
+            echo "VISITOR_TRACKING_ENABLED=false"
+          } > .env
 
       - name: Build Docker containers
         run: |
@@ -31,7 +47,7 @@ jobs:
       - name: Wait for containers to be healthy
         run: |
           echo "Waiting for all containers to be healthy..."
-          timeout 300 bash -c '
+          timeout 600 bash -c '
             while true; do
               status=$(docker compose -f docker-compose.yml -f docker-compose.local.yml ps --format json | jq -r ".Health" | grep -v "healthy" | wc -l)
               if [ "$status" -eq 0 ]; then
@@ -72,19 +88,16 @@ jobs:
           echo "[SUCCESS] All endpoints are healthy!"
 
       - name: Show container logs on failure
-        if: failure()
+        if: always()
         run: |
-          echo "=== Frontend logs ==="
-          docker logs portfolio-frontend-local --tail 100
-          echo ""
           echo "=== Backend logs ==="
-          docker logs portfolio-backend-local --tail 100
+          docker logs portfolio-backend-local --tail 200
+          echo ""
+          echo "=== Frontend logs ==="
+          docker logs portfolio-frontend-local --tail 50
           echo ""
           echo "=== Database logs ==="
-          docker logs portfolio-db-local --tail 100
-          echo ""
-          echo "=== Nginx logs ==="
-          docker logs portfolio-nginx-local --tail 100
+          docker logs portfolio-db-local --tail 50
 
       - name: Cleanup
         if: always()

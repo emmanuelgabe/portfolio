@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { ExperienceFormComponent } from './experience-form.component';
 import { ExperienceService } from '../../../../services/experience.service';
@@ -42,7 +43,12 @@ describe('ExperienceFormComponent', () => {
     demoModeServiceSpy.isDemo.and.returnValue(false);
 
     await TestBed.configureTestingModule({
-      imports: [ExperienceFormComponent, ReactiveFormsModule, RouterModule.forRoot([])],
+      imports: [
+        ExperienceFormComponent,
+        ReactiveFormsModule,
+        RouterModule.forRoot([]),
+        TranslateModule.forRoot(),
+      ],
       providers: [
         { provide: ExperienceService, useValue: experienceServiceSpy },
         { provide: LoggerService, useValue: loggerServiceSpy },
@@ -264,19 +270,23 @@ describe('ExperienceFormComponent', () => {
 
   describe('getTypeLabel', () => {
     it('should return correct label for WORK type', () => {
-      expect(component.getTypeLabel(ExperienceType.WORK)).toBe('Expérience professionnelle');
+      expect(component.getTypeLabel(ExperienceType.WORK)).toBe('admin.experiences.work');
     });
 
     it('should return correct label for EDUCATION type', () => {
-      expect(component.getTypeLabel(ExperienceType.EDUCATION)).toBe('Formation');
+      expect(component.getTypeLabel(ExperienceType.EDUCATION)).toBe('admin.experiences.education');
     });
 
     it('should return correct label for CERTIFICATION type', () => {
-      expect(component.getTypeLabel(ExperienceType.CERTIFICATION)).toBe('Certification');
+      expect(component.getTypeLabel(ExperienceType.CERTIFICATION)).toBe(
+        'admin.experiences.certification'
+      );
     });
 
     it('should return correct label for VOLUNTEERING type', () => {
-      expect(component.getTypeLabel(ExperienceType.VOLUNTEERING)).toBe('Bénévolat');
+      expect(component.getTypeLabel(ExperienceType.VOLUNTEERING)).toBe(
+        'admin.experiences.volunteering'
+      );
     });
   });
 });

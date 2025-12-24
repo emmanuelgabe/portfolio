@@ -181,4 +181,46 @@ class MarkdownServiceTest {
         assertThat(result).contains("href=\"https://example.com\"");
         assertThat(result).contains("<ul>");
     }
+
+    // ========== XSS Protection Tests ==========
+
+    @Test
+    void should_stripScriptTags_when_xssAttemptProvided() {
+        // Arrange
+        String markdown = "Normal text <script>alert('XSS')</script> more text";
+
+        // Act
+        String result = markdownService.renderToHtml(markdown);
+
+        // Assert
+        assertThat(result).doesNotContain("<script>");
+        assertThat(result).doesNotContain("alert");
+        assertThat(result).contains("Normal text");
+        assertThat(result).contains("more text");
+    }
+
+    @Test
+    void should_stripOnEventHandlers_when_xssAttemptProvided() {
+        // Arrange
+        String markdown = "<img src=x onerror=\"alert('XSS')\">";
+
+        // Act
+        String result = markdownService.renderToHtml(markdown);
+
+        // Assert
+        assertThat(result).doesNotContain("onerror");
+        assertThat(result).doesNotContain("alert");
+    }
+
+    @Test
+    void should_stripJavascriptUrls_when_xssAttemptProvided() {
+        // Arrange
+        String markdown = "[Click me](javascript:alert('XSS'))";
+
+        // Act
+        String result = markdownService.renderToHtml(markdown);
+
+        // Assert
+        assertThat(result).doesNotContain("javascript:");
+    }
 }

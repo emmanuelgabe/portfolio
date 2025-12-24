@@ -21,6 +21,11 @@ app:
   admin:
     password-hash: ${ADMIN_PASSWORD_HASH:}
 
+  # Cookie configuration
+  cookie:
+    # Set to false for local development (HTTP), true for production (HTTPS)
+    secure: ${COOKIE_SECURE:false}
+
   # Rate limiting configuration
   rate-limit:
     contact:
@@ -30,6 +35,8 @@ app:
         max-requests-per-hour: ${RATE_LIMIT_AUTH_LOGIN:5}  # Default 5 for production
       refresh:
         max-requests-per-hour: ${RATE_LIMIT_AUTH_REFRESH:10}  # Default 10 for production
+    upload:
+      max-requests-per-hour: ${RATE_LIMIT_UPLOAD:30}  # Default 30 uploads per hour
 
 # File upload configuration
 file:
@@ -41,12 +48,10 @@ file:
       - jpg
       - jpeg
       - png
-      - gif
       - webp
     allowed-mime-types:
       - image/jpeg
       - image/png
-      - image/gif
       - image/webp
 
 # CV upload configuration
@@ -70,6 +75,7 @@ image:
     thumbnail-size: ${THUMBNAIL_SIZE:300}  # Thumbnail size (square crop)
     jpeg-quality: ${JPEG_QUALITY:0.85}  # JPEG compression quality (0.0 - 1.0)
     thumbnail-quality: ${THUMBNAIL_QUALITY:0.80}  # Thumbnail compression quality
+    keep-originals: ${IMAGE_KEEP_ORIGINALS:true}  # Keep original files for batch reprocessing
     allowed-extensions:
       - jpg
       - jpeg
@@ -96,6 +102,16 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   application:
     name: portfolio-backend
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchClientAutoConfiguration
+
+  # Internationalization (i18n) configuration
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
 
   # Multipart file upload configuration
   servlet:
@@ -141,8 +157,183 @@ spring:
     redis:
       time-to-live: 3600000  # 1 hour in milliseconds
 
+  # RabbitMQ connection configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          max-attempts: 3
+          max-interval: 10000ms
+          multiplier: 2.0
+
 # Management endpoints configuration
 management:
   health:
     mail:
       enabled: false  # Disable mail health check to avoid blocking startup if credentials are not configured
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,caches
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.75, 0.95, 0.99
+
+# RabbitMQ configuration
+rabbitmq:
+  enabled: ${RABBITMQ_ENABLED:true}
+  queues:
+    email: portfolio.email.queue
+    email-dlq: portfolio.email.dlq
+    image: portfolio.image.queue
+    image-dlq: portfolio.image.dlq
+    audit: portfolio.audit.queue
+    audit-dlq: portfolio.audit.dlq
+  exchanges:
+    email: portfolio.email.exchange
+    image: portfolio.image.exchange
+    audit: portfolio.audit.exchange
+    dlx: portfolio.dlx.exchange
+  routing-keys:
+    email: email.send
+    email-dlq: email.dlq
+    image: image.process
+    image-dlq: image.dlq
+    audit: audit.log
+    audit-dlq: audit.dlq
+
+# Batch jobs configuration
+batch:
+  enabled: ${BATCH_ENABLED:true}
+  audit-cleanup:
+    retention-days: ${BATCH_AUDIT_RETENTION_DAYS:90}
+    cron: ${BATCH_AUDIT_CLEANUP_CRON:0 0 2 * * ?}  # Daily at 2 AM
+  audit-report:
+    output-dir: ${BATCH_AUDIT_REPORT_DIR:reports/audit}
+    cron: ${BATCH_AUDIT_REPORT_CRON:0 0 3 1 * ?}  # Monthly on 1st at 3 AM
+  stats-aggregation:
+    cron: ${BATCH_STATS_CRON:0 0 0 * * ?}  # Daily at midnight
+  sitemap:
+    cron: ${BATCH_SITEMAP_CRON:0 0 4 * * ?}  # Daily at 4 AM
+  image-reprocessing:
+    chunk-size: ${BATCH_IMAGE_CHUNK_SIZE:10}  # Number of images per chunk
+    # No cron - triggered manually via REST endpoint when quality settings change
+
+# Sitemap configuration
+sitemap:
+  base-url: ${SITEMAP_BASE_URL:https://emmanuelgabe.com}
+  output-path: ${SITEMAP_OUTPUT_PATH:sitemap.xml}
+
+# Kafka configuration
+kafka:
+  enabled: ${KAFKA_ENABLED:true}
+  consumer:
+    group-id: ${KAFKA_CONSUMER_GROUP:portfolio-group}
+
+# Elasticsearch configuration
+elasticsearch:
+  enabled: ${ELASTICSEARCH_ENABLED:true}
+  host: ${ELASTICSEARCH_HOST:localhost}
+  port: ${ELASTICSEARCH_PORT:9200}
+  username: ${ELASTICSEARCH_USERNAME:elastic}
+  password: ${ELASTICSEARCH_PASSWORD:}
+
+# GraphQL configuration
+spring.graphql:
+  graphiql:
+    enabled: ${GRAPHQL_GRAPHIQL_ENABLED:true}
+    path: /graphiql
+  path: /graphql
+  schema:
+    locations: classpath:graphql/
+    printer:
+      enabled: ${GRAPHQL_SCHEMA_PRINTER_ENABLED:true}
+    introspection:
+      enabled: ${GRAPHQL_INTROSPECTION_ENABLED:true}
+
+spring.kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    properties:
+      spring.json.add.type.headers: false
+  consumer:
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    auto-offset-reset: earliest
+    properties:
+      spring.json.trusted.packages: com.emmanuelgabe.portfolio.kafka.event
+  listener:
+    ack-mode: record
+
+# Spring Batch configuration
+spring.batch:
+  jdbc:
+    initialize-schema: always
+  job:
+    enabled: false  # Disable auto-run of jobs on startup
+
+# Resilience4j Circuit Breaker configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      emailService:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 60s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - jakarta.mail.MessagingException
+          - org.springframework.mail.MailException
+          - com.emmanuelgabe.portfolio.exception.EmailException
+  retry:
+    instances:
+      emailService:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - jakarta.mail.MessagingException
+          - org.springframework.mail.MailException
+          - java.net.ConnectException
+        ignoreExceptions:
+          - com.emmanuelgabe.portfolio.exception.EmailException
+
+# Sentry error tracking configuration
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SPRING_PROFILES_ACTIVE:dev}
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.1}
+  send-default-pii: false
+  logging:
+    minimum-event-level: error
+    minimum-breadcrumb-level: info

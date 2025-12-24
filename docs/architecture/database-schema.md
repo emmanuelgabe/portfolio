@@ -26,7 +26,7 @@ The portfolio database uses **PostgreSQL** with **Flyway** for version-controlle
 - UUID-based refresh tokens
 - Support for draft/publish workflows
 
-**Migration Tool**: Flyway (V1-V19 migrations applied)
+**Migration Tool**: Flyway (V1-V25 migrations applied)
 
 ---
 
@@ -37,9 +37,11 @@ The portfolio database uses **PostgreSQL** with **Flyway** for version-controlle
 ```
 users ──┬── 1:N ── refresh_tokens
         ├── 1:N ── cvs
-        └── 1:N ── articles
+        ├── 1:N ── articles
+        └── 1:N ── audit_logs
 
-projects ─── M:N ── tags (via project_tags)
+projects ──┬── M:N ── tags (via project_tags)
+           └── 1:N ── project_images
 
 articles ──┬── M:N ── tags (via article_tags)
            └── 1:N ── article_images
@@ -49,6 +51,10 @@ experiences (independent entity)
 skills (independent entity)
 
 site_configuration (singleton entity)
+
+audit_logs (audit trail entity)
+
+daily_stats (analytics entity)
 ```
 
 ---
@@ -243,6 +249,72 @@ UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true
 
 ---
 
+### Audit Logs Table
+
+**Purpose**: Comprehensive audit trail for administrative actions
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | BIGSERIAL | PK | Auto-incrementing primary key |
+| action | VARCHAR(50) | NOT NULL | Action type (CREATE, UPDATE, DELETE, PUBLISH, LOGIN) |
+| entity_type | VARCHAR(100) | NOT NULL | Entity type (Project, Article, Skill, etc.) |
+| entity_id | BIGINT | Nullable | Entity primary key |
+| entity_name | VARCHAR(255) | Nullable | Human-readable entity name |
+| user_id | BIGINT | FK → users(id) SET NULL | Action performer |
+| username | VARCHAR(50) | NOT NULL | Username at time of action |
+| user_role | VARCHAR(20) | Nullable | User role at time of action |
+| ip_address | VARCHAR(45) | Nullable | Client IP address |
+| user_agent | VARCHAR(500) | Nullable | Client user agent |
+| old_values | JSONB | Nullable | Previous state (UPDATE/DELETE) |
+| new_values | JSONB | Nullable | New state (CREATE/UPDATE) |
+| changed_fields | TEXT[] | Nullable | Array of modified field names |
+| request_method | VARCHAR(10) | Nullable | HTTP method |
+| request_uri | VARCHAR(500) | Nullable | Request URI |
+| request_id | VARCHAR(36) | Nullable | UUID for request correlation |
+| success | BOOLEAN | NOT NULL, DEFAULT true | Action success indicator |
+| error_message | TEXT | Nullable | Error message if failed |
+| created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Action timestamp |
+
+**Indexes**:
+- `idx_audit_logs_action` - Filter by action type
+- `idx_audit_logs_entity` - Entity type and ID lookups
+- `idx_audit_logs_user` - User's audit trail
+- `idx_audit_logs_username` - Username lookups
+- `idx_audit_logs_created_at DESC` - Chronological sorting
+- `idx_audit_logs_success` - Filter by success/failure
+- `idx_audit_logs_old_values` - GIN index for JSONB queries
+- `idx_audit_logs_new_values` - GIN index for JSONB queries
+
+---
+
+### Daily Stats Table
+
+**Purpose**: Aggregated daily statistics for portfolio metrics
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | BIGSERIAL | PK | Auto-incrementing primary key |
+| stats_date | DATE | NOT NULL, UNIQUE | Statistics date |
+| total_projects | BIGINT | NOT NULL, DEFAULT 0 | Total projects count |
+| total_articles | BIGINT | NOT NULL, DEFAULT 0 | Total articles count |
+| published_articles | BIGINT | NOT NULL, DEFAULT 0 | Published articles count |
+| draft_articles | BIGINT | NOT NULL, DEFAULT 0 | Draft articles count |
+| total_skills | BIGINT | NOT NULL, DEFAULT 0 | Total skills count |
+| total_experiences | BIGINT | NOT NULL, DEFAULT 0 | Total experiences count |
+| total_tags | BIGINT | NOT NULL, DEFAULT 0 | Total tags count |
+| total_project_images | BIGINT | NOT NULL, DEFAULT 0 | Project images count |
+| total_article_images | BIGINT | NOT NULL, DEFAULT 0 | Article images count |
+| contact_submissions | BIGINT | NOT NULL, DEFAULT 0 | Contact form submissions |
+| unique_visitors | BIGINT | NOT NULL, DEFAULT 0 | Unique visitors count |
+| audit_events_count | BIGINT | NOT NULL, DEFAULT 0 | Audit events count |
+| failed_audit_events | BIGINT | NOT NULL, DEFAULT 0 | Failed audit events |
+| created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Record creation timestamp |
+
+**Indexes**:
+- `idx_daily_stats_date DESC` - Chronological sorting
+
+---
+
 ## 5. Content Management
 
 ### Articles Table
@@ -408,6 +480,12 @@ CREATE UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true;
 | V8 | Blog articles | articles, article_tags, article_images |
 | V9 | Article metrics | articles (removed views_count) |
 | V19 | Site configuration | site_configuration (replaces hero_section) |
+| V20 | Audit logging | audit_logs |
+| V21 | Audit index | audit_logs (username lower index) |
+| V22 | Image status | project_images (added status column) |
+| V23 | Article image status | article_images (added status column) |
+| V24 | Daily statistics | daily_stats |
+| V25 | Visitor tracking | daily_stats (added unique_visitors) |
 
 ---
 

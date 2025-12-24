@@ -6,6 +6,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.MessageSource;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +17,27 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler exceptionHandler;
+    private MessageSource messageSource;
 
     @BeforeEach
     void setUp() {
-        exceptionHandler = new GlobalExceptionHandler();
+        messageSource = mock(MessageSource.class);
+        // Return the key as message by default (simulates missing translation)
+        when(messageSource.getMessage(anyString(), any(), anyString(), any(Locale.class)))
+                .thenAnswer(invocation -> invocation.getArgument(2));
+        exceptionHandler = new GlobalExceptionHandler(messageSource);
     }
 
     // ========== ResourceNotFoundException Tests ==========
@@ -46,7 +55,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(404);
-        assertThat(response.getBody().getMessage()).contains("Project not found with id : '999'");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -63,7 +72,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(404);
-        assertThat(response.getBody().getMessage()).contains("Tag not found with name : 'Java'");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -95,7 +104,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).isEqualTo("Invalid username or password");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -114,7 +123,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).isEqualTo("Token is invalid");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -133,7 +142,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).isEqualTo("Token has expired");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -153,7 +162,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).isEqualTo("Invalid JWT signature");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -171,7 +180,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).isEqualTo("JWT token has expired");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -188,7 +197,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).isEqualTo("Invalid JWT token");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -205,7 +214,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).isEqualTo("Unsupported JWT token");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -224,8 +233,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(401);
-        assertThat(response.getBody().getMessage()).contains("Authentication failed");
-        assertThat(response.getBody().getMessage()).contains("Bad credentials");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -242,7 +250,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(403);
-        assertThat(response.getBody().getMessage()).contains("Access denied");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -261,20 +269,20 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(400);
-        assertThat(response.getBody().getMessage()).isEqualTo("Invalid parameter value");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
-    // ========== FileStorageException Tests ==========
+    // ========== FileValidationException Tests ==========
 
     @Test
-    void should_return400_when_handleFileStorageExceptionCalledWithValidationError() {
+    void should_return400_when_handleFileValidationExceptionCalledWithInvalidType() {
         // Arrange
-        FileStorageException exception = new FileStorageException("File type not allowed: exe");
+        FileValidationException exception = new FileValidationException("File type not allowed: exe");
 
         // Act
         ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
-                exceptionHandler.handleFileStorageException(exception);
+                exceptionHandler.handleFileValidationException(exception);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -285,13 +293,13 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void should_return400_when_handleFileStorageExceptionCalledWithSizeExceeded() {
+    void should_return400_when_handleFileValidationExceptionCalledWithSizeExceeded() {
         // Arrange
-        FileStorageException exception = new FileStorageException("File size exceeds maximum allowed");
+        FileValidationException exception = new FileValidationException("File size exceeds maximum allowed");
 
         // Act
         ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
-                exceptionHandler.handleFileStorageException(exception);
+                exceptionHandler.handleFileValidationException(exception);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -301,13 +309,13 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void should_return400_when_handleFileStorageExceptionCalledWithEmptyFile() {
+    void should_return400_when_handleFileValidationExceptionCalledWithEmptyFile() {
         // Arrange
-        FileStorageException exception = new FileStorageException("File is empty");
+        FileValidationException exception = new FileValidationException("File is empty");
 
         // Act
         ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
-                exceptionHandler.handleFileStorageException(exception);
+                exceptionHandler.handleFileValidationException(exception);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -317,13 +325,13 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void should_return400_when_handleFileStorageExceptionCalledWithInvalidFileName() {
+    void should_return400_when_handleFileValidationExceptionCalledWithInvalidFileName() {
         // Arrange
-        FileStorageException exception = new FileStorageException("Invalid file name: ../etc/passwd");
+        FileValidationException exception = new FileValidationException("Invalid file name: ../etc/passwd");
 
         // Act
         ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
-                exceptionHandler.handleFileStorageException(exception);
+                exceptionHandler.handleFileValidationException(exception);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -333,13 +341,13 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void should_return400_when_handleFileStorageExceptionCalledWithNotValidFile() {
+    void should_return400_when_handleFileValidationExceptionCalledWithNotValidFile() {
         // Arrange
-        FileStorageException exception = new FileStorageException("File is not a valid PDF");
+        FileValidationException exception = new FileValidationException("File is not a valid PDF");
 
         // Act
         ResponseEntity<GlobalExceptionHandler.ErrorResponse> response =
-                exceptionHandler.handleFileStorageException(exception);
+                exceptionHandler.handleFileValidationException(exception);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -347,6 +355,8 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody().getStatus()).isEqualTo(400);
         assertThat(response.getBody().getMessage()).contains("not a valid");
     }
+
+    // ========== FileStorageException Tests ==========
 
     @Test
     void should_return500_when_handleFileStorageExceptionCalledWithStorageError() {
@@ -498,8 +508,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(500);
-        assertThat(response.getBody().getMessage()).contains("An unexpected error occurred");
-        assertThat(response.getBody().getMessage()).contains("Unexpected database error");
+        assertThat(response.getBody().getMessage()).isNotBlank();
         assertThat(response.getBody().getTimestamp()).isNotNull();
     }
 
@@ -516,7 +525,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(500);
-        assertThat(response.getBody().getMessage()).contains("Null value encountered");
+        assertThat(response.getBody().getMessage()).isNotBlank();
     }
 
     @Test

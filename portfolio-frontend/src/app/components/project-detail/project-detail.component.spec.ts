@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideToastr } from 'ngx-toastr';
+import { TranslateModule } from '@ngx-translate/core';
 import { ProjectDetailComponent } from './project-detail.component';
 import { ProjectService } from '../../services/project.service';
+import { LoggerService } from '../../services/logger.service';
 import { ProjectResponse } from '../../models';
 import { of, throwError } from 'rxjs';
 
@@ -10,8 +12,9 @@ describe('ProjectDetailComponent', () => {
   let component: ProjectDetailComponent;
   let fixture: ComponentFixture<ProjectDetailComponent>;
   let mockProjectService: jasmine.SpyObj<ProjectService>;
+  let mockLoggerService: jasmine.SpyObj<LoggerService>;
   let mockRouter: jasmine.SpyObj<Router>;
-  let mockActivatedRoute: any;
+  let mockActivatedRoute: { snapshot: { paramMap: { get: jasmine.Spy } } };
   let mockProject: ProjectResponse;
 
   beforeEach(async () => {
@@ -37,6 +40,7 @@ describe('ProjectDetailComponent', () => {
 
     mockProjectService = jasmine.createSpyObj('ProjectService', ['getById']);
     mockProjectService.getById.and.returnValue(of(mockProject));
+    mockLoggerService = jasmine.createSpyObj('LoggerService', ['info', 'warn', 'error', 'debug']);
 
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -49,9 +53,10 @@ describe('ProjectDetailComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [ProjectDetailComponent],
+      imports: [ProjectDetailComponent, TranslateModule.forRoot()],
       providers: [
         { provide: ProjectService, useValue: mockProjectService },
+        { provide: LoggerService, useValue: mockLoggerService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         provideToastr(),
@@ -74,20 +79,20 @@ describe('ProjectDetailComponent', () => {
     expect(component.error).toBeUndefined();
   });
 
-  it('should display loading spinner while loading', () => {
+  it('should display loading skeleton while loading', () => {
     fixture.detectChanges(); // Let ngOnInit complete first
     component.isLoading = true;
     fixture.detectChanges(); // Now render with isLoading = true
     const compiled = fixture.nativeElement as HTMLElement;
-    const spinner = compiled.querySelector('.spinner-border');
-    expect(spinner).toBeTruthy();
+    const skeleton = compiled.querySelector('app-skeleton-project-detail');
+    expect(skeleton).toBeTruthy();
   });
 
   it('should handle error when loading project fails', () => {
     mockProjectService.getById.and.returnValue(throwError(() => new Error('Not found')));
     fixture.detectChanges();
 
-    expect(component.error).toBe('Project not found or failed to load. Please try again.');
+    expect(component.error).toBe('errors.loadingFailed');
     expect(component.isLoading).toBeFalse();
   });
 
@@ -151,7 +156,7 @@ describe('ProjectDetailComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const githubButton = compiled.querySelector('a.btn-dark');
     expect(githubButton).toBeTruthy();
-    expect(githubButton?.textContent).toContain('Voir sur GitHub');
+    expect(githubButton?.textContent).toContain('projects.viewOnGithub');
   });
 
   it('should display demo button when demo URL is available', () => {
@@ -159,7 +164,7 @@ describe('ProjectDetailComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const demoButton = compiled.querySelector('a.btn-success');
     expect(demoButton).toBeTruthy();
-    expect(demoButton?.textContent).toContain('Démo en ligne');
+    expect(demoButton?.textContent).toContain('projects.liveDemo');
   });
 
   it('should display project image when available', () => {

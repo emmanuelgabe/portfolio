@@ -1,0 +1,490 @@
+# Portfolio GraphQL Schema
+# Schema-first approach with Relay Connection pagination
+
+# ============================================================
+# SCALARS
+# ============================================================
+
+scalar DateTime
+scalar Date
+scalar Long
+
+# ============================================================
+# ENUMS
+# ============================================================
+
+enum SkillCategory {
+    FRONTEND
+    BACKEND
+    DATABASE
+    DEVOPS
+    TOOLS
+}
+
+enum ExperienceType {
+    WORK
+    EDUCATION
+    CERTIFICATION
+    VOLUNTEERING
+}
+
+enum IconType {
+    FONT_AWESOME
+    CUSTOM_SVG
+}
+
+enum ImageStatus {
+    PROCESSING
+    READY
+    FAILED
+}
+
+enum SortDirection {
+    ASC
+    DESC
+}
+
+enum ProjectSortField {
+    CREATED_AT
+    UPDATED_AT
+    TITLE
+}
+
+enum ArticleSortField {
+    PUBLISHED_AT
+    CREATED_AT
+    TITLE
+    READING_TIME
+}
+
+# ============================================================
+# TYPES - Core Domain
+# ============================================================
+
+type Tag {
+    id: Long!
+    name: String!
+    color: String!
+}
+
+type ProjectImage {
+    id: Long!
+    imageUrl: String!
+    thumbnailUrl: String
+    altText: String
+    caption: String
+    displayOrder: Int!
+    primary: Boolean!
+    status: ImageStatus!
+    uploadedAt: DateTime!
+}
+
+type Project {
+    id: Long!
+    title: String!
+    description: String!
+    techStack: String
+    githubUrl: String
+    imageUrl: String
+    thumbnailUrl: String
+    demoUrl: String
+    featured: Boolean!
+    hasDetails: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    tags: [Tag!]!
+    images: [ProjectImage!]!
+}
+
+type ArticleImage {
+    id: Long!
+    imageUrl: String!
+    thumbnailUrl: String
+    status: ImageStatus!
+    uploadedAt: DateTime!
+}
+
+type Article {
+    id: Long!
+    title: String!
+    slug: String!
+    content: String!
+    contentHtml: String!
+    excerpt: String
+    authorName: String!
+    draft: Boolean!
+    publishedAt: DateTime
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    readingTimeMinutes: Int
+    tags: [Tag!]!
+    images: [ArticleImage!]!
+}
+
+type Skill {
+    id: Long!
+    name: String!
+    icon: String
+    iconType: IconType!
+    customIconUrl: String
+    color: String!
+    category: SkillCategory!
+    categoryDisplayName: String!
+    displayOrder: Int!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+type Experience {
+    id: Long!
+    company: String!
+    role: String!
+    startDate: Date!
+    endDate: Date
+    description: String!
+    type: ExperienceType!
+    ongoing: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+type SiteConfiguration {
+    id: Long!
+    fullName: String!
+    email: String!
+    heroTitle: String!
+    heroDescription: String!
+    siteTitle: String!
+    seoDescription: String!
+    profileImageUrl: String
+    githubUrl: String!
+    linkedinUrl: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+type Cv {
+    id: Long!
+    fileName: String!
+    originalFileName: String!
+    fileUrl: String!
+    fileSize: Long!
+    uploadedAt: DateTime!
+    current: Boolean!
+}
+
+# ============================================================
+# TYPES - Pagination (Relay Connection Spec)
+# ============================================================
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+    totalElements: Long!
+    totalPages: Int!
+}
+
+type ProjectEdge {
+    node: Project!
+    cursor: String!
+}
+
+type ProjectConnection {
+    edges: [ProjectEdge!]!
+    pageInfo: PageInfo!
+    totalCount: Long!
+}
+
+type ArticleEdge {
+    node: Article!
+    cursor: String!
+}
+
+type ArticleConnection {
+    edges: [ArticleEdge!]!
+    pageInfo: PageInfo!
+    totalCount: Long!
+}
+
+# ============================================================
+# TYPES - Search Results
+# ============================================================
+
+type SearchResult {
+    projects: [Project!]!
+    articles: [Article!]!
+    totalCount: Int!
+}
+
+# ============================================================
+# TYPES - Grouped Results
+# ============================================================
+
+type SkillCategoryGroup {
+    category: SkillCategory!
+    categoryDisplayName: String!
+    skills: [Skill!]!
+}
+
+type ExperienceTypeGroup {
+    type: ExperienceType!
+    experiences: [Experience!]!
+}
+
+# ============================================================
+# TYPES - Contact Response
+# ============================================================
+
+type ContactResponse {
+    success: Boolean!
+    message: String!
+}
+
+# ============================================================
+# INPUT TYPES - Pagination & Filtering
+# ============================================================
+
+input PageInput {
+    page: Int = 0
+    size: Int = 10
+}
+
+input ProjectFilterInput {
+    tagIds: [Long!]
+    featured: Boolean
+    searchQuery: String
+    technology: String
+}
+
+input ProjectSortInput {
+    field: ProjectSortField = CREATED_AT
+    direction: SortDirection = DESC
+}
+
+input ArticleFilterInput {
+    tagIds: [Long!]
+    searchQuery: String
+    draft: Boolean
+}
+
+input ArticleSortInput {
+    field: ArticleSortField = PUBLISHED_AT
+    direction: SortDirection = DESC
+}
+
+input SkillFilterInput {
+    category: SkillCategory
+}
+
+input ExperienceFilterInput {
+    type: ExperienceType
+    ongoing: Boolean
+}
+
+# ============================================================
+# INPUT TYPES - Mutations
+# ============================================================
+
+input CreateProjectInput {
+    title: String!
+    description: String!
+    techStack: String
+    githubUrl: String
+    imageUrl: String
+    demoUrl: String
+    featured: Boolean = false
+    hasDetails: Boolean = true
+    tagIds: [Long!]
+}
+
+input UpdateProjectInput {
+    title: String
+    description: String
+    techStack: String
+    githubUrl: String
+    imageUrl: String
+    demoUrl: String
+    featured: Boolean
+    hasDetails: Boolean
+    tagIds: [Long!]
+}
+
+input CreateArticleInput {
+    title: String!
+    content: String!
+    excerpt: String
+    draft: Boolean = true
+    tagIds: [Long!]
+}
+
+input UpdateArticleInput {
+    title: String
+    content: String
+    excerpt: String
+    tagIds: [Long!]
+}
+
+input CreateSkillInput {
+    name: String!
+    icon: String
+    iconType: IconType = FONT_AWESOME
+    customIconUrl: String
+    color: String!
+    category: SkillCategory!
+    displayOrder: Int!
+}
+
+input UpdateSkillInput {
+    name: String
+    icon: String
+    iconType: IconType
+    customIconUrl: String
+    color: String
+    category: SkillCategory
+    displayOrder: Int
+}
+
+input CreateExperienceInput {
+    company: String!
+    role: String!
+    startDate: Date!
+    endDate: Date
+    description: String!
+    type: ExperienceType!
+}
+
+input UpdateExperienceInput {
+    company: String
+    role: String
+    startDate: Date
+    endDate: Date
+    description: String
+    type: ExperienceType
+}
+
+input CreateTagInput {
+    name: String!
+    color: String!
+}
+
+input UpdateTagInput {
+    name: String
+    color: String
+}
+
+input UpdateSiteConfigurationInput {
+    fullName: String
+    email: String
+    heroTitle: String
+    heroDescription: String
+    siteTitle: String
+    seoDescription: String
+    githubUrl: String
+    linkedinUrl: String
+}
+
+input ContactInput {
+    name: String!
+    email: String!
+    subject: String!
+    message: String!
+}
+
+# ============================================================
+# QUERIES
+# ============================================================
+
+type Query {
+    # Projects
+    projects(
+        filter: ProjectFilterInput
+        sort: ProjectSortInput
+        page: PageInput
+    ): ProjectConnection!
+
+    project(id: Long!): Project
+
+    featuredProjects: [Project!]!
+
+    # Articles (published only for public, all for admin)
+    articles(
+        filter: ArticleFilterInput
+        sort: ArticleSortInput
+        page: PageInput
+    ): ArticleConnection!
+
+    article(id: Long!): Article
+
+    articleBySlug(slug: String!): Article
+
+    # Skills
+    skills(filter: SkillFilterInput): [Skill!]!
+
+    skill(id: Long!): Skill
+
+    skillsByCategory: [SkillCategoryGroup!]!
+
+    # Experiences
+    experiences(filter: ExperienceFilterInput): [Experience!]!
+
+    experience(id: Long!): Experience
+
+    experiencesByType: [ExperienceTypeGroup!]!
+
+    recentExperiences(limit: Int = 3): [Experience!]!
+
+    # Tags
+    tags: [Tag!]!
+
+    tag(id: Long!): Tag
+
+    # Site Configuration
+    siteConfiguration: SiteConfiguration!
+
+    # CV
+    currentCv: Cv
+
+    # Search
+    search(query: String!): SearchResult!
+}
+
+# ============================================================
+# MUTATIONS
+# ============================================================
+
+type Mutation {
+    # Projects (Admin only)
+    createProject(input: CreateProjectInput!): Project!
+    updateProject(id: Long!, input: UpdateProjectInput!): Project!
+    deleteProject(id: Long!): Boolean!
+
+    # Articles (Admin only)
+    createArticle(input: CreateArticleInput!): Article!
+    updateArticle(id: Long!, input: UpdateArticleInput!): Article!
+    deleteArticle(id: Long!): Boolean!
+    publishArticle(id: Long!): Article!
+    unpublishArticle(id: Long!): Article!
+
+    # Skills (Admin only)
+    createSkill(input: CreateSkillInput!): Skill!
+    updateSkill(id: Long!, input: UpdateSkillInput!): Skill!
+    deleteSkill(id: Long!): Boolean!
+
+    # Experiences (Admin only)
+    createExperience(input: CreateExperienceInput!): Experience!
+    updateExperience(id: Long!, input: UpdateExperienceInput!): Experience!
+    deleteExperience(id: Long!): Boolean!
+
+    # Tags (Admin only)
+    createTag(input: CreateTagInput!): Tag!
+    updateTag(id: Long!, input: UpdateTagInput!): Tag!
+    deleteTag(id: Long!): Boolean!
+
+    # Site Configuration (Admin only)
+    updateSiteConfiguration(input: UpdateSiteConfigurationInput!): SiteConfiguration!
+
+    # Contact (Public - with rate limiting)
+    sendContactMessage(input: ContactInput!): ContactResponse!
+}

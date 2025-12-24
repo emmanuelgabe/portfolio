@@ -1,10 +1,13 @@
 package com.emmanuelgabe.portfolio.service.impl;
 
+import com.emmanuelgabe.portfolio.audit.AuditAction;
+import com.emmanuelgabe.portfolio.audit.Auditable;
 import com.emmanuelgabe.portfolio.config.CvStorageProperties;
 import com.emmanuelgabe.portfolio.dto.CvResponse;
 import com.emmanuelgabe.portfolio.entity.Cv;
 import com.emmanuelgabe.portfolio.entity.User;
 import com.emmanuelgabe.portfolio.exception.FileStorageException;
+import com.emmanuelgabe.portfolio.exception.FileValidationException;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.mapper.CvMapper;
 import com.emmanuelgabe.portfolio.repository.CvRepository;
@@ -63,6 +66,8 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
+    @Auditable(action = AuditAction.CREATE, entityType = "Cv",
+            entityIdExpression = "#result.id", entityNameExpression = "#result.originalFileName")
     public CvResponse uploadCv(MultipartFile file, User user) {
         log.debug("[UPLOAD_CV] Starting upload - userId={}, originalFileName={}",
                 user.getId(), file.getOriginalFilename());
@@ -80,7 +85,7 @@ public class CvServiceImpl implements CvService {
             // Security check: prevent path traversal
             if (fileName.contains("..")) {
                 log.warn("[UPLOAD_CV] Invalid file name - fileName={}", fileName);
-                throw new FileStorageException("Invalid file name: " + fileName);
+                throw new FileValidationException("Invalid file name: " + fileName);
             }
 
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
@@ -89,16 +94,7 @@ public class CvServiceImpl implements CvService {
             log.info("[UPLOAD_CV] File stored successfully - fileName={}, size={}, path={}",
                     fileName, file.getSize(), targetLocation);
 
-            // Set all existing CVs for this user to not current
-            List<Cv> existingCvs = cvRepository.findByUserIdAndCurrent(user.getId(), true);
-            if (!existingCvs.isEmpty()) {
-                existingCvs.forEach(cv -> {
-                    cv.setCurrent(false);
-                    log.debug("[UPLOAD_CV] Setting CV to not current - cvId={}", cv.getId());
-                });
-                cvRepository.saveAll(existingCvs);
-                cvRepository.flush(); // Force flush to avoid constraint violation
-            }
+            clearCurrentCvs(user.getId(), "UPLOAD_CV");
 
             // Create new CV entity
             Cv cv = new Cv();
@@ -167,24 +163,7 @@ public class CvServiceImpl implements CvService {
                     return new ResourceNotFoundException("Cv", "userId", userId);
                 });
 
-        try {
-            Path filePath = this.fileStorageLocation.resolve(cv.getFileName()).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-
-            if (resource.exists() && resource.isReadable()) {
-                log.info("[DOWNLOAD_CV] CV download successful - userId={}, cvId={}, fileName={}",
-                        userId, cv.getId(), cv.getFileName());
-                return resource;
-            } else {
-                log.error("[DOWNLOAD_CV] File not readable - userId={}, fileName={}, path={}",
-                        userId, cv.getFileName(), filePath);
-                throw new FileStorageException("Could not read CV file: " + cv.getFileName());
-            }
-        } catch (MalformedURLException ex) {
-            log.error("[DOWNLOAD_CV] Invalid file path - fileName={}, error={}",
-                    cv.getFileName(), ex.getMessage(), ex);
-            throw new FileStorageException("Invalid file path for CV: " + cv.getFileName(), ex);
-        }
+        return loadCvResource(cv);
     }
 
     @Override
@@ -198,27 +177,12 @@ public class CvServiceImpl implements CvService {
                     return new ResourceNotFoundException("Cv", "current", true);
                 });
 
-        try {
-            Path filePath = this.fileStorageLocation.resolve(cv.getFileName()).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-
-            if (resource.exists() && resource.isReadable()) {
-                log.info("[DOWNLOAD_CV] CV download successful - cvId={}, fileName={}",
-                        cv.getId(), cv.getFileName());
-                return resource;
-            } else {
-                log.error("[DOWNLOAD_CV] File not readable - fileName={}, path={}",
-                        cv.getFileName(), filePath);
-                throw new FileStorageException("Could not read CV file: " + cv.getFileName());
-            }
-        } catch (MalformedURLException ex) {
-            log.error("[DOWNLOAD_CV] Invalid file path - fileName={}, error={}",
-                    cv.getFileName(), ex.getMessage(), ex);
-            throw new FileStorageException("Invalid file path for CV: " + cv.getFileName(), ex);
-        }
+        return loadCvResource(cv);
     }
 
     @Override
+    @Auditable(action = AuditAction.SET_CURRENT, entityType = "Cv",
+            entityIdExpression = "#cvId", entityNameExpression = "#result.originalFileName")
     public CvResponse setCurrentCv(Long cvId, User user) {
         log.debug("[SET_CURRENT_CV] Setting CV as current - cvId={}, userId={}", cvId, user.getId());
 
@@ -235,16 +199,7 @@ public class CvServiceImpl implements CvService {
             throw new IllegalArgumentException("CV does not belong to user");
         }
 
-        // Set all existing CVs for this user to not current
-        List<Cv> existingCvs = cvRepository.findByUserIdAndCurrent(user.getId(), true);
-        if (!existingCvs.isEmpty()) {
-            existingCvs.forEach(existingCv -> {
-                existingCv.setCurrent(false);
-                log.debug("[SET_CURRENT_CV] Setting CV to not current - cvId={}", existingCv.getId());
-            });
-            cvRepository.saveAll(existingCvs);
-            cvRepository.flush(); // Force flush to avoid constraint violation
-        }
+        clearCurrentCvs(user.getId(), "SET_CURRENT_CV");
 
         // Set this CV as current
         cv.setCurrent(true);
@@ -271,6 +226,7 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
+    @Auditable(action = AuditAction.DELETE, entityType = "Cv", entityIdExpression = "#cvId")
     public void deleteCv(Long cvId, User user) {
         log.debug("[DELETE_CV] Deleting CV - cvId={}, userId={}", cvId, user.getId());
 
@@ -322,14 +278,14 @@ public class CvServiceImpl implements CvService {
     private void validateCvFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             log.warn("[VALIDATION] File is null or empty");
-            throw new FileStorageException("File is empty");
+            throw new FileValidationException("File is empty");
         }
 
         // Validate file size
         if (file.getSize() > cvStorageProperties.getMaxFileSize()) {
             log.warn("[VALIDATION] File too large - size={}, maxSize={}",
                     file.getSize(), cvStorageProperties.getMaxFileSize());
-            throw new FileStorageException("File size exceeds maximum allowed size of "
+            throw new FileValidationException("File size exceeds maximum allowed size of "
                     + (cvStorageProperties.getMaxFileSize() / 1024 / 1024) + "MB");
         }
 
@@ -340,13 +296,13 @@ public class CvServiceImpl implements CvService {
         if (!isAllowedExtension(fileExtension)) {
             log.warn("[VALIDATION] Invalid file extension - fileName={}, extension={}",
                     fileName, fileExtension);
-            throw new FileStorageException("File type not allowed. Only PDF files are accepted.");
+            throw new FileValidationException("File type not allowed. Only PDF files are accepted.");
         }
 
         // Validate PDF magic bytes
         if (!isPdfFile(file)) {
             log.warn("[VALIDATION] File is not a valid PDF - fileName={}", fileName);
-            throw new FileStorageException("File content is not a valid PDF. Detected content does not match PDF format.");
+            throw new FileValidationException("File content is not a valid PDF. Detected content does not match PDF format.");
         }
 
         log.debug("[VALIDATION] CV file validation passed - fileName={}, size={}, extension={}",
@@ -397,5 +353,48 @@ public class CvServiceImpl implements CvService {
     private boolean isAllowedExtension(String extension) {
         return Arrays.asList(cvStorageProperties.getAllowedExtensions())
                 .contains(extension.toLowerCase());
+    }
+
+    /**
+     * Load CV file as a Spring Resource
+     * @param cv the CV entity containing file information
+     * @return Resource for file download
+     * @throws FileStorageException if file cannot be read
+     */
+    private Resource loadCvResource(Cv cv) {
+        try {
+            Path filePath = this.fileStorageLocation.resolve(cv.getFileName()).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                log.info("[DOWNLOAD_CV] CV download successful - cvId={}, fileName={}",
+                        cv.getId(), cv.getFileName());
+                return resource;
+            } else {
+                log.error("[DOWNLOAD_CV] File not readable - fileName={}, path={}",
+                        cv.getFileName(), filePath);
+                throw new FileStorageException("Could not read CV file: " + cv.getFileName());
+            }
+        } catch (MalformedURLException ex) {
+            log.error("[DOWNLOAD_CV] Invalid file path - fileName={}, error={}",
+                    cv.getFileName(), ex.getMessage(), ex);
+            throw new FileStorageException("Invalid file path for CV: " + cv.getFileName(), ex);
+        }
+    }
+
+    /**
+     * Clear current flag from all CVs for a user
+     * @param userId the user ID
+     * @param logContext logging context prefix for traceability
+     */
+    private void clearCurrentCvs(Long userId, String logContext) {
+        List<Cv> existingCvs = cvRepository.findByUserIdAndCurrent(userId, true);
+        if (!existingCvs.isEmpty()) {
+            existingCvs.forEach(cv -> {
+                cv.setCurrent(false);
+                log.debug("[{}] Setting CV to not current - cvId={}", logContext, cv.getId());
+            });
+            cvRepository.saveAll(existingCvs);
+            cvRepository.flush();
+        }
     }
 }

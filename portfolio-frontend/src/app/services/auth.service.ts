@@ -1,16 +1,22 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, throwError, timer, Subscription, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, timer, Subscription, Subject, of } from 'rxjs';
 import { tap, catchError, switchMap, retry } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { LoggerService } from './logger.service';
 import { TokenStorageService } from './token-storage.service';
-import { LoginRequest, AuthResponse, TokenRefreshRequest, User } from '../models/auth.model';
+import { LoginRequest, AccessTokenResponse, User } from '../models/auth.model';
 
 /**
- * Authentication service with JWT token management
- * Handles login, logout, token refresh, and auto-refresh scheduling
+ * Authentication service with JWT token management.
+ *
+ * Security architecture:
+ * - Access token: stored in memory only (TokenStorageService)
+ * - Refresh token: stored in HttpOnly cookie (managed by backend)
+ *
+ * This hybrid approach protects against XSS attacks while maintaining
+ * a seamless user experience with automatic session restoration.
  */
 @Injectable({
   providedIn: 'root',
@@ -29,155 +35,185 @@ export class AuthService {
 
   private refreshTimerSubscription?: Subscription;
   private isRefreshing = false;
-  private refreshSubject = new Subject<AuthResponse>();
+  private refreshSubject = new Subject<AccessTokenResponse>();
+  private sessionRestoreAttempted = false;
 
   constructor() {
     this.initializeAuthState();
   }
 
   /**
-   * Initialize authentication state on service creation
-   * Restores user session if valid token exists
+   * Initialize authentication state on service creation.
+   * If access token exists in memory and is valid, restore session.
+   * If no token in memory, attempt to restore via refresh token cookie.
    */
   private initializeAuthState(): void {
     const user = this.tokenStorage.getCurrentUser();
+
     if (user && !this.tokenStorage.isTokenExpired()) {
+      // Token in memory is still valid
       this.currentUserSubject.next(user);
       this.scheduleTokenRefresh();
-      this.logger.info('[AUTH_INIT] Session restored', { username: user.username });
-    } else if (user) {
-      this.logger.info('[AUTH_INIT] Session expired, clearing tokens');
-      this.tokenStorage.clear();
+      this.logger.info('[AUTH_INIT] Session restored from memory', { username: user.username });
+    } else if (this.tokenStorage.shouldAttemptSessionRestore()) {
+      // No token in memory - try to restore via refresh token cookie
+      this.logger.info('[AUTH_INIT] Attempting session restore via refresh token');
+      this.attemptSessionRestore();
+    } else {
+      this.logger.debug('[AUTH_INIT] No session to restore');
     }
   }
 
   /**
-   * Authenticate user with username and password
-   * @param credentials Login credentials
-   * @param rememberMe If true, persist tokens in localStorage
-   * @returns Observable of AuthResponse
+   * Attempt to restore session using refresh token from HttpOnly cookie.
+   * Called on app initialization when no access token is in memory.
    */
-  login(credentials: LoginRequest, rememberMe: boolean = false): Observable<AuthResponse> {
+  private attemptSessionRestore(): void {
+    if (this.sessionRestoreAttempted) {
+      return;
+    }
+    this.sessionRestoreAttempted = true;
+
+    this.refreshToken().subscribe({
+      next: () => {
+        this.logger.info('[AUTH_INIT] Session restored via refresh token');
+      },
+      error: () => {
+        this.logger.debug('[AUTH_INIT] No valid session to restore');
+      },
+    });
+  }
+
+  /**
+   * Authenticate user with username and password.
+   * Access token is returned in response body and stored in memory.
+   * Refresh token is set as HttpOnly cookie by the backend.
+   *
+   * @param credentials Login credentials
+   * @returns Observable of AccessTokenResponse
+   */
+  login(credentials: LoginRequest): Observable<AccessTokenResponse> {
     this.logger.info('[AUTH_LOGIN] Login attempt', { username: credentials.username });
 
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap((response) => {
-        this.handleAuthenticationSuccess(response, rememberMe);
-        this.logger.info('[AUTH_LOGIN] Login successful', { username: credentials.username });
-      }),
-      catchError((error) => {
-        this.logger.error('[AUTH_LOGIN] Login failed', {
-          username: credentials.username,
-          status: error.status,
-          message: error.message,
-        });
-        return throwError(() => error);
+    return this.http
+      .post<AccessTokenResponse>(`${this.apiUrl}/login`, credentials, {
+        withCredentials: true, // Required for cookies
       })
-    );
+      .pipe(
+        tap((response) => {
+          this.handleAuthenticationSuccess(response);
+          this.logger.info('[AUTH_LOGIN] Login successful', { username: credentials.username });
+        }),
+        catchError((error) => {
+          this.logger.error('[AUTH_LOGIN] Login failed', {
+            username: credentials.username,
+            status: error.status,
+            message: error.message,
+          });
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
-   * Logout current user
-   * Revokes refresh token on backend and clears local state
+   * Logout current user.
+   * Clears HttpOnly cookie via backend endpoint and local state.
    */
   logout(): void {
-    const refreshToken = this.tokenStorage.getRefreshToken();
+    this.logger.info('[AUTH_LOGOUT] Logout initiated');
 
-    if (refreshToken) {
-      this.logger.info('[AUTH_LOGOUT] Logout initiated');
-
-      this.http
-        .post(`${this.apiUrl}/logout`, { refreshToken })
-        .pipe(
-          catchError((error) => {
-            this.logger.warn(
-              '[AUTH_LOGOUT] Logout endpoint error (proceeding with local cleanup)',
-              {
-                status: error.status,
-              }
-            );
-            return throwError(() => error);
-          })
-        )
-        .subscribe({
-          complete: () => {
-            this.clearAuthenticationState();
-            this.logger.info('[AUTH_LOGOUT] Logout completed');
-          },
-        });
-    } else {
-      this.clearAuthenticationState();
-      this.logger.info('[AUTH_LOGOUT] Local logout (no refresh token)');
-    }
+    this.http
+      .post(
+        `${this.apiUrl}/logout`,
+        {},
+        {
+          withCredentials: true, // Required to send/clear cookies
+        }
+      )
+      .pipe(
+        catchError((error) => {
+          this.logger.warn('[AUTH_LOGOUT] Logout endpoint error (proceeding with local cleanup)', {
+            status: error.status,
+          });
+          return of(null);
+        })
+      )
+      .subscribe({
+        complete: () => {
+          this.clearAuthenticationState();
+          this.logger.info('[AUTH_LOGOUT] Logout completed');
+        },
+      });
   }
 
   /**
-   * Refresh access token using refresh token
-   * Uses synchronous flag to prevent race conditions from concurrent calls
-   * @returns Observable of new AuthResponse
+   * Refresh access token using refresh token from HttpOnly cookie.
+   * Uses synchronous flag to prevent race conditions from concurrent calls.
+   *
+   * @returns Observable of new AccessTokenResponse
    */
-  refreshToken(): Observable<AuthResponse> {
+  refreshToken(): Observable<AccessTokenResponse> {
     if (this.isRefreshing) {
       this.logger.debug('[AUTH_REFRESH] Refresh already in progress, waiting for completion');
       return this.refreshSubject.asObservable();
     }
 
-    const refreshToken = this.tokenStorage.getRefreshToken();
-
-    if (!refreshToken) {
-      this.logger.warn('[AUTH_REFRESH] No refresh token available');
-      this.clearAuthenticationState();
-      return throwError(() => new Error('No refresh token available'));
-    }
-
     this.isRefreshing = true;
     this.logger.debug('[AUTH_REFRESH] Refreshing access token');
 
-    const request: TokenRefreshRequest = { refreshToken };
+    return this.http
+      .post<AccessTokenResponse>(
+        `${this.apiUrl}/refresh`,
+        {},
+        {
+          withCredentials: true, // Required to send refresh token cookie
+        }
+      )
+      .pipe(
+        tap((response) => {
+          this.tokenStorage.saveTokens(response);
+          const user = this.tokenStorage.getCurrentUser();
+          this.currentUserSubject.next(user);
 
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, request).pipe(
-      tap((response) => {
-        const rememberMe = this.tokenStorage.isRememberMeEnabled();
-        this.tokenStorage.saveTokens(response, rememberMe);
-        const user = this.tokenStorage.getCurrentUser();
-        this.currentUserSubject.next(user);
+          this.scheduleTokenRefresh();
+          this.logger.info('[AUTH_REFRESH] Token refresh successful');
 
-        this.scheduleTokenRefresh();
-        this.logger.info('[AUTH_REFRESH] Token refresh successful');
+          this.refreshSubject.next(response);
+          this.refreshSubject.complete();
 
-        this.refreshSubject.next(response);
-        this.refreshSubject.complete();
+          this.refreshSubject = new Subject<AccessTokenResponse>();
+          this.isRefreshing = false;
+        }),
+        catchError((error) => {
+          this.logger.error('[AUTH_REFRESH] Token refresh failed', {
+            status: error.status,
+            message: error.message,
+          });
 
-        this.refreshSubject = new Subject<AuthResponse>();
-        this.isRefreshing = false;
-      }),
-      catchError((error) => {
-        this.logger.error('[AUTH_REFRESH] Token refresh failed', {
-          status: error.status,
-          message: error.message,
-        });
+          this.refreshSubject.error(error);
+          this.refreshSubject = new Subject<AccessTokenResponse>();
+          this.isRefreshing = false;
 
-        this.refreshSubject.error(error);
-        this.refreshSubject = new Subject<AuthResponse>();
-        this.isRefreshing = false;
-
-        this.clearAuthenticationState();
-        return throwError(() => error);
-      })
-    );
+          // Clear state only if user is currently logged in
+          // Skip clearing during initial silent restore (when no user is logged in yet)
+          if (this.currentUserSubject.value !== null) {
+            this.clearAuthenticationState();
+          }
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
-   * Check if user is currently authenticated
-   * @returns True if valid token exists
+   * Check if user is currently authenticated.
+   * @returns True if valid token exists in memory
    */
   isAuthenticated(): boolean {
-    const token = this.tokenStorage.getAccessToken();
-    return token !== null && !this.tokenStorage.isTokenExpired();
+    return this.tokenStorage.hasValidToken();
   }
 
   /**
-   * Get current access token
+   * Get current access token from memory.
    * @returns Access token or null
    */
   getToken(): string | null {
@@ -185,7 +221,7 @@ export class AuthService {
   }
 
   /**
-   * Get current user
+   * Get current user.
    * @returns Current user or null
    */
   getCurrentUser(): User | null {
@@ -193,7 +229,7 @@ export class AuthService {
   }
 
   /**
-   * Check if current user has admin role
+   * Check if current user has admin role.
    * @returns True if user is admin
    */
   isAdmin(): boolean {
@@ -201,18 +237,18 @@ export class AuthService {
   }
 
   /**
-   * Handle successful authentication
-   * Saves tokens, updates user state, and schedules refresh
+   * Handle successful authentication.
+   * Saves tokens in memory, updates user state, and schedules refresh.
    */
-  private handleAuthenticationSuccess(response: AuthResponse, rememberMe: boolean): void {
-    this.tokenStorage.saveTokens(response, rememberMe);
+  private handleAuthenticationSuccess(response: AccessTokenResponse): void {
+    this.tokenStorage.saveTokens(response);
     const user = this.tokenStorage.getCurrentUser();
     this.currentUserSubject.next(user);
     this.scheduleTokenRefresh();
   }
 
   /**
-   * Clear authentication state and navigate to login
+   * Clear authentication state and navigate to login.
    */
   private clearAuthenticationState(): void {
     this.cancelTokenRefresh();
@@ -227,8 +263,8 @@ export class AuthService {
   }
 
   /**
-   * Schedule automatic token refresh before expiration
-   * Applies 60-second buffer and minimum 2-minute threshold
+   * Schedule automatic token refresh before expiration.
+   * Applies 60-second buffer and minimum 2-minute threshold.
    */
   private scheduleTokenRefresh(): void {
     this.cancelTokenRefresh();
@@ -273,7 +309,7 @@ export class AuthService {
   }
 
   /**
-   * Cancel scheduled token refresh
+   * Cancel scheduled token refresh.
    */
   private cancelTokenRefresh(): void {
     if (this.refreshTimerSubscription) {

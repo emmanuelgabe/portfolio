@@ -1,0 +1,6 @@
+@if (isOffline()) {
+  <div class="offline-banner" role="alert" aria-live="assertive" aria-atomic="true">
+    <i class="bi bi-wifi-off me-2" aria-hidden="true"></i>
+    {{ 'connectivity.offline' | translate }}
+  </div>
+}

@@ -14,9 +14,6 @@ public class CustomHealthIndicator implements HealthIndicator {
     @Override
     public Health health() {
         try {
-            // Add your custom health checks here
-            // For example: check external services, cache, etc.
-
             boolean isHealthy = performHealthCheck();
 
             if (isHealthy) {
@@ -38,8 +35,6 @@ public class CustomHealthIndicator implements HealthIndicator {
     }
 
     private boolean performHealthCheck() {
-        // Implement your custom health check logic here
-        // For now, just return true
         return true;
     }
 }

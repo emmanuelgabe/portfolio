@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.service.impl;
 
 import com.emmanuelgabe.portfolio.config.FileStorageProperties;
 import com.emmanuelgabe.portfolio.exception.FileStorageException;
+import com.emmanuelgabe.portfolio.exception.FileValidationException;
 import com.emmanuelgabe.portfolio.service.FileStorageService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             // Security check: prevent path traversal
             if (fileName.contains("..")) {
                 log.warn("[VALIDATION] Invalid file name - fileName={}", fileName);
-                throw new FileStorageException("Invalid file name: " + fileName);
+                throw new FileValidationException("Invalid file name: " + fileName);
             }
 
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
@@ -81,14 +82,14 @@ public class FileStorageServiceImpl implements FileStorageService {
     public void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             log.warn("[VALIDATION] File is null or empty");
-            throw new FileStorageException("File is empty");
+            throw new FileValidationException("File is empty");
         }
 
         // Validate file size
         if (file.getSize() > fileStorageProperties.getMaxFileSize()) {
             log.warn("[VALIDATION] File too large - size={}, maxSize={}",
                     file.getSize(), fileStorageProperties.getMaxFileSize());
-            throw new FileStorageException("File size exceeds maximum allowed size of "
+            throw new FileValidationException("File size exceeds maximum allowed size of "
                     + (fileStorageProperties.getMaxFileSize() / 1024 / 1024) + "MB");
         }
 
@@ -99,7 +100,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (!isAllowedExtension(fileExtension)) {
             log.warn("[VALIDATION] Invalid file extension - fileName={}, extension={}",
                     fileName, fileExtension);
-            throw new FileStorageException("File type not allowed. Allowed types: "
+            throw new FileValidationException("File type not allowed. Allowed types: "
                     + Arrays.toString(fileStorageProperties.getAllowedExtensions()));
         }
 
@@ -108,7 +109,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (!isAllowedMimeType(detectedMimeType)) {
             log.warn("[VALIDATION] Invalid MIME type - fileName={}, declaredType={}, detectedType={}",
                     fileName, file.getContentType(), detectedMimeType);
-            throw new FileStorageException("File content type not allowed. Detected type: " + detectedMimeType);
+            throw new FileValidationException("File content type not allowed. Detected type: " + detectedMimeType);
         }
 
         log.debug("[VALIDATION] File validation passed - fileName={}, size={}, extension={}, mimeType={}",

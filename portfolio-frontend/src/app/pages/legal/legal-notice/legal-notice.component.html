@@ -1,0 +1,62 @@
+<div class="legal-page">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <a routerLink="/" class="btn btn-outline-secondary mb-4">
+          <i class="bi bi-arrow-left me-2"></i>{{ 'common.back' | translate }}
+        </a>
+
+        <h1 class="legal-title">{{ 'legal.legalNotice.title' | translate }}</h1>
+
+        <!-- Publisher -->
+        <section class="legal-section">
+          <h2>{{ 'legal.legalNotice.publisher.title' | translate }}</h2>
+          <ul class="legal-info-list">
+            <li>
+              <strong>{{ 'legal.legalNotice.publisher.name' | translate }}:</strong>
+              {{ fullName }}
+            </li>
+            <li>
+              <strong>{{ 'legal.legalNotice.publisher.email' | translate }}:</strong>&nbsp;<a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>
+            </li>
+            <li>
+              <strong>{{ 'legal.legalNotice.publisher.status' | translate }}:</strong>
+              {{ 'legal.legalNotice.publisher.individual' | translate }}
+            </li>
+          </ul>
+        </section>
+
+        <!-- Hosting -->
+        <section class="legal-section">
+          <h2>{{ 'legal.legalNotice.hosting.title' | translate }}</h2>
+          <ul class="legal-info-list">
+            <li>
+              <strong>{{ 'legal.legalNotice.hosting.selfHosted' | translate }}</strong>
+            </li>
+            <li>
+              <strong>{{ 'legal.legalNotice.hosting.domain' | translate }}:</strong>
+              {{ 'legal.legalNotice.hosting.domainProvider' | translate }}
+            </li>
+            <li>
+              <strong>{{ 'legal.legalNotice.hosting.cdn' | translate }}:</strong>
+              {{ 'legal.legalNotice.hosting.cdnProvider' | translate }}
+            </li>
+          </ul>
+        </section>
+
+        <!-- Intellectual Property -->
+        <section class="legal-section">
+          <h2>{{ 'legal.legalNotice.intellectual.title' | translate }}</h2>
+          <p>{{ 'legal.legalNotice.intellectual.description' | translate }}</p>
+          <p class="text-muted">&copy; {{ currentYear }} {{ fullName }}</p>
+        </section>
+
+        <!-- Liability -->
+        <section class="legal-section">
+          <h2>{{ 'legal.legalNotice.liability.title' | translate }}</h2>
+          <p>{{ 'legal.legalNotice.liability.description' | translate }}</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

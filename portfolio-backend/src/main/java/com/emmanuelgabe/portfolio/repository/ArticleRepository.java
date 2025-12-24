@@ -70,4 +70,14 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
      * @return true if an article with this slug exists
      */
     boolean existsBySlug(String slug);
+
+    /**
+     * Search articles by title or content (case-insensitive).
+     * Used as fallback when Elasticsearch is disabled.
+     *
+     * @param title the title search term
+     * @param content the content search term
+     * @return list of matching articles
+     */
+    List<Article> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String title, String content);
 }

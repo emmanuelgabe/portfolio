@@ -3,6 +3,9 @@ FROM gradle:8-jdk21
 
 WORKDIR /app
 
+# Install wget for health checks (Debian-based image)
+RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
+
 # Copy build files
 COPY build.gradle settings.gradle ./
 

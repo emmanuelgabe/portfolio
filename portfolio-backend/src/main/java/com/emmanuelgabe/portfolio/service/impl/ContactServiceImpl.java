@@ -2,52 +2,50 @@ package com.emmanuelgabe.portfolio.service.impl;
 
 import com.emmanuelgabe.portfolio.dto.ContactRequest;
 import com.emmanuelgabe.portfolio.dto.ContactResponse;
-import com.emmanuelgabe.portfolio.exception.EmailException;
+import com.emmanuelgabe.portfolio.messaging.event.ContactEmailEvent;
+import com.emmanuelgabe.portfolio.messaging.publisher.EventPublisher;
 import com.emmanuelgabe.portfolio.service.ContactService;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of ContactService.
+ * Handles contact form submissions by publishing events for async email processing.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
 
-    private final JavaMailSender mailSender;
+    private final EventPublisher eventPublisher;
 
     @Value("${spring.mail.username}")
     private String recipientEmail;
 
     @Override
     public ContactResponse sendContactEmail(ContactRequest request) {
-        log.info("[CONTACT_EMAIL] Sending email - from={}, subject={}", request.getEmail(), request.getSubject());
+        log.info("[CONTACT] Processing contact form - from={}, subject={}",
+                request.getEmail(), request.getSubject());
 
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        String htmlContent = buildEmailContent(request);
 
-            helper.setFrom(request.getEmail());
-            helper.setTo(recipientEmail);
-            helper.setSubject("[Portfolio Contact] " + request.getSubject());
+        ContactEmailEvent event = ContactEmailEvent.of(
+                recipientEmail,
+                request.getName(),
+                request.getEmail(),
+                request.getSubject(),
+                request.getMessage(),
+                htmlContent
+        );
 
-            String htmlContent = buildEmailContent(request);
-            helper.setText(htmlContent, true);
+        eventPublisher.publishEmailEvent(event);
 
-            mailSender.send(mimeMessage);
+        log.info("[CONTACT] Contact email queued - eventId={}, from={}",
+                event.getEventId(), request.getEmail());
 
-            log.info("[CONTACT_EMAIL] Email sent successfully - from={}, to={}", request.getEmail(), recipientEmail);
-            return ContactResponse.success("Message sent successfully");
-
-        } catch (MessagingException e) {
-            log.error("[CONTACT_EMAIL] Failed to send email - from={}, to={}, error={}",
-                    request.getEmail(), recipientEmail, e.getMessage(), e);
-            throw new EmailException("Failed to send email", e);
-        }
+        return ContactResponse.success("Message sent successfully");
     }
 
     private String buildEmailContent(ContactRequest request) {
@@ -105,10 +103,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     /**
-     * Escape HTML special characters to prevent XSS in emails
-     *
-     * @param input String to escape
-     * @return Escaped string
+     * Escape HTML special characters to prevent XSS in emails.
      */
     private String escapeHtml(String input) {
         if (input == null) {

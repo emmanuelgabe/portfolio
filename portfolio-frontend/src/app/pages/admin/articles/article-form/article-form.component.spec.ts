@@ -4,6 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Location } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { ArticleFormComponent } from './article-form.component';
 import { ArticleService } from '../../../../services/article.service';
 import { TagService } from '../../../../services/tag.service';
@@ -54,7 +55,12 @@ describe('ArticleFormComponent', () => {
     paramMapSubject = new BehaviorSubject(convertToParamMap({}));
 
     await TestBed.configureTestingModule({
-      imports: [ArticleFormComponent, ReactiveFormsModule, RouterTestingModule],
+      imports: [
+        ArticleFormComponent,
+        ReactiveFormsModule,
+        RouterTestingModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -157,10 +163,7 @@ describe('ArticleFormComponent', () => {
 
     component.onSubmit(false);
 
-    expect(toastrService.error).toHaveBeenCalledWith(
-      "Erreur lors de la création de l'article",
-      'Erreur'
-    );
+    expect(toastrService.error).toHaveBeenCalledWith('admin.articles.createError');
     expect(component.submitting).toBeFalse();
   });
 
@@ -173,8 +176,8 @@ describe('ArticleFormComponent', () => {
     component.onSubmit(false);
 
     expect(toastrService.warning).toHaveBeenCalledWith(
-      'Veuillez remplir tous les champs requis',
-      'Formulaire invalide'
+      'admin.common.fillRequiredFields',
+      'admin.common.invalidForm'
     );
     expect(articleService.create).not.toHaveBeenCalled();
   });

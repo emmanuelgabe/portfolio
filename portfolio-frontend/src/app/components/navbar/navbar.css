@@ -114,20 +114,21 @@
   border-radius: 2px;
 }
 
-/* Authentication section - positioned right */
+/* Navbar actions section (language selector + auth) - positioned right */
 @media (min-width: 1200px) {
-  .auth-section {
+  .navbar-actions {
     position: absolute;
     right: 1.5rem;
   }
 }
 
-.auth-section {
+.navbar-actions {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
 }
 
-/* Bouton deconnexion - Style Soft Elevation */
+/* Logout button - Soft Elevation Style */
 .btn-logout-soft {
   display: inline-flex;
   align-items: center;
@@ -204,10 +205,11 @@
     height: 66px;
   }
 
-  .auth-section {
+  .navbar-actions {
     margin-top: 1rem;
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
   }
 
   .btn-logout-soft {

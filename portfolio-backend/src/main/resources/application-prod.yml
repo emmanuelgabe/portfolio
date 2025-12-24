@@ -3,6 +3,9 @@ app:
   jwt:
     # No fallback - JWT_SECRET environment variable MUST be set
     secret: ${JWT_SECRET}
+  cookie:
+    # Production uses HTTPS, so cookies must be secure
+    secure: true
   rate-limit:
     contact:
       max-requests-per-hour: 5  # Strict limit for production
@@ -48,20 +51,37 @@ springdoc:
   swagger-ui:
     enabled: false
 
+# GraphQL security - disabled by default in production
+spring.graphql:
+  graphiql:
+    enabled: ${GRAPHQL_GRAPHIQL_ENABLED:false}
+  schema:
+    printer:
+      enabled: ${GRAPHQL_SCHEMA_PRINTER_ENABLED:false}
+    introspection:
+      enabled: ${GRAPHQL_INTROSPECTION_ENABLED:false}
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
       base-path: /actuator
   endpoint:
     health:
       show-details: when-authorized
       probes:
         enabled: true
+    prometheus:
+      enabled: true
   health:
     db:
       enabled: true
     diskspace:
       enabled: true
+
+# Sentry configuration for production
+sentry:
+  environment: production
+  traces-sample-rate: 0.05
+  release: ${VERSION:unknown}

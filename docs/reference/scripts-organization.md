@@ -14,7 +14,7 @@
 
 ## 1. Overview
 
-Reference guide for the scripts directory organization and usage patterns in the portfolio project.
+Reference guide for the scripts directory organization and usage patterns.
 
 ### 1.1 Purpose
 
@@ -61,7 +61,7 @@ scripts/
 ./scripts/deployment/validate-deployment.sh [local|staging|prod]
 ```
 
-**What it does:**
+**Steps:**
 1. Validates Docker Compose YAML syntax
 2. Checks environment variables
 3. Cleans existing containers
@@ -69,21 +69,6 @@ scripts/
 5. Monitors health checks (max 180s)
 6. Runs functional smoke tests
 7. Displays deployment summary
-
-**Exit codes:**
-- 0: Success
-- 1: Validation failed
-
-**Example:**
-```bash
-# Validate staging before commit
-./scripts/deployment/validate-deployment.sh staging
-
-# Validate all environments
-for env in local staging prod; do
-  ./scripts/deployment/validate-deployment.sh $env
-done
-```
 
 #### sync-prod-to-staging.sh
 
@@ -94,28 +79,10 @@ done
 ./scripts/deployment/sync-prod-to-staging.sh
 ```
 
-**What it does:**
-1. Checks that prod and staging containers are running
-2. Prompts for confirmation
-3. Exports production database to SQL backup
-4. Terminates staging database connections
-5. Drops and recreates staging database
-6. Restores production data to staging
-7. Displays statistics and cleanup info
-
-**Safety features:**
+**Safety Features:**
 - Confirmation prompt before execution
 - Automatic backup with timestamp
 - Retention of last 5 backups
-- Connection termination before drop
-
-**Example:**
-```bash
-# Sync production data to staging
-./scripts/deployment/sync-prod-to-staging.sh
-
-# Backups saved in: /tmp/portfolio-backups/
-```
 
 ---
 
@@ -132,26 +99,10 @@ done
 ./scripts/maintenance/cleanup-staging.sh
 ```
 
-**What it does:**
-1. Stops all staging containers
-2. Removes all staging containers
-3. Cleans up containers with old naming patterns
-4. Prunes dangling images
-5. Displays current container status
-
 **When to use:**
 - Deployment failed and containers are stuck
 - Need to force cleanup before redeployment
 - Containers in unhealthy state
-
-**Example:**
-```bash
-# Clean up staging before manual deployment
-./scripts/maintenance/cleanup-staging.sh
-
-# Then redeploy
-make validate-staging
-```
 
 ---
 
@@ -168,28 +119,13 @@ make validate-staging
 ./scripts/testing/test-health.sh [local|staging|prod]
 ```
 
-**What it tests:**
-1. Nginx health endpoint
-2. Frontend static health
-3. Backend ping endpoint
-4. Backend actuator health
-5. Database connectivity
-6. Full health chain
-
-**Output:**
-- Color-coded results (green=pass, red=fail)
-- Test summary with pass/fail count
-- Exit code 0 if all pass, 1 if any fail
-
-**Example:**
-```bash
-# Test local environment
-./scripts/testing/test-health.sh local
-
-# Test after deployment
-./scripts/testing/test-health.sh staging
-./scripts/testing/test-health.sh prod
-```
+**Tests:**
+- Nginx health endpoint
+- Frontend static health
+- Backend ping endpoint
+- Backend actuator health
+- Database connectivity
+- Full health chain
 
 #### run-all-tests.sh
 
@@ -199,13 +135,6 @@ make validate-staging
 ```bash
 ./scripts/testing/run-all-tests.sh
 ```
-
-**What it runs:**
-1. Backend unit tests (Gradle)
-2. Backend integration tests
-3. Frontend unit tests (Karma)
-4. Frontend e2e tests (Cypress - if configured)
-5. Health checks
 
 ---
 
@@ -219,26 +148,7 @@ make validate-staging
 
 **Usage:**
 ```bash
-./scripts/validate-docs.sh [path]
-```
-
-**What it does:**
-1. Checks if Vale is installed
-2. Verifies .vale.ini exists
-3. Downloads Google style guide if missing
-4. Runs Vale on specified path
-5. Reports suggestions and warnings
-
-**Example:**
-```bash
-# Validate all documentation
-./scripts/docs/validate-docs.sh docs/
-
-# Validate specific file
-./scripts/docs/validate-docs.sh README.md
-
-# Validate before commit
-./scripts/docs/validate-docs.sh .
+./scripts/docs/validate-docs.sh [path]
 ```
 
 ---
@@ -256,12 +166,6 @@ make validate-staging
 ./scripts/setup-permissions.sh
 ```
 
-**What it does:**
-1. Finds all .sh files in scripts directory
-2. Makes them executable (chmod +x)
-3. Sets permissions on pre-commit hook
-4. Displays script structure
-
 **When to use:**
 - After cloning repository
 - After adding new scripts
@@ -275,65 +179,36 @@ make validate-staging
 
 **Before committing:**
 ```bash
-# Validate deployment
 ./scripts/deployment/validate-deployment.sh local
-
-# Validate documentation
 ./scripts/docs/validate-docs.sh docs/
 ```
 
 **Before merging to staging:**
 ```bash
-# Run all tests
 ./scripts/testing/run-all-tests.sh
-
-# Validate staging deployment
 ./scripts/deployment/validate-deployment.sh staging
 ```
 
 **After deployment:**
 ```bash
-# Check health
 ./scripts/testing/test-health.sh staging
-
-# If issues, clean up
-./scripts/maintenance/cleanup-staging.sh
-```
-
-**Sync data to staging:**
-```bash
-# Copy prod data to staging
-./scripts/deployment/sync-prod-to-staging.sh
 ```
 
 ### 4.2 Integration with Makefile
-
-Scripts are integrated into Makefile for convenience:
 
 ```bash
 # Using Make (recommended)
 make validate-local     # Calls validate-deployment.sh local
 make validate-staging   # Calls validate-deployment.sh staging
-make clean-staging      # Calls cleanup-staging.sh (simplified)
-
-# Direct script usage (more control)
-./scripts/deployment/validate-deployment.sh local
-./scripts/maintenance/cleanup-staging.sh
+make clean-staging      # Calls cleanup-staging.sh
 ```
 
 ### 4.3 Integration with CI/CD
 
 Scripts used in GitHub Actions workflows:
-
-**ci-cd.yml:**
-- Uses health check logic similar to validate-deployment.sh
-- Runs smoke tests (frontend, backend, database, full stack)
-
-**health-check.yml:**
-- Calls test-health.sh for comprehensive validation
-
-**vale-docs.yml:**
-- Uses Vale configuration from .vale.ini
+- `ci-cd.yml` - Uses health check logic similar to validate-deployment.sh
+- `health-check.yml` - Calls test-health.sh
+- `vale-docs.yml` - Uses Vale configuration
 
 ---
 
@@ -342,10 +217,10 @@ Scripts used in GitHub Actions workflows:
 ### 5.1 Guidelines
 
 1. **Choose appropriate directory:**
-   - Deployment → `scripts/deployment/`
-   - Testing → `scripts/testing/`
-   - Maintenance → `scripts/maintenance/`
-   - Documentation → `scripts/docs/`
+   - Deployment: `scripts/deployment/`
+   - Testing: `scripts/testing/`
+   - Maintenance: `scripts/maintenance/`
+   - Documentation: `scripts/docs/`
 
 2. **Naming convention:**
    - Use kebab-case: `my-script.sh`
@@ -363,55 +238,26 @@ set -e  # Exit on error
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Main logic here
-echo -e "${BLUE}Script started${NC}"
-
-# Exit with appropriate code
+echo -e "${GREEN}Script completed${NC}"
 exit 0
 ```
 
 4. **Make executable:**
-
 ```bash
 chmod +x scripts/category/my-script.sh
 ```
 
-5. **Add to documentation:**
-   - Update this file (scripts-organization.md)
-   - Add usage example to README.md if user-facing
-
-6. **Add to Makefile (optional):**
-
-```makefile
-my-command:
-	@chmod +x scripts/category/my-script.sh
-	@scripts/category/my-script.sh
-```
-
 ### 5.2 Best Practices
 
-- **Use color coding:** Green for success, red for errors, yellow for warnings
-- **Add help text:** Show usage when script is called without arguments
-- **Validate inputs:** Check for required arguments and environment variables
-- **Exit codes:** 0 for success, non-zero for errors
-- **Error handling:** Use `set -e` or manual error checking
-- **Comments:** Explain non-obvious logic
-- **Idempotency:** Scripts should be safe to run multiple times
-- **Logging:** Echo important steps and results
-
-### 5.3 Testing New Scripts
-
-Before committing new scripts:
-
-1. Test locally
-2. Test in Docker container if applicable
-3. Test all error paths
-4. Add to CI/CD if needed
-5. Update documentation
+- Use color coding (green=success, red=errors)
+- Add help text when called without arguments
+- Validate inputs
+- Exit codes: 0 for success, non-zero for errors
+- Use `set -e` for error handling
+- Scripts should be idempotent (safe to run multiple times)
 
 ---
 
@@ -419,83 +265,26 @@ Before committing new scripts:
 
 ### 6.1 Required Tools
 
-Scripts assume these tools are available:
-
 | Tool | Purpose | Scripts Using It |
 |------|---------|------------------|
 | bash | Shell execution | All scripts |
-| docker | Container management | All deployment/testing scripts |
-| docker-compose | Multi-container orchestration | All deployment scripts |
-| curl | HTTP requests | Health check scripts |
-| psql | Database operations | Database scripts |
+| docker | Container management | Deployment/testing |
+| docker-compose | Multi-container orchestration | Deployment |
+| curl | HTTP requests | Health check |
 | vale | Documentation validation | validate-docs.sh |
 
 ### 6.2 Optional Tools
 
-| Tool | Purpose | Benefit |
-|------|---------|---------|
-| jq | JSON parsing | Better health check parsing |
-| make | Task automation | Simplified commands |
-| git | Version control | Version extraction |
+| Tool | Purpose |
+|------|---------|
+| jq | JSON parsing |
+| make | Task automation |
 
 ---
 
-## 7. Troubleshooting Scripts
+## 7. Quick Reference
 
-### 7.1 Permission Denied
-
-```bash
-# Fix permissions
-./scripts/setup-permissions.sh
-
-# Or manually
-chmod +x scripts/**/*.sh
-```
-
-### 7.2 Script Not Found
-
-```bash
-# Ensure running from project root
-cd /path/to/portfolio
-
-# Check script exists
-ls -la scripts/deployment/validate-deployment.sh
-```
-
-### 7.3 Environment Variables
-
-```bash
-# Check required variables
-echo $DB_USER_PASSWORD
-
-# Set if missing
-export DB_USER_PASSWORD=your_password
-
-# Or use .env file
-echo "DB_USER_PASSWORD=your_password" > .env
-```
-
----
-
-## 8. Security Considerations
-
-### 8.1 Sensitive Data
-
-- Never hardcode passwords in scripts
-- Use environment variables or .env files
-- Add .env to .gitignore
-
-### 8.2 Script Execution
-
-- Review scripts before running with sudo
-- Validate inputs to prevent injection
-- Use quotes around variables: `"$VAR"`
-
----
-
-## 9. Quick Reference
-
-### 9.1 Command Cheat Sheet
+### 7.1 Command Cheat Sheet
 
 ```bash
 # Setup
@@ -515,12 +304,9 @@ echo "DB_USER_PASSWORD=your_password" > .env
 
 # Documentation
 ./scripts/docs/validate-docs.sh docs/
-
-# Database
-./scripts/deployment/sync-prod-to-staging.sh
 ```
 
-### 9.2 Make Commands
+### 7.2 Make Commands
 
 ```bash
 make validate-local
@@ -530,3 +316,11 @@ make test-local
 make clean-local
 make status
 ```
+
+---
+
+## Related Documentation
+
+- [Development: Setup](../development/setup.md) - Development environment setup
+- [Deployment: CI/CD](../deployment/ci-cd.md) - CI/CD pipeline
+- [Reference: Environments](./environments.md) - Environment configuration

@@ -1,15 +1,31 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Gestion des Tags</h2>
+    <h2>{{ 'admin.tags.title' | translate }}</h2>
     <a routerLink="new" class="btn btn-primary">
-      <i class="bi bi-plus-circle me-2"></i>Nouveau Tag
+      <i class="bi bi-plus-circle me-2"></i>{{ 'admin.tags.new' | translate }}
     </a>
   </div>
 
   @if (loading) {
-    <div class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>{{ 'admin.tags.name' | translate }}</th>
+                <th>{{ 'admin.tags.color' | translate }}</th>
+                <th>{{ 'admin.tags.preview' | translate }}</th>
+                <th>{{ 'admin.common.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1,2,3,4,5]; track i) {
+                <app-skeleton-table-row [columns]="[{width: '30%'}, {width: '20%'}, {width: '20%'}, {width: '120px'}]" />
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   }
@@ -27,17 +43,17 @@
         @if (tags.length === 0) {
           <div class="text-center text-muted py-5">
             <i class="bi bi-tags fs-1 d-block mb-3"></i>
-            <p>Aucun tag. Créez-en un !</p>
+            <p>{{ 'admin.tags.noTags' | translate }}</p>
           </div>
         } @else {
           <div class="table-responsive">
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>Nom</th>
-                  <th>Couleur</th>
-                  <th>Aperçu</th>
-                  <th>Actions</th>
+                  <th>{{ 'admin.tags.name' | translate }}</th>
+                  <th>{{ 'admin.tags.color' | translate }}</th>
+                  <th>{{ 'admin.tags.preview' | translate }}</th>
+                  <th>{{ 'admin.common.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -59,14 +75,14 @@
                         <a
                           [routerLink]="[tag.id, 'edit']"
                           class="btn btn-outline-primary"
-                          title="Modifier"
+                          [title]="'admin.common.edit' | translate"
                         >
                           <i class="bi bi-pencil"></i>
                         </a>
                         <button
                           type="button"
                           class="btn btn-outline-danger"
-                          title="Supprimer"
+                          [title]="'admin.common.delete' | translate"
                           (click)="confirmDelete(tag)"
                         >
                           <i class="bi bi-trash"></i>

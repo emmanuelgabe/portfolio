@@ -1,21 +1,27 @@
 package com.emmanuelgabe.portfolio.service.impl;
 
+import com.emmanuelgabe.portfolio.audit.AuditAction;
+import com.emmanuelgabe.portfolio.audit.Auditable;
 import com.emmanuelgabe.portfolio.dto.CreateExperienceRequest;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateExperienceRequest;
 import com.emmanuelgabe.portfolio.entity.Experience;
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
-import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.mapper.ExperienceMapper;
+
+import static com.emmanuelgabe.portfolio.util.EntityHelper.findOrThrow;
 import com.emmanuelgabe.portfolio.repository.ExperienceRepository;
+import com.emmanuelgabe.portfolio.search.event.ExperienceIndexEvent;
 import com.emmanuelgabe.portfolio.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of ExperienceService interface.
@@ -29,8 +35,10 @@ public class ExperienceServiceImpl implements ExperienceService {
 
     private final ExperienceRepository experienceRepository;
     private final ExperienceMapper experienceMapper;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
+    @Cacheable(value = "experiences", key = "'all'")
     @Transactional(readOnly = true)
     public List<ExperienceResponse> getAllExperiences() {
         log.debug("[LIST_EXPERIENCES] Fetching all experiences");
@@ -38,22 +46,22 @@ public class ExperienceServiceImpl implements ExperienceService {
         log.debug("[LIST_EXPERIENCES] Found {} experiences", experiences.size());
         return experiences.stream()
                 .map(experienceMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
+    @Cacheable(value = "experiences", key = "#id")
     @Transactional(readOnly = true)
     public ExperienceResponse getExperienceById(Long id) {
         log.debug("[GET_EXPERIENCE] Fetching experience - id={}", id);
-        Experience experience = experienceRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("[GET_EXPERIENCE] Experience not found - id={}", id);
-                    return new ResourceNotFoundException("Experience", "id", id);
-                });
+        Experience experience = findOrThrow(experienceRepository.findById(id), "Experience", "id", id);
         return experienceMapper.toResponse(experience);
     }
 
     @Override
+    @CacheEvict(value = "experiences", allEntries = true)
+    @Auditable(action = AuditAction.CREATE, entityType = "Experience",
+            entityIdExpression = "#result.id", entityNameExpression = "#result.company + ' - ' + #result.role")
     public ExperienceResponse createExperience(CreateExperienceRequest request) {
         log.debug("[CREATE_EXPERIENCE] Creating experience - company={}, role={}",
                 request.getCompany(), request.getRole());
@@ -64,6 +72,7 @@ public class ExperienceServiceImpl implements ExperienceService {
         experience.validateDates();
 
         Experience savedExperience = experienceRepository.save(experience);
+        applicationEventPublisher.publishEvent(ExperienceIndexEvent.forIndex(savedExperience));
         log.info("[CREATE_EXPERIENCE] Experience created - id={}, company={}, role={}, type={}, ongoing={}",
                 savedExperience.getId(),
                 savedExperience.getCompany(),
@@ -74,21 +83,18 @@ public class ExperienceServiceImpl implements ExperienceService {
     }
 
     @Override
+    @CacheEvict(value = "experiences", allEntries = true)
+    @Auditable(action = AuditAction.UPDATE, entityType = "Experience",
+            entityIdExpression = "#id", entityNameExpression = "#result.company + ' - ' + #result.role")
     public ExperienceResponse updateExperience(Long id, UpdateExperienceRequest request) {
         log.debug("[UPDATE_EXPERIENCE] Updating experience - id={}", id);
 
-        Experience experience = experienceRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("[UPDATE_EXPERIENCE] Experience not found - id={}", id);
-                    return new ResourceNotFoundException("Experience", "id", id);
-                });
-
+        Experience experience = findOrThrow(experienceRepository.findById(id), "Experience", "id", id);
         experienceMapper.updateEntityFromRequest(request, experience);
-
-        // Validate dates after update
         experience.validateDates();
 
         Experience updatedExperience = experienceRepository.save(experience);
+        applicationEventPublisher.publishEvent(ExperienceIndexEvent.forIndex(updatedExperience));
         log.info("[UPDATE_EXPERIENCE] Experience updated - id={}, company={}, role={}",
                 updatedExperience.getId(),
                 updatedExperience.getCompany(),
@@ -97,19 +103,20 @@ public class ExperienceServiceImpl implements ExperienceService {
     }
 
     @Override
+    @CacheEvict(value = "experiences", allEntries = true)
+    @Auditable(action = AuditAction.DELETE, entityType = "Experience", entityIdExpression = "#id")
     public void deleteExperience(Long id) {
         log.debug("[DELETE_EXPERIENCE] Deleting experience - id={}", id);
 
-        if (!experienceRepository.existsById(id)) {
-            log.warn("[DELETE_EXPERIENCE] Experience not found - id={}", id);
-            throw new ResourceNotFoundException("Experience", "id", id);
-        }
+        Experience experience = findOrThrow(experienceRepository.findById(id), "Experience", "id", id);
 
         experienceRepository.deleteById(id);
+        applicationEventPublisher.publishEvent(ExperienceIndexEvent.forRemove(experience));
         log.info("[DELETE_EXPERIENCE] Experience deleted - id={}", id);
     }
 
     @Override
+    @Cacheable(value = "experiences", key = "'type:' + #type.name()")
     @Transactional(readOnly = true)
     public List<ExperienceResponse> getExperiencesByType(ExperienceType type) {
         log.debug("[LIST_EXPERIENCES_BY_TYPE] Fetching experiences - type={}", type);
@@ -117,10 +124,11 @@ public class ExperienceServiceImpl implements ExperienceService {
         log.debug("[LIST_EXPERIENCES_BY_TYPE] Found {} experiences for type {}", experiences.size(), type);
         return experiences.stream()
                 .map(experienceMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
+    @Cacheable(value = "experiences", key = "'ongoing'")
     @Transactional(readOnly = true)
     public List<ExperienceResponse> getOngoingExperiences() {
         log.debug("[LIST_ONGOING_EXPERIENCES] Fetching ongoing experiences");
@@ -128,10 +136,11 @@ public class ExperienceServiceImpl implements ExperienceService {
         log.debug("[LIST_ONGOING_EXPERIENCES] Found {} ongoing experiences", experiences.size());
         return experiences.stream()
                 .map(experienceMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
+    @Cacheable(value = "experiences", key = "'recent:' + #limit")
     @Transactional(readOnly = true)
     public List<ExperienceResponse> getRecentExperiences(int limit) {
         log.debug("[LIST_RECENT_EXPERIENCES] Fetching recent experiences - limit={}", limit);
@@ -141,6 +150,6 @@ public class ExperienceServiceImpl implements ExperienceService {
         return experiences.stream()
                 .limit(limit)
                 .map(experienceMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

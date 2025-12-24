@@ -2,17 +2,20 @@ import { Component, HostListener, inject, OnInit, OnDestroy } from '@angular/cor
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { ArticleService } from '../../services/article.service';
 import { SiteConfigurationService } from '../../services/site-configuration.service';
+import { ScrollService } from '../../services/scroll.service';
+import { LanguageSelectorComponent } from '../shared/language-selector/language-selector.component';
 import { User } from '../../models/auth.model';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule, LanguageSelectorComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -20,8 +23,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly articleService = inject(ArticleService);
   private readonly siteConfigService = inject(SiteConfigurationService);
+  private readonly scrollService = inject(ScrollService);
   private readonly toastr = inject(ToastrService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
 
   isCollapsed = true;
@@ -71,46 +76,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isCollapsed = true;
   }
 
-  scrollToSection(event: Event, sectionId: string) {
+  scrollToSection(event: Event, sectionId: string): void {
     event.preventDefault();
     this.closeNavbar();
 
-    // If not on home page, navigate to home with fragment
     if (this.router.url !== '/' && !this.router.url.startsWith('/#')) {
       const fragment = sectionId === 'hero' ? undefined : sectionId;
       this.router.navigate(['/'], { fragment });
       return;
     }
 
-    // For hero section, scroll to top of page
-    if (sectionId === 'hero') {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-      return;
-    }
-
-    // For other sections, calculate offset manually
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const navbarHeight = window.innerWidth > 1199 ? 76 : 66;
-      const margin = 20;
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - navbarHeight - margin;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
+    this.scrollService.scrollToSection(sectionId, 'smooth');
   }
 
   logout() {
     const username = this.currentUser?.username;
     this.authService.logout();
     this.closeNavbar();
-    this.toastr.success(`À bientôt ${username} !`, 'Déconnexion réussie');
+    this.toastr.success(
+      `${this.translate.instant('nav.logoutSuccess')} ${username} !`,
+      this.translate.instant('nav.logoutSuccessTitle')
+    );
   }
 
   get isAuthenticated(): boolean {

@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.config;
 
 import com.emmanuelgabe.portfolio.security.AuthRateLimitFilter;
 import com.emmanuelgabe.portfolio.security.JwtAuthenticationFilter;
+import com.emmanuelgabe.portfolio.security.UploadRateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +35,7 @@ public class SecurityConfig {
 
     private final AuthRateLimitFilter authRateLimitFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UploadRateLimitFilter uploadRateLimitFilter;
     private final UserDetailsService userDetailsService;
 
     /**
@@ -81,11 +83,18 @@ public class SecurityConfig {
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
+                        // Public health check endpoints
                         .requestMatchers("/health", "/api/version", "/actuator/health", "/api/health/**").permitAll()
+
+                        // Prometheus metrics endpoint - accessible within app but protected at network level
+                        // Security: Nginx does NOT route /actuator/* to external traffic
+                        // Only accessible from Docker internal network (Prometheus scraping)
+                        .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/visitors/heartbeat").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/graphql", "/graphiql/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/cv/current", "/api/cv/download").permitAll()
 
@@ -120,7 +129,10 @@ public class SecurityConfig {
                 .addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
 
                 // Add JWT filter before UsernamePasswordAuthenticationFilter
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // Add upload rate limiting filter after JWT (needs authentication context)
+                .addFilterAfter(uploadRateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

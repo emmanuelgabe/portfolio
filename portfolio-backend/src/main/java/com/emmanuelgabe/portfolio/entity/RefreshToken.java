@@ -57,23 +57,14 @@ public class RefreshToken {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Check if token is expired
-     */
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiryDate);
     }
 
-    /**
-     * Check if token is valid (not revoked and not expired)
-     */
     public boolean isValid() {
         return !revoked && !isExpired();
     }
 
-    /**
-     * Revoke this token
-     */
     public void revoke() {
         this.revoked = true;
     }

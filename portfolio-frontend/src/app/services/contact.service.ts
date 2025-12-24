@@ -34,7 +34,7 @@ export class ContactService {
     );
   }
 
-  private getErrorMessage(error: any): string {
+  private getErrorMessage(error: { status: number; error?: { message?: string } }): string {
     if (error.status === 429) {
       return 'Limite atteinte. Vous ne pouvez envoyer que 5 messages par heure. Veuillez réessayer plus tard.';
     } else if (error.status === 400) {

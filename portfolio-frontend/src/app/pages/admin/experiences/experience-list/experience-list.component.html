@@ -1,15 +1,42 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Gestion des Expériences</h2>
+    <h2>{{ 'admin.experiences.title' | translate }}</h2>
     <a routerLink="new" class="btn btn-primary">
-      <i class="bi bi-plus-circle me-2"></i>Nouvelle Expérience
+      <i class="bi bi-plus-circle me-2"></i>{{ 'admin.experiences.new' | translate }}
     </a>
   </div>
 
+  <!-- Search Input -->
+  <div class="mb-3">
+    <app-search-input
+      [loading]="isSearching"
+      (search)="onSearch($event)"
+      (clear)="onSearchClear()"
+    ></app-search-input>
+  </div>
+
   @if (loading) {
-    <div class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>{{ 'admin.experiences.type' | translate }}</th>
+                <th>{{ 'admin.experiences.role' | translate }}</th>
+                <th>{{ 'admin.experiences.company' | translate }}</th>
+                <th>{{ 'admin.experiences.period' | translate }}</th>
+                <th>{{ 'admin.experiences.status' | translate }}</th>
+                <th>{{ 'admin.common.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1,2,3,4,5]; track i) {
+                <app-skeleton-table-row [columns]="[{width: '100px'}, {width: '25%'}, {width: '25%'}, {width: '150px'}, {width: '80px'}, {width: '100px'}]" />
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   }
@@ -24,26 +51,26 @@
   @if (!loading && !error) {
     <div class="card">
       <div class="card-body">
-        @if (experiences.length === 0) {
+        @if (filteredExperiences.length === 0) {
           <div class="text-center text-muted py-5">
-            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-            <p>Aucune expérience. Créez-en une !</p>
+            <i class="bi" [ngClass]="isSearchActive ? 'bi-search' : 'bi-inbox'" class="fs-1 d-block mb-3"></i>
+            <p>{{ isSearchActive ? ('admin.common.noSearchResults' | translate) : ('admin.experiences.noExperiences' | translate) }}</p>
           </div>
         } @else {
           <div class="table-responsive">
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>Type</th>
-                  <th>Rôle</th>
-                  <th>Entreprise/Organisation</th>
-                  <th>Période</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
+                  <th>{{ 'admin.experiences.type' | translate }}</th>
+                  <th>{{ 'admin.experiences.role' | translate }}</th>
+                  <th>{{ 'admin.experiences.company' | translate }}</th>
+                  <th>{{ 'admin.experiences.period' | translate }}</th>
+                  <th>{{ 'admin.experiences.status' | translate }}</th>
+                  <th>{{ 'admin.common.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
-                @for (experience of experiences; track experience.id) {
+                @for (experience of filteredExperiences; track experience.id) {
                   <tr>
                     <td>
                       <span class="badge" [ngClass]="getTypeBadgeClass(experience.type)">
@@ -60,15 +87,15 @@
                         @if (experience.endDate) {
                           - {{ formatDate(experience.endDate) }}
                         } @else {
-                          - Présent
+                          - {{ 'admin.experiences.present' | translate }}
                         }
                       </small>
                     </td>
                     <td>
                       @if (experience.ongoing) {
-                        <span class="badge bg-success">En cours</span>
+                        <span class="badge bg-success">{{ 'admin.experiences.ongoing' | translate }}</span>
                       } @else {
-                        <span class="badge bg-secondary">Terminé</span>
+                        <span class="badge bg-secondary">{{ 'admin.experiences.completed' | translate }}</span>
                       }
                     </td>
                     <td>
@@ -76,14 +103,14 @@
                         <a
                           [routerLink]="['edit', experience.id]"
                           class="btn btn-outline-primary"
-                          title="Modifier"
+                          [title]="'admin.common.edit' | translate"
                         >
                           <i class="bi bi-pencil"></i>
                         </a>
                         <button
                           type="button"
                           class="btn btn-outline-danger"
-                          title="Supprimer"
+                          [title]="'admin.common.delete' | translate"
                           (click)="confirmDelete(experience)"
                         >
                           <i class="bi bi-trash"></i>

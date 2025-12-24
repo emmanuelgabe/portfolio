@@ -1,5 +1,7 @@
 package com.emmanuelgabe.portfolio.service.impl;
 
+import com.emmanuelgabe.portfolio.audit.AuditAction;
+import com.emmanuelgabe.portfolio.audit.AuditContextHolder;
 import com.emmanuelgabe.portfolio.dto.AuthResponse;
 import com.emmanuelgabe.portfolio.dto.ChangePasswordRequest;
 import com.emmanuelgabe.portfolio.dto.LoginRequest;
@@ -8,8 +10,10 @@ import com.emmanuelgabe.portfolio.entity.User;
 import com.emmanuelgabe.portfolio.exception.InvalidCredentialsException;
 import com.emmanuelgabe.portfolio.exception.InvalidTokenException;
 import com.emmanuelgabe.portfolio.mapper.UserMapper;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.repository.UserRepository;
 import com.emmanuelgabe.portfolio.security.JwtTokenProvider;
+import com.emmanuelgabe.portfolio.service.AuditService;
 import com.emmanuelgabe.portfolio.service.AuthService;
 import com.emmanuelgabe.portfolio.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -40,13 +44,16 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final UserMapper userMapper;
+    private final BusinessMetrics metrics;
+    private final AuditService auditService;
 
     @Value("${app.jwt.access-token-expiration}")
     private long accessTokenExpiration;
 
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
-        log.info("[AUTH_LOGIN] Login attempt - username={}", loginRequest.getUsername());
+        log.info("[AUTH_LOGIN] Login attempt received");
+        metrics.recordAuthAttempt();
 
         try {
             // Authenticate user
@@ -73,10 +80,19 @@ public class AuthServiceImpl implements AuthService {
 
             log.info("[AUTH_LOGIN] Login successful - username={}, role={}", user.getUsername(), user.getRole());
 
+            // Audit login success
+            logAuthAudit(AuditAction.LOGIN, user.getUsername(), true, null);
+
             return response;
 
         } catch (BadCredentialsException ex) {
-            log.warn("[AUTH_LOGIN] Invalid credentials - username={}", loginRequest.getUsername());
+            metrics.recordAuthFailure();
+            log.warn("[AUTH_LOGIN] Invalid credentials provided");
+
+            // Audit login failure
+            logAuthAudit(AuditAction.LOGIN_FAILED, loginRequest.getUsername(), false,
+                    "Invalid credentials");
+
             throw new InvalidCredentialsException("Invalid username or password");
         }
     }
@@ -117,8 +133,14 @@ public class AuthServiceImpl implements AuthService {
         log.info("[AUTH_LOGOUT] Logout attempt");
 
         try {
+            RefreshToken token = refreshTokenService.findByToken(refreshTokenStr);
+            String username = token.getUser().getUsername();
+
             refreshTokenService.revokeToken(refreshTokenStr);
             log.info("[AUTH_LOGOUT] Logout successful");
+
+            // Audit logout
+            logAuthAudit(AuditAction.LOGOUT, username, true, null);
 
         } catch (RuntimeException ex) {
             log.warn("[AUTH_LOGOUT] Logout failed - error={}", ex.getMessage());
@@ -163,5 +185,24 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenService.revokeAllUserTokens(user);
 
         log.info("[AUTH_CHANGE_PASSWORD] Password changed successfully - username={}", username);
+
+        // Audit password change
+        logAuthAudit(AuditAction.PASSWORD_CHANGE, username, true, null);
+    }
+
+    /**
+     * Helper method to log authentication audit events.
+     */
+    private void logAuthAudit(AuditAction action, String username, boolean success, String error) {
+        try {
+            var context = AuditContextHolder.getContext();
+            String ipAddress = context != null ? context.getIpAddress() : null;
+            String userAgent = context != null ? context.getUserAgent() : null;
+
+            auditService.logAuthEvent(action, username, ipAddress, userAgent, success, error);
+        } catch (Exception e) {
+            log.warn("[AUTH_AUDIT] Failed to log auth event - action={}, error={}",
+                    action, e.getMessage());
+        }
     }
 }

@@ -74,4 +74,14 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      */
     @Query("SELECT DISTINCT p FROM Project p JOIN p.tags t WHERE LOWER(t.name) = LOWER(:tagName)")
     List<Project> findByTagName(@Param("tagName") String tagName);
+
+    /**
+     * Search projects by title or description (case-insensitive).
+     * Used as fallback when Elasticsearch is disabled.
+     *
+     * @param title the title search term
+     * @param description the description search term
+     * @return list of matching projects
+     */
+    List<Project> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String title, String description);
 }

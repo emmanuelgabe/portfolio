@@ -134,5 +134,3 @@ nav:
     - operations/README.md
     - Health checks: operations/health-checks.md
   - Contribuer: contributing.md
-  - Guide Documentation: DOCUMENTATION_GUIDE.md
-  - Couverture: COVERAGE.md

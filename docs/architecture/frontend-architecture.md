@@ -16,7 +16,7 @@
 
 ## 1. Overview
 
-The frontend is built with **Angular 18** using **standalone components** architecture. Follows modern Angular patterns with functional guards, HTTP interceptors, and dependency injection.
+The frontend is built with **Angular 18** using **standalone components** architecture.
 
 **Key Architectural Decisions**:
 - Standalone components (no NgModules)
@@ -56,58 +56,39 @@ The frontend is built with **Angular 18** using **standalone components** archit
 - **ESLint + Prettier** (code quality)
 - **Husky + lint-staged** (pre-commit hooks)
 
-### Key Dependencies
-
-```json
-{
-  "dependencies": {
-    "@angular/core": "^18.x",
-    "@angular/common": "^18.x",
-    "@angular/router": "^18.x",
-    "bootstrap": "^5.3.x",
-    "bootstrap-icons": "^1.11.x",
-    "date-fns": "^3.x",
-    "ngx-toastr": "^18.x",
-    "rxjs": "^7.x"
-  }
-}
-```
-
 ---
 
 ## 3. Project Structure
 
-### Directory Organization
-
 ```
 src/app/
 ├── components/          # Reusable UI components
-│   ├── article-card/    # Article preview card
-│   ├── contact-form/    # Contact form widget
-│   ├── home/            # Homepage component
-│   ├── navbar/          # Navigation bar
-│   ├── project-card/    # Project preview card
-│   ├── project-detail/  # Project detail view
-│   ├── project-list/    # Projects listing
-│   └── shared/          # Shared components
-│       └── session-expiry-modal/  # Session timeout modal
+│   ├── article-card/
+│   ├── contact-form/
+│   ├── footer/
+│   ├── home/
+│   ├── navbar/
+│   ├── project-card/
+│   ├── project-detail/
+│   ├── project-list/
+│   └── shared/
+│       ├── language-selector/
+│       ├── search-input/
+│       ├── session-expiry-modal/
+│       ├── skeleton/
+│       └── visitors-chart/
 ├── pages/               # Page-level components
 │   ├── admin/           # Admin area (protected)
-│   │   ├── admin-layout/      # Admin shell layout
-│   │   ├── dashboard/         # Admin dashboard
-│   │   ├── articles/          # Article management
-│   │   ├── experiences/       # Experience management
-│   │   ├── projects/          # Project management
-│   │   ├── skills/            # Skill management
-│   │   ├── tags/              # Tag management
-│   │   └── admin-cv/          # CV management
-│   ├── blog/            # Blog public area
-│   │   ├── article-list/      # Blog listing
-│   │   └── article-detail/    # Article reading
-│   ├── contact/         # Contact page
-│   ├── login/           # Login page
-│   └── timeline/        # Timeline page
-├── services/            # Business logic and API communication
+│   │   ├── admin-layout/
+│   │   ├── dashboard/
+│   │   ├── articles/
+│   │   ├── projects/
+│   │   └── ...
+│   ├── blog/
+│   ├── contact/
+│   ├── error/
+│   └── login/
+├── services/            # Business logic and API
 ├── guards/              # Route protection
 ├── interceptors/        # HTTP middleware
 ├── models/              # TypeScript interfaces
@@ -116,66 +97,14 @@ src/app/
 
 ### File Naming Conventions
 
-**Components**:
 - `component-name.component.ts` - Component class
 - `component-name.component.html` - Template
 - `component-name.component.scss` - Styles
-- `component-name.component.spec.ts` - Unit tests
-
-**Services**:
 - `service-name.service.ts` - Service class
-- `service-name.service.spec.ts` - Unit tests
 
 ---
 
 ## 4. Routing Architecture
-
-### Route Configuration
-
-**File**: `app.routes.ts`
-
-**Route Structure**:
-```typescript
-export const routes: Routes = [
-  // Public routes
-  { path: '', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'projects', component: ProjectListComponent },
-  { path: 'projects/:id', component: ProjectDetailComponent },
-  { path: 'contact', component: ContactComponent },
-  { path: 'blog', component: ArticleListComponent },
-  { path: 'blog/:slug', component: ArticleDetailComponent },
-
-  // Admin routes (protected by adminGuard)
-  {
-    path: 'admin',
-    canActivate: [adminGuard],
-    component: AdminLayoutComponent,
-    children: [
-      { path: '', component: DashboardComponent },
-      { path: 'projects', component: AdminProjectListComponent },
-      { path: 'projects/new', component: ProjectFormComponent },
-      { path: 'projects/:id/edit', component: ProjectFormComponent },
-      { path: 'skills', component: SkillListComponent },
-      { path: 'skills/new', component: SkillFormComponent },
-      { path: 'skills/:id/edit', component: SkillFormComponent },
-      { path: 'tags', component: TagListComponent },
-      { path: 'tags/new', component: TagFormComponent },
-      { path: 'tags/:id/edit', component: TagFormComponent },
-      { path: 'cv', component: AdminCvComponent },
-      { path: 'experiences', component: ExperienceListComponent },
-      { path: 'experiences/new', component: ExperienceFormComponent },
-      { path: 'experiences/edit/:id', component: ExperienceFormComponent },
-      { path: 'articles', component: AdminArticleListComponent },
-      { path: 'articles/new', component: ArticleFormComponent },
-      { path: 'articles/:id/edit', component: ArticleFormComponent },
-    ],
-  },
-
-  // Catch-all route
-  { path: '**', redirectTo: '' },
-];
-```
 
 ### Public vs Admin Routes
 
@@ -187,77 +116,57 @@ export const routes: Routes = [
 - `/blog/:slug` - Article reading view
 - `/contact` - Contact form
 - `/login` - Authentication
+- `/privacy-policy` - Privacy policy (GDPR)
+- `/legal` - Legal notice (mentions legales)
+- `/error` - Dynamic error page (404, 500)
 
 **Admin Routes** (requires `ROLE_ADMIN`):
 - `/admin` - Dashboard
-- `/admin/projects` - Manage projects (list/create/edit/delete)
+- `/admin/projects` - Manage projects
 - `/admin/skills` - Manage skills
 - `/admin/tags` - Manage tags
 - `/admin/cv` - Upload/manage CV
-- `/admin/experiences` - Manage timeline experiences
+- `/admin/experiences` - Manage experiences
 - `/admin/articles` - Manage blog articles
+- `/admin/audit` - Audit logs viewer
+
+**Demo Routes** (no authentication required):
+- `/admindemo` - Demo admin with mock data (read-only)
 
 ### Nested Admin Routes
 
-**Pattern**: Admin routes use nested routing with `AdminLayoutComponent` as shell
-
-**Benefits**:
+Admin routes use nested routing with `AdminLayoutComponent` as shell:
 - Shared admin navigation and header
-- Consistent admin UI layout
 - Single guard protection for all admin routes
-- Lazy loading potential for admin modules
+- Consistent admin UI layout
 
 ---
 
 ## 5. Service Layer
 
-### Service Architecture
+### Services Overview
 
-**Services** (`src/app/services/`):
+| Service | Purpose |
+|---------|---------|
+| `AuthService` | Authentication management |
+| `TokenStorageService` | JWT token storage |
+| `ProjectService` | Project CRUD operations |
+| `ArticleService` | Article management |
+| `ExperienceService` | Experience management |
+| `SkillService` | Skills management |
+| `TagService` | Tag management |
+| `ContactService` | Contact form submission |
+| `CvService` | CV management |
+| `LoggerService` | Centralized logging |
+| `SearchService` | Full-text search (Elasticsearch) |
+| `BatchService` | Batch jobs management |
+| `CircuitBreakerService` | Circuit breaker status |
+| `ActiveUsersService` | Real-time active users (SSE) |
+| `VisitorTrackerService` | Visitor tracking |
+| `SeoService` | Dynamic SEO management |
 
-| Service | Purpose | Key Methods |
-|---------|---------|-------------|
-| `AuthService` | Authentication management | `login()`, `logout()`, `refreshToken()`, `isAuthenticated()`, `isAdmin()` |
-| `TokenStorageService` | JWT token storage | `saveToken()`, `getToken()`, `clearToken()`, `isTokenExpired()` |
-| `ProjectService` | Project CRUD operations | `getAll()`, `getById()`, `create()`, `update()`, `delete()`, `uploadImage()` |
-| `ArticleService` | Article management | `getAllPublished()`, `getBySlug()`, `create()`, `update()`, `publish()` |
-| `ExperienceService` | Experience management | `getAll()`, `getByType()`, `getOngoing()`, `getRecent()` |
-| `SkillService` | Skills management | `getAll()`, `create()`, `update()`, `delete()` |
-| `TagService` | Tag management | `getAll()`, `create()`, `update()`, `delete()` |
-| `ContactService` | Contact form submission | `sendMessage()` |
-| `CvService` | CV management | `upload()`, `getCurrent()`, `getAll()` |
-| `ImageService` | Image upload | `uploadProjectImage()`, `deleteProjectImage()` |
-| `ArticleImageService` | Article image upload | `uploadImage()`, `deleteImage()` |
-| `LoggerService` | Centralized logging | `debug()`, `info()`, `warn()`, `error()` |
-| `ModalService` | Modal management | `openSessionExpiryModal()` |
-| `ActivityMonitorService` | User activity tracking | `startMonitoring()`, `resetTimer()` |
-| `I18nService` | Internationalization | `translate()`, `setLanguage()` |
+### Service Pattern
 
-### Service Patterns
-
-**HTTP Service Pattern**:
-```typescript
-@Injectable({ providedIn: 'root' })
-export class ProjectService {
-  private readonly http = inject(HttpClient);
-  private readonly logger = inject(LoggerService);
-  private readonly apiUrl = `${environment.apiUrl}/api/projects`;
-
-  getAll(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(this.apiUrl).pipe(
-      catchError(error => {
-        this.logger.error('[HTTP] Get projects failed', {
-          status: error.status,
-          message: error.message
-        });
-        return throwError(() => error);
-      })
-    );
-  }
-}
-```
-
-**Key Patterns**:
 - `providedIn: 'root'` for singleton services
 - `inject()` function for dependency injection
 - RxJS operators for error handling
@@ -269,25 +178,7 @@ export class ProjectService {
 
 ### Route Guards
 
-**File**: `guards/auth.guard.ts`
-
-**Guards Implemented**:
-
 #### authGuard
-```typescript
-export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-
-  if (authService.isAuthenticated()) {
-    return true;
-  }
-
-  return router.createUrlTree(['/login'], {
-    queryParams: { returnUrl: state.url }
-  });
-};
-```
 
 **Purpose**: Protect routes requiring authentication
 
@@ -295,27 +186,7 @@ export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
 - Allows access if authenticated
 - Redirects to `/login` with `returnUrl` parameter if not
 
----
-
 #### adminGuard
-```typescript
-export const adminGuard: CanActivateFn = (route, state): boolean | UrlTree => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-
-  if (authService.isAuthenticated() && authService.isAdmin()) {
-    return true;
-  }
-
-  if (!authService.isAuthenticated()) {
-    return router.createUrlTree(['/login'], {
-      queryParams: { returnUrl: state.url }
-    });
-  }
-
-  return router.createUrlTree(['/']);
-};
-```
 
 **Purpose**: Protect admin-only routes
 
@@ -324,58 +195,36 @@ export const adminGuard: CanActivateFn = (route, state): boolean | UrlTree => {
 - Redirects to `/login` if not authenticated
 - Redirects to `/` (home) if authenticated but not admin
 
----
-
 ### HTTP Interceptors
 
-**Files**: `interceptors/*.interceptor.ts`
-
-**Interceptors Implemented**:
-
 #### JWT Interceptor
-**File**: `jwt.interceptor.ts`
 
 **Responsibilities**:
-- Attach `Authorization: Bearer {token}` header to requests
+- Attach `Authorization: Bearer {token}` header
 - Handle 401 Unauthorized errors
 - Attempt automatic token refresh
 - Retry failed requests with new token
-- Handle 403 Forbidden for expired tokens
 
 **Token Refresh Flow**:
 ```
 1. Request fails with 401
 2. Attempt token refresh
-3. If refresh succeeds:
-   → Retry original request with new token
-4. If refresh fails:
-   → Logout user
-   → Redirect to login
+3. If refresh succeeds → Retry original request
+4. If refresh fails → Logout user, redirect to login
 ```
 
----
-
 #### Retry Interceptor
-**File**: `retry.interceptor.ts`
 
 **Purpose**: Retry failed HTTP requests with exponential backoff
 
 **Configuration**:
-- Max retries: Configurable (default: 3)
+- Max retries: 3
 - Delay strategy: Exponential backoff
 - Retryable errors: 5xx server errors, network failures
 
----
-
 #### Logging Interceptor
-**File**: `logging.interceptor.ts`
 
-**Purpose**: Log all HTTP requests and responses for debugging
-
-**Logged Information**:
-- Request method and URL
-- Response status and timing
-- Error details
+**Purpose**: Log HTTP requests and responses for debugging
 
 ---
 
@@ -384,46 +233,36 @@ export const adminGuard: CanActivateFn = (route, state): boolean | UrlTree => {
 ### Public Components
 
 **Reusable Components** (`components/`):
-- `HomeComponent` - Homepage with featured projects and skills
-- `NavbarComponent` - Navigation bar with authentication state
-- `ProjectCardComponent` - Project preview card (used in listings)
-- `ProjectListComponent` - Projects grid display
-- `ProjectDetailComponent` - Single project detailed view
+- `HomeComponent` - Homepage with featured projects
+- `NavbarComponent` - Navigation bar with auth state
+- `ProjectCardComponent` - Project preview card
 - `ArticleCardComponent` - Article preview card
 - `ContactFormComponent` - Contact form widget
 
 **Page Components** (`pages/`):
 - `LoginComponent` - Authentication page
-- `ContactComponent` - Contact page with form
-- `ArticleListComponent` - Blog listing page
-- `ArticleDetailComponent` - Article reading page
-- `TimelineComponent` - Career timeline page
-
----
+- `ContactComponent` - Contact page
+- `ArticleListComponent` - Blog listing
+- `ArticleDetailComponent` - Article reading
 
 ### Admin Components
 
 **Admin Layout** (`pages/admin/admin-layout/`):
 - Shell component for all admin pages
 - Shared admin navigation sidebar
-- Logout functionality
 - Session monitoring
 
-**Admin Pages** (`pages/admin/`):
-
-| Module | List Component | Form Component | Purpose |
-|--------|----------------|----------------|---------|
-| Dashboard | `DashboardComponent` | N/A | Admin overview |
-| Projects | `AdminProjectListComponent` | `ProjectFormComponent` | Manage projects |
-| Skills | `SkillListComponent` | `SkillFormComponent` | Manage skills |
-| Tags | `TagListComponent` | `TagFormComponent` | Manage tags |
-| Experiences | `ExperienceListComponent` | `ExperienceFormComponent` | Manage timeline |
-| Articles | `AdminArticleListComponent` | `ArticleFormComponent` | Manage blog |
-| CV | `AdminCvComponent` | N/A | Upload/manage CV |
-
-**Component Pattern**:
+**Admin Pages Pattern**:
 - **List Component**: Display, filter, delete operations
 - **Form Component**: Create and edit operations (reused for both)
+
+| Module | List Component | Form Component |
+|--------|----------------|----------------|
+| Projects | `AdminProjectListComponent` | `ProjectFormComponent` |
+| Skills | `SkillListComponent` | `SkillFormComponent` |
+| Tags | `TagListComponent` | `TagFormComponent` |
+| Articles | `AdminArticleListComponent` | `ArticleFormComponent` |
+| Experiences | `ExperienceListComponent` | `ExperienceFormComponent` |
 
 ---
 
@@ -440,26 +279,68 @@ export const adminGuard: CanActivateFn = (route, state): boolean | UrlTree => {
 - Refresh token (UUID)
 - Token expiration timestamp
 
-**Methods**:
-```typescript
-saveToken(token: string): void
-getToken(): string | null
-clearToken(): void
-isTokenExpired(bufferSeconds: number): boolean
-```
-
 ### Authentication State
 
 **Service**: `AuthService`
 
 **State Methods**:
-```typescript
-isAuthenticated(): boolean  // Check if user has valid token
-isAdmin(): boolean          // Check if user has ROLE_ADMIN
-getToken(): string | null   // Retrieve access token
-```
+- `isAuthenticated()` - Check if user has valid token
+- `isAdmin()` - Check if user has ROLE_ADMIN
+- `getToken()` - Retrieve access token
 
 **No Global State Library**: Uses service-based state management instead of Redux/NgRx
+
+---
+
+## 9. Directives
+
+Custom directives for reusable DOM behaviors.
+
+| Directive | Purpose | Usage |
+|-----------|---------|-------|
+| `LazyImageDirective` | Lazy load images when entering viewport | Uses Intersection Observer API |
+| `AsyncImageDirective` | Load processing images with retry | Exponential backoff for images being processed |
+| `ClickOutsideDirective` | Detect clicks outside element | Close dropdowns, modals |
+| `DemoDisabledDirective` | Disable controls in demo mode | Prevent mutations in demo admin |
+
+### LazyImageDirective
+
+**Location**: `directives/lazy-image.directive.ts`
+
+Delays image loading until the element enters the viewport, improving initial page load performance.
+
+### AsyncImageDirective
+
+**Location**: `directives/async-image.directive.ts`
+
+Handles images that may still be processing on the backend (WebP conversion). Implements exponential backoff retry logic until the image is available.
+
+---
+
+## 10. Skeleton Loaders
+
+Loading state components displaying shimmer animations while content loads.
+
+| Component | Purpose |
+|-----------|---------|
+| `SkeletonArticleCardComponent` | Article card loading state |
+| `SkeletonArticleDetailComponent` | Article detail page loading state |
+| `SkeletonProjectCardComponent` | Project card loading state |
+| `SkeletonProjectDetailComponent` | Project detail page loading state |
+| `SkeletonSkillCardComponent` | Skill card loading state |
+| `SkeletonTableRowComponent` | Table row loading state (audit logs) |
+| `SkeletonTimelineItemComponent` | Timeline item loading state (experiences) |
+
+**Location**: `components/shared/skeleton/`
+
+**Usage Pattern**:
+```html
+@if (loading) {
+  <app-skeleton-project-card />
+} @else {
+  <app-project-card [project]="project" />
+}
+```
 
 ---
 

@@ -38,7 +38,6 @@ public class SiteConfiguration {
     @EqualsAndHashCode.Include
     private Long id;
 
-    // Identity
     @NotBlank(message = "Full name is required")
     @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
     @Column(name = "full_name", nullable = false, length = 100)
@@ -49,7 +48,6 @@ public class SiteConfiguration {
     @Column(nullable = false, length = 255)
     private String email;
 
-    // Hero Section
     @NotBlank(message = "Hero title is required")
     @Size(min = 2, max = 200, message = "Hero title must be between 2 and 200 characters")
     @Column(name = "hero_title", nullable = false, length = 200)
@@ -59,7 +57,6 @@ public class SiteConfiguration {
     @Column(name = "hero_description", nullable = false, columnDefinition = "TEXT")
     private String heroDescription;
 
-    // SEO
     @NotBlank(message = "Site title is required")
     @Size(min = 2, max = 100, message = "Site title must be between 2 and 100 characters")
     @Column(name = "site_title", nullable = false, length = 100)
@@ -70,11 +67,9 @@ public class SiteConfiguration {
     @Column(name = "seo_description", nullable = false, length = 300)
     private String seoDescription;
 
-    // Profile Image
     @Column(name = "profile_image_path", length = 500)
     private String profileImagePath;
 
-    // Social Links
     @NotBlank(message = "GitHub URL is required")
     @Column(name = "github_url", nullable = false, length = 500)
     private String githubUrl;
@@ -83,7 +78,6 @@ public class SiteConfiguration {
     @Column(name = "linkedin_url", nullable = false, length = 500)
     private String linkedinUrl;
 
-    // Timestamps
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

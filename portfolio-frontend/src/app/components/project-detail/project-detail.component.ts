@@ -1,6 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SkeletonProjectDetailComponent } from '../shared/skeleton';
 import { ProjectService } from '../../services/project.service';
 import { ProjectResponse } from '../../models';
 import { ProjectImageResponse } from '../../models/project-image.model';
@@ -11,7 +13,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule, SkeletonProjectDetailComponent],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css'],
 })
@@ -21,10 +23,12 @@ export class ProjectDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
 
   project: ProjectResponse | undefined;
   isLoading = true;
   error: string | undefined;
+  notFound = false;
   currentSlideIndex = 0;
 
   ngOnInit(): void {
@@ -70,6 +74,7 @@ export class ProjectDetailComponent implements OnInit {
   loadProject(id: number): void {
     this.isLoading = true;
     this.error = undefined;
+    this.notFound = false;
     this.currentSlideIndex = 0;
 
     this.projectService.getById(id).subscribe({
@@ -90,7 +95,11 @@ export class ProjectDetailComponent implements OnInit {
           projectId: id,
           error: err.message || err,
         });
-        this.error = 'Project not found or failed to load. Please try again.';
+        if (err.status === 404) {
+          this.notFound = true;
+        } else {
+          this.error = this.translate.instant('errors.loadingFailed');
+        }
         this.isLoading = false;
       },
     });
@@ -140,11 +149,11 @@ export class ProjectDetailComponent implements OnInit {
     navigator.clipboard
       .writeText(url)
       .then(() => {
-        this.toastr.success('Link copied to clipboard!', 'Success');
+        this.toastr.success(this.translate.instant('projects.linkCopied'));
       })
       .catch((err) => {
         this.logger.error('[CLIPBOARD_ERROR] Failed to copy link', { error: err.message || err });
-        this.toastr.error('Failed to copy link to clipboard', 'Error');
+        this.toastr.error(this.translate.instant('projects.linkCopyError'));
       });
   }
 

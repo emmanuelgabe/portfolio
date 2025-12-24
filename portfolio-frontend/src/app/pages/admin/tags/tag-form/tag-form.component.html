@@ -2,9 +2,9 @@
   <div class="row justify-content-center">
     <div class="col-lg-6">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>{{ isEditMode ? 'Modifier' : 'Nouveau' }} Tag</h2>
+        <h2>{{ (isEditMode ? 'admin.tags.edit' : 'admin.tags.new') | translate }}</h2>
         <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
-          <i class="bi bi-arrow-left me-2"></i>Retour
+          <i class="bi bi-arrow-left me-2"></i>{{ 'admin.common.back' | translate }}
         </button>
       </div>
 
@@ -17,46 +17,46 @@
           <div class="card-body">
             <form [formGroup]="tagForm" (ngSubmit)="onSubmit()">
               <div class="mb-3">
-                <label class="form-label">Nom du tag *</label>
-                <input type="text" class="form-control" formControlName="name" [readonly]="demoModeService.isDemo()" placeholder="ex: Angular, React, Java" />
+                <label class="form-label">{{ 'admin.tags.nameLabel' | translate }} *</label>
+                <input type="text" class="form-control" formControlName="name" [readonly]="demoModeService.isDemo()" [placeholder]="'admin.tags.namePlaceholder' | translate" />
                 @if (tagForm.get('name')?.invalid && tagForm.get('name')?.touched) {
-                  <small class="text-danger">Requis (2-50 caractères)</small>
+                  <small class="text-danger">{{ 'admin.tags.nameValidation' | translate }}</small>
                 }
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Couleur *</label>
+                <label class="form-label">{{ 'admin.tags.color' | translate }} *</label>
                 <div class="d-flex gap-2 align-items-center">
                   <input type="color" class="form-control form-control-color" formControlName="color" />
-                  <input type="text" class="form-control" formControlName="color" placeholder="#007bff" />
+                  <input type="text" class="form-control" formControlName="color" [placeholder]="'admin.tags.colorPlaceholder' | translate" />
                 </div>
                 @if (tagForm.get('color')?.invalid && tagForm.get('color')?.touched) {
-                  <small class="text-danger">Requis (format hex: #RRGGBB)</small>
+                  <small class="text-danger">{{ 'admin.tags.colorValidation' | translate }}</small>
                 }
               </div>
 
               <div class="mb-4">
-                <label class="form-label">Aperçu</label>
+                <label class="form-label">{{ 'admin.tags.preview' | translate }}</label>
                 <div>
                   <span class="badge preview-badge" [style.background-color]="tagForm.get('color')?.value">
-                    {{ tagForm.get('name')?.value || 'Nom du tag' }}
+                    {{ tagForm.get('name')?.value || ('admin.tags.previewDefault' | translate) }}
                   </span>
                 </div>
               </div>
 
               <div class="d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+                <button type="button" class="btn btn-secondary" (click)="goBack()">{{ 'admin.common.cancel' | translate }}</button>
                 <button
                   type="submit"
                   class="btn btn-primary"
                   [disabled]="submitting || demoModeService.isDemo()"
                   [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-                  [title]="demoModeService.isDemo() ? 'Action désactivée en mode démonstration' : ''"
+                  [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
                 >
                   @if (submitting) {
                     <span class="spinner-border spinner-border-sm me-2"></span>
                   }
-                  {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+                  {{ (isEditMode ? 'admin.common.update' : 'admin.common.create') | translate }}
                 </button>
               </div>
             </form>

@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ExperienceService } from '../../../../services/experience.service';
 import { LoggerService } from '../../../../services/logger.service';
 import { DemoModeService } from '../../../../services/demo-mode.service';
@@ -12,7 +13,7 @@ import { ExperienceType } from '../../../../models';
 @Component({
   selector: 'app-experience-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
   templateUrl: './experience-form.component.html',
   styleUrl: './experience-form.component.css',
 })
@@ -23,6 +24,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly logger = inject(LoggerService);
+  private readonly translate = inject(TranslateService);
   readonly demoModeService = inject(DemoModeService);
   private readonly destroy$ = new Subject<void>();
 
@@ -155,10 +157,10 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
 
   getTypeLabel(type: ExperienceType): string {
     const labels: Record<ExperienceType, string> = {
-      [ExperienceType.WORK]: 'Expérience professionnelle',
-      [ExperienceType.EDUCATION]: 'Formation',
-      [ExperienceType.CERTIFICATION]: 'Certification',
-      [ExperienceType.VOLUNTEERING]: 'Bénévolat',
+      [ExperienceType.WORK]: this.translate.instant('admin.experiences.work'),
+      [ExperienceType.EDUCATION]: this.translate.instant('admin.experiences.education'),
+      [ExperienceType.CERTIFICATION]: this.translate.instant('admin.experiences.certification'),
+      [ExperienceType.VOLUNTEERING]: this.translate.instant('admin.experiences.volunteering'),
     };
     return labels[type];
   }

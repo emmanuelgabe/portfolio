@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.controller;
 import com.emmanuelgabe.portfolio.dto.ProjectImageResponse;
 import com.emmanuelgabe.portfolio.dto.ReorderProjectImagesRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectImageRequest;
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import com.emmanuelgabe.portfolio.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -123,5 +124,19 @@ public class ProjectImageController {
         log.info("[REORDER_IMAGES] Request - projectId={}", projectId);
         projectService.reorderImages(projectId, request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{projectId}/images/{imageId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get image processing status", description = "Check the processing status of an uploaded image")
+    @ApiResponse(responseCode = "200", description = "Status retrieved successfully")
+    @ApiResponse(responseCode = "404", description = "Project or image not found")
+    public ResponseEntity<ImageStatus> getImageStatus(
+            @PathVariable Long projectId,
+            @PathVariable Long imageId
+    ) {
+        log.debug("[GET_IMAGE_STATUS] Request - projectId={}, imageId={}", projectId, imageId);
+        ImageStatus status = projectService.getImageStatus(projectId, imageId);
+        return ResponseEntity.ok(status);
     }
 }

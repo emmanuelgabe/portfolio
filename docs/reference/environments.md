@@ -39,6 +39,10 @@ docker-compose -f docker-compose.yml -f docker-compose.staging.yml up --build -d
 
 # Production Environment
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+
+# With Monitoring Stack (any environment)
+docker-compose -f docker-compose.yml -f docker-compose.local.yml \
+  -f docker-compose.monitoring.yml up --build -d
 ```
 
 ### Stop Services
@@ -144,7 +148,7 @@ docker-compose logs -f portfolio-frontend-prod
 ### Local Development
 
 **Access Points:**
-- **Frontend**: http://localhost:4200 ou http://127.0.0.1:4200
+- **Frontend**: http://localhost:4200 or http://127.0.0.1:4200
 - **Backend API**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **API Docs (JSON)**: http://localhost:8080/api-docs
@@ -153,8 +157,11 @@ docker-compose logs -f portfolio-frontend-prod
   - **Password**: `postgres`
   - **Database**: `portfolio_local`
 - **Health Check**: http://localhost:8080/actuator/health
+- **Grafana**: http://localhost:3001 (monitoring dashboards)
+- **Prometheus**: http://localhost:9090 (metrics)
+- **RabbitMQ Management**: http://localhost:15672 (message queue UI)
 
-**Nginx:** Reverse proxy actif sur port 4200 (route vers frontend et API)
+**Nginx:** Reverse proxy active on port 4200 (routes to frontend and API)
 
 ---
 

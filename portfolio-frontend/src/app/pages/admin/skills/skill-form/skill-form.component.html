@@ -1,17 +1,17 @@
 <div class="skill-form">
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>{{ isEditMode ? 'Editer la Competence' : 'Nouvelle Competence' }}</h1>
+    <h1>{{ (isEditMode ? 'admin.skills.edit' : 'admin.skills.new') | translate }}</h1>
     <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
       <i class="fa-solid fa-arrow-left me-2"></i>
-      Retour
+      {{ 'admin.common.back' | translate }}
     </button>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border text-success" role="status">
-      <span class="visually-hidden">Chargement...</span>
+      <span class="visually-hidden">{{ 'admin.common.loading' | translate }}</span>
     </div>
   </div>
 
@@ -23,7 +23,7 @@
           <!-- Name -->
           <div class="col-md-6 mb-3">
             <label for="name" class="form-label">
-              Nom <span class="text-danger">*</span>
+              {{ 'admin.skills.name' | translate }} <span class="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -32,20 +32,20 @@
               formControlName="name"
               [class.is-invalid]="isFieldInvalid('name')"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Ex: Angular, Spring Boot, Docker"
+              [placeholder]="'admin.skills.namePlaceholder' | translate"
             />
             <div class="invalid-feedback" *ngIf="hasError('name', 'required')">
-              Le nom est requis
+              {{ 'admin.skills.nameRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('name', 'minlength')">
-              Le nom doit contenir au moins 2 caracteres
+              {{ 'admin.skills.nameMinLength' | translate }}
             </div>
           </div>
 
           <!-- Category -->
           <div class="col-md-6 mb-3">
             <label for="category" class="form-label">
-              Categorie <span class="text-danger">*</span>
+              {{ 'admin.skills.category' | translate }} <span class="text-danger">*</span>
             </label>
             <select
               id="category"
@@ -58,7 +58,7 @@
               </option>
             </select>
             <div class="invalid-feedback" *ngIf="hasError('category', 'required')">
-              La categorie est requise
+              {{ 'admin.skills.categoryRequired' | translate }}
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@
           <!-- Icon Type -->
           <div class="col-md-6 mb-3">
             <label for="iconType" class="form-label">
-              Type d'icone <span class="text-danger">*</span>
+              {{ 'admin.skills.iconType' | translate }} <span class="text-danger">*</span>
             </label>
             <select
               id="iconType"
@@ -84,7 +84,7 @@
           <!-- Color -->
           <div class="col-md-6 mb-3">
             <label for="color" class="form-label">
-              Couleur <span class="text-danger">*</span>
+              {{ 'admin.skills.color' | translate }} <span class="text-danger">*</span>
             </label>
             <div class="d-flex align-items-center">
               <input
@@ -102,7 +102,7 @@
               />
             </div>
             <div class="invalid-feedback" *ngIf="hasError('color', 'required')">
-              La couleur est requise
+              {{ 'admin.skills.colorRequired' | translate }}
             </div>
           </div>
         </div>
@@ -110,7 +110,7 @@
         <!-- Font Awesome Icon Picker -->
         <div *ngIf="skillForm.get('iconType')?.value === IconType.FONT_AWESOME" class="mb-3">
           <label class="form-label">
-            Icone Font Awesome <span class="text-danger">*</span>
+            {{ 'admin.skills.fontAwesomeIcon' | translate }} <span class="text-danger">*</span>
           </label>
           <app-icon-picker
             [selectedIcon]="skillForm.get('icon')?.value"
@@ -123,12 +123,12 @@
         <!-- Custom SVG Upload -->
         <div *ngIf="skillForm.get('iconType')?.value === IconType.CUSTOM_SVG" class="mb-3">
           <label class="form-label">
-            Fichier SVG <span class="text-danger">*</span>
+            {{ 'admin.skills.svgFile' | translate }} <span class="text-danger">*</span>
           </label>
           <div class="d-flex align-items-center gap-3">
             <label for="svgFile" class="btn btn-outline-primary mb-0" [class.disabled]="demoModeService.isDemo()">
               <i class="fa-solid fa-upload me-2"></i>
-              Choisir un fichier SVG
+              {{ 'admin.skills.chooseSvg' | translate }}
             </label>
             <input
               type="file"
@@ -140,10 +140,10 @@
             />
             <span *ngIf="uploadingIcon" class="text-muted">
               <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-              Upload en cours...
+              {{ 'admin.common.uploading' | translate }}
             </span>
           </div>
-          <div class="form-text">Format SVG uniquement, max 100KB</div>
+          <div class="form-text">{{ 'admin.skills.svgFormat' | translate }}</div>
 
           <!-- SVG Preview -->
           <div *ngIf="svgPreview" class="mt-3 p-3 border rounded bg-light">
@@ -156,9 +156,9 @@
                 [style.height.px]="64"
               />
               <div>
-                <strong>Apercu de l'icone SVG</strong>
+                <strong>{{ 'admin.skills.svgPreview' | translate }}</strong>
                 <p class="text-muted mb-0 small">
-                  Note: La couleur sera appliquee si le SVG utilise currentColor
+                  {{ 'admin.skills.svgColorNote' | translate }}
                 </p>
               </div>
             </div>
@@ -168,7 +168,7 @@
         <!-- Display Order -->
         <div class="mb-3">
           <label for="displayOrder" class="form-label">
-            Ordre d'affichage <span class="text-danger">*</span>
+            {{ 'admin.skills.displayOrder' | translate }} <span class="text-danger">*</span>
           </label>
           <input
             type="number"
@@ -180,16 +180,16 @@
             min="0"
           />
           <div class="form-text">
-            Plus le nombre est bas, plus la competence sera affichee en premier
+            {{ 'admin.skills.displayOrderHelp' | translate }}
           </div>
           <div class="invalid-feedback" *ngIf="hasError('displayOrder', 'required')">
-            L'ordre d'affichage est requis
+            {{ 'admin.skills.displayOrderRequired' | translate }}
           </div>
         </div>
 
         <!-- Preview Card -->
         <div class="mb-4">
-          <label class="form-label">Previsualisation</label>
+          <label class="form-label">{{ 'admin.skills.preview' | translate }}</label>
           <div class="card preview-card">
             <div class="card-body text-center">
               <!-- Font Awesome Icon -->
@@ -211,7 +211,7 @@
               >
                 <i class="fa-solid fa-image text-muted"></i>
               </div>
-              <h5 class="mt-3">{{ skillForm.get('name')?.value || 'Nom de la competence' }}</h5>
+              <h5 class="mt-3">{{ skillForm.get('name')?.value || ('admin.skills.skillNamePlaceholder' | translate) }}</h5>
               <p class="text-muted mb-0">
                 <span class="badge" [ngClass]="{
                   'bg-primary': skillForm.get('category')?.value === 'FRONTEND',
@@ -230,24 +230,24 @@
         <!-- Form Actions -->
         <div class="d-flex justify-content-between pt-3 border-top">
           <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
-            Annuler
+            {{ 'admin.common.cancel' | translate }}
           </button>
           <button
             type="submit"
             class="btn btn-success"
             [disabled]="skillForm.invalid || submitting || uploadingIcon || demoModeService.isDemo()"
             [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-            [title]="demoModeService.isDemo() ? 'Action desactivee en mode demonstration' : ''"
+            [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
           >
             <span *ngIf="!submitting">
               <i class="fa-solid fa-check me-2"></i>
-              {{ isEditMode ? 'Mettre a jour' : 'Creer' }}
+              {{ (isEditMode ? 'admin.common.update' : 'admin.common.create') | translate }}
             </span>
             <span *ngIf="submitting">
               <div class="spinner-border spinner-border-sm me-2" role="status">
-                <span class="visually-hidden">Envoi...</span>
+                <span class="visually-hidden">{{ 'admin.common.sending' | translate }}</span>
               </div>
-              Envoi...
+              {{ 'admin.common.sending' | translate }}
             </span>
           </button>
         </div>

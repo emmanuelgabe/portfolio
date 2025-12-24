@@ -25,6 +25,20 @@
     }
   }
 
+  .tool-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 4px solid var(--bs-primary);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .card-title {
+      font-weight: 600;
+    }
+  }
+
   .list-unstyled {
     li {
       padding: 0.5rem 0;

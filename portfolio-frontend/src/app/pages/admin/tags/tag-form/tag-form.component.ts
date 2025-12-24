@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TagService } from '../../../../services/tag.service';
 import { LoggerService } from '../../../../services/logger.service';
 import { DemoModeService } from '../../../../services/demo-mode.service';
@@ -11,7 +12,7 @@ import { DemoModeService } from '../../../../services/demo-mode.service';
 @Component({
   selector: 'app-tag-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
   templateUrl: './tag-form.component.html',
   styleUrl: './tag-form.component.scss',
 })
@@ -22,6 +23,7 @@ export class TagFormComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly logger = inject(LoggerService);
+  private readonly translate = inject(TranslateService);
   readonly demoModeService = inject(DemoModeService);
   private readonly destroy$ = new Subject<void>();
 

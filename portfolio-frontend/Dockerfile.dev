@@ -1,5 +1,5 @@
 # Dockerfile for local development with hot reload
-FROM node:20-alpine
+FROM node:20.18.1-alpine3.20
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN apk add --no-cache curl
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .

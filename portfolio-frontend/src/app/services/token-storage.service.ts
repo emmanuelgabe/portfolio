@@ -1,99 +1,106 @@
-import { Injectable } from '@angular/core';
-import { AuthResponse, JwtPayload, User, UserRole } from '../models/auth.model';
+import { inject, Injectable } from '@angular/core';
+import { AccessTokenResponse, JwtPayload, User, UserRole } from '../models/auth.model';
+import { LoggerService } from './logger.service';
 
 /**
- * Service responsible for storing and retrieving JWT tokens
- * Supports both session storage (default) and local storage (remember me)
+ * Service responsible for storing and retrieving JWT access tokens.
+ *
+ * Security architecture:
+ * - Access token: stored in memory only (this service)
+ * - Refresh token: stored in HttpOnly cookie (managed by backend)
+ *
+ * This hybrid approach protects against XSS attacks:
+ * - Access token in memory is lost on page refresh but has short lifetime (15 min)
+ * - Refresh token in HttpOnly cookie cannot be accessed by JavaScript
+ * - Session can be restored via /api/auth/refresh which reads the cookie
  */
 @Injectable({
   providedIn: 'root',
 })
 export class TokenStorageService {
-  private readonly ACCESS_TOKEN_KEY = 'access_token';
-  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
-  private readonly EXPIRES_AT_KEY = 'expires_at';
-  private readonly REMEMBER_ME_KEY = 'remember_me';
+  private readonly logger = inject(LoggerService);
+
+  // In-memory storage only - NOT localStorage/sessionStorage
+  private accessToken: string | null = null;
+  private expiresAt: number | null = null;
+  private username: string | null = null;
+  private role: string | null = null;
 
   /**
-   * Save authentication tokens
-   * @param authResponse Response from login/refresh endpoint
-   * @param rememberMe If true, use localStorage instead of sessionStorage
+   * Save access token from authentication response.
+   * Only the access token is stored in memory.
+   * Refresh token is handled via HttpOnly cookie by the backend.
+   *
+   * @param response Access token response from login/refresh endpoint
    */
-  saveTokens(authResponse: AuthResponse, rememberMe: boolean = false): void {
-    const storage = this.getStorage(rememberMe);
-    const expiresAt = Date.now() + authResponse.expiresIn;
-
-    storage.setItem(this.ACCESS_TOKEN_KEY, authResponse.accessToken);
-    storage.setItem(this.REFRESH_TOKEN_KEY, authResponse.refreshToken);
-    storage.setItem(this.EXPIRES_AT_KEY, expiresAt.toString());
-    storage.setItem(this.REMEMBER_ME_KEY, rememberMe.toString());
+  saveTokens(response: AccessTokenResponse): void {
+    this.logger.debug('[AUTH] Saving access token', {
+      username: response.username,
+      role: response.role,
+    });
+    this.accessToken = response.accessToken;
+    this.expiresAt = Date.now() + response.expiresIn;
+    this.username = response.username;
+    this.role = response.role;
+    this.logger.info('[AUTH] Access token saved', {
+      username: response.username,
+      expiresIn: response.expiresIn,
+    });
   }
 
   /**
-   * Get access token
-   * @returns Access token or null if not found
+   * Get access token from memory.
+   * @returns Access token or null if not authenticated
    */
   getAccessToken(): string | null {
-    return this.getFromBothStorages(this.ACCESS_TOKEN_KEY);
+    return this.accessToken;
   }
 
   /**
-   * Get refresh token
-   * @returns Refresh token or null if not found
-   */
-  getRefreshToken(): string | null {
-    return this.getFromBothStorages(this.REFRESH_TOKEN_KEY);
-  }
-
-  /**
-   * Get token expiration timestamp
+   * Get token expiration timestamp.
    * @returns Expiration timestamp in milliseconds or null
    */
   getExpiresAt(): number | null {
-    const expiresAtStr = this.getFromBothStorages(this.EXPIRES_AT_KEY);
-    return expiresAtStr ? parseInt(expiresAtStr, 10) : null;
+    return this.expiresAt;
   }
 
   /**
-   * Check if remember me was enabled
-   * @returns True if user chose to remember login
-   */
-  isRememberMeEnabled(): boolean {
-    const rememberMe = this.getFromBothStorages(this.REMEMBER_ME_KEY);
-    return rememberMe === 'true';
-  }
-
-  /**
-   * Check if token is expired or about to expire
+   * Check if token is expired or about to expire.
    * @param bufferSeconds Buffer time in seconds before actual expiration (default: 60s)
    * @returns True if token is expired or will expire within buffer time
    */
   isTokenExpired(bufferSeconds: number = 60): boolean {
-    const expiresAt = this.getExpiresAt();
-    if (!expiresAt) {
+    if (!this.expiresAt) {
       return true;
     }
 
     const bufferMs = bufferSeconds * 1000;
-    return Date.now() >= expiresAt - bufferMs;
+    return Date.now() >= this.expiresAt - bufferMs;
   }
 
   /**
-   * Get time until token expiration in milliseconds
+   * Get time until token expiration in milliseconds.
    * @returns Milliseconds until expiration, or 0 if already expired/not found
    */
   getTimeUntilExpiration(): number {
-    const expiresAt = this.getExpiresAt();
-    if (!expiresAt) {
+    if (!this.expiresAt) {
       return 0;
     }
 
-    const timeLeft = expiresAt - Date.now();
+    const timeLeft = this.expiresAt - Date.now();
     return Math.max(0, timeLeft);
   }
 
   /**
-   * Decode JWT token payload
+   * Check if user has a valid (non-expired) access token.
+   * @returns True if authenticated with valid token
+   */
+  hasValidToken(): boolean {
+    return this.accessToken !== null && !this.isTokenExpired();
+  }
+
+  /**
+   * Decode JWT token payload.
    * @param token JWT token string
    * @returns Decoded payload or null if invalid
    */
@@ -108,60 +115,51 @@ export class TokenStorageService {
   }
 
   /**
-   * Get current user information from access token
+   * Get current user information from stored data.
    * @returns User object or null if not authenticated
    */
   getCurrentUser(): User | null {
-    const token = this.getAccessToken();
-    if (!token) {
+    if (!this.accessToken || !this.username) {
       return null;
     }
 
-    const payload = this.decodeToken(token);
-    if (!payload) {
-      return null;
+    const roles: UserRole[] = [];
+    if (this.role === 'ROLE_ADMIN' || this.role === 'ADMIN') {
+      roles.push(UserRole.ADMIN);
     }
-
-    const roles = payload.authorities.map((auth) => auth.authority as UserRole);
-    const isAdmin = roles.includes(UserRole.ADMIN);
 
     return {
-      username: payload.sub,
+      username: this.username,
       roles,
-      isAdmin,
+      isAdmin: roles.includes(UserRole.ADMIN),
     };
   }
 
   /**
-   * Clear all authentication data
+   * Clear all authentication data from memory.
+   * Called on logout or when session expires.
    */
   clear(): void {
-    sessionStorage.removeItem(this.ACCESS_TOKEN_KEY);
-    sessionStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    sessionStorage.removeItem(this.EXPIRES_AT_KEY);
-    sessionStorage.removeItem(this.REMEMBER_ME_KEY);
-
-    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    localStorage.removeItem(this.EXPIRES_AT_KEY);
-    localStorage.removeItem(this.REMEMBER_ME_KEY);
+    this.logger.debug('[AUTH] Clearing authentication data', { username: this.username });
+    this.accessToken = null;
+    this.expiresAt = null;
+    this.username = null;
+    this.role = null;
+    this.logger.info('[AUTH] Authentication data cleared');
   }
 
   /**
-   * Get storage based on remember me preference
-   * @param rememberMe If true, return localStorage, otherwise sessionStorage
-   * @returns Storage object
+   * Check if there might be a valid session (refresh token cookie).
+   * Since we can't read HttpOnly cookies, we return true to trigger
+   * a refresh attempt if no access token is in memory.
+   *
+   * @returns True if a session restore should be attempted
    */
-  private getStorage(rememberMe: boolean): Storage {
-    return rememberMe ? localStorage : sessionStorage;
-  }
-
-  /**
-   * Try to get value from both session and local storage
-   * @param key Storage key
-   * @returns Value from storage or null
-   */
-  private getFromBothStorages(key: string): string | null {
-    return sessionStorage.getItem(key) || localStorage.getItem(key);
+  shouldAttemptSessionRestore(): boolean {
+    const shouldRestore = this.accessToken === null;
+    if (shouldRestore) {
+      this.logger.debug('[AUTH] No access token in memory, session restore recommended');
+    }
+    return shouldRestore;
   }
 }

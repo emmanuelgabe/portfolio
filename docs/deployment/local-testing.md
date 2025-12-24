@@ -118,6 +118,15 @@ curl http://localhost:8081/health/full
 docker exec portfolio-db-local psql -U postgres_app -d portfolio_local -c "SELECT 1;"
 ```
 
+**Test Monitoring (if enabled):**
+```bash
+# Test Grafana
+curl http://localhost:3001/api/health
+
+# Test RabbitMQ
+curl -u guest:guest http://localhost:15672/api/overview
+```
+
 ### 4.3 Full Stack Validation
 
 Run the complete validation script:
@@ -147,6 +156,9 @@ This script performs:
 | Backend Actuator | http://localhost:8080/actuator |
 | Nginx (Full Stack) | http://localhost:8081 |
 | PostgreSQL | localhost:5435 |
+| Grafana | http://localhost:3001 |
+| Prometheus | http://localhost:9090 |
+| RabbitMQ Management | http://localhost:15672 |
 
 ### 5.2 Database Access
 

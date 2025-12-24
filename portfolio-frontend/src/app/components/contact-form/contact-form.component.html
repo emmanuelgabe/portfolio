@@ -1,30 +1,35 @@
 <div class="card shadow-sm">
   <div class="card-body">
-    <h3 class="card-title mb-4">Envoyez-moi un message</h3>
+    <h3 class="card-title mb-4">{{ 'contact.title' | translate }}</h3>
     <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
       <!-- Name -->
       <div class="mb-3">
         <label for="name" class="form-label"
-          >Nom <span class="text-danger">*</span></label
+          >{{ 'contact.name' | translate }} <span class="text-danger" aria-hidden="true">*</span></label
         >
         <input
           type="text"
           class="form-control"
           id="name"
           formControlName="name"
-          placeholder="Votre nom"
+          [placeholder]="'contact.namePlaceholder' | translate"
           [class.is-invalid]="name?.invalid && (name?.touched || submitted)"
+          [attr.aria-invalid]="name?.invalid && (name?.touched || submitted)"
+          [attr.aria-describedby]="name?.invalid && (name?.touched || submitted) ? 'name-error' : null"
+          aria-required="true"
         />
         <div
+          id="name-error"
           class="invalid-feedback"
           *ngIf="name?.invalid && (name?.touched || submitted)"
+          role="alert"
         >
-          <div *ngIf="name?.errors?.['required']">Le nom est requis</div>
+          <div *ngIf="name?.errors?.['required']">{{ 'contact.validation.nameRequired' | translate }}</div>
           <div *ngIf="name?.errors?.['minlength']">
-            Le nom doit contenir au moins 2 caractères
+            {{ 'contact.validation.nameMinLength' | translate }}
           </div>
           <div *ngIf="name?.errors?.['maxlength']">
-            Le nom ne peut pas dépasser 100 caractères
+            {{ 'contact.validation.nameMaxLength' | translate }}
           </div>
         </div>
       </div>
@@ -32,26 +37,31 @@
       <!-- Email -->
       <div class="mb-3">
         <label for="email" class="form-label"
-          >Email <span class="text-danger">*</span></label
+          >{{ 'contact.email' | translate }} <span class="text-danger" aria-hidden="true">*</span></label
         >
         <input
           type="email"
           class="form-control"
           id="email"
           formControlName="email"
-          placeholder="votre.email@exemple.com"
+          [placeholder]="'contact.emailPlaceholder' | translate"
           [class.is-invalid]="email?.invalid && (email?.touched || submitted)"
+          [attr.aria-invalid]="email?.invalid && (email?.touched || submitted)"
+          [attr.aria-describedby]="email?.invalid && (email?.touched || submitted) ? 'email-error' : null"
+          aria-required="true"
         />
         <div
+          id="email-error"
           class="invalid-feedback"
           *ngIf="email?.invalid && (email?.touched || submitted)"
+          role="alert"
         >
-          <div *ngIf="email?.errors?.['required']">L'email est requis</div>
+          <div *ngIf="email?.errors?.['required']">{{ 'contact.validation.emailRequired' | translate }}</div>
           <div *ngIf="email?.errors?.['email']">
-            Veuillez entrer un email valide
+            {{ 'contact.validation.emailInvalid' | translate }}
           </div>
           <div *ngIf="email?.errors?.['maxlength']">
-            L'email ne peut pas dépasser 100 caractères
+            {{ 'contact.validation.emailMaxLength' | translate }}
           </div>
         </div>
       </div>
@@ -59,28 +69,31 @@
       <!-- Subject -->
       <div class="mb-3">
         <label for="subject" class="form-label"
-          >Sujet <span class="text-danger">*</span></label
+          >{{ 'contact.subject' | translate }} <span class="text-danger" aria-hidden="true">*</span></label
         >
         <input
           type="text"
           class="form-control"
           id="subject"
           formControlName="subject"
-          placeholder="Objet de votre message"
-          [class.is-invalid]="
-            subject?.invalid && (subject?.touched || submitted)
-          "
+          [placeholder]="'contact.subjectPlaceholder' | translate"
+          [class.is-invalid]="subject?.invalid && (subject?.touched || submitted)"
+          [attr.aria-invalid]="subject?.invalid && (subject?.touched || submitted)"
+          [attr.aria-describedby]="subject?.invalid && (subject?.touched || submitted) ? 'subject-error' : null"
+          aria-required="true"
         />
         <div
+          id="subject-error"
           class="invalid-feedback"
           *ngIf="subject?.invalid && (subject?.touched || submitted)"
+          role="alert"
         >
-          <div *ngIf="subject?.errors?.['required']">Le sujet est requis</div>
+          <div *ngIf="subject?.errors?.['required']">{{ 'contact.validation.subjectRequired' | translate }}</div>
           <div *ngIf="subject?.errors?.['minlength']">
-            Le sujet doit contenir au moins 3 caractères
+            {{ 'contact.validation.subjectMinLength' | translate }}
           </div>
           <div *ngIf="subject?.errors?.['maxlength']">
-            Le sujet ne peut pas dépasser 200 caractères
+            {{ 'contact.validation.subjectMaxLength' | translate }}
           </div>
         </div>
       </div>
@@ -88,32 +101,64 @@
       <!-- Message -->
       <div class="mb-3">
         <label for="message" class="form-label"
-          >Message <span class="text-danger">*</span></label
+          >{{ 'contact.message' | translate }} <span class="text-danger" aria-hidden="true">*</span></label
         >
         <textarea
           class="form-control"
           id="message"
           formControlName="message"
           rows="6"
-          placeholder="Votre message..."
-          [class.is-invalid]="
-            message?.invalid && (message?.touched || submitted)
-          "
+          [placeholder]="'contact.messagePlaceholder' | translate"
+          [class.is-invalid]="message?.invalid && (message?.touched || submitted)"
+          [attr.aria-invalid]="message?.invalid && (message?.touched || submitted)"
+          [attr.aria-describedby]="(message?.invalid && (message?.touched || submitted) ? 'message-error ' : '') + 'message-hint'"
+          aria-required="true"
         ></textarea>
         <div
+          id="message-error"
           class="invalid-feedback"
           *ngIf="message?.invalid && (message?.touched || submitted)"
+          role="alert"
         >
-          <div *ngIf="message?.errors?.['required']">Le message est requis</div>
+          <div *ngIf="message?.errors?.['required']">{{ 'contact.validation.messageRequired' | translate }}</div>
           <div *ngIf="message?.errors?.['minlength']">
-            Le message doit contenir au moins 10 caractères
+            {{ 'contact.validation.messageMinLength' | translate }}
           </div>
           <div *ngIf="message?.errors?.['maxlength']">
-            Le message ne peut pas dépasser 5000 caractères
+            {{ 'contact.validation.messageMaxLength' | translate }}
           </div>
         </div>
-        <div class="form-text">
-          {{ message?.value?.length || 0 }} / 5000 caractères
+        <div id="message-hint" class="form-text" aria-live="polite">
+          {{ message?.value?.length || 0 }} / 5000 {{ 'contact.charactersCount' | translate }}
+        </div>
+      </div>
+
+      <!-- Consent Checkbox -->
+      <div class="mb-4 form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="consent"
+          formControlName="consent"
+          [class.is-invalid]="consent?.invalid && (consent?.touched || submitted)"
+          [attr.aria-invalid]="consent?.invalid && (consent?.touched || submitted)"
+          [attr.aria-describedby]="consent?.invalid && (consent?.touched || submitted) ? 'consent-error' : null"
+          aria-required="true"
+        />
+        <label class="form-check-label" for="consent">
+          {{ 'contact.consentLabel' | translate }}
+          <a routerLink="/privacy-policy" target="_blank" rel="noopener">
+            {{ 'contact.privacyPolicy' | translate }}
+          </a>
+          <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div
+          id="consent-error"
+          class="invalid-feedback"
+          *ngIf="consent?.invalid && (consent?.touched || submitted)"
+          role="alert"
+        >
+          {{ 'contact.validation.consentRequired' | translate }}
         </div>
       </div>
 
@@ -130,7 +175,7 @@
             role="status"
             aria-hidden="true"
           ></span>
-          {{ loading ? 'Envoi en cours...' : 'Envoyer' }}
+          {{ loading ? ('contact.sending' | translate) : ('contact.send' | translate) }}
         </button>
       </div>
     </form>

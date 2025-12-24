@@ -9,6 +9,7 @@ import com.emmanuelgabe.portfolio.entity.UserRole;
 import com.emmanuelgabe.portfolio.exception.InvalidCredentialsException;
 import com.emmanuelgabe.portfolio.exception.InvalidTokenException;
 import com.emmanuelgabe.portfolio.mapper.UserMapper;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.repository.UserRepository;
 import com.emmanuelgabe.portfolio.security.JwtTokenProvider;
 import com.emmanuelgabe.portfolio.service.impl.AuthServiceImpl;
@@ -32,7 +33,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,6 +57,9 @@ class AuthServiceImplTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private BusinessMetrics metrics;
 
     @Mock
     private Authentication authentication;
@@ -141,6 +144,7 @@ class AuthServiceImplTest {
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtTokenProvider, times(1)).generateAccessToken(testUser);
         verify(refreshTokenService, times(1)).createRefreshToken(testUser);
+        verify(metrics).recordAuthAttempt();
     }
 
     @Test
@@ -155,6 +159,8 @@ class AuthServiceImplTest {
                 .hasMessage("Invalid username or password");
 
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(metrics).recordAuthAttempt();
+        verify(metrics).recordAuthFailure();
     }
 
     @Test
@@ -216,27 +222,29 @@ class AuthServiceImplTest {
 
     @Test
     void should_revokeToken_when_logoutCalledWithValidToken() {
-        // Arrange - no exceptions thrown means success
+        // Arrange
+        when(refreshTokenService.findByToken("refresh-token-uuid")).thenReturn(testRefreshToken);
 
         // Act
         authService.logout("refresh-token-uuid");
 
         // Assert
+        verify(refreshTokenService, times(1)).findByToken("refresh-token-uuid");
         verify(refreshTokenService, times(1)).revokeToken("refresh-token-uuid");
     }
 
     @Test
     void should_throwInvalidTokenException_when_logoutCalledWithInvalidToken() {
         // Arrange
-        doThrow(new RuntimeException("Refresh token not found"))
-                .when(refreshTokenService).revokeToken("invalid-token");
+        when(refreshTokenService.findByToken("invalid-token"))
+                .thenThrow(new RuntimeException("Refresh token not found"));
 
         // Act & Assert
         assertThatThrownBy(() -> authService.logout("invalid-token"))
                 .isInstanceOf(InvalidTokenException.class)
                 .hasMessage("Invalid refresh token");
 
-        verify(refreshTokenService, times(1)).revokeToken("invalid-token");
+        verify(refreshTokenService, times(1)).findByToken("invalid-token");
     }
 
     @Test

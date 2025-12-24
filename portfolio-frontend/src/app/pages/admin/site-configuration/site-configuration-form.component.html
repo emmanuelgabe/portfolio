@@ -1,17 +1,17 @@
 <div class="site-config-form">
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Configuration du site</h1>
+    <h1>{{ 'admin.siteConfig.title' | translate }}</h1>
     <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
       <i class="bi bi-arrow-left me-2"></i>
-      Retour
+      {{ 'admin.common.back' | translate }}
     </button>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border text-success" role="status">
-      <span class="visually-hidden">Chargement...</span>
+      <span class="visually-hidden">{{ 'admin.common.loading' | translate }}</span>
     </div>
   </div>
 
@@ -21,7 +21,7 @@
       <!-- Profile Image Section -->
       <div class="card shadow-sm mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Photo de profil</h5>
+          <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>{{ 'admin.siteConfig.profileImage' | translate }}</h5>
         </div>
         <div class="card-body">
           <div class="row align-items-center">
@@ -30,7 +30,7 @@
                 <img
                   *ngIf="imagePreview || profileImageUrl"
                   [src]="imagePreview || profileImageUrl"
-                  alt="Photo de profil"
+                  [alt]="'admin.siteConfig.profileImage' | translate"
                   class="profile-image"
                 />
                 <div *ngIf="!imagePreview && !profileImageUrl" class="profile-placeholder">
@@ -48,7 +48,7 @@
                   (change)="onFileSelected($event)"
                   [disabled]="demoModeService.isDemo() || uploadingImage"
                 />
-                <div class="form-text">Formats acceptes: JPEG, PNG, WebP. Taille max: 10 Mo.</div>
+                <div class="form-text">{{ 'admin.siteConfig.imageFormats' | translate }}</div>
               </div>
               <div class="d-flex gap-2">
                 <button
@@ -59,11 +59,11 @@
                   [disabled]="uploadingImage || demoModeService.isDemo()"
                 >
                   <span *ngIf="!uploadingImage">
-                    <i class="bi bi-upload me-1"></i> Telecharger
+                    <i class="bi bi-upload me-1"></i> {{ 'admin.common.upload' | translate }}
                   </span>
                   <span *ngIf="uploadingImage">
                     <div class="spinner-border spinner-border-sm me-1" role="status"></div>
-                    Envoi...
+                    {{ 'admin.common.sending' | translate }}
                   </span>
                 </button>
                 <button
@@ -73,7 +73,7 @@
                   (click)="cancelImageSelection()"
                   [disabled]="uploadingImage"
                 >
-                  Annuler
+                  {{ 'admin.common.cancel' | translate }}
                 </button>
                 <button
                   *ngIf="profileImageUrl && !selectedFile"
@@ -82,7 +82,7 @@
                   (click)="deleteProfileImage()"
                   [disabled]="uploadingImage || demoModeService.isDemo()"
                 >
-                  <i class="bi bi-trash me-1"></i> Supprimer
+                  <i class="bi bi-trash me-1"></i> {{ 'admin.common.delete' | translate }}
                 </button>
               </div>
             </div>
@@ -93,13 +93,13 @@
       <!-- Identity Section -->
       <div class="card shadow-sm mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-person me-2"></i>Identite</h5>
+          <h5 class="mb-0"><i class="bi bi-person me-2"></i>{{ 'admin.siteConfig.identity' | translate }}</h5>
         </div>
         <div class="card-body">
           <!-- Full Name -->
           <div class="mb-3">
             <label for="fullName" class="form-label">
-              Nom complet <span class="text-danger">*</span>
+              {{ 'admin.siteConfig.fullName' | translate }} <span class="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -108,23 +108,23 @@
               formControlName="fullName"
               [class.is-invalid]="isFieldInvalid('fullName')"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Ex: Emmanuel Gabe"
+              [placeholder]="'admin.siteConfig.fullNamePlaceholder' | translate"
             />
             <div class="invalid-feedback" *ngIf="hasError('fullName', 'required')">
-              Le nom complet est requis
+              {{ 'admin.siteConfig.fullNameRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('fullName', 'minlength')">
-              Le nom doit contenir au moins 2 caracteres
+              {{ 'admin.validation.minLength' | translate:{ min: 2 } }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('fullName', 'maxlength')">
-              Le nom ne peut pas depasser 100 caracteres
+              {{ 'admin.validation.maxLength' | translate:{ max: 100 } }}
             </div>
           </div>
 
           <!-- Email -->
           <div class="mb-3">
             <label for="email" class="form-label">
-              Email <span class="text-danger">*</span>
+              {{ 'admin.siteConfig.email' | translate }} <span class="text-danger">*</span>
             </label>
             <input
               type="email"
@@ -133,13 +133,13 @@
               formControlName="email"
               [class.is-invalid]="isFieldInvalid('email')"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Ex: contact@exemple.com"
+              [placeholder]="'admin.siteConfig.emailPlaceholder' | translate"
             />
             <div class="invalid-feedback" *ngIf="hasError('email', 'required')">
-              L'email est requis
+              {{ 'admin.siteConfig.emailRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('email', 'email')">
-              Format d'email invalide
+              {{ 'admin.validation.invalidEmail' | translate }}
             </div>
           </div>
         </div>
@@ -148,17 +148,17 @@
       <!-- Hero Section -->
       <div class="card shadow-sm mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-stars me-2"></i>Section Hero</h5>
+          <h5 class="mb-0"><i class="bi bi-stars me-2"></i>{{ 'admin.siteConfig.heroSection' | translate }}</h5>
         </div>
         <div class="card-body">
           <p class="text-muted mb-3">
-            Ces informations sont affichees sur la page d'accueil avec une animation de typing.
+            {{ 'admin.siteConfig.heroDescription' | translate }}
           </p>
 
           <!-- Hero Title -->
           <div class="mb-3">
             <label for="heroTitle" class="form-label">
-              Titre <span class="text-danger">*</span>
+              {{ 'admin.siteConfig.heroTitle' | translate }} <span class="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -167,23 +167,23 @@
               formControlName="heroTitle"
               [class.is-invalid]="isFieldInvalid('heroTitle')"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Ex: Developpeur Backend"
+              [placeholder]="'admin.siteConfig.heroTitlePlaceholder' | translate"
             />
             <div class="invalid-feedback" *ngIf="hasError('heroTitle', 'required')">
-              Le titre est requis
+              {{ 'admin.siteConfig.heroTitleRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('heroTitle', 'minlength')">
-              Le titre doit contenir au moins 2 caracteres
+              {{ 'admin.validation.minLength' | translate:{ min: 2 } }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('heroTitle', 'maxlength')">
-              Le titre ne peut pas depasser 200 caracteres
+              {{ 'admin.validation.maxLength' | translate:{ max: 200 } }}
             </div>
           </div>
 
           <!-- Hero Description -->
           <div class="mb-3">
             <label for="heroDescription" class="form-label">
-              Description <span class="text-danger">*</span>
+              {{ 'admin.siteConfig.heroDescriptionLabel' | translate }} <span class="text-danger">*</span>
             </label>
             <textarea
               id="heroDescription"
@@ -192,10 +192,10 @@
               [class.is-invalid]="isFieldInvalid('heroDescription')"
               [readonly]="demoModeService.isDemo()"
               rows="4"
-              placeholder="Decrivez-vous en quelques phrases..."
+              [placeholder]="'admin.siteConfig.heroDescriptionPlaceholder' | translate"
             ></textarea>
             <div class="invalid-feedback" *ngIf="hasError('heroDescription', 'required')">
-              La description est requise
+              {{ 'admin.siteConfig.heroDescriptionRequired' | translate }}
             </div>
           </div>
         </div>
@@ -204,17 +204,17 @@
       <!-- SEO Section -->
       <div class="card shadow-sm mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-search me-2"></i>SEO</h5>
+          <h5 class="mb-0"><i class="bi bi-search me-2"></i>{{ 'admin.siteConfig.seoSection' | translate }}</h5>
         </div>
         <div class="card-body">
           <p class="text-muted mb-3">
-            Informations pour le referencement et l'affichage dans les resultats de recherche.
+            {{ 'admin.siteConfig.seoDescription' | translate }}
           </p>
 
           <!-- Site Title -->
           <div class="mb-3">
             <label for="siteTitle" class="form-label">
-              Titre du site <span class="text-danger">*</span>
+              {{ 'admin.siteConfig.siteTitle' | translate }} <span class="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -223,21 +223,21 @@
               formControlName="siteTitle"
               [class.is-invalid]="isFieldInvalid('siteTitle')"
               [readonly]="demoModeService.isDemo()"
-              placeholder="Ex: Portfolio - Emmanuel Gabe"
+              [placeholder]="'admin.siteConfig.siteTitlePlaceholder' | translate"
             />
-            <div class="form-text">Affiche dans l'onglet du navigateur.</div>
+            <div class="form-text">{{ 'admin.siteConfig.siteTitleHelp' | translate }}</div>
             <div class="invalid-feedback" *ngIf="hasError('siteTitle', 'required')">
-              Le titre du site est requis
+              {{ 'admin.siteConfig.siteTitleRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('siteTitle', 'maxlength')">
-              Le titre ne peut pas depasser 100 caracteres
+              {{ 'admin.validation.maxLength' | translate:{ max: 100 } }}
             </div>
           </div>
 
           <!-- SEO Description -->
           <div class="mb-3">
             <label for="seoDescription" class="form-label">
-              Meta description <span class="text-danger">*</span>
+              {{ 'admin.siteConfig.metaDescription' | translate }} <span class="text-danger">*</span>
             </label>
             <textarea
               id="seoDescription"
@@ -246,17 +246,17 @@
               [class.is-invalid]="isFieldInvalid('seoDescription')"
               [readonly]="demoModeService.isDemo()"
               rows="3"
-              placeholder="Description pour les moteurs de recherche..."
+              [placeholder]="'admin.siteConfig.metaDescriptionPlaceholder' | translate"
               maxlength="300"
             ></textarea>
             <div class="form-text">
-              {{ configForm.get('seoDescription')?.value?.length || 0 }}/300 caracteres
+              {{ configForm.get('seoDescription')?.value?.length || 0 }}/300 {{ 'admin.siteConfig.characters' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('seoDescription', 'required')">
-              La meta description est requise
+              {{ 'admin.siteConfig.metaDescriptionRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('seoDescription', 'maxlength')">
-              La description ne peut pas depasser 300 caracteres
+              {{ 'admin.validation.maxLength' | translate:{ max: 300 } }}
             </div>
           </div>
         </div>
@@ -265,7 +265,7 @@
       <!-- Social Links Section -->
       <div class="card shadow-sm mb-4">
         <div class="card-header">
-          <h5 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Liens sociaux</h5>
+          <h5 class="mb-0"><i class="bi bi-link-45deg me-2"></i>{{ 'admin.siteConfig.socialLinks' | translate }}</h5>
         </div>
         <div class="card-body">
           <!-- GitHub URL -->
@@ -283,10 +283,10 @@
               placeholder="https://github.com/username"
             />
             <div class="invalid-feedback" *ngIf="hasError('githubUrl', 'required')">
-              L'URL GitHub est requise
+              {{ 'admin.siteConfig.githubUrlRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('githubUrl', 'pattern')">
-              L'URL doit commencer par http:// ou https://
+              {{ 'admin.validation.invalidUrl' | translate }}
             </div>
           </div>
 
@@ -305,10 +305,10 @@
               placeholder="https://linkedin.com/in/username"
             />
             <div class="invalid-feedback" *ngIf="hasError('linkedinUrl', 'required')">
-              L'URL LinkedIn est requise
+              {{ 'admin.siteConfig.linkedinUrlRequired' | translate }}
             </div>
             <div class="invalid-feedback" *ngIf="hasError('linkedinUrl', 'pattern')">
-              L'URL doit commencer par http:// ou https://
+              {{ 'admin.validation.invalidUrl' | translate }}
             </div>
           </div>
         </div>
@@ -317,24 +317,24 @@
       <!-- Form Actions -->
       <div class="d-flex justify-content-between pt-3">
         <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
-          Annuler
+          {{ 'admin.common.cancel' | translate }}
         </button>
         <button
           type="submit"
           class="btn btn-success"
           [disabled]="configForm.invalid || submitting || demoModeService.isDemo()"
           [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-          [title]="demoModeService.isDemo() ? 'Action desactivee en mode demonstration' : ''"
+          [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ''"
         >
           <span *ngIf="!submitting">
             <i class="bi bi-check-lg me-2"></i>
-            Enregistrer
+            {{ 'admin.common.save' | translate }}
           </span>
           <span *ngIf="submitting">
             <div class="spinner-border spinner-border-sm me-2" role="status">
-              <span class="visually-hidden">Envoi...</span>
+              <span class="visually-hidden">{{ 'admin.common.sending' | translate }}</span>
             </div>
-            Envoi...
+            {{ 'admin.common.sending' | translate }}
           </span>
         </button>
       </div>

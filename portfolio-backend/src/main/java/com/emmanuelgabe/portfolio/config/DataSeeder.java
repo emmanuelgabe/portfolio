@@ -13,8 +13,8 @@ import com.emmanuelgabe.portfolio.repository.SkillRepository;
 import com.emmanuelgabe.portfolio.service.ProjectService;
 import com.emmanuelgabe.portfolio.service.SkillService;
 import com.emmanuelgabe.portfolio.service.TagService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -28,11 +28,11 @@ import java.util.Set;
  * DataSeeder component for populating the database with test data in development environment.
  * Only runs when the 'dev' profile is active.
  */
+@Slf4j
 @Component
 @Profile("dev")
+@RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DataSeeder.class);
 
     private final ProjectService projectService;
     private final TagService tagService;
@@ -41,67 +41,56 @@ public class DataSeeder implements CommandLineRunner {
     private final SkillRepository skillRepository;
     private final SiteConfigurationRepository siteConfigurationRepository;
 
-    public DataSeeder(ProjectService projectService, TagService tagService,
-                      SkillService skillService, ProjectRepository projectRepository,
-                      SkillRepository skillRepository, SiteConfigurationRepository siteConfigurationRepository) {
-        this.projectService = projectService;
-        this.tagService = tagService;
-        this.skillService = skillService;
-        this.projectRepository = projectRepository;
-        this.skillRepository = skillRepository;
-        this.siteConfigurationRepository = siteConfigurationRepository;
-    }
-
     @Override
     public void run(String... args) {
-        LOG.info("[DATA_SEEDER] Checking database for seeding");
+        log.info("[DATA_SEEDER] Checking database for seeding");
 
         // Create site configuration if it doesn't exist
         if (siteConfigurationRepository.count() == 0) {
-            LOG.info("[DATA_SEEDER] Creating site configuration - count=0");
+            log.info("[DATA_SEEDER] Creating site configuration - count=0");
             createSiteConfiguration();
-            LOG.info("[DATA_SEEDER] Site configuration created");
+            log.info("[DATA_SEEDER] Site configuration created");
         } else {
-            LOG.info("[DATA_SEEDER] Site configuration already exists, skipping seeding");
+            log.info("[DATA_SEEDER] Site configuration already exists, skipping seeding");
         }
 
         // Create skills if they don't exist
         if (skillRepository.count() == 0) {
-            LOG.info("[DATA_SEEDER] Creating skills - count=0");
+            log.info("[DATA_SEEDER] Creating skills - count=0");
             createSkills();
-            LOG.info("[DATA_SEEDER] Skills created - count={}", skillRepository.count());
+            log.info("[DATA_SEEDER] Skills created - count={}", skillRepository.count());
         } else {
-            LOG.info("[DATA_SEEDER] Skills already exist, skipping seeding");
+            log.info("[DATA_SEEDER] Skills already exist, skipping seeding");
         }
 
         // Create tags and projects if they don't exist
         if (projectRepository.count() == 0) {
-            LOG.info("[DATA_SEEDER] Creating projects and tags - count=0");
+            log.info("[DATA_SEEDER] Creating projects and tags - count=0");
 
             // Create tags
             List<TagResponse> tags = createTags();
-            LOG.info("[DATA_SEEDER] Tags created - count={}", tags.size());
+            log.info("[DATA_SEEDER] Tags created - count={}", tags.size());
 
             // Create projects
             createProjects(tags);
-            LOG.info("[DATA_SEEDER] Projects created - count={}", projectRepository.count());
+            log.info("[DATA_SEEDER] Projects created - count={}", projectRepository.count());
         } else {
-            LOG.info("[DATA_SEEDER] Projects already exist, skipping seeding");
+            log.info("[DATA_SEEDER] Projects already exist, skipping seeding");
         }
 
-        LOG.info("[DATA_SEEDER] Database seeding complete");
+        log.info("[DATA_SEEDER] Database seeding complete");
     }
 
     private void createSiteConfiguration() {
         SiteConfiguration config = new SiteConfiguration();
         config.setFullName("Emmanuel Gabe");
         config.setEmail("contact@emmanuelgabe.com");
-        config.setHeroTitle("Developpeur Backend");
-        config.setHeroDescription("Je cree des applications web modernes et evolutives avec Angular, "
-                + "Spring Boot et les technologies de pointe. Passionne par le code propre, les bonnes "
-                + "pratiques et la creation d'experiences utilisateur exceptionnelles.");
+        config.setHeroTitle("Backend Developer");
+        config.setHeroDescription("I build modern and scalable web applications with Angular, "
+                + "Spring Boot and cutting-edge technologies. Passionate about clean code, best practices "
+                + "and creating exceptional user experiences.");
         config.setSiteTitle("Portfolio - Emmanuel Gabe");
-        config.setSeoDescription("Portfolio de Emmanuel Gabe, developpeur backend Java/Spring Boot.");
+        config.setSeoDescription("Emmanuel Gabe's portfolio, Java/Spring Boot backend developer.");
         config.setGithubUrl("https://github.com/emmanuelgabe");
         config.setLinkedinUrl("https://linkedin.com/in/egabe");
         siteConfigurationRepository.save(config);
@@ -110,21 +99,29 @@ public class DataSeeder implements CommandLineRunner {
     private List<TagResponse> createTags() {
         List<TagResponse> tags = new ArrayList<>();
 
-        tags.add(createTag("Angular", "#dd0031"));
-        tags.add(createTag("Spring Boot", "#6db33f"));
-        tags.add(createTag("TypeScript", "#3178c6"));
-        tags.add(createTag("Java", "#007396"));
-        tags.add(createTag("PostgreSQL", "#336791"));
-        tags.add(createTag("Docker", "#2496ed"));
-        tags.add(createTag("Git", "#f05032"));
-        tags.add(createTag("REST API", "#009688"));
-        tags.add(createTag("React", "#61dafb"));
-        tags.add(createTag("Node.js", "#339933"));
+        tags.add(getOrCreateTag("Angular", "#dd0031"));
+        tags.add(getOrCreateTag("Spring Boot", "#6db33f"));
+        tags.add(getOrCreateTag("TypeScript", "#3178c6"));
+        tags.add(getOrCreateTag("Java", "#007396"));
+        tags.add(getOrCreateTag("PostgreSQL", "#336791"));
+        tags.add(getOrCreateTag("Docker", "#2496ed"));
+        tags.add(getOrCreateTag("Git", "#f05032"));
+        tags.add(getOrCreateTag("REST API", "#009688"));
+        tags.add(getOrCreateTag("React", "#61dafb"));
+        tags.add(getOrCreateTag("Node.js", "#339933"));
 
         return tags;
     }
 
-    private TagResponse createTag(String name, String color) {
+    /**
+     * Get existing tag or create if not exists.
+     * This makes the seeder idempotent - safe to run multiple times.
+     */
+    private TagResponse getOrCreateTag(String name, String color) {
+        if (tagService.existsByName(name)) {
+            log.debug("[DATA_SEEDER] Tag already exists, reusing - name={}", name);
+            return tagService.getTagByName(name);
+        }
         CreateTagRequest request = new CreateTagRequest();
         request.setName(name);
         request.setColor(color);

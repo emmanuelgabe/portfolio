@@ -1,7 +1,9 @@
 package com.emmanuelgabe.portfolio.security;
 
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.service.AuthRateLimitService;
 import com.emmanuelgabe.portfolio.util.IpAddressExtractor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +17,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Rate limiting filter for authentication endpoints.
@@ -29,6 +33,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     private static final String REFRESH_PATH = "/api/auth/refresh";
 
     private final AuthRateLimitService authRateLimitService;
+    private final BusinessMetrics metrics;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(
@@ -51,12 +57,14 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
         if (LOGIN_PATH.equals(path)) {
             if (!authRateLimitService.isLoginAllowed(ip)) {
                 log.warn("[AUTH_RATE_LIMIT] Login blocked - ip={}, path={}", ip, path);
+                metrics.recordRateLimitHit();
                 sendRateLimitResponse(response, "login", authRateLimitService.getMaxLoginRequestsPerHour());
                 return;
             }
         } else if (REFRESH_PATH.equals(path)) {
             if (!authRateLimitService.isRefreshAllowed(ip)) {
                 log.warn("[AUTH_RATE_LIMIT] Refresh blocked - ip={}, path={}", ip, path);
+                metrics.recordRateLimitHit();
                 sendRateLimitResponse(response, "refresh", authRateLimitService.getMaxRefreshRequestsPerHour());
                 return;
             }
@@ -66,7 +74,7 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Send 429 Too Many Requests response with JSON error message
+     * Send 429 Too Many Requests response with JSON error message.
      *
      * @param response HTTP response
      * @param endpoint Endpoint name (login or refresh)
@@ -75,23 +83,22 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
      */
     private void sendRateLimitResponse(HttpServletResponse response, String endpoint, int maxRequests)
             throws IOException {
-        response.setStatus(429); // HTTP 429 Too Many Requests
+        response.setStatus(429);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
         String message = String.format(
                 "Rate limit exceeded for %s. Maximum %d attempts per hour. Please try again later.",
                 endpoint, maxRequests
         );
 
-        String jsonResponse = String.format(
-                "{\"status\":429,\"error\":\"Too Many Requests\",\"message\":\"%s\",\"timestamp\":\"%s\"}",
-                message, timestamp
-        );
+        Map<String, Object> errorResponse = new LinkedHashMap<>();
+        errorResponse.put("status", 429);
+        errorResponse.put("error", "Too Many Requests");
+        errorResponse.put("message", message);
+        errorResponse.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
 
-        response.getWriter().write(jsonResponse);
-        response.getWriter().flush();
+        objectMapper.writeValue(response.getWriter(), errorResponse);
     }
 
     @Override
