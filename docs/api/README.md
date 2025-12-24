@@ -368,7 +368,78 @@ See [files.md](./files.md) for details.
 
 See [site-configuration.md](./site-configuration.md) for details.
 
-### 7.11 Health Check
+### 7.11 GraphQL API
+
+**Base Path**: `/graphql`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/graphql` | Public/Admin | GraphQL endpoint |
+| GET | `/graphiql` | Public | GraphiQL interactive UI |
+
+See [graphql.md](./graphql.md) for schema and queries.
+
+### 7.12 Search API
+
+**Base Path**: `/api/admin/search`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/admin/search/articles` | Admin | Search articles |
+| GET | `/api/admin/search/projects` | Admin | Search projects |
+| GET | `/api/admin/search/experiences` | Admin | Search experiences |
+| POST | `/api/admin/search/reindex` | Admin | Rebuild indices |
+
+See [search.md](./search.md) for details.
+
+### 7.13 Audit API
+
+**Base Path**: `/api/admin/audit`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/admin/audit` | Admin | List audit logs |
+| GET | `/api/admin/audit/entity/{type}/{id}` | Admin | Entity history |
+| GET | `/api/admin/audit/stats` | Admin | Audit statistics |
+| GET | `/api/admin/audit/export/csv` | Admin | Export to CSV |
+| GET | `/api/admin/audit/export/json` | Admin | Export to JSON |
+
+See [audit.md](./audit.md) for details.
+
+### 7.14 Visitors API
+
+**Base Path**: `/api/visitors` (public), `/api/admin/visitors` (admin)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/visitors/heartbeat` | Public | Register heartbeat |
+| GET | `/api/admin/visitors/stream` | Admin | SSE stream |
+| GET | `/api/admin/visitors/count` | Admin | Active count |
+| GET | `/api/admin/visitors/stats` | Admin | Visitor stats |
+| GET | `/api/admin/visitors/daily` | Admin | Daily data |
+
+See [visitors.md](./visitors.md) for details.
+
+### 7.15 Batch API
+
+**Base Path**: `/api/admin/batch`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/admin/batch/image-reprocessing/stats` | Admin | Reprocessing stats |
+| GET | `/api/admin/batch/image-reprocessing/last` | Admin | Last job info |
+| POST | `/api/admin/batch/image-reprocessing/run` | Admin | Run job |
+
+### 7.16 Circuit Breakers API
+
+**Base Path**: `/api/admin/circuit-breakers`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/admin/circuit-breakers` | Admin | All circuit breakers |
+| GET | `/api/admin/circuit-breakers/{name}` | Admin | Specific breaker |
+
+### 7.17 Health Check
 
 **Base Path**: `/actuator`
 

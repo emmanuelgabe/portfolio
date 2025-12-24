@@ -18,6 +18,7 @@ export class ActivityMonitorService {
   private readonly logger = inject(LoggerService);
 
   private activitySubscription?: Subscription;
+  private refreshSubscription?: Subscription;
   private lastRefreshTriggerTime = 0;
   private readonly ACTIVITY_THROTTLE_MS = 30000; // Check activity max once every 30 seconds
   private readonly REFRESH_THRESHOLD_MS = 300000; // Refresh if token expires in less than 5 minutes
@@ -53,11 +54,18 @@ export class ActivityMonitorService {
    * Stop monitoring user activity
    */
   stopMonitoring(): void {
+    if (!this.activitySubscription && !this.refreshSubscription) {
+      return;
+    }
     if (this.activitySubscription) {
       this.activitySubscription.unsubscribe();
       this.activitySubscription = undefined;
-      this.logger.info('[ACTIVITY_MONITOR] Stopped monitoring user activity');
     }
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+      this.refreshSubscription = undefined;
+    }
+    this.logger.info('[ACTIVITY_MONITOR] Stopped monitoring user activity');
   }
 
   /**
@@ -94,7 +102,12 @@ export class ActivityMonitorService {
 
       this.lastRefreshTriggerTime = now;
 
-      this.authService.refreshToken().subscribe({
+      // Cancel any pending refresh before starting a new one
+      if (this.refreshSubscription) {
+        this.refreshSubscription.unsubscribe();
+      }
+
+      this.refreshSubscription = this.authService.refreshToken().subscribe({
         next: () => {
           this.logger.info('[ACTIVITY_MONITOR] Token refreshed successfully due to activity');
         },

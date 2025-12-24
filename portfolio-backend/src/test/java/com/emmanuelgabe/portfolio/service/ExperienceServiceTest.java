@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,6 +39,9 @@ class ExperienceServiceTest {
 
     @Mock
     private ExperienceMapper experienceMapper;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private ExperienceServiceImpl experienceService;
@@ -238,27 +242,27 @@ class ExperienceServiceTest {
     @Test
     void should_deleteExperience_when_validId() {
         // Arrange
-        when(experienceRepository.existsById(1L)).thenReturn(true);
+        when(experienceRepository.findById(1L)).thenReturn(Optional.of(testExperience));
 
         // Act
         experienceService.deleteExperience(1L);
 
         // Assert
-        verify(experienceRepository).existsById(1L);
+        verify(experienceRepository).findById(1L);
         verify(experienceRepository).deleteById(1L);
     }
 
     @Test
     void should_throwResourceNotFoundException_when_deleteExperienceWithInvalidId() {
         // Arrange
-        when(experienceRepository.existsById(999L)).thenReturn(false);
+        when(experienceRepository.findById(999L)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThatThrownBy(() -> experienceService.deleteExperience(999L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Experience")
                 .hasMessageContaining("999");
-        verify(experienceRepository).existsById(999L);
+        verify(experienceRepository).findById(999L);
         verify(experienceRepository, never()).deleteById(999L);
     }
 

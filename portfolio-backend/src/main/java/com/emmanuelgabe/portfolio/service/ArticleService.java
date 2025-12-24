@@ -6,12 +6,21 @@ import com.emmanuelgabe.portfolio.dto.article.UpdateArticleRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Service interface for managing blog articles.
  */
 public interface ArticleService {
+
+    /**
+     * Retrieves articles by IDs (batch).
+     *
+     * @param ids collection of article IDs
+     * @return list of articles
+     */
+    List<ArticleResponse> getArticlesByIds(Collection<Long> ids);
 
     /**
      * Retrieves all published articles visible to the public.
@@ -102,14 +111,13 @@ public interface ArticleService {
     ArticleResponse unpublishArticle(Long id);
 
     /**
-     * Adds an image to an article.
+     * Adds an image to an article with async processing.
      *
      * @param articleId the article ID
-     * @param imageUrl the image URL
-     * @param thumbnailUrl the thumbnail URL
-     * @return the article image response with ID and timestamps
+     * @param file the image file to upload
+     * @return the article image response with ID and status
      */
-    com.emmanuelgabe.portfolio.dto.article.ArticleImageResponse addImageToArticle(Long articleId, String imageUrl, String thumbnailUrl);
+    com.emmanuelgabe.portfolio.dto.article.ArticleImageResponse addImageToArticle(Long articleId, org.springframework.web.multipart.MultipartFile file);
 
     /**
      * Removes an image from an article.

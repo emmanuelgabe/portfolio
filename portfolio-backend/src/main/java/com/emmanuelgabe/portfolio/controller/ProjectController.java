@@ -1,6 +1,7 @@
 package com.emmanuelgabe.portfolio.controller;
 
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final BusinessMetrics metrics;
 
     /**
      * Get all projects
@@ -38,19 +40,6 @@ public class ProjectController {
     }
 
     /**
-     * Get project by ID
-     * @param id Project ID
-     * @return Project details
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
-        log.debug("[PROJECTS] Fetching project id={}", id);
-        ProjectResponse project = projectService.getProjectById(id);
-        log.debug("[PROJECTS] Found project: {}", project.getTitle());
-        return ResponseEntity.ok(project);
-    }
-
-    /**
      * Get all featured projects
      * @return List of featured projects
      */
@@ -60,6 +49,20 @@ public class ProjectController {
         List<ProjectResponse> featuredProjects = projectService.getFeaturedProjects();
         log.debug("[PROJECTS] Found {} featured projects", featuredProjects.size());
         return ResponseEntity.ok(featuredProjects);
+    }
+
+    /**
+     * Get project by ID
+     * @param id Project ID
+     * @return Project details
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
+        log.debug("[PROJECTS] Fetching project id={}", id);
+        ProjectResponse project = projectService.getProjectById(id);
+        metrics.recordProjectView();
+        log.debug("[PROJECTS] Found project: {}", project.getTitle());
+        return ResponseEntity.ok(project);
     }
 
     /**

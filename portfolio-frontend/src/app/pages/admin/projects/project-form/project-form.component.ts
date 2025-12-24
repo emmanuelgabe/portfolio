@@ -15,7 +15,8 @@ import {
   FormsModule,
 } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { Subject, forkJoin } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject, Subscription, forkJoin } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { ProjectService } from '../../../../services/project.service';
 import { ProjectImageService } from '../../../../services/project-image.service';
@@ -26,12 +27,20 @@ import { ToastrService } from 'ngx-toastr';
 import { CreateProjectRequest, UpdateProjectRequest } from '../../../../models/project.model';
 import { ProjectImageResponse } from '../../../../models/project-image.model';
 import { TagResponse } from '../../../../models/tag.model';
+import { AsyncImageDirective } from '../../../../directives/async-image.directive';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    RouterModule,
+    TranslateModule,
+    AsyncImageDirective,
+  ],
   templateUrl: './project-form.component.html',
   styleUrls: ['./project-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +55,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
   readonly demoModeService = inject(DemoModeService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
@@ -64,6 +74,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   projectImages: ProjectImageResponse[] = [];
   pendingFiles: { file: File; altText: string; preview?: string }[] = [];
   uploadingImageCount = 0;
+  private pollingSubscriptions = new Map<number, Subscription>();
 
   ngOnInit(): void {
     this.initForm();
@@ -143,7 +154,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to load tags', { error });
-          this.toastr.error('Erreur lors du chargement des tags');
+          this.toastr.error(this.translate.instant('admin.projects.tagsLoadError'));
         },
       });
   }
@@ -201,7 +212,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to load project', { id, error });
-          this.toastr.error('Erreur lors du chargement du projet');
+          this.toastr.error(this.translate.instant('admin.projects.loadSingleError'));
           this.loading = false;
           this.cdr.markForCheck();
           this.router.navigate(['/admin/projects']);
@@ -215,13 +226,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     }
 
     if (this.projectForm.invalid) {
-      this.markFormGroupTouched(this.projectForm);
-      this.toastr.warning('Veuillez remplir tous les champs requis');
+      this.projectForm.markAllAsTouched();
+      this.toastr.warning(this.translate.instant('admin.projects.fillRequired'));
       return;
     }
 
     if (this.uploadingImageCount > 0) {
-      this.toastr.warning("Veuillez attendre la fin de l'upload des images");
+      this.toastr.warning(this.translate.instant('admin.projects.waitForUpload'));
       return;
     }
 
@@ -261,7 +272,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
           if (this.pendingFiles.length > 0) {
             this.uploadImagesAfterCreate(project.title);
           } else {
-            this.toastr.success(`Projet "${project.title}" cree avec succes`);
+            this.toastr.success(this.translate.instant('admin.projects.createSuccess'));
             this.submitting = false;
             this.cdr.markForCheck();
             this.router.navigate(['/admin/projects']);
@@ -269,7 +280,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to create project', { error });
-          this.toastr.error('Erreur lors de la creation du projet');
+          this.toastr.error(this.translate.instant('admin.projects.createError'));
           this.submitting = false;
           this.cdr.markForCheck();
         },
@@ -279,7 +290,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   /**
    * Upload pending images after project creation
    */
-  private uploadImagesAfterCreate(projectTitle: string): void {
+  private uploadImagesAfterCreate(_projectTitle: string): void {
     if (!this.projectId || this.pendingFiles.length === 0) {
       this.submitting = false;
       this.cdr.markForCheck();
@@ -308,17 +319,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.toastr.success(
-            `Projet "${projectTitle}" cree avec ${this.pendingFiles.length} image(s)`
-          );
+          this.toastr.success(this.translate.instant('admin.projects.createSuccess'));
           this.pendingFiles = [];
           this.router.navigate(['/admin/projects']);
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to upload images after create', { error });
-          this.toastr.warning(
-            `Projet "${projectTitle}" cree mais erreur lors de l'upload des images`
-          );
+          this.toastr.warning(this.translate.instant('admin.projects.imagesUploadError'));
           this.router.navigate(['/admin/projects']);
         },
       });
@@ -349,14 +356,14 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (project) => {
           this.logger.info('[HTTP_SUCCESS] Project updated', { id: project.id });
-          this.toastr.success(`Projet "${project.title}" mis a jour avec succes`);
+          this.toastr.success(this.translate.instant('admin.projects.updateSuccess'));
           this.submitting = false;
           this.cdr.markForCheck();
           this.router.navigate(['/admin/projects']);
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to update project', { error });
-          this.toastr.error('Erreur lors de la mise a jour du projet');
+          this.toastr.error(this.translate.instant('admin.projects.updateError'));
           this.submitting = false;
           this.cdr.markForCheck();
         },
@@ -376,14 +383,6 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   hasError(fieldName: string, errorType: string): boolean {
     const field = this.projectForm.get(fieldName);
     return !!(field?.hasError(errorType) && (field?.touched || field?.dirty));
-  }
-
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-      control?.markAsDirty();
-    });
   }
 
   goBack(): void {
@@ -430,7 +429,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
     if (input.files.length > this.remainingSlots) {
       this.toastr.warning(
-        `Maximum ${this.MAX_IMAGES} images. ${input.files.length - this.remainingSlots} fichier(s) ignore(s).`
+        this.translate.instant('admin.projects.maxImagesWarning', {
+          max: this.MAX_IMAGES,
+          ignored: input.files.length - this.remainingSlots,
+        })
       );
     }
 
@@ -449,6 +451,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Upload all pending images
    */
   uploadPendingImages(): void {
+    if (this.demoModeService.isDemo()) return;
     if (!this.projectId || this.pendingFiles.length === 0) return;
 
     this.uploadingImageCount = this.pendingFiles.length;
@@ -471,14 +474,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (responses) => {
-          this.projectImages.push(...responses);
-          this.projectImages.sort((a, b) => a.displayOrder - b.displayOrder);
+          this.processUploadedImages(responses);
           this.pendingFiles = [];
-          this.toastr.success('Images uploadees avec succes');
+          this.toastr.success(this.translate.instant('admin.projects.imagesUploadSuccess'));
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to upload images', { error });
-          this.toastr.error("Erreur lors de l'upload des images");
+          this.toastr.error(this.translate.instant('admin.projects.imagesUploadError'));
         },
       });
   }
@@ -487,6 +489,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Delete an existing project image
    */
   deleteProjectImage(imageId: number): void {
+    if (this.demoModeService.isDemo()) return;
     if (!this.projectId) return;
 
     this.projectImageService
@@ -495,12 +498,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.projectImages = this.projectImages.filter((img) => img.id !== imageId);
-          this.toastr.success('Image supprimee');
+          this.toastr.success(this.translate.instant('admin.projects.imageDeleteSuccess'));
           this.cdr.markForCheck();
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to delete image', { error });
-          this.toastr.error("Erreur lors de la suppression de l'image");
+          this.toastr.error(this.translate.instant('admin.projects.imageDeleteError'));
         },
       });
   }
@@ -509,6 +512,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Set an image as primary/thumbnail
    */
   setImageAsPrimary(imageId: number): void {
+    if (this.demoModeService.isDemo()) return;
     if (!this.projectId) return;
 
     this.projectImageService
@@ -520,12 +524,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
             ...img,
             primary: img.id === imageId,
           }));
-          this.toastr.success('Image principale definie');
+          this.toastr.success(this.translate.instant('admin.projects.mainImageSuccess'));
           this.cdr.markForCheck();
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to set primary image', { error });
-          this.toastr.error("Erreur lors de la definition de l'image principale");
+          this.toastr.error(this.translate.instant('admin.projects.mainImageError'));
         },
       });
   }
@@ -534,6 +538,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Move an image up in the display order
    */
   moveImageUp(index: number): void {
+    if (this.demoModeService.isDemo()) return;
     if (index <= 0) return;
 
     [this.projectImages[index - 1], this.projectImages[index]] = [
@@ -547,6 +552,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Move an image down in the display order
    */
   moveImageDown(index: number): void {
+    if (this.demoModeService.isDemo()) return;
     if (index >= this.projectImages.length - 1) return;
 
     [this.projectImages[index], this.projectImages[index + 1]] = [
@@ -569,7 +575,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       .subscribe({
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to reorder images', { error });
-          this.toastr.error('Erreur lors du reordonnancement');
+          this.toastr.error(this.translate.instant('admin.projects.reorderError'));
           this.loadProjectImages();
         },
       });
@@ -595,7 +601,69 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Start polling for a processing image until it becomes READY or FAILED.
+   */
+  private startPollingForImage(imageId: number): void {
+    if (!this.projectId || this.pollingSubscriptions.has(imageId)) {
+      return;
+    }
+
+    this.logger.info('[POLL] Starting status polling', { projectId: this.projectId, imageId });
+
+    const subscription = this.projectImageService
+      .pollImageStatus(this.projectId, imageId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (status) => {
+          this.logger.info('[POLL] Status resolved', { imageId, status });
+
+          // Update the image in the list
+          const imageIndex = this.projectImages.findIndex((img) => img.id === imageId);
+          if (imageIndex !== -1) {
+            this.projectImages[imageIndex] = {
+              ...this.projectImages[imageIndex],
+              status,
+            };
+            this.cdr.markForCheck();
+          }
+
+          // Clean up subscription
+          this.pollingSubscriptions.delete(imageId);
+
+          if (status === 'FAILED') {
+            this.toastr.error(this.translate.instant('admin.projects.imageProcessingFailed'));
+          }
+        },
+        error: (error) => {
+          this.logger.error('[POLL_ERROR] Status polling failed', { imageId, error });
+          this.pollingSubscriptions.delete(imageId);
+        },
+      });
+
+    this.pollingSubscriptions.set(imageId, subscription);
+  }
+
+  /**
+   * Process uploaded images and start polling for processing ones.
+   */
+  private processUploadedImages(responses: ProjectImageResponse[]): void {
+    for (const image of responses) {
+      this.projectImages.push(image);
+
+      if (image.status === 'PROCESSING') {
+        this.startPollingForImage(image.id);
+      }
+    }
+    this.projectImages.sort((a, b) => a.displayOrder - b.displayOrder);
+    this.cdr.markForCheck();
+  }
+
   ngOnDestroy(): void {
+    // Clean up all polling subscriptions
+    this.pollingSubscriptions.forEach((sub) => sub.unsubscribe());
+    this.pollingSubscriptions.clear();
+
     this.destroy$.next();
     this.destroy$.complete();
   }

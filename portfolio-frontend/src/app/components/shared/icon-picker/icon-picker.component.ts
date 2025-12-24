@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface IconItem {
   class: string;
@@ -10,7 +11,7 @@ interface IconItem {
 @Component({
   selector: 'app-icon-picker',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './icon-picker.component.html',
   styleUrls: ['./icon-picker.component.scss'],
 })
@@ -71,11 +72,11 @@ export class IconPickerComponent {
 
   readonly solidIcons: IconItem[] = [
     { class: 'fa-solid fa-code', name: 'Code' },
-    { class: 'fa-solid fa-database', name: 'Base de donnees' },
+    { class: 'fa-solid fa-database', name: 'Base de données' },
     { class: 'fa-solid fa-server', name: 'Serveur' },
     { class: 'fa-solid fa-cloud', name: 'Cloud' },
     { class: 'fa-solid fa-terminal', name: 'Terminal' },
-    { class: 'fa-solid fa-gear', name: 'Parametres' },
+    { class: 'fa-solid fa-gear', name: 'Paramètres' },
     { class: 'fa-solid fa-gears', name: 'Engrenages' },
     { class: 'fa-solid fa-microchip', name: 'Processeur' },
     { class: 'fa-solid fa-laptop-code', name: 'Laptop Code' },
@@ -84,26 +85,26 @@ export class IconPickerComponent {
     { class: 'fa-solid fa-tablet-screen-button', name: 'Tablette' },
     { class: 'fa-solid fa-diagram-project', name: 'Diagramme' },
     { class: 'fa-solid fa-sitemap', name: 'Sitemap' },
-    { class: 'fa-solid fa-network-wired', name: 'Reseau' },
+    { class: 'fa-solid fa-network-wired', name: 'Réseau' },
     { class: 'fa-solid fa-wifi', name: 'WiFi' },
-    { class: 'fa-solid fa-shield-halved', name: 'Securite' },
+    { class: 'fa-solid fa-shield-halved', name: 'Sécurité' },
     { class: 'fa-solid fa-lock', name: 'Cadenas' },
-    { class: 'fa-solid fa-key', name: 'Cle' },
+    { class: 'fa-solid fa-key', name: 'Clé' },
     { class: 'fa-solid fa-bug', name: 'Bug' },
     { class: 'fa-solid fa-vial', name: 'Test' },
     { class: 'fa-solid fa-flask', name: 'Labo' },
-    { class: 'fa-solid fa-rocket', name: 'Fusee' },
-    { class: 'fa-solid fa-bolt', name: 'Eclair' },
+    { class: 'fa-solid fa-rocket', name: 'Fusée' },
+    { class: 'fa-solid fa-bolt', name: 'Éclair' },
     { class: 'fa-solid fa-fire', name: 'Feu' },
-    { class: 'fa-solid fa-star', name: 'Etoile' },
+    { class: 'fa-solid fa-star', name: 'Étoile' },
     { class: 'fa-solid fa-chart-line', name: 'Graphique' },
     { class: 'fa-solid fa-chart-pie', name: 'Camembert' },
     { class: 'fa-solid fa-cube', name: 'Cube' },
     { class: 'fa-solid fa-cubes', name: 'Cubes' },
     { class: 'fa-solid fa-layer-group', name: 'Layers' },
     { class: 'fa-solid fa-puzzle-piece', name: 'Puzzle' },
-    { class: 'fa-solid fa-toolbox', name: 'Boite outils' },
-    { class: 'fa-solid fa-wrench', name: 'Cle molette' },
+    { class: 'fa-solid fa-toolbox', name: 'Boîte outils' },
+    { class: 'fa-solid fa-wrench', name: 'Clé molette' },
     { class: 'fa-solid fa-screwdriver-wrench', name: 'Outils' },
     { class: 'fa-solid fa-hammer', name: 'Marteau' },
     { class: 'fa-solid fa-pen-ruler', name: 'Design' },

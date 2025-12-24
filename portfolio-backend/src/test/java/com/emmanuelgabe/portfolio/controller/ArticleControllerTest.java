@@ -3,14 +3,15 @@ package com.emmanuelgabe.portfolio.controller;
 import com.emmanuelgabe.portfolio.config.TestSecurityConfig;
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.service.ArticleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.data.domain.Page;
@@ -45,8 +46,11 @@ class ArticleControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ArticleService articleService;
+
+    @MockitoBean
+    private BusinessMetrics metrics;
 
     private ArticleResponse testArticleResponse;
 
@@ -91,6 +95,7 @@ class ArticleControllerTest {
             .andExpect(jsonPath("$.slug", is("test-article")));
 
         verify(articleService).getBySlug("test-article");
+        verify(metrics).recordArticleView();
     }
 
     @Test

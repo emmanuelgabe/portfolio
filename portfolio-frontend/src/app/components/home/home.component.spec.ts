@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
+import { TranslateModule } from '@ngx-translate/core';
 import { HomeComponent } from './home.component';
 import { ProjectService } from '../../services/project.service';
 import { SkillService } from '../../services/skill.service';
@@ -9,6 +10,7 @@ import { CvService } from '../../services/cv.service';
 import { ExperienceService } from '../../services/experience.service';
 import { ArticleService } from '../../services/article.service';
 import { SiteConfigurationService } from '../../services/site-configuration.service';
+import { LoggerService } from '../../services/logger.service';
 import { ProjectResponse } from '../../models';
 import { Skill, SkillCategory, IconType } from '../../models/skill.model';
 import { SiteConfigurationResponse } from '../../models/site-configuration.model';
@@ -23,6 +25,7 @@ describe('HomeComponent', () => {
   let mockExperienceService: jasmine.SpyObj<ExperienceService>;
   let mockArticleService: jasmine.SpyObj<ArticleService>;
   let mockSiteConfigService: jasmine.SpyObj<SiteConfigurationService>;
+  let mockLoggerService: jasmine.SpyObj<LoggerService>;
   let mockFeaturedProjects: ProjectResponse[];
 
   const mockSiteConfig: SiteConfigurationResponse = {
@@ -190,9 +193,10 @@ describe('HomeComponent', () => {
       'getSiteConfiguration',
     ]);
     mockSiteConfigService.getSiteConfiguration.and.returnValue(of(mockSiteConfig));
+    mockLoggerService = jasmine.createSpyObj('LoggerService', ['info', 'warn', 'error', 'debug']);
 
     await TestBed.configureTestingModule({
-      imports: [HomeComponent, RouterModule.forRoot([])],
+      imports: [HomeComponent, RouterModule.forRoot([]), TranslateModule.forRoot()],
       providers: [
         { provide: ProjectService, useValue: mockProjectService },
         { provide: SkillService, useValue: mockSkillService },
@@ -200,6 +204,7 @@ describe('HomeComponent', () => {
         { provide: ExperienceService, useValue: mockExperienceService },
         { provide: ArticleService, useValue: mockArticleService },
         { provide: SiteConfigurationService, useValue: mockSiteConfigService },
+        { provide: LoggerService, useValue: mockLoggerService },
         provideHttpClient(),
         provideToastr(),
       ],
@@ -267,22 +272,22 @@ describe('HomeComponent', () => {
     expect(skillNames[1].textContent).toContain('Spring Boot');
   });
 
-  it('should display loading spinner while loading projects', () => {
+  it('should display loading skeleton while loading projects', () => {
     // Configure mock to never complete (keeps loading state)
     mockProjectService.getAll.and.returnValue(NEVER);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const projectsSection = compiled.querySelector('#projects');
-    const spinner = projectsSection?.querySelector('.spinner-border');
-    expect(spinner).toBeTruthy();
+    const skeleton = projectsSection?.querySelector('app-skeleton-project-card');
+    expect(skeleton).toBeTruthy();
   });
 
   it('should handle error when loading featured projects fails', () => {
     mockProjectService.getAll.and.returnValue(throwError(() => new Error('Network error')));
     fixture.detectChanges();
 
-    expect(component.projectsError).toBe('Unable to load projects');
+    expect(component.projectsError).toBe('errors.loadProjects');
     expect(component.isLoadingProjects).toBeFalse();
   });
 
@@ -294,7 +299,7 @@ describe('HomeComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const alert = compiled.querySelector('.alert-warning');
     expect(alert).toBeTruthy();
-    expect(alert?.textContent).toContain('Unable to load projects');
+    expect(alert?.textContent).toContain('errors.loadProjects');
   });
 
   it('should display no featured projects message when empty', () => {

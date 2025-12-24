@@ -1,0 +1,172 @@
+groups:
+  - name: portfolio-backend
+    rules:
+      - alert: ServiceDown
+        expr: up{job="spring-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend service is down"
+          description: "Spring Boot backend has been down for more than 1 minute"
+
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) / rate(http_server_requests_seconds_count[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 10% for 5 minutes"
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is above 2 seconds"
+
+      - alert: HighMemoryUsage
+        expr: jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High JVM heap memory usage"
+          description: "Heap memory usage is above 90%"
+
+      - alert: HighCpuUsage
+        expr: system_cpu_usage > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 90%"
+
+  - name: portfolio-business
+    rules:
+      - alert: HighAuthFailureRate
+        expr: rate(portfolio_auth_failures_total[15m]) / rate(portfolio_auth_attempts_total[15m]) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High authentication failure rate"
+          description: "More than 50% of authentication attempts are failing"
+
+      - alert: HighContactFormFailures
+        expr: rate(portfolio_contact_failures_total[1h]) > 0.1
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Contact form failures detected"
+          description: "Contact form is experiencing failures"
+
+  - name: portfolio-messaging
+    rules:
+      # RabbitMQ Alerts
+      - alert: RabbitMQDLQNotEmpty
+        expr: sum(rabbitmq_queue_messages{queue=~".*dlq.*"}) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Dead letter queue has messages"
+          description: "DLQ contains {{ $value }} messages that failed processing"
+
+      - alert: RabbitMQNoConsumers
+        expr: rabbitmq_queue_consumers{queue=~"portfolio.*", queue!~".*dlq.*"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No consumers for queue"
+          description: "Queue {{ $labels.queue }} has no active consumers"
+
+      - alert: RabbitMQQueueBacklog
+        expr: rabbitmq_queue_messages{queue=~"portfolio.*", queue!~".*dlq.*"} > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue backlog detected"
+          description: "Queue {{ $labels.queue }} has {{ $value }} messages backlogged"
+
+      - alert: RabbitMQDown
+        expr: up{job="rabbitmq"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "RabbitMQ is down"
+          description: "RabbitMQ service has been down for more than 1 minute"
+
+      # Kafka Alerts
+      - alert: KafkaConsumerLag
+        expr: sum(kafka_consumergroup_lag{consumergroup=~"portfolio.*"}) by (consumergroup, topic) > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka consumer lag detected"
+          description: "Consumer group {{ $labels.consumergroup }} has lag of {{ $value }} on topic {{ $labels.topic }}"
+
+      - alert: KafkaTopicStalled
+        expr: increase(kafka_topic_partition_current_offset{topic=~"portfolio.*"}[15m]) == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka topic not receiving messages"
+          description: "Topic {{ $labels.topic }} has not received new messages for 15 minutes"
+
+      - alert: KafkaExporterDown
+        expr: up{job="kafka-exporter"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka exporter is down"
+          description: "Kafka metrics exporter has been down for more than 2 minutes"
+
+  - name: portfolio-resilience
+    rules:
+      - alert: CircuitBreakerOpen
+        expr: resilience4j_circuitbreaker_state{state="open"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit breaker is OPEN"
+          description: "Circuit breaker {{ $labels.name }} has been OPEN for more than 1 minute"
+
+      - alert: CircuitBreakerHalfOpen
+        expr: resilience4j_circuitbreaker_state{state="half_open"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breaker stuck in HALF_OPEN"
+          description: "Circuit breaker {{ $labels.name }} has been in HALF_OPEN state for more than 5 minutes"
+
+      - alert: CircuitBreakerHighFailureRate
+        expr: resilience4j_circuitbreaker_failure_rate >= 0 and resilience4j_circuitbreaker_failure_rate > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High circuit breaker failure rate"
+          description: "Circuit breaker {{ $labels.name }} has a failure rate of {{ $value }}%"
+
+      - alert: CircuitBreakerCallsRejected
+        expr: increase(resilience4j_circuitbreaker_not_permitted_calls_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breaker rejecting calls"
+          description: "Circuit breaker {{ $labels.name }} has rejected {{ $value }} calls in the last 5 minutes"

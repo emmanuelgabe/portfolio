@@ -18,16 +18,34 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
       - REDIS_HOST=redis-cache
       - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:?RABBITMQ_USERNAME required in staging}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD required in staging}
+      - RABBITMQ_ENABLED=true
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_APP_PASSWORD=${MAIL_APP_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_ENABLED=${KAFKA_ENABLED:-true}
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - ELASTICSEARCH_ENABLED=${ELASTICSEARCH_ENABLED:-true}
     volumes:
       - portfolio_uploads_staging:/app/uploads
     depends_on:
       portfolio-db:
         condition: service_healthy
       redis-cache:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
 
   portfolio-db:
@@ -43,10 +61,21 @@ services:
 
   redis-cache:
     container_name: portfolio-redis-staging
+    command: redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD required in staging}
     ports:
-      - "6380:6379"  # Expose staging Redis on different port
+      - "127.0.0.1:6380:6379"  # Redis accessible only from localhost
     volumes:
       - portfolio_redis_staging_data:/data
+
+  rabbitmq:
+    container_name: portfolio-rabbitmq-staging
+    ports:
+      - "127.0.0.1:15673:15672"  # RabbitMQ management accessible only from localhost
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:?RABBITMQ_USERNAME required in staging}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD required in staging}
+    volumes:
+      - portfolio_rabbitmq_staging_data:/var/lib/rabbitmq
 
   nginx-portfolio:
     container_name: portfolio-nginx-staging
@@ -56,6 +85,12 @@ services:
     ports:
       - "3000:80"  # Staging accessible on port 3000
 
+  kafka:
+    container_name: portfolio-kafka-staging
+
+  elasticsearch:
+    container_name: portfolio-elasticsearch-staging
+
 volumes:
   portfolio_db_staging_data:
     name: portfolio_staging_db_data
@@ -63,3 +98,5 @@ volumes:
     name: portfolio_staging_uploads
   portfolio_redis_staging_data:
     name: portfolio_staging_redis_data
+  portfolio_rabbitmq_staging_data:
+    name: portfolio_staging_rabbitmq_data

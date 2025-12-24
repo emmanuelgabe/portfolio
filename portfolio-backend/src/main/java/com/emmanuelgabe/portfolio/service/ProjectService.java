@@ -6,8 +6,10 @@ import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.ReorderProjectImagesRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectImageRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,6 +23,13 @@ public interface ProjectService {
      * @return List of all projects
      */
     List<ProjectResponse> getAllProjects();
+
+    /**
+     * Get projects by IDs (batch)
+     * @param ids Collection of project IDs
+     * @return List of projects
+     */
+    List<ProjectResponse> getProjectsByIds(Collection<Long> ids);
 
     /**
      * Get project by ID
@@ -150,4 +159,12 @@ public interface ProjectService {
      * @return List of project images
      */
     List<ProjectImageResponse> getProjectImages(Long projectId);
+
+    /**
+     * Get the processing status of a project image
+     * @param projectId Project ID
+     * @param imageId Image ID
+     * @return Current status of the image
+     */
+    ImageStatus getImageStatus(Long projectId, Long imageId);
 }

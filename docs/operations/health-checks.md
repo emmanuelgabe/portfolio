@@ -22,7 +22,9 @@ Health check infrastructure verifies system components are operational and can c
 2. **Frontend Layer:** Angular application status
 3. **Backend Layer:** Spring Boot API status
 4. **Database Layer:** PostgreSQL connectivity
-5. **Integration Layer:** End-to-end verification
+5. **Messaging Layer:** RabbitMQ and Kafka connectivity
+6. **Cache Layer:** Redis connectivity
+7. **Integration Layer:** End-to-end verification
 
 ### 1.2 Health Check Types
 
@@ -58,7 +60,26 @@ Health check infrastructure verifies system components are operational and can c
 | `/api/health/db` | Database connectivity |
 | `/api/health/status` | Complete status (API + DB) |
 
-### 2.3 Frontend Direct Access
+### 2.3 Monitoring Services Health
+
+**Actuator Health Endpoints** (with detailed components):
+
+| Endpoint | Description | Requires Auth |
+|----------|-------------|---------------|
+| `/actuator/health/db` | PostgreSQL database status | No |
+| `/actuator/health/redis` | Redis cache connectivity | No |
+| `/actuator/health/rabbit` | RabbitMQ messaging status | No |
+| `/actuator/health/diskSpace` | Disk space availability | No |
+
+**Monitoring Stack URLs** (Local Development):
+
+| Service | URL | Purpose |
+|---------|-----|---------|
+| Grafana | http://localhost:3001 | Dashboards and visualization |
+| Prometheus | http://localhost:9090 | Metrics collection |
+| RabbitMQ Management | http://localhost:15672 | Message queue UI |
+
+### 2.4 Frontend Direct Access
 
 **Base URL:** `http://localhost:4200`
 
@@ -66,7 +87,7 @@ Health check infrastructure verifies system components are operational and can c
 |----------|-------------|
 | `/health.json` | Static health file |
 
-### 2.4 Environment-Specific Ports
+### 2.5 Environment-Specific Ports
 
 | Environment | Port |
 |-------------|------|
@@ -257,3 +278,9 @@ Repository → Actions → Health Check CI → Run workflow
 Select the branch to test (typically `develop`)
 
 ---
+
+## Related Documentation
+
+- [Observability](./observability.md) - Monitoring stack (Grafana, Prometheus, Loki)
+- [Environments](../reference/environments.md) - URLs and ports by environment
+- [Deployment](../deployment/README.md) - CI/CD pipeline

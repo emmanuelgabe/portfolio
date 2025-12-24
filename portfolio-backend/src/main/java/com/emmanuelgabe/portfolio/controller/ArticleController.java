@@ -1,6 +1,7 @@
 package com.emmanuelgabe.portfolio.controller;
 
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,6 +32,7 @@ import java.util.List;
 public class ArticleController {
 
     private final ArticleService articleService;
+    private final BusinessMetrics metrics;
 
     @GetMapping
     @Operation(summary = "Get all published articles", description = "Retrieves all published articles visible to the public")
@@ -63,6 +65,7 @@ public class ArticleController {
     public ResponseEntity<ArticleResponse> getBySlug(@PathVariable String slug) {
         log.debug("[ARTICLES] Fetching article by slug={}", slug);
         ArticleResponse article = articleService.getBySlug(slug);
+        metrics.recordArticleView();
         log.debug("[ARTICLES] Found article: {}", article.getTitle());
         return ResponseEntity.ok(article);
     }

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { provideRouter } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { ContactFormComponent } from './contact-form.component';
 import { ContactService } from '../../services/contact.service';
@@ -20,8 +22,9 @@ describe('ContactFormComponent', () => {
     const loggerSpyObj = jasmine.createSpyObj('LoggerService', ['info', 'error']);
 
     await TestBed.configureTestingModule({
-      imports: [ContactFormComponent, ReactiveFormsModule],
+      imports: [ContactFormComponent, ReactiveFormsModule, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         { provide: ContactService, useValue: contactSpy },
         { provide: ToastrService, useValue: toastrSpyObj },
         { provide: LoggerService, useValue: loggerSpyObj },
@@ -46,6 +49,7 @@ describe('ContactFormComponent', () => {
     expect(component.contactForm.get('email')?.value).toBe('');
     expect(component.contactForm.get('subject')?.value).toBe('');
     expect(component.contactForm.get('message')?.value).toBe('');
+    expect(component.contactForm.get('consent')?.value).toBe(false);
   });
 
   it('should invalidate form when name is too short', () => {
@@ -74,6 +78,7 @@ describe('ContactFormComponent', () => {
       email: 'john@example.com',
       subject: 'Test Subject',
       message: 'This is a test message with more than 10 characters',
+      consent: true,
     });
     expect(component.contactForm.valid).toBe(true);
   });
@@ -88,7 +93,7 @@ describe('ContactFormComponent', () => {
 
     component.onSubmit();
 
-    expect(toastrSpy.warning).toHaveBeenCalledWith('Veuillez remplir tous les champs correctement');
+    expect(toastrSpy.warning).toHaveBeenCalledWith('contact.validationError');
     expect(contactServiceSpy.send).not.toHaveBeenCalled();
   });
 
@@ -106,6 +111,7 @@ describe('ContactFormComponent', () => {
       email: 'john@example.com',
       subject: 'Test Subject',
       message: 'This is a test message with more than 10 characters',
+      consent: true,
     });
 
     component.onSubmit();
@@ -130,6 +136,7 @@ describe('ContactFormComponent', () => {
       email: 'john@example.com',
       subject: 'Test Subject',
       message: 'This is a test message with more than 10 characters',
+      consent: true,
     });
 
     component.onSubmit();
@@ -152,6 +159,7 @@ describe('ContactFormComponent', () => {
       email: 'john@example.com',
       subject: 'Test Subject',
       message: 'This is a test message with more than 10 characters',
+      consent: true,
     });
 
     component.onSubmit();
@@ -175,6 +183,7 @@ describe('ContactFormComponent', () => {
       email: 'john@example.com',
       subject: 'Test Subject',
       message: 'This is a test message with more than 10 characters',
+      consent: true,
     });
 
     component.onSubmit();

@@ -1,24 +1,48 @@
 <div class="project-list">
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Gestion des Projets</h1>
+    <h1>{{ 'admin.projects.title' | translate }}</h1>
     <a
       routerLink="new"
       class="btn btn-primary"
       [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-      [title]="demoModeService.isDemo() ? 'Mode démonstration - Les modifications ne seront pas enregistrées' : 'Créer un nouveau projet'"
+      [title]="demoModeService.isDemo() ? ('admin.common.demoModeWarning' | translate) : ('admin.projects.new' | translate)"
     >
       <i class="bi bi-plus-circle me-2"></i>
-      Nouveau Projet
+      {{ 'admin.projects.new' | translate }}
     </a>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Chargement...</span>
+  <!-- Search Input -->
+  <div class="mb-3">
+    <app-search-input
+      [loading]="isSearching"
+      (search)="onSearch($event)"
+      (clear)="onSearchClear()"
+    ></app-search-input>
+  </div>
+
+  <!-- Loading Skeletons -->
+  <div *ngIf="loading" class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 120px">{{ 'admin.common.image' | translate }}</th>
+              <th>{{ 'admin.projects.titleField' | translate }}</th>
+              <th>{{ 'admin.projects.technologies' | translate }}</th>
+              <th style="width: 150px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of [1,2,3,4,5]; track i) {
+              <app-skeleton-table-row [columns]="[{width: '120px'}, {width: '35%'}, {width: '35%'}, {width: '150px'}]" />
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
-    <p class="mt-3 text-muted">Chargement des projets...</p>
   </div>
 
   <!-- Error State -->
@@ -27,7 +51,7 @@
     {{ error }}
     <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadProjects()">
       <i class="bi bi-arrow-clockwise me-1"></i>
-      Réessayer
+      {{ 'common.retry' | translate }}
     </button>
   </div>
 
@@ -35,36 +59,46 @@
   <div *ngIf="!loading && !error" class="card shadow-sm">
     <div class="card-body p-0">
       <!-- Empty State -->
-      <div *ngIf="projects.length === 0" class="text-center py-5">
-        <i class="bi bi-folder-x display-1 text-muted"></i>
-        <p class="mt-3 text-muted">Aucun projet trouvé</p>
-        <a routerLink="/admin/projects/new" class="btn btn-primary">
+      <div *ngIf="filteredProjects.length === 0" class="text-center py-5">
+        <i class="bi" [ngClass]="isSearchActive ? 'bi-search' : 'bi-folder-x'" class="display-1 text-muted"></i>
+        <p class="mt-3 text-muted">
+          {{ isSearchActive ? ('admin.common.noSearchResults' | translate) : ('admin.projects.noProjectsFound' | translate) }}
+        </p>
+        <a *ngIf="!isSearchActive" routerLink="/admin/projects/new" class="btn btn-primary">
           <i class="bi bi-plus-circle me-2"></i>
-          Créer le premier projet
+          {{ 'admin.common.createFirst' | translate }}
         </a>
       </div>
 
       <!-- Table -->
-      <div *ngIf="projects.length > 0" class="table-responsive">
+      <div *ngIf="filteredProjects.length > 0" class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th style="width: 120px">Image</th>
-              <th>Titre</th>
-              <th>Technologies</th>
-              <th style="width: 150px" class="text-center">Actions</th>
+              <th style="width: 120px">{{ 'admin.common.image' | translate }}</th>
+              <th>{{ 'admin.projects.titleField' | translate }}</th>
+              <th>{{ 'admin.projects.technologies' | translate }}</th>
+              <th style="width: 150px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let project of projects">
+            <tr *ngFor="let project of filteredProjects">
               <!-- Image -->
               <td>
+                <!-- Show image only if READY -->
                 <img
+                  *ngIf="isPrimaryImageReady(project)"
                   [src]="getImageUrl(project.imageUrl)"
                   [alt]="project.title"
                   class="img-thumbnail project-thumbnail"
                   (error)="$any($event.target).src = defaultImage"
                 />
+                <!-- Show spinner if PROCESSING -->
+                <div *ngIf="isPrimaryImageProcessing(project)" class="img-thumbnail project-thumbnail d-flex align-items-center justify-content-center bg-secondary">
+                  <div class="spinner-border spinner-border-sm text-light" role="status">
+                    <span class="visually-hidden">{{ 'admin.projects.processing' | translate }}</span>
+                  </div>
+                </div>
               </td>
 
               <!-- Title -->
@@ -94,7 +128,7 @@
                     [routerLink]="[project.id, 'edit']"
                     class="btn btn-sm btn-outline-primary"
                     [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-                    [title]="demoModeService.isDemo() ? 'Mode démonstration - Les modifications ne seront pas enregistrées' : 'Éditer'"
+                    [title]="demoModeService.isDemo() ? ('admin.common.demoModeWarning' | translate) : ('admin.common.edit' | translate)"
                   >
                     <i class="bi bi-pencil"></i>
                   </a>
@@ -103,7 +137,7 @@
                     class="btn btn-sm btn-outline-danger"
                     (click)="deleteProject(project)"
                     [style.opacity]="demoModeService.isDemo() ? '0.65' : '1'"
-                    [title]="demoModeService.isDemo() ? 'Mode démonstration - Action sans effet' : 'Supprimer'"
+                    [title]="demoModeService.isDemo() ? ('admin.common.demoModeDisabled' | translate) : ('admin.common.delete' | translate)"
                   >
                     <i class="bi bi-trash"></i>
                   </button>
@@ -116,10 +150,16 @@
     </div>
 
     <!-- Footer Stats -->
-    <div *ngIf="projects.length > 0" class="card-footer text-muted">
+    <div *ngIf="filteredProjects.length > 0" class="card-footer text-muted">
       <small>
         <i class="bi bi-info-circle me-1"></i>
-        Total: {{ projects.length }} projet{{ projects.length > 1 ? 's' : '' }}
+        <span *ngIf="isSearchActive">
+          {{ 'admin.common.searchResults' | translate: { count: filteredProjects.length } }}
+          | {{ 'admin.common.total' | translate }}: {{ projects.length }}
+        </span>
+        <span *ngIf="!isSearchActive">
+          {{ 'admin.common.total' | translate }}: {{ projects.length }}
+        </span>
       </small>
     </div>
   </div>

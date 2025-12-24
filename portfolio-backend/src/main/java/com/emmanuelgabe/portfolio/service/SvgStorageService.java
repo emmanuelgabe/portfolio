@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.service;
 
 import com.emmanuelgabe.portfolio.config.SvgStorageProperties;
 import com.emmanuelgabe.portfolio.exception.FileStorageException;
+import com.emmanuelgabe.portfolio.exception.FileValidationException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -194,21 +195,21 @@ public class SvgStorageService {
         // Check null or empty
         if (file == null || file.isEmpty()) {
             log.warn("[VALIDATION] File is null or empty");
-            throw new FileStorageException("File is empty. Please select a valid SVG file.");
+            throw new FileValidationException("File is empty. Please select a valid SVG file.");
         }
 
         // Security check: prevent path traversal
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.contains("..")) {
             log.warn("[VALIDATION] Path traversal detected - fileName={}", originalFilename);
-            throw new FileStorageException("Invalid file name: path traversal detected");
+            throw new FileValidationException("Invalid file name: path traversal detected");
         }
 
         // Check file size
         if (file.getSize() > storageProperties.getMaxFileSize()) {
             log.warn("[VALIDATION] File too large - size={}, maxSize={}",
                     file.getSize(), storageProperties.getMaxFileSize());
-            throw new FileStorageException(String.format(
+            throw new FileValidationException(String.format(
                     "File size exceeds maximum allowed size of %d KB",
                     storageProperties.getMaxFileSize() / 1024
             ));
@@ -217,20 +218,20 @@ public class SvgStorageService {
         // Check extension
         if (originalFilename == null || !originalFilename.contains(".")) {
             log.warn("[VALIDATION] Invalid filename - fileName={}", originalFilename);
-            throw new FileStorageException("Invalid file name");
+            throw new FileValidationException("Invalid file name");
         }
 
         String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
         if (!Arrays.asList(storageProperties.getAllowedExtensions()).contains(extension)) {
             log.warn("[VALIDATION] Invalid file extension - fileName={}, extension={}", originalFilename, extension);
-            throw new FileStorageException("File type not allowed. Only SVG files are accepted.");
+            throw new FileValidationException("File type not allowed. Only SVG files are accepted.");
         }
 
         // Check MIME type
         String contentType = file.getContentType();
         if (contentType == null || !Arrays.asList(storageProperties.getAllowedMimeTypes()).contains(contentType)) {
             log.warn("[VALIDATION] Invalid MIME type - contentType={}", contentType);
-            throw new FileStorageException("File type not allowed. Only SVG files are accepted.");
+            throw new FileValidationException("File type not allowed. Only SVG files are accepted.");
         }
 
         // Read and sanitize SVG content
@@ -241,13 +242,13 @@ public class SvgStorageService {
             // Check for basic SVG structure
             if (!content.contains("<svg")) {
                 log.warn("[VALIDATION] Invalid SVG content - missing svg tag");
-                throw new FileStorageException("File is not a valid SVG. Content must contain <svg> element.");
+                throw new FileValidationException("File is not a valid SVG. Content must contain <svg> element.");
             }
 
             // Check for dangerous patterns before parsing
             if (DANGEROUS_PATTERN.matcher(content).find()) {
                 log.warn("[VALIDATION] Dangerous content detected in SVG - fileName={}", originalFilename);
-                throw new FileStorageException("SVG contains potentially dangerous content");
+                throw new FileValidationException("SVG contains potentially dangerous content");
             }
 
             // Sanitize the SVG
@@ -284,7 +285,7 @@ public class SvgStorageService {
         // Get the SVG element
         Element svgElement = doc.selectFirst("svg");
         if (svgElement == null) {
-            throw new FileStorageException("Invalid SVG: no svg element found");
+            throw new FileValidationException("Invalid SVG: no svg element found");
         }
 
         // Sanitize recursively

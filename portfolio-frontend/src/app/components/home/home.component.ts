@@ -11,14 +11,21 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProjectCardComponent } from '../project-card/project-card.component';
 import { ArticleCardComponent } from '../article-card/article-card.component';
-import { ContactFormComponent } from '../contact-form/contact-form.component';
-import { ProjectService, SkillService } from '../../services';
+import {
+  SkeletonProjectCardComponent,
+  SkeletonArticleCardComponent,
+  SkeletonSkillCardComponent,
+  SkeletonTimelineItemComponent,
+} from '../shared/skeleton';
+import { ProjectService, SkillService, ScrollService } from '../../services';
 import { CvService } from '../../services/cv.service';
 import { ExperienceService } from '../../services/experience.service';
 import { ArticleService } from '../../services/article.service';
 import { SiteConfigurationService } from '../../services/site-configuration.service';
+import { SeoService } from '../../services/seo.service';
 import { ProjectResponse, ExperienceResponse, ExperienceType } from '../../models';
 import { Skill } from '../../models/skill.model';
 import { CvResponse } from '../../models/cv.model';
@@ -26,8 +33,8 @@ import { ArticleResponse } from '../../models/article.model';
 import { VERSION } from '../../../environments/version';
 import { LoggerService } from '../../services/logger.service';
 import { ToastrService } from 'ngx-toastr';
-import { interval, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { interval, Subject, Subscription } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 import lottie, { AnimationItem } from 'lottie-web';
 
 @Component({
@@ -35,10 +42,14 @@ import lottie, { AnimationItem } from 'lottie-web';
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     ProjectCardComponent,
     ArticleCardComponent,
-    ContactFormComponent,
     RouterLink,
+    SkeletonProjectCardComponent,
+    SkeletonArticleCardComponent,
+    SkeletonSkillCardComponent,
+    SkeletonTimelineItemComponent,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
@@ -51,8 +62,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly experienceService = inject(ExperienceService);
   private readonly articleService = inject(ArticleService);
   private readonly siteConfigService = inject(SiteConfigurationService);
+  private readonly seoService = inject(SeoService);
+  private readonly scrollService = inject(ScrollService);
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -106,6 +120,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   displayedDescriptionLines: string[] = [];
   private descriptionTypingSubscriptions: Subscription[] = [];
 
+  // Cleanup
+  private readonly destroy$ = new Subject<void>();
+  private intersectionObserver?: IntersectionObserver;
+  private pendingTimeouts: ReturnType<typeof setTimeout>[] = [];
+
   ngOnInit(): void {
     this.loadHeroSection();
     this.loadProjects();
@@ -120,28 +139,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    * Handle scroll to section based on URL fragment
    */
   private handleFragmentScroll(): void {
-    this.route.fragment.subscribe((fragment) => {
+    this.route.fragment.pipe(takeUntil(this.destroy$)).subscribe((fragment) => {
       if (!fragment) return;
 
-      setTimeout(() => {
-        if (fragment === 'hero') {
-          window.scrollTo({ top: 0, behavior: 'auto' });
-          return;
-        }
-
-        const element = document.getElementById(fragment);
-        if (element) {
-          const navbarHeight = window.innerWidth > 1199 ? 76 : 66;
-          const margin = 20;
-          const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-          const offsetPosition = elementPosition - navbarHeight - margin;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'auto',
-          });
-        }
+      const timeout = setTimeout(() => {
+        this.scrollService.scrollToSection(fragment, 'auto');
       }, 100);
+      this.pendingTimeouts.push(timeout);
     });
   }
 
@@ -151,38 +155,56 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   loadHeroSection(): void {
     this.isLoadingHero = true;
 
-    this.siteConfigService.getSiteConfiguration().subscribe({
-      next: (config) => {
-        // Hero section
-        this.fullText = config.heroTitle;
-        this.fullDescriptionLines = this.splitDescription(config.heroDescription);
-        this.displayedDescriptionLines = new Array(this.fullDescriptionLines.length).fill('');
+    this.siteConfigService
+      .getSiteConfiguration()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (config) => {
+          this.fullText = config.heroTitle;
+          this.fullDescriptionLines = this.splitDescription(config.heroDescription);
+          this.displayedDescriptionLines = new Array(this.fullDescriptionLines.length).fill('');
 
-        // Identity
-        this.fullName = config.fullName;
+          this.fullName = config.fullName;
 
-        // Social links
-        this.githubUrl = config.githubUrl;
-        this.linkedinUrl = config.linkedinUrl;
-        this.contactEmail = config.email;
+          this.githubUrl = config.githubUrl;
+          this.linkedinUrl = config.linkedinUrl;
+          this.contactEmail = config.email;
 
-        this.isLoadingHero = false;
-        this.cdr.markForCheck();
-        this.startTypingAnimation();
-      },
-      error: (err) => {
-        this.logger.error('[HTTP_ERROR] Failed to load site configuration', {
-          error: err.message || err,
-        });
-        // Fallback to default values
-        this.fullText = 'Developpeur Backend';
-        this.fullDescriptionLines = ['Je cree des applications web modernes et evolutives.'];
-        this.displayedDescriptionLines = [''];
-        this.isLoadingHero = false;
-        this.cdr.markForCheck();
-        this.startTypingAnimation();
-      },
-    });
+          this.seoService.updateMetaTags({
+            title: config.siteTitle,
+            description: config.seoDescription,
+            image: config.profileImageUrl,
+            url: '/',
+            type: 'website',
+          });
+
+          this.seoService.setHomePageSchema({
+            name: config.fullName,
+            jobTitle: config.heroTitle,
+            description: config.seoDescription,
+            image: config.profileImageUrl,
+            email: config.email,
+            github: config.githubUrl,
+            linkedin: config.linkedinUrl,
+          });
+
+          this.isLoadingHero = false;
+          this.cdr.markForCheck();
+          this.startTypingAnimation();
+        },
+        error: (err) => {
+          this.logger.error('[HTTP_ERROR] Failed to load site configuration', {
+            error: err.message || err,
+          });
+          // Fallback to default values
+          this.fullText = 'Développeur Backend';
+          this.fullDescriptionLines = ['Je crée des applications web modernes et évolutives.'];
+          this.displayedDescriptionLines = [''];
+          this.isLoadingHero = false;
+          this.cdr.markForCheck();
+          this.startTypingAnimation();
+        },
+      });
   }
 
   /**
@@ -214,11 +236,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       this.initIntersectionObserver();
       this.initScrollAnimation();
       this.initBirdsAnimation();
     }, 100);
+    this.pendingTimeouts.push(timeout);
   }
 
   /**
@@ -258,20 +281,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isLoadingExperiences = true;
     this.experiencesError = undefined;
 
-    this.experienceService.getAll().subscribe({
-      next: (experiences) => {
-        this.allExperiences = experiences;
-        this.isLoadingExperiences = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.logger.error('[HTTP_ERROR] Failed to load experiences', { error: err.message || err });
-        this.experiencesError =
-          'Impossible de charger les expériences. Veuillez réessayer plus tard.';
-        this.isLoadingExperiences = false;
-        this.cdr.markForCheck();
-      },
-    });
+    this.experienceService
+      .getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (experiences) => {
+          this.allExperiences = experiences;
+          this.isLoadingExperiences = false;
+          this.cdr.detectChanges();
+          this.observeTimelineItems();
+        },
+        error: (err) => {
+          this.logger.error('[HTTP_ERROR] Failed to load experiences', {
+            error: err.message || err,
+          });
+          this.experiencesError = this.translate.instant('errors.loadExperiences');
+          this.isLoadingExperiences = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   getExperienceIcon(type: ExperienceType): string {
@@ -285,18 +313,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   formatExperienceDateRange(startDate: string, endDate?: string): string {
+    const currentLang = this.translate.currentLang || 'fr';
+    const locale = this.getLocaleFromLang(currentLang);
+
     const start = new Date(startDate);
-    const startStr = start.toLocaleDateString('fr-FR', {
+    const startStr = start.toLocaleDateString(locale, {
       month: 'short',
       year: 'numeric',
     });
 
     if (!endDate) {
-      return `${startStr} - Présent`;
+      const presentLabel = this.translate.instant('experiences.ongoing');
+      return `${startStr} - ${presentLabel}`;
     }
 
     const end = new Date(endDate);
-    const endStr = end.toLocaleDateString('fr-FR', {
+    const endStr = end.toLocaleDateString(locale, {
       month: 'short',
       year: 'numeric',
     });
@@ -304,14 +336,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return `${startStr} - ${endStr}`;
   }
 
-  getExperienceTypeLabel(type: ExperienceType): string {
-    const labels: Record<ExperienceType, string> = {
-      [ExperienceType.WORK]: 'Expérience professionnelle',
-      [ExperienceType.EDUCATION]: 'Formation',
-      [ExperienceType.CERTIFICATION]: 'Certification',
-      [ExperienceType.VOLUNTEERING]: 'Bénévolat',
+  private getLocaleFromLang(lang: string): string {
+    const localeMap: Record<string, string> = {
+      fr: 'fr-FR',
+      en: 'en-US',
+      es: 'es-ES',
+      pt: 'pt-BR',
+      de: 'de-DE',
+      zh: 'zh-CN',
+      ja: 'ja-JP',
+      ru: 'ru-RU',
+      ar: 'ar-SA',
+      hi: 'hi-IN',
     };
-    return labels[type] || type;
+    return localeMap[lang] || 'fr-FR';
+  }
+
+  getExperienceTypeLabel(type: ExperienceType): string {
+    const translationKey = `experiences.types.${type}`;
+    return this.translate.instant(translationKey);
   }
 
   private initIntersectionObserver(): void {
@@ -320,17 +363,27 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       rootMargin: '0px',
     };
 
-    const observer = new IntersectionObserver((entries) => {
+    this.intersectionObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
+          this.intersectionObserver?.unobserve(entry.target);
         }
       });
     }, options);
 
-    const timelineItems = document.querySelectorAll('.timeline-item');
-    timelineItems.forEach((item) => observer.observe(item));
+    this.observeTimelineItems();
+  }
+
+  /**
+   * Observe timeline items for scroll animation
+   * Called after initial render and after experiences are loaded
+   */
+  private observeTimelineItems(): void {
+    if (!this.intersectionObserver) return;
+
+    const timelineItems = document.querySelectorAll('.timeline-item:not(.visible)');
+    timelineItems.forEach((item) => this.intersectionObserver?.observe(item));
   }
 
   /**
@@ -340,19 +393,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isLoadingSkills = true;
     this.skillsError = undefined;
 
-    this.skillService.getAll().subscribe({
-      next: (skills) => {
-        this.skills = skills;
-        this.isLoadingSkills = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.logger.error('[HTTP_ERROR] Failed to load skills', { error: err.message || err });
-        this.skillsError = 'Unable to load skills';
-        this.isLoadingSkills = false;
-        this.cdr.markForCheck();
-      },
-    });
+    this.skillService
+      .getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (skills) => {
+          this.skills = skills;
+          this.isLoadingSkills = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.logger.error('[HTTP_ERROR] Failed to load skills', { error: err.message || err });
+          this.skillsError = this.translate.instant('errors.loadSkills');
+          this.isLoadingSkills = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   /**
@@ -362,19 +418,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isLoadingProjects = true;
     this.projectsError = undefined;
 
-    this.projectService.getAll().subscribe({
-      next: (projects) => {
-        this.allProjects = projects;
-        this.isLoadingProjects = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.logger.error('[HTTP_ERROR] Failed to load projects', { error: err.message || err });
-        this.projectsError = 'Unable to load projects';
-        this.isLoadingProjects = false;
-        this.cdr.markForCheck();
-      },
-    });
+    this.projectService
+      .getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (projects) => {
+          this.allProjects = projects;
+          this.isLoadingProjects = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.logger.error('[HTTP_ERROR] Failed to load projects', { error: err.message || err });
+          this.projectsError = this.translate.instant('errors.loadProjects');
+          this.isLoadingProjects = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   /**
@@ -385,12 +444,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.showAllProjects) {
       // Scroll to projects section smoothly after expansion
-      setTimeout(() => {
-        const projectsSection = document.getElementById('projects');
-        if (projectsSection) {
-          projectsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+      const timeout = setTimeout(() => {
+        this.scrollService.scrollToElement('projects', 'smooth');
       }, 100);
+      this.pendingTimeouts.push(timeout);
     }
   }
 
@@ -439,22 +496,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   loadCv(): void {
     this.isLoadingCv = true;
 
-    this.cvService.getCurrentCv().subscribe({
-      next: (cv) => {
-        this.currentCv = cv ?? undefined;
-        this.isLoadingCv = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.logger.error('[HTTP_ERROR] Failed to load CV', {
-          status: err.status,
-          message: err.message,
-        });
-        this.currentCv = undefined;
-        this.isLoadingCv = false;
-        this.cdr.markForCheck();
-      },
-    });
+    this.cvService
+      .getCurrentCv()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cv) => {
+          this.currentCv = cv ?? undefined;
+          this.isLoadingCv = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.logger.error('[HTTP_ERROR] Failed to load CV', {
+            status: err.status,
+            message: err.message,
+          });
+          this.currentCv = undefined;
+          this.isLoadingCv = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   /**
@@ -462,7 +522,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   downloadCv(): void {
     if (!this.currentCv) {
-      this.toastr.info('CV non disponible pour le moment');
+      this.toastr.info(this.translate.instant('cv.notAvailable'));
       return;
     }
     this.logger.info('[USER_ACTION] User clicked download CV button');
@@ -474,18 +534,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   scrollToSkills(event: Event): void {
     event.preventDefault();
-    const element = document.getElementById('skills');
-    if (element) {
-      const navbarHeight = window.innerWidth > 1199 ? 76 : 66;
-      const margin = 20;
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - navbarHeight - margin;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
+    this.scrollService.scrollToElement('skills', 'smooth');
   }
 
   /**
@@ -495,19 +544,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isLoadingArticles = true;
     this.articlesError = undefined;
 
-    this.articleService.getAll().subscribe({
-      next: (articles) => {
-        this.allArticles = articles;
-        this.isLoadingArticles = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.logger.error('[HTTP_ERROR] Failed to load articles', { error: err.message || err });
-        this.articlesError = 'Impossible de charger les articles. Veuillez réessayer plus tard.';
-        this.isLoadingArticles = false;
-        this.cdr.markForCheck();
-      },
-    });
+    this.articleService
+      .getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (articles) => {
+          this.allArticles = articles;
+          this.isLoadingArticles = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.logger.error('[HTTP_ERROR] Failed to load articles', { error: err.message || err });
+          this.articlesError = this.translate.instant('errors.loadArticles');
+          this.isLoadingArticles = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   /**
@@ -528,6 +580,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    * Start typing animation for the hero title
    */
   private startTypingAnimation(): void {
+    if (this.fullText.length === 0) {
+      this.displayedText = '';
+      this.showCursor = true;
+      this.startDescriptionTypingAnimation();
+      return;
+    }
+
     const totalDuration = 1000;
     const typingSpeed = totalDuration / this.fullText.length;
     let currentIndex = 0;
@@ -553,11 +612,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    * Start typing animation for the description paragraph
    */
   private startDescriptionTypingAnimation(): void {
+    if (this.fullDescriptionLines.length === 0) {
+      return;
+    }
+
     const totalDuration = 1000;
 
     this.displayedDescriptionLines = new Array(this.fullDescriptionLines.length).fill('');
 
     this.fullDescriptionLines.forEach((line, lineIndex) => {
+      if (line.length === 0) {
+        this.displayedDescriptionLines[lineIndex] = '';
+        return;
+      }
+
       const typingSpeed = totalDuration / line.length;
       let currentIndex = 0;
 
@@ -579,6 +647,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    * Clean up subscriptions and animations
    */
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    this.pendingTimeouts.forEach((timeout) => clearTimeout(timeout));
+
     if (this.typingSubscription) {
       this.typingSubscription.unsubscribe();
     }
@@ -592,6 +665,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.birdsAnimation) {
       this.birdsAnimation.destroy();
+    }
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
     }
   }
 }

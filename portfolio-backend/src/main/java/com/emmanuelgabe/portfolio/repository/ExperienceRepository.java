@@ -32,4 +32,14 @@ public interface ExperienceRepository extends JpaRepository<Experience, Long> {
      * @return List of ongoing experiences sorted by start date DESC
      */
     List<Experience> findByEndDateIsNullOrderByStartDateDesc();
+
+    /**
+     * Search experiences by company or role (case-insensitive).
+     * Used as fallback when Elasticsearch is disabled.
+     *
+     * @param company the company search term
+     * @param role the role search term
+     * @return list of matching experiences
+     */
+    List<Experience> findByCompanyContainingIgnoreCaseOrRoleContainingIgnoreCase(String company, String role);
 }

@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.repository;
 
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import com.emmanuelgabe.portfolio.entity.ProjectImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,4 +52,29 @@ public interface ProjectImageRepository extends JpaRepository<ProjectImage, Long
      * Find image by project ID and image ID.
      */
     Optional<ProjectImage> findByIdAndProjectId(Long imageId, Long projectId);
+
+    /**
+     * Update the processing status of an image.
+     */
+    @Modifying
+    @Query("UPDATE ProjectImage pi SET pi.status = :status WHERE pi.id = :imageId")
+    int updateStatus(@Param("imageId") Long imageId, @Param("status") ImageStatus status);
+
+    /**
+     * Find all images with a specific status.
+     * Used by batch job to find images eligible for reprocessing.
+     */
+    List<ProjectImage> findByStatus(ImageStatus status);
+
+    /**
+     * Count images by status.
+     */
+    long countByStatus(ImageStatus status);
+
+    /**
+     * Batch load images for multiple projects.
+     * Used by DataLoader to prevent N+1 queries.
+     */
+    @Query("SELECT pi FROM ProjectImage pi WHERE pi.project.id IN :projectIds ORDER BY pi.displayOrder ASC")
+    List<ProjectImage> findByProjectIdInOrderByDisplayOrderAsc(@Param("projectIds") Collection<Long> projectIds);
 }

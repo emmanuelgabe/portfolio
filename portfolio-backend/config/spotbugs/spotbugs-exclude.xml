@@ -22,6 +22,38 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 
+    <!-- Exclude messaging events - Event objects are data carriers -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.messaging\.event.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- Exclude Kafka events - Event objects are data carriers -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.kafka\.event.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- Exclude GraphQL types and inputs - Data carriers for GraphQL API -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.graphql\.type.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.graphql\.input.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- Exclude search documents and events - Elasticsearch data carriers -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.search\.document.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.search\.event.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
     <!-- Exclude configuration classes -->
     <Match>
         <Package name="~com\.emmanuelgabe\.portfolio\.config.*"/>
@@ -73,14 +105,22 @@
         <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
     </Match>
 
-    <!-- Exclude NP warnings for MultipartFile methods (Spring validation handles nulls) -->
+    <!-- Exclude NP warnings for file/path operations (handled by try-catch) -->
     <Match>
         <Or>
             <Class name="com.emmanuelgabe.portfolio.service.impl.FileStorageServiceImpl"/>
             <Class name="com.emmanuelgabe.portfolio.service.impl.CvServiceImpl"/>
             <Class name="com.emmanuelgabe.portfolio.service.ImageService"/>
+            <Class name="com.emmanuelgabe.portfolio.service.ImageProcessorService"/>
+            <Class name="com.emmanuelgabe.portfolio.service.impl.SitemapServiceImpl"/>
         </Or>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
+    <!-- Exclude GraphQL resolvers - Spring DGS manages injection -->
+    <Match>
+        <Package name="~com\.emmanuelgabe\.portfolio\.graphql\.resolver.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 
     <!-- Exclude @MockBean annotated fields in test classes (managed by Spring, not read directly) -->

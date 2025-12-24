@@ -9,6 +9,8 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -23,6 +25,7 @@ public class MarkdownService {
 
     private final Parser parser;
     private final HtmlRenderer renderer;
+    private final Safelist safelist;
 
     public MarkdownService() {
         MutableDataSet options = new MutableDataSet()
@@ -36,6 +39,12 @@ public class MarkdownService {
 
         this.parser = Parser.builder(options).build();
         this.renderer = HtmlRenderer.builder(options).build();
+        this.safelist = Safelist.relaxed()
+            .addTags("input", "del")
+            .addAttributes("input", "type", "checked", "disabled")
+            .addAttributes("code", "class")
+            .addAttributes("pre", "class")
+            .addAttributes(":all", "class");
     }
 
     /**
@@ -51,7 +60,8 @@ public class MarkdownService {
 
         try {
             Node document = parser.parse(markdown);
-            return renderer.render(document);
+            String html = renderer.render(document);
+            return Jsoup.clean(html, safelist);
         } catch (Exception e) {
             log.error("[MARKDOWN_RENDER] Failed to render Markdown - error={}", e.getMessage(), e);
             return "<p>Error rendering content</p>";

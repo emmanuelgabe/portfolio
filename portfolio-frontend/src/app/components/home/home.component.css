@@ -88,25 +88,22 @@
   align-items: center;
 }
 
-/* Each line uses CSS Grid to stack placeholder and visible text */
+/* CSS Grid technique: stack placeholder and visible text to prevent layout shift */
 .description-line-wrapper {
   display: grid;
   justify-content: center;
   min-height: 1.8em;
 }
 
-/* Both placeholder and visible text occupy same grid cell */
 .description-line-wrapper > * {
   grid-area: 1 / 1;
 }
 
-/* Invisible placeholder to reserve space for full line width */
 .description-placeholder {
   visibility: hidden;
   white-space: nowrap;
 }
 
-/* Visible text aligned left within reserved space */
 .description-visible {
   text-align: left;
   white-space: nowrap;
@@ -124,23 +121,20 @@
   max-width: 800px;
 }
 
-/* Wrapper uses CSS Grid to stack placeholder and visible text */
+/* Same grid technique as description */
 .terminal-text-wrapper {
   display: grid;
 }
 
-/* Both placeholder and visible text occupy same grid cell */
 .terminal-text-wrapper > * {
   grid-area: 1 / 1;
 }
 
-/* Invisible placeholder to reserve space for full text width */
 .terminal-text-placeholder {
   visibility: hidden;
   white-space: nowrap;
 }
 
-/* Visible text container aligned left within reserved space */
 .terminal-text-visible {
   text-align: left;
   white-space: nowrap;
@@ -216,7 +210,7 @@
 }
 
 
-/* Skills Section */
+/* Skills Section - Neo Soft Style */
 .skills-section {
   padding: 5rem 0;
 }
@@ -225,47 +219,90 @@
   font-weight: 700;
 }
 
+.skills-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  justify-items: center;
+  padding: 2rem;
+}
+
 .skill-card {
-  background: white;
-  border-radius: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  border: 1px solid #e9ecef;
-}
-
-.skill-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
-  border-color: #0d6efd;
-}
-
-.skill-icon-container {
-  height: 80px;
+  width: 150px;
+  height: 130px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow:
+    8px 8px 16px #d0d3d6,
+    -8px -8px 16px #ffffff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  text-align: center;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.skill-icon-container i {
-  transition: transform 0.3s ease;
+.skill-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    4px 4px 12px #cfd3d6,
+    -4px -4px 12px #ffffff;
 }
 
-.skill-icon-container .skill-svg-icon {
-  width: 64px;
-  height: 64px;
+.skill-card:active {
+  box-shadow:
+    inset 5px 5px 10px #cccfd2,
+    inset -5px -5px 10px #ffffff;
+}
+
+.skill-icon i {
+  font-size: 2.5rem;
+}
+
+.skill-icon img {
+  width: 48px;
+  height: 48px;
   object-fit: contain;
-  transition: transform 0.3s ease;
-}
-
-.skill-card:hover .skill-icon-container i,
-.skill-card:hover .skill-icon-container .skill-svg-icon {
-  transform: scale(1.2);
 }
 
 .skill-name {
-  font-size: 1rem;
+  margin-top: 12px;
+  margin-bottom: 0;
   font-weight: 600;
-  color: #212529;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* Skills Responsive - 2 columns on mobile */
+@media (max-width: 576px) {
+  .skills-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .skill-card {
+    width: 100%;
+    height: 120px;
+    padding: 15px;
+  }
+
+  .skill-icon i {
+    font-size: 2rem;
+  }
+
+  .skill-icon img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .skill-name {
+    font-size: 0.8rem;
+    margin-top: 8px;
+  }
 }
 
 /* CTA Section */

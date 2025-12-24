@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ArticleService } from '../../../../services/article.service';
 import { ArticleImageService } from '../../../../services/article-image.service';
 import { TagService } from '../../../../services/tag.service';
@@ -21,7 +22,7 @@ import EasyMDE from 'easymde';
 @Component({
   selector: 'app-article-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
   templateUrl: './article-form.component.html',
   styleUrls: ['./article-form.component.scss'],
 })
@@ -35,6 +36,7 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
+  private readonly translate = inject(TranslateService);
   readonly demoModeService = inject(DemoModeService);
 
   articleForm!: FormGroup;
@@ -48,6 +50,9 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private mde: EasyMDE | undefined;
   private readonly destroy$ = new Subject<void>();
+  private initTimeout?: ReturnType<typeof setTimeout>;
+
+  private readonly AUTOSAVE_DELAY_MS = 1000;
 
   ngOnInit(): void {
     this.initForm();
@@ -85,6 +90,11 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
 
+    // Clear pending timeout
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout);
+    }
+
     // Destroy EasyMDE instance
     if (this.mde) {
       this.mde.toTextArea();
@@ -115,7 +125,7 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
       autosave: {
         enabled: true,
         uniqueId: this.isEditMode ? `article-${this.articleId}` : 'new-article',
-        delay: 1000,
+        delay: this.AUTOSAVE_DELAY_MS,
       },
       toolbar: [
         'bold',
@@ -157,14 +167,14 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   insertImage(): void {
     if (this.demoModeService.isDemo()) {
-      this.toastr.info('Action non disponible en mode démonstration');
+      this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
       return;
     }
 
     if (!this.isEditMode || !this.articleId) {
       this.toastr.warning(
-        "Veuillez d'abord sauvegarder l'article avant d'ajouter des images",
-        'Avertissement'
+        this.translate.instant('admin.articles.saveBeforeImages'),
+        this.translate.instant('admin.common.warning')
       );
       return;
     }
@@ -209,12 +219,12 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           this.uploadingImage = false;
-          this.toastr.success('Image uploadée avec succès', 'Succès');
+          this.toastr.success(this.translate.instant('admin.articles.imageUploadSuccess'));
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to upload image', { error });
           this.uploadingImage = false;
-          this.toastr.error("Erreur lors de l'upload de l'image", 'Erreur');
+          this.toastr.error(this.translate.instant('admin.articles.imageUploadError'));
         },
       });
   }
@@ -230,7 +240,7 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to load tags', { error });
-          this.toastr.error('Erreur lors du chargement des tags');
+          this.toastr.error(this.translate.instant('admin.articles.loadTagsError'));
         },
       });
   }
@@ -293,8 +303,8 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
                 id,
               });
               this.toastr.warning(
-                'Cet article est un brouillon et ne peut pas être visualisé en mode démonstration',
-                'Article non disponible'
+                this.translate.instant('admin.articles.draftNotAvailableDemo'),
+                this.translate.instant('admin.articles.notAvailable')
               );
               this.loading = false;
               this.router.navigate(['/admindemo/articles']);
@@ -302,7 +312,7 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           error: (error) => {
             this.logger.error('[HTTP_ERROR] Failed to load articles', { error });
-            this.toastr.error("Erreur lors du chargement de l'article", 'Erreur');
+            this.toastr.error(this.translate.instant('admin.articles.loadError'));
             this.loading = false;
             this.router.navigate(['/admindemo/articles']);
           },
@@ -318,7 +328,7 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           error: (error) => {
             this.logger.error('[HTTP_ERROR] Failed to load article', { id, error });
-            this.toastr.error("Erreur lors du chargement de l'article", 'Erreur');
+            this.toastr.error(this.translate.instant('admin.articles.loadError'));
             this.loading = false;
             this.router.navigate(['/admin/articles']);
           },
@@ -343,7 +353,7 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Initialize EasyMDE in edit mode after data is loaded and loading is false
     // This ensures the textarea is visible in the DOM
-    setTimeout(() => {
+    this.initTimeout = setTimeout(() => {
       if (!this.mde) {
         this.initializeEasyMDE();
       }
@@ -372,7 +382,10 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.articleForm.invalid) {
-      this.toastr.warning('Veuillez remplir tous les champs requis', 'Formulaire invalide');
+      this.toastr.warning(
+        this.translate.instant('admin.common.fillRequiredFields'),
+        this.translate.instant('admin.common.invalidForm')
+      );
       Object.keys(this.articleForm.controls).forEach((key) => {
         const control = this.articleForm.get(key);
         if (control?.invalid) {
@@ -411,16 +424,16 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
           this.logger.info('[HTTP_SUCCESS] Article created', { id: article.id });
           this.clearAutosave(); // Clear autosave after successful creation
           this.submitting = false;
-          this.toastr.success(
-            `Article "${article.title}" ${publishNow ? 'créé et publié' : 'créé en brouillon'}`,
-            'Succès'
-          );
+          const message = publishNow
+            ? this.translate.instant('admin.articles.createdAndPublished', { title: article.title })
+            : this.translate.instant('admin.articles.createdAsDraft', { title: article.title });
+          this.toastr.success(message);
           this.router.navigate(['/admin/articles']);
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to create article', { error });
           this.submitting = false;
-          this.toastr.error("Erreur lors de la création de l'article", 'Erreur');
+          this.toastr.error(this.translate.instant('admin.articles.createError'));
         },
       });
   }
@@ -447,16 +460,16 @@ export class ArticleFormComponent implements OnInit, AfterViewInit, OnDestroy {
           this.logger.info('[HTTP_SUCCESS] Article updated', { id: article.id });
           this.clearAutosave(); // Clear autosave after successful update
           this.submitting = false;
-          this.toastr.success(
-            `Article "${article.title}" ${publishNow ? 'mis à jour et publié' : 'mis à jour'}`,
-            'Succès'
-          );
+          const message = publishNow
+            ? this.translate.instant('admin.articles.updatedAndPublished', { title: article.title })
+            : this.translate.instant('admin.articles.updated', { title: article.title });
+          this.toastr.success(message);
           this.router.navigate(['/admin/articles']);
         },
         error: (error) => {
           this.logger.error('[HTTP_ERROR] Failed to update article', { id: this.articleId, error });
           this.submitting = false;
-          this.toastr.error("Erreur lors de la mise à jour de l'article", 'Erreur');
+          this.toastr.error(this.translate.instant('admin.articles.updateError'));
         },
       });
   }

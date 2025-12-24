@@ -96,7 +96,6 @@ public class Project {
     @OrderBy("displayOrder ASC")
     private Set<ProjectImage> images = new HashSet<>();
 
-    // Helper methods for managing bidirectional relationship
     public void addTag(Tag tag) {
         if (tag == null) {
             throw new IllegalArgumentException("Tag cannot be null");
@@ -113,7 +112,6 @@ public class Project {
         tag.getProjects().remove(this);
     }
 
-    // Helper methods for managing images bidirectional relationship
     public void addImage(ProjectImage image) {
         if (image == null) {
             throw new IllegalArgumentException("Image cannot be null");

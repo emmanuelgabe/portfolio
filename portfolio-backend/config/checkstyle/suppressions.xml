@@ -23,4 +23,11 @@
 
     <!-- Suppress HideUtilityClassConstructor for Spring Boot main application class -->
     <suppress checks="HideUtilityClassConstructor" files=".*Application\.java"/>
+
+    <!-- Suppress ParameterNumber for Audit classes (require multiple parameters for context) -->
+    <suppress checks="ParameterNumber" files=".*[\\/]audit[\\/].*\.java"/>
+    <suppress checks="ParameterNumber" files=".*AuditService\.java"/>
+    <suppress checks="ParameterNumber" files=".*AuditServiceImpl\.java"/>
+    <suppress checks="ParameterNumber" files=".*AdminAuditController\.java"/>
+    <suppress checks="ParameterNumber" files=".*AuditEvent\.java"/>
 </suppressions>

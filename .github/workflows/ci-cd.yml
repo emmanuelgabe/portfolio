@@ -11,6 +11,12 @@ on:
     branches:
       - main
       - staging
+  workflow_dispatch:
+    inputs:
+      clean_messaging_volumes:
+        description: 'Clean Kafka/Zookeeper volumes (use if cluster ID mismatch error)'
+        type: boolean
+        default: false
 
 env:
   JAVA_VERSION: '21'
@@ -46,15 +52,37 @@ jobs:
         working-directory: portfolio-backend
 
       - name: Build and Test Backend with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build -Pversion=${{ steps.version.outputs.VERSION }}
         working-directory: portfolio-backend
 
-      - name: Run Code Quality Checks
+      - name: Run Backend Code Quality Checks
         run: |
-          echo "[SUCCESS] Tests passed"
-          echo "[SUCCESS] Checkstyle validation passed"
-          echo "[SUCCESS] Code coverage verified"
+          echo "Running Checkstyle..."
+          ./gradlew checkstyleMain checkstyleTest
+          echo "Running SpotBugs..."
+          ./gradlew spotbugsMain
+          echo "Verifying code coverage (80% minimum)..."
+          ./gradlew jacocoTestCoverageVerification
         working-directory: portfolio-backend
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: portfolio-frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+        working-directory: portfolio-frontend
+
+      - name: Lint Frontend
+        run: npm run lint
+        working-directory: portfolio-frontend
+
+      - name: Build Frontend
+        run: npm run build -- --configuration=production
+        working-directory: portfolio-frontend
 
       - name: Upload Test Results
         if: always()
@@ -121,7 +149,8 @@ jobs:
             mkdir -p "$BACKUP_DIR"
 
             echo "Creating database backup: $BACKUP_FILE"
-            docker exec portfolio-db-$ENV_NAME pg_dump -U postgres_app portfolio_prod > "$BACKUP_DIR/$BACKUP_FILE"
+            DB_NAME="portfolio_${ENV_NAME}"
+            docker exec portfolio-db-$ENV_NAME pg_dump -U postgres_app "$DB_NAME" > "$BACKUP_DIR/$BACKUP_FILE"
 
             if [ -f "$BACKUP_DIR/$BACKUP_FILE" ] && [ -s "$BACKUP_DIR/$BACKUP_FILE" ]; then
               echo "[SUCCESS] Backup created: $BACKUP_DIR/$BACKUP_FILE"
@@ -155,8 +184,8 @@ jobs:
             cd "$DEPLOY_PATH"
 
             if [ -f "docker-compose.yml" ] && [ -f "$COMPOSE_FILE" ]; then
-              echo "Bringing down Docker Compose stack..."
-              docker-compose --env-file /dev/null -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" down 2>&1 || echo "Stack not running or already stopped"
+              echo "Bringing down Docker Compose stack (timeout: 30s)..."
+              docker compose --env-file /dev/null -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" down --timeout 30 2>&1 || echo "Stack not running or already stopped"
             else
               echo "Docker Compose files not found, skipping docker-compose down"
             fi
@@ -167,18 +196,64 @@ jobs:
 
           # Force stop any remaining containers for this environment
           echo ""
-          echo "Checking for remaining $ENV_NAME containers..."
+          echo "[CLEANUP] Checking for remaining $ENV_NAME containers..."
           REMAINING=$(docker ps -a --filter "name=portfolio.*-$ENV_NAME" --format "{{.Names}}")
 
           if [ -n "$REMAINING" ]; then
-            echo "Found remaining containers:"
+            echo "[CLEANUP] Found remaining containers:"
             echo "$REMAINING"
-            echo "Force stopping and removing..."
+            echo "[CLEANUP] Force stopping and removing..."
             echo "$REMAINING" | xargs -r docker stop || true
-            echo "$REMAINING" | xargs -r docker rm || true
+            echo "$REMAINING" | xargs -r docker rm -f || true
           else
-            echo "No remaining containers found"
+            echo "[CLEANUP] No remaining containers found"
           fi
+
+          # Cleanup Kafka volume if requested (KRaft mode - no Zookeeper)
+          if [ "${{ github.event.inputs.clean_messaging_volumes }}" = "true" ]; then
+            echo ""
+            echo "[CLEANUP] Cleaning Kafka volume (requested via workflow input)..."
+            docker volume rm -f "portfolio-${ENV_NAME}_portfolio_kafka_data" 2>/dev/null && echo "[CLEANUP] Removed Kafka volume" || echo "[CLEANUP] Kafka volume not found"
+          fi
+
+          # Cleanup zombie docker-proxy processes holding environment-specific ports
+          echo ""
+          echo "[CLEANUP] Checking for zombie docker-proxy processes..."
+
+          # Define ports per environment (including monitoring ports)
+          if [ "$ENV_NAME" = "staging" ]; then
+            PORTS_TO_CHECK="3000 6380 15673 9090 9093 3001"  # Nginx, Redis, RabbitMQ, Prometheus, AlertManager, Grafana
+          elif [ "$ENV_NAME" = "prod" ]; then
+            PORTS_TO_CHECK="80 9090 9093 3001"  # Nginx, Prometheus, AlertManager, Grafana
+          else
+            PORTS_TO_CHECK=""
+          fi
+
+          for PORT in $PORTS_TO_CHECK; do
+            # Use exact port match to avoid false positives (e.g., :80 vs :8080)
+            if ss -tlnp 2>/dev/null | grep -qE ":${PORT}\s"; then
+              echo "[CLEANUP] Port $PORT still in use, checking for docker-proxy..."
+              # Portable PID extraction using awk instead of grep -oP
+              PROXY_PID=$(ss -tlnp 2>/dev/null | grep -E ":${PORT}\s" | awk -F'pid=' '{print $2}' | awk -F',' '{print $1}' | head -1)
+              if [ -n "$PROXY_PID" ]; then
+                PROC_NAME=$(ps -p "$PROXY_PID" -o comm= 2>/dev/null || echo "unknown")
+                if [ "$PROC_NAME" = "docker-proxy" ]; then
+                  echo "[CLEANUP] Killing zombie docker-proxy - pid=$PROXY_PID, port=$PORT"
+                  # Try graceful SIGTERM first, then force SIGKILL if needed
+                  sudo kill -15 "$PROXY_PID" 2>/dev/null || true
+                  sleep 1
+                  if ps -p "$PROXY_PID" > /dev/null 2>&1; then
+                    echo "[CLEANUP] Process still alive, forcing SIGKILL - pid=$PROXY_PID"
+                    sudo kill -9 "$PROXY_PID" 2>/dev/null || true
+                  fi
+                else
+                  echo "[CLEANUP] Port $PORT used by $PROC_NAME (pid=$PROXY_PID), not a docker-proxy - skipping"
+                fi
+              fi
+            else
+              echo "[CLEANUP] Port $PORT is free"
+            fi
+          done
 
           # CRITICAL: Verify port 80 availability for production deployments
           if [ "$ENV_NAME" = "prod" ]; then
@@ -228,6 +303,21 @@ jobs:
           echo ""
           echo "Cleanup completed!"
 
+          # Stop monitoring stack if running
+          echo ""
+          echo "========================================="
+          echo "Checking monitoring stack"
+          echo "========================================="
+          MONITORING_CONTAINERS=$(docker ps --filter "name=portfolio-prometheus-prod" --filter "name=portfolio-loki-prod" --filter "name=portfolio-promtail-prod" --filter "name=portfolio-grafana-prod" --filter "name=portfolio-alertmanager-prod" --filter "name=portfolio-kafka-exporter-prod" --format "{{.Names}}" 2>/dev/null || true)
+          if [ -n "$MONITORING_CONTAINERS" ]; then
+            echo "Stopping monitoring stack containers..."
+            echo "$MONITORING_CONTAINERS" | xargs -r docker stop || true
+            echo "$MONITORING_CONTAINERS" | xargs -r docker rm || true
+            echo "Monitoring stack stopped"
+          else
+            echo "No monitoring stack running"
+          fi
+
       - name: Clean and prepare deployment directory
         run: |
           DEPLOY_PATH="${{ steps.deploy-vars.outputs.DEPLOY_PATH }}"
@@ -260,12 +350,27 @@ jobs:
           cp docker-compose.yml "$DEPLOY_PATH/"
           cp ${{ steps.deploy-vars.outputs.COMPOSE_FILE }} "$DEPLOY_PATH/"
 
+          # Copy monitoring stack
+          cp docker-compose.monitoring.yml "$DEPLOY_PATH/"
+          cp -r monitoring "$DEPLOY_PATH/"
+
           echo "Files copied successfully"
 
       - name: Cleanup dangling images
         run: |
           echo "Cleaning up dangling images..."
           docker image prune -f
+
+      - name: Reset Docker networking
+        run: |
+          echo "Cleaning up Docker networks..."
+          docker network prune -f
+
+          echo "Removing any portfolio networks that might be stale..."
+          docker network ls --filter "name=portfolio" -q | xargs -r docker network rm 2>/dev/null || true
+
+          echo "Verifying Docker is operational..."
+          docker info > /dev/null 2>&1 && echo "[SUCCESS] Docker is ready" || echo "[ERROR] Docker not ready"
 
       - name: Create environment file
         working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
@@ -277,11 +382,25 @@ jobs:
           # Create .env file with secrets (more secure than command line arguments)
           # Using single quotes to prevent shell expansion of $ in BCrypt hash
           echo 'DB_USER_PASSWORD=${{ secrets.DB_USER_PASSWORD }}' > .env
+          echo 'REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}' >> .env
           echo 'MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}' >> .env
           echo 'MAIL_APP_PASSWORD=${{ secrets.MAIL_APP_PASSWORD }}' >> .env
           echo 'JWT_SECRET=${{ secrets.JWT_SECRET }}' >> .env
           echo 'ADMIN_PASSWORD_HASH=${{ secrets.ADMIN_PASSWORD_HASH }}' >> .env
           echo 'VERSION=${{ needs.build-and-test.outputs.version }}' >> .env
+
+          # RabbitMQ
+          echo 'RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}' >> .env
+          echo 'RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}' >> .env
+
+          # Elasticsearch
+          echo 'ELASTICSEARCH_PASSWORD=${{ secrets.ELASTICSEARCH_PASSWORD }}' >> .env
+
+          # Observability stack (Sentry + Grafana)
+          echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' >> .env
+          echo 'SENTRY_DSN_FRONTEND=${{ secrets.SENTRY_DSN_FRONTEND }}' >> .env
+          echo 'GRAFANA_ADMIN_USER=admin' >> .env
+          echo 'GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}' >> .env
 
           # Restrict permissions on .env file
           chmod 600 .env
@@ -307,7 +426,7 @@ jobs:
           echo ""
           echo "Building and starting containers..."
           # Use --env-file to load secrets securely (avoids exposing in ps/logs)
-          docker-compose --env-file .env -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" up --build -d
+          docker compose --env-file .env -p portfolio-$ENV_NAME -f docker-compose.yml -f "$COMPOSE_FILE" up --build -d --remove-orphans
 
           echo ""
           echo "Containers started, waiting for health checks..."
@@ -326,7 +445,7 @@ jobs:
         working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
         run: |
           ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
-          MAX_ATTEMPTS=60
+          MAX_ATTEMPTS=120  # 10 minutes (120 * 5s sleep)
           ATTEMPT=0
 
           echo "Waiting for all containers to reach healthy status..."
@@ -403,6 +522,53 @@ jobs:
           docker logs --tail=50 portfolio-frontend-$ENV_NAME 2>&1 || true
           docker logs --tail=50 portfolio-nginx-$ENV_NAME 2>&1 || true
           exit 1
+
+      - name: Deploy monitoring stack
+        if: github.ref_name == 'main'
+        working-directory: ${{ steps.deploy-vars.outputs.DEPLOY_PATH }}
+        run: |
+          ENV_NAME="${{ steps.deploy-vars.outputs.ENV_NAME }}"
+
+          echo "========================================="
+          echo "Deploying monitoring stack"
+          echo "========================================="
+
+          # Check if monitoring compose file exists
+          if [ ! -f "docker-compose.monitoring.yml" ]; then
+            echo "[WARNING] docker-compose.monitoring.yml not found, skipping monitoring deployment"
+            exit 0
+          fi
+
+          # Check if Grafana password is configured
+          GRAFANA_PASS="${{ secrets.GRAFANA_ADMIN_PASSWORD }}"
+          if [ -z "$GRAFANA_PASS" ]; then
+            echo "[WARNING] GRAFANA_ADMIN_PASSWORD not configured, skipping monitoring deployment"
+            exit 0
+          fi
+
+          # Create temporary .env for monitoring stack
+          # NETWORK_NAME must match the network created by the main stack (portfolio-{ENV_NAME}_portfolio-net)
+          echo "NETWORK_NAME=portfolio-${ENV_NAME}_portfolio-net" > .env.monitoring
+          echo 'GRAFANA_ADMIN_USER=admin' >> .env.monitoring
+          echo 'GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}' >> .env.monitoring
+          chmod 600 .env.monitoring
+
+          echo "[MONITORING] Using network: portfolio-${ENV_NAME}_portfolio-net"
+
+          # Deploy monitoring stack
+          echo "[MONITORING] Starting Prometheus, Loki, Promtail, and Grafana..."
+          docker compose --env-file .env.monitoring -p portfolio-monitoring -f docker-compose.monitoring.yml up -d --remove-orphans
+
+          # Cleanup temporary env file
+          rm -f .env.monitoring
+
+          echo ""
+          echo "Monitoring stack containers:"
+          docker ps --filter "name=portfolio-prometheus-prod" --filter "name=portfolio-loki-prod" --filter "name=portfolio-promtail-prod" --filter "name=portfolio-grafana-prod" --filter "name=portfolio-alertmanager-prod" --filter "name=portfolio-kafka-exporter-prod" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+          echo ""
+          echo "[MONITORING] Stack deployed successfully"
+          echo "[MONITORING] Grafana available at: http://localhost:3001"
 
       - name: Tag Docker images with version
         run: |
@@ -497,8 +663,8 @@ jobs:
           echo "Cleaning up dangling images..."
           docker image prune -f
 
-          echo "Removing unused volumes..."
-          docker volume prune -f || true
+          echo "Removing unused portfolio volumes..."
+          docker volume ls --filter "name=portfolio" -q | xargs -r docker volume rm 2>/dev/null || true
 
       - name: Verify deployment
         run: |
@@ -528,4 +694,10 @@ jobs:
           echo "Version: $VERSION"
           echo "Branch: $GITHUB_REF_NAME"
           echo "Commit: $GITHUB_SHA"
+          echo ""
+          echo "Observability:"
+          echo "  - Sentry: Enabled (backend + frontend)"
+          echo "  - Prometheus: http://localhost:9090"
+          echo "  - Grafana: http://localhost:3001"
+          echo "  - Loki: http://localhost:3100"
           echo "========================================="

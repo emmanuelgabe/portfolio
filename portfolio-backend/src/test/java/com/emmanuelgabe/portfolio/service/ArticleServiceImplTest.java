@@ -1,15 +1,18 @@
 package com.emmanuelgabe.portfolio.service;
 
+import com.emmanuelgabe.portfolio.dto.PreparedImageInfo;
 import com.emmanuelgabe.portfolio.dto.article.ArticleImageResponse;
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
 import com.emmanuelgabe.portfolio.dto.article.CreateArticleRequest;
 import com.emmanuelgabe.portfolio.dto.article.UpdateArticleRequest;
 import com.emmanuelgabe.portfolio.entity.Article;
 import com.emmanuelgabe.portfolio.entity.ArticleImage;
+import com.emmanuelgabe.portfolio.entity.ImageStatus;
 import com.emmanuelgabe.portfolio.entity.Tag;
 import com.emmanuelgabe.portfolio.entity.User;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
 import com.emmanuelgabe.portfolio.mapper.ArticleMapper;
+import com.emmanuelgabe.portfolio.messaging.publisher.EventPublisher;
 import com.emmanuelgabe.portfolio.repository.ArticleRepository;
 import com.emmanuelgabe.portfolio.repository.TagRepository;
 import com.emmanuelgabe.portfolio.repository.UserRepository;
@@ -20,10 +23,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -58,6 +64,12 @@ class ArticleServiceImplTest {
 
     @Mock
     private ImageService imageService;
+
+    @Mock
+    private EventPublisher eventPublisher;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private ArticleServiceImpl articleService;
@@ -119,7 +131,7 @@ class ArticleServiceImplTest {
 
         assertThatThrownBy(() -> articleService.getBySlug("nonexistent"))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with slug: nonexistent");
+            .hasMessageContaining("Article not found with slug");
     }
 
     @Test
@@ -129,7 +141,7 @@ class ArticleServiceImplTest {
 
         assertThatThrownBy(() -> articleService.getBySlug("test-article"))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with slug: test-article");
+            .hasMessageContaining("Article not found with slug");
     }
 
     @Test
@@ -150,7 +162,7 @@ class ArticleServiceImplTest {
 
         assertThatThrownBy(() -> articleService.getById(999L))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with ID: 999");
+            .hasMessageContaining("Article not found with id");
     }
 
     @Test
@@ -245,7 +257,7 @@ class ArticleServiceImplTest {
 
         assertThatThrownBy(() -> articleService.createArticle(request, "nonexistent"))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("User not found: nonexistent");
+            .hasMessageContaining("User not found with username");
 
         verify(articleRepository, never()).save(any(Article.class));
     }
@@ -275,14 +287,14 @@ class ArticleServiceImplTest {
 
         assertThatThrownBy(() -> articleService.updateArticle(999L, request))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with ID: 999");
+            .hasMessageContaining("Article not found with id");
 
         verify(articleRepository, never()).save(any(Article.class));
     }
 
     @Test
     void should_deleteArticle_when_articleExists() {
-        when(articleRepository.existsById(1L)).thenReturn(true);
+        when(articleRepository.findById(1L)).thenReturn(Optional.of(article));
 
         articleService.deleteArticle(1L);
 
@@ -291,11 +303,11 @@ class ArticleServiceImplTest {
 
     @Test
     void should_throwResourceNotFoundException_when_deleteNonexistentArticle() {
-        when(articleRepository.existsById(999L)).thenReturn(false);
+        when(articleRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> articleService.deleteArticle(999L))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with ID: 999");
+            .hasMessageContaining("Article not found with id");
 
         verify(articleRepository, never()).deleteById(anyLong());
     }
@@ -332,7 +344,7 @@ class ArticleServiceImplTest {
 
         assertThatThrownBy(() -> articleService.publishArticle(999L))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with ID: 999");
+            .hasMessageContaining("Article not found with id");
     }
 
     @Test
@@ -343,7 +355,7 @@ class ArticleServiceImplTest {
         // Act / Assert
         assertThatThrownBy(() -> articleService.unpublishArticle(999L))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with ID: 999");
+            .hasMessageContaining("Article not found with id");
     }
 
     // ========== Pagination Tests ==========
@@ -491,10 +503,12 @@ class ArticleServiceImplTest {
     // ========== Article Image Tests ==========
 
     @Test
-    void should_addImageToArticle_when_validArticleAndImageUrl() {
+    void should_addImageToArticle_when_validArticleAndFile() {
         // Arrange
         String imageUrl = "/uploads/articles/article_1.webp";
         String thumbnailUrl = "/uploads/articles/article_1_thumb.webp";
+        MultipartFile file = new MockMultipartFile(
+                "file", "test.jpg", "image/jpeg", new byte[]{1, 2, 3});
 
         Article articleWithImages = new Article();
         articleWithImages.setId(1L);
@@ -503,30 +517,39 @@ class ArticleServiceImplTest {
 
         ArticleImage articleImage = new ArticleImage(articleWithImages, imageUrl, thumbnailUrl);
         articleImage.setId(1L);
+        articleImage.setStatus(ImageStatus.PROCESSING);
         articleWithImages.getImages().add(articleImage);
 
+        PreparedImageInfo preparedImage = new PreparedImageInfo(
+                imageUrl, thumbnailUrl, "/tmp/test.tmp", "/uploads/article_1.webp", "/uploads/article_1_thumb.webp", 1024L);
+
         when(articleRepository.findById(1L)).thenReturn(Optional.of(articleWithImages));
+        when(imageService.prepareArticleImage(1L, file)).thenReturn(preparedImage);
         when(articleRepository.save(any(Article.class))).thenReturn(articleWithImages);
 
         // Act
-        ArticleImageResponse result = articleService.addImageToArticle(1L, imageUrl, thumbnailUrl);
+        ArticleImageResponse result = articleService.addImageToArticle(1L, file);
 
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getImageUrl()).isEqualTo(imageUrl);
         assertThat(result.getThumbnailUrl()).isEqualTo(thumbnailUrl);
-        verify(articleRepository).save(articleWithImages);
+        assertThat(result.getStatus()).isEqualTo(ImageStatus.PROCESSING);
+        verify(articleRepository).save(any(Article.class));
+        verify(eventPublisher).publishImageEvent(any());
     }
 
     @Test
     void should_throwResourceNotFoundException_when_addImageToNonexistentArticle() {
         // Arrange
+        MultipartFile file = new MockMultipartFile(
+                "file", "test.jpg", "image/jpeg", new byte[]{1, 2, 3});
         when(articleRepository.findById(999L)).thenReturn(Optional.empty());
 
         // Act / Assert
-        assertThatThrownBy(() -> articleService.addImageToArticle(999L, "url", "thumb"))
+        assertThatThrownBy(() -> articleService.addImageToArticle(999L, file))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with ID: 999");
+            .hasMessageContaining("Article not found with id");
     }
 
     @Test
@@ -559,7 +582,7 @@ class ArticleServiceImplTest {
         // Act / Assert
         assertThatThrownBy(() -> articleService.removeImageFromArticle(999L, 1L))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Article not found with ID: 999");
+            .hasMessageContaining("Article not found with id");
     }
 
     @Test
@@ -574,7 +597,7 @@ class ArticleServiceImplTest {
         // Act / Assert
         assertThatThrownBy(() -> articleService.removeImageFromArticle(1L, 999L))
             .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Image not found with ID: 999");
+            .hasMessageContaining("ArticleImage not found with id");
     }
 
     // ========== Create Article Edge Cases ==========

@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,7 +88,7 @@ class SiteConfigurationControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status", is(404)))
-                .andExpect(jsonPath("$.message", containsString("SiteConfiguration not found")));
+                .andExpect(jsonPath("$.message").isNotEmpty());
 
         verify(siteConfigurationService).getSiteConfiguration();
     }

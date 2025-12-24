@@ -1,0 +1,244 @@
+<div class="audit-list">
+  <!-- Demo Mode Placeholder -->
+  @if (demoModeService.isDemoRoute()) {
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>{{ 'admin.audit.title' | translate }}</h1>
+    </div>
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-lock display-1 text-muted mb-4"></i>
+        <h3 class="text-muted mb-3">{{ 'admin.audit.title' | translate }}</h3>
+        <p class="text-muted mb-2">
+          {{ 'admin.audit.demoUnavailable' | translate }}
+        </p>
+        <p class="text-muted small">
+          {{ 'admin.audit.demoDescription' | translate }}
+        </p>
+      </div>
+    </div>
+  } @else {
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ 'admin.audit.title' | translate }}</h1>
+    <div class="btn-group">
+      <button class="btn btn-outline-secondary" (click)="exportCsv()">
+        <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+        {{ 'admin.audit.exportCsv' | translate }}
+      </button>
+      <button class="btn btn-outline-secondary" (click)="exportJson()">
+        <i class="bi bi-file-earmark-code me-2"></i>
+        {{ 'admin.audit.exportJson' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <!-- Action Filter -->
+        <div class="col-md-2">
+          <label class="form-label">{{ 'admin.audit.action' | translate }}</label>
+          <select class="form-select" [(ngModel)]="filter.action" (change)="applyFilters()">
+            <option [ngValue]="undefined">{{ 'admin.audit.allActions' | translate }}</option>
+            <option *ngFor="let action of actions" [value]="action">{{ action }}</option>
+          </select>
+        </div>
+
+        <!-- Entity Type Filter -->
+        <div class="col-md-2">
+          <label class="form-label">{{ 'admin.audit.entityType' | translate }}</label>
+          <select class="form-select" [(ngModel)]="filter.entityType" (change)="applyFilters()">
+            <option [ngValue]="undefined">{{ 'admin.audit.allTypes' | translate }}</option>
+            <option *ngFor="let type of entityTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <!-- Success Filter -->
+        <div class="col-md-2">
+          <label class="form-label">{{ 'admin.audit.status' | translate }}</label>
+          <select class="form-select" [(ngModel)]="filter.success" (change)="applyFilters()">
+            <option [ngValue]="undefined">{{ 'admin.audit.allStatuses' | translate }}</option>
+            <option [ngValue]="true">{{ 'admin.audit.success' | translate }}</option>
+            <option [ngValue]="false">{{ 'admin.audit.failed' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Start Date -->
+        <div class="col-md-2">
+          <label class="form-label">{{ 'admin.audit.startDate' | translate }}</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="filter.startDate"
+            (change)="applyFilters()"
+          />
+        </div>
+
+        <!-- End Date -->
+        <div class="col-md-2">
+          <label class="form-label">{{ 'admin.audit.endDate' | translate }}</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="filter.endDate"
+            (change)="applyFilters()"
+          />
+        </div>
+
+        <!-- Clear Filters -->
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+            <i class="bi bi-x-circle me-2"></i>
+            {{ 'admin.audit.clearFilters' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Skeletons -->
+  <div *ngIf="loading" class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 180px">{{ 'admin.audit.date' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.audit.action' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.audit.entityType' | translate }}</th>
+              <th>{{ 'admin.audit.entityName' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.audit.username' | translate }}</th>
+              <th style="width: 100px">{{ 'admin.audit.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+              <app-skeleton-table-row [columns]="[{width: '180px'}, {width: '120px'}, {width: '120px'}, {width: '30%'}, {width: '120px'}, {width: '100px'}]" />
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadAuditLogs()">
+      <i class="bi bi-arrow-clockwise me-1"></i>
+      {{ 'common.retry' | translate }}
+    </button>
+  </div>
+
+  <!-- Audit Logs Table -->
+  <div *ngIf="!loading && !error" class="card shadow-sm">
+    <div class="card-body p-0">
+      <!-- Empty State -->
+      <div *ngIf="auditLogs.length === 0" class="text-center py-5">
+        <i class="bi bi-journal-text display-1 text-muted"></i>
+        <p class="mt-3 text-muted">
+          {{ 'admin.audit.noLogs' | translate }}
+        </p>
+      </div>
+
+      <!-- Table -->
+      <div *ngIf="auditLogs.length > 0" class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 180px">{{ 'admin.audit.date' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.audit.action' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.audit.entityType' | translate }}</th>
+              <th>{{ 'admin.audit.entityName' | translate }}</th>
+              <th style="width: 120px">{{ 'admin.audit.username' | translate }}</th>
+              <th style="width: 100px">{{ 'admin.audit.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of auditLogs">
+              <!-- Date -->
+              <td class="align-middle">
+                <small>{{ formatDate(log.createdAt) }}</small>
+              </td>
+
+              <!-- Action -->
+              <td class="align-middle">
+                <span class="badge" [ngClass]="getActionBadgeClass(log.action)">
+                  {{ log.action }}
+                </span>
+              </td>
+
+              <!-- Entity Type -->
+              <td class="align-middle">
+                {{ log.entityType }}
+              </td>
+
+              <!-- Entity Name -->
+              <td class="align-middle">
+                <span *ngIf="log.entityName">{{ log.entityName }}</span>
+                <small *ngIf="log.entityId" class="text-muted ms-1">(#{{ log.entityId }})</small>
+                <small *ngIf="log.errorMessage" class="text-danger d-block">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  {{ log.errorMessage }}
+                </small>
+              </td>
+
+              <!-- Username -->
+              <td class="align-middle">
+                {{ log.username }}
+              </td>
+
+              <!-- Status -->
+              <td class="align-middle">
+                <span class="badge" [ngClass]="getStatusBadgeClass(log.success)">
+                  {{ log.success ? ('admin.audit.success' | translate) : ('admin.audit.failed' | translate) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="auditLogs.length > 0" class="card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">
+        <i class="bi bi-info-circle me-1"></i>
+        {{ 'admin.audit.showing' | translate }}
+        {{ currentPage * pageSize + 1 }} - {{ Math.min((currentPage + 1) * pageSize, totalElements) }}
+        {{ 'admin.audit.of' | translate }} {{ totalElements }}
+      </small>
+
+      <nav *ngIf="totalPages > 1">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" (click)="goToPage(0)" [disabled]="currentPage === 0">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+          </li>
+          <li *ngFor="let page of pageNumbers" class="page-item" [class.active]="page === currentPage">
+            <button class="page-link" (click)="goToPage(page)">{{ page + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" (click)="goToPage(totalPages - 1)" [disabled]="currentPage === totalPages - 1">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  }
+</div>

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { ProjectCardComponent } from './project-card.component';
 import { ProjectResponse } from '../../models';
 
@@ -10,7 +11,7 @@ describe('ProjectCardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProjectCardComponent, RouterTestingModule],
+      imports: [ProjectCardComponent, RouterTestingModule, TranslateModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectCardComponent);
@@ -99,13 +100,13 @@ describe('ProjectCardComponent', () => {
 
   it('should display GitHub button when GitHub URL is available', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const githubButton = compiled.querySelector('a[title="Voir sur GitHub"]');
+    const githubButton = compiled.querySelector('a.btn-outline-secondary .bi-github');
     expect(githubButton).toBeTruthy();
   });
 
   it('should display demo button when demo URL is available', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const demoButton = compiled.querySelector('a[title="Voir la demo"]');
+    const demoButton = compiled.querySelector('a.btn-outline-success .bi-box-arrow-up-right');
     expect(demoButton).toBeTruthy();
   });
 });

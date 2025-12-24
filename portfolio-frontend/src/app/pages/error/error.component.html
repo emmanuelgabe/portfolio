@@ -1,0 +1,31 @@
+<div class="error-page">
+  <div class="error-content">
+    <img
+      [src]="config.image"
+      [alt]="config.title"
+      class="error-image"
+    />
+
+    <h1 class="error-title">{{ config.title }}</h1>
+
+    <p class="error-message">{{ config.message }}</p>
+
+    <div class="error-actions">
+      @if (config.code === 'offline') {
+        <button class="btn btn-primary" (click)="reload()">
+          <i class="bi bi-arrow-clockwise me-2"></i>{{ config.linkText }}
+        </button>
+      } @else {
+        <a [routerLink]="config.linkUrl" class="btn btn-primary">
+          <i class="bi bi-house me-2"></i>{{ config.linkText }}
+        </a>
+      }
+
+      @if (config.code !== '404' && config.linkUrl !== '/') {
+        <a routerLink="/" class="btn btn-outline-secondary ms-2">
+          Retour a l'accueil
+        </a>
+      }
+    </div>
+  </div>
+</div>

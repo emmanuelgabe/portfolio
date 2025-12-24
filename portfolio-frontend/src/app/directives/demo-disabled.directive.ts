@@ -22,7 +22,7 @@ export class DemoDisabledDirective implements OnInit {
       this.renderer.setAttribute(
         this.el.nativeElement,
         'title',
-        'Action desactivee en mode demonstration'
+        'Action désactivée en mode démonstration'
       );
     }
   }

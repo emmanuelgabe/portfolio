@@ -5,7 +5,7 @@
       type="text"
       class="form-control"
       [(ngModel)]="searchTerm"
-      placeholder="Rechercher une icone..."
+      [placeholder]="'admin.iconPicker.searchPlaceholder' | translate"
     />
   </div>
 
@@ -18,7 +18,7 @@
         [class.active]="activeTab === 'brands'"
         (click)="setTab('brands')"
       >
-        <i class="fa-brands fa-font-awesome me-1"></i> Marques
+        <i class="fa-brands fa-font-awesome me-1"></i> {{ 'admin.iconPicker.brands' | translate }}
       </button>
     </li>
     <li class="nav-item">
@@ -28,7 +28,7 @@
         [class.active]="activeTab === 'solid'"
         (click)="setTab('solid')"
       >
-        <i class="fa-solid fa-icons me-1"></i> Solides
+        <i class="fa-solid fa-icons me-1"></i> {{ 'admin.iconPicker.solid' | translate }}
       </button>
     </li>
   </ul>
@@ -50,7 +50,7 @@
   <!-- Empty state -->
   <div *ngIf="filteredIcons.length === 0" class="text-center text-muted py-4">
     <i class="fa-solid fa-search fa-2x mb-2"></i>
-    <p>Aucune icone trouvee pour "{{ searchTerm }}"</p>
+    <p>{{ 'admin.iconPicker.noResults' | translate: { term: searchTerm } }}</p>
   </div>
 
   <!-- Selected preview -->
@@ -58,7 +58,7 @@
     <div class="d-flex align-items-center">
       <i [class]="selectedIcon + ' fa-3x me-3'" [style.color]="previewColor"></i>
       <div>
-        <strong>Icone selectionnee:</strong>
+        <strong>{{ 'admin.iconPicker.selectedIcon' | translate }}</strong>
         <code class="ms-2">{{ selectedIcon }}</code>
       </div>
     </div>

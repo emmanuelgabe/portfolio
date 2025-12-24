@@ -1,9 +1,7 @@
 package com.emmanuelgabe.portfolio.controller;
 
-import com.emmanuelgabe.portfolio.dto.ImageUploadResponse;
 import com.emmanuelgabe.portfolio.dto.article.ArticleImageResponse;
 import com.emmanuelgabe.portfolio.service.ArticleService;
-import com.emmanuelgabe.portfolio.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Article Images", description = "Article image management (admin only)")
 public class ArticleImageController {
 
-    private final ImageService imageService;
     private final ArticleService articleService;
 
     @PostMapping("/{id}/images")
@@ -47,15 +44,10 @@ public class ArticleImageController {
         log.info("[UPLOAD_ARTICLE_IMAGE] Request - articleId={}, fileName={}, size={}",
             id, file.getOriginalFilename(), file.getSize());
 
-        ImageUploadResponse uploadResponse = imageService.uploadArticleImage(id, file);
-        ArticleImageResponse response = articleService.addImageToArticle(
-            id,
-            uploadResponse.getImageUrl(),
-            uploadResponse.getThumbnailUrl()
-        );
+        ArticleImageResponse response = articleService.addImageToArticle(id, file);
 
-        log.info("[UPLOAD_ARTICLE_IMAGE] Success - articleId={}, imageId={}",
-            id, response.getId());
+        log.info("[UPLOAD_ARTICLE_IMAGE] Success - articleId={}, imageId={}, status={}",
+            id, response.getId(), response.getStatus());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

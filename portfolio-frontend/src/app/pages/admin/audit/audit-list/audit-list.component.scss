@@ -1,0 +1,40 @@
+.audit-list {
+  .card {
+    border: none;
+  }
+
+  .table {
+    th {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      vertical-align: middle;
+    }
+  }
+
+  .badge {
+    font-weight: 500;
+  }
+
+  .pagination {
+    .page-link {
+      border-radius: 0;
+
+      &:focus {
+        box-shadow: none;
+      }
+    }
+
+    .page-item:first-child .page-link {
+      border-top-left-radius: 0.25rem;
+      border-bottom-left-radius: 0.25rem;
+    }
+
+    .page-item:last-child .page-link {
+      border-top-right-radius: 0.25rem;
+      border-bottom-right-radius: 0.25rem;
+    }
+  }
+}

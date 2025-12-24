@@ -1,5 +1,212 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [1.0.0] - 2025-12-22
+
+### Added
+
+#### Message Queue & Async Processing (RabbitMQ)
+- Async email sending for contact form submissions
+- Async image processing (WebP conversion, thumbnail generation)
+- Non-blocking audit logging via message queue
+- Dead letter queue handling for failed messages
+- Event publisher abstraction with NoOp fallback
+
+#### Event Streaming (Kafka)
+- Real-time analytics event streaming
+- Admin action event sourcing (CREATE, UPDATE, DELETE operations)
+- Activity events for session tracking
+- Event consumers for processing and storage
+
+#### Batch Processing (Spring Batch)
+- Image reprocessing job (reprocess with updated quality settings)
+- Audit cleanup job (90-day retention policy)
+- Monthly audit report generation (PDF export)
+- Daily stats aggregation job
+- Sitemap regeneration job
+- Search reindex job for Elasticsearch
+
+#### Full-Text Search (Elasticsearch)
+- Elasticsearch integration for articles, projects, experiences
+- Search documents with automatic indexing
+- JPA fallback search when Elasticsearch unavailable
+- Admin search management endpoints
+
+#### GraphQL API
+- Complete GraphQL schema (`/graphql` endpoint)
+- Query resolvers for all entities (articles, projects, experiences, skills, tags)
+- Mutation resolvers for CRUD operations
+- DataLoaders for N+1 query optimization
+- Cursor-based pagination (Relay Connection spec)
+- Field resolvers for nested relationships
+
+#### Resilience & Circuit Breaker (Resilience4j)
+- Circuit breaker for EmailService (CLOSED/OPEN/HALF_OPEN states)
+- @Retry pattern before circuit breaker trips
+- Prometheus metrics for circuit breaker state
+- Admin dashboard card showing circuit breaker status
+
+#### Audit System
+- @Auditable annotation with AOP aspect
+- AuditLog entity with comprehensive filtering
+- Audit statistics and reporting endpoints
+- PDF export for audit reports
+- 90-day retention with batch cleanup
+
+#### Visitor Tracking & Analytics
+- Redis-based visitor session tracking (TTL)
+- Server-Sent Events (SSE) for real-time active users count
+- Daily visitor statistics aggregation
+- Unique visitors tracking
+- Visitors chart (last 7 days) on admin dashboard
+
+#### Caching (Redis)
+- Spring Cache integration with Redis backend
+- Cache configuration for projects, articles, skills, experiences
+- Automatic cache eviction on entity updates
+
+#### Internationalization (i18n)
+- Message bundles for 10 languages (EN, FR, ES, DE, PT, RU, ZH, JA, AR, HI)
+- Backend validation messages localization
+
+#### Blog System
+- Markdown rendering with GitHub Flavored Markdown (GFM)
+- Automatic slug generation from title
+- Reading time calculation
+- Draft/publish workflow
+- Article images with async processing
+- Tag associations
+
+#### Experience Management
+- Timeline experiences (WORK, EDUCATION, CERTIFICATION, VOLUNTEERING)
+- Ongoing experience support
+- Date range validation
+- Sorted by date with type grouping
+
+#### Site Configuration
+- Centralized site settings management
+- Identity configuration (name, title, description)
+- Hero section configuration
+- SEO metadata
+- Social links
+
+#### Contact Form
+- IP-based rate limiting (5 requests per hour)
+- Email notification via RabbitMQ
+- Form validation with CAPTCHA-ready structure
+
+#### Tag Management
+- Tag CRUD with color support
+- Tag associations for articles and projects
+- Admin UI for tag management
+
+#### Project Multi-Image Carousel
+- Up to 10 images per project
+- Primary image designation
+- Drag-and-drop reordering
+- Async image processing with status tracking
+
+#### Legal & Compliance
+- Privacy policy page (/privacy-policy)
+- Legal notice page (/legal)
+- GDPR-ready structure
+
+#### Admin Dashboard
+- Circuit breaker status cards
+- Real-time active users count (SSE)
+- Visitors chart (Chart.js, last 7 days)
+- Batch job management (run, history, stats)
+- Audit logs viewer with filtering
+
+#### Frontend Components
+- Skeleton loaders (7 components: project-card, article-card, timeline, skill, table-row, project-detail, article-detail)
+- Language selector component
+- Search input component
+- Footer component
+- Offline banner component
+- Error pages (404, 500, etc.)
+
+#### Progressive Web App (PWA)
+- Service worker with Angular ngsw
+- Web app manifest
+- Offline detection and banner
+- App icons (192x192, 512x512)
+
+#### Performance Optimizations
+- Lazy image loading directive
+- Async image loading directive
+- OnPush change detection (home, project-form)
+
+#### Monitoring & Observability
+- Grafana dashboards (10+):
+  - Executive Overview (SLA, Apdex, traffic, services status)
+  - API Dashboard (requests, latency, errors)
+  - JVM Dashboard (heap, GC, threads)
+  - PostgreSQL Dashboard (connections, queries, cache)
+  - Spring Batch Dashboard (jobs, duration, items)
+  - Security & Auth Dashboard (login attempts, rate limiting)
+  - Circuit Breaker Dashboard
+  - Kafka Dashboard
+  - RabbitMQ Dashboard
+  - Logs Explorer (Loki)
+- Prometheus metrics and alert rules
+- Loki/Promtail log aggregation
+- Alertmanager configuration
+- Business metrics (MeterRegistry)
+
+#### Documentation
+- 81 documentation files in `/docs`
+- MkDocs configuration for documentation site
+- Vale linting for documentation quality
+- API documentation (16 endpoints documented)
+- Architecture documentation
+- Security documentation
+- Feature documentation
+- Development guides
+
+#### CI/CD Enhancements
+- SonarCloud integration for code quality
+- Documentation build workflow
+- Vale linting workflow
+- Health check workflow improvements
+
+### Changed
+- Home page integrated with site configuration
+- Admin layout with new navigation routes
+- Project and article list components with skeleton loading
+- Session monitoring with activity detection
+- Demo mode for showcasing admin features
+
+### Fixed
+- Project-list tests with missing ProjectResponse properties
+- CV service refactoring and test fixes
+- Application configuration updates
+
+### Security
+- Upload rate limiting (10 uploads per hour per IP)
+- Auth rate limiting (5 attempts per minute per IP)
+- SVG sanitization for skill icons
+- CORS configuration updates
+- Admin seeder for initial setup
+
+### Database Migrations
+- V20: Create audit_logs table
+- V21: Add audit username lower index
+- V22: Add status to project_images
+- V23: Add status to article_images
+- V24: Create daily_stats table
+- V25: Add unique_visitors to daily_stats
+
+---
+
+## [0.4.0] - 2025-12-01
+
 ### Added
 - CV management system with versioning
   - Upload, download, and version control for CV files
@@ -138,7 +345,7 @@
   - Applied hierarchical numbering
   - Condensed redundant content
 - Test infrastructure configuration
-  - Karma and Jasmine setup for Angular 20
+  - Karma and Jasmine setup for Angular 18
   - Security filters disabled in controller tests
   - Lenient mocking for optional dependencies
 
@@ -170,9 +377,9 @@
 
 ### Added
 - Initial project architecture
-  - Frontend Angular 20
-  - Backend Spring Boot 3.5.5
-  - Database PostgreSQL 17.6
+  - Frontend Angular 18
+  - Backend Spring Boot 3.4
+  - Database PostgreSQL 17
   - Nginx reverse proxy
 - Multi-environment Docker Compose configuration
   - Local (port 8081)
@@ -197,4 +404,3 @@
 - CSRF enabled with cookie tokens in staging/production
 - Environment-specific Spring Security configuration
 - Production security headers (X-Frame-Options, CSP, etc.)
-

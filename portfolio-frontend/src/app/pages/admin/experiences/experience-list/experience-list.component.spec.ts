@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { provideToastr } from 'ngx-toastr';
 import { ExperienceListComponent } from './experience-list.component';
 import { ExperienceService } from '../../../../services/experience.service';
+import { SearchService } from '../../../../services/search.service';
 import { ModalService } from '../../../../services/modal.service';
 import { LoggerService } from '../../../../services/logger.service';
 import { DemoModeService } from '../../../../services/demo-mode.service';
@@ -45,16 +47,19 @@ describe('ExperienceListComponent', () => {
 
   beforeEach(async () => {
     const experienceServiceSpy = jasmine.createSpyObj('ExperienceService', ['getAll', 'delete']);
+    const searchServiceSpy = jasmine.createSpyObj('SearchService', ['searchExperiences']);
+    searchServiceSpy.searchExperiences.and.returnValue(of([]));
     const modalServiceSpy = jasmine.createSpyObj('ModalService', ['confirm']);
     const loggerServiceSpy = jasmine.createSpyObj('LoggerService', ['error', 'info']);
     const demoModeServiceSpy = jasmine.createSpyObj('DemoModeService', ['isDemo']);
     demoModeServiceSpy.isDemo.and.returnValue(false);
 
     await TestBed.configureTestingModule({
-      imports: [ExperienceListComponent, RouterModule.forRoot([])],
+      imports: [ExperienceListComponent, RouterModule.forRoot([]), TranslateModule.forRoot()],
       providers: [
         provideToastr(),
         { provide: ExperienceService, useValue: experienceServiceSpy },
+        { provide: SearchService, useValue: searchServiceSpy },
         { provide: ModalService, useValue: modalServiceSpy },
         { provide: LoggerService, useValue: loggerServiceSpy },
         { provide: DemoModeService, useValue: demoModeServiceSpy },
@@ -90,7 +95,7 @@ describe('ExperienceListComponent', () => {
 
       component.ngOnInit();
 
-      expect(component.error).toBe('Failed to load experiences');
+      expect(component.error).toBe('admin.experiences.loadError');
       expect(component.loading).toBe(false);
       expect(loggerService.error).toHaveBeenCalledWith('[HTTP_ERROR] Failed to load experiences', {
         error: errorResponse.message,
@@ -100,19 +105,23 @@ describe('ExperienceListComponent', () => {
 
   describe('getTypeLabel', () => {
     it('should return correct label for WORK type', () => {
-      expect(component.getTypeLabel(ExperienceType.WORK)).toBe('Travail');
+      expect(component.getTypeLabel(ExperienceType.WORK)).toBe('admin.experiences.work');
     });
 
     it('should return correct label for EDUCATION type', () => {
-      expect(component.getTypeLabel(ExperienceType.EDUCATION)).toBe('Formation');
+      expect(component.getTypeLabel(ExperienceType.EDUCATION)).toBe('admin.experiences.education');
     });
 
     it('should return correct label for CERTIFICATION type', () => {
-      expect(component.getTypeLabel(ExperienceType.CERTIFICATION)).toBe('Certification');
+      expect(component.getTypeLabel(ExperienceType.CERTIFICATION)).toBe(
+        'admin.experiences.certification'
+      );
     });
 
     it('should return correct label for VOLUNTEERING type', () => {
-      expect(component.getTypeLabel(ExperienceType.VOLUNTEERING)).toBe('Bénévolat');
+      expect(component.getTypeLabel(ExperienceType.VOLUNTEERING)).toBe(
+        'admin.experiences.volunteering'
+      );
     });
 
     it('should return type itself if not found in labels', () => {
@@ -163,10 +172,10 @@ describe('ExperienceListComponent', () => {
       component.confirmDelete(experience);
 
       expect(modalService.confirm).toHaveBeenCalledWith({
-        title: 'Confirmer la suppression',
-        message: `Voulez-vous vraiment supprimer l'expérience "${experience.role}" chez ${experience.company} ?`,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler',
+        title: 'admin.common.confirmDelete',
+        message: 'admin.experiences.deleteConfirm',
+        confirmText: 'admin.common.delete',
+        cancelText: 'admin.common.cancel',
         confirmButtonClass: 'btn-danger',
         disableConfirm: false,
       });

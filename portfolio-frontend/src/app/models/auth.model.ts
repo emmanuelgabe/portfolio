@@ -12,21 +12,15 @@ export interface LoginRequest {
 }
 
 /**
- * Authentication response from backend
- * Contains both access token and refresh token
+ * Access token response from backend.
+ * Refresh token is sent via HttpOnly cookie (not in response body).
  */
-export interface AuthResponse {
+export interface AccessTokenResponse {
   accessToken: string;
-  refreshToken: string;
   tokenType: string;
   expiresIn: number;
-}
-
-/**
- * Token refresh request payload
- */
-export interface TokenRefreshRequest {
-  refreshToken: string;
+  username: string;
+  role: string;
 }
 
 /**
