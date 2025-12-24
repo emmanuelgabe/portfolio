@@ -398,6 +398,7 @@
       "svgSizeError": "يجب ألا يتجاوز الملف 100KB",
       "iconUploadSuccess": "تم رفع الأيقونة بنجاح",
       "iconUploadError": "خطأ في رفع الأيقونة",
+      "svgFileRequired": "يرجى اختيار ملف SVG",
       "createSuccess": "تم إنشاء المهارة بنجاح",
       "createError": "خطأ في إنشاء المهارة",
       "updateSuccess": "تم تحديث المهارة بنجاح",

@@ -398,6 +398,7 @@
       "svgSizeError": "फ़ाइल 100KB से अधिक नहीं होनी चाहिए",
       "iconUploadSuccess": "आइकन सफलतापूर्वक अपलोड हुआ",
       "iconUploadError": "आइकन अपलोड करने में त्रुटि",
+      "svgFileRequired": "कृपया एक SVG फ़ाइल चुनें",
       "createSuccess": "कौशल सफलतापूर्वक बनाया गया",
       "createError": "कौशल बनाने में त्रुटि",
       "updateSuccess": "कौशल सफलतापूर्वक अपडेट किया गया",

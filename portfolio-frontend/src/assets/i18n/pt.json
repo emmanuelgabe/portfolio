@@ -405,6 +405,7 @@
       "svgSizeError": "Arquivo nao pode exceder 100KB",
       "iconUploadSuccess": "Icone enviado com sucesso",
       "iconUploadError": "Erro ao enviar icone",
+      "svgFileRequired": "Por favor selecione um arquivo SVG",
       "createSuccess": "Habilidade criada com sucesso",
       "createError": "Erro ao criar habilidade",
       "updateSuccess": "Habilidade atualizada com sucesso",

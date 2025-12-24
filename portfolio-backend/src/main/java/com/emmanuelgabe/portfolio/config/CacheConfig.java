@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -25,7 +26,8 @@ public class CacheConfig {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        // Build type validator with restricted allowed types (security: prevents RCE)
+        // Use EVERYTHING typing to properly wrap all values including arrays/lists
+        // PROPERTY format embeds type info as @class property which is more compatible
         objectMapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
                         .allowIfSubTypeIsArray()
@@ -34,8 +36,10 @@ public class CacheConfig {
                         .allowIfSubType("java.util.")
                         .allowIfSubType("java.time.")
                         .allowIfSubType("java.lang.")
+                        .allowIfSubType("[L")  // Allow array types
                         .build(),
-                ObjectMapper.DefaultTyping.NON_FINAL
+                ObjectMapper.DefaultTyping.EVERYTHING,
+                JsonTypeInfo.As.PROPERTY
         );
 
         GenericJackson2JsonRedisSerializer jsonSerializer =

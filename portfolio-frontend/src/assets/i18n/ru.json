@@ -398,6 +398,7 @@
       "svgSizeError": "Файл не должен превышать 100KB",
       "iconUploadSuccess": "Иконка успешно загружена",
       "iconUploadError": "Ошибка при загрузке иконки",
+      "svgFileRequired": "Пожалуйста, выберите SVG файл",
       "createSuccess": "Навык успешно создан",
       "createError": "Ошибка при создании навыка",
       "updateSuccess": "Навык успешно обновлен",

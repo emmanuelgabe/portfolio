@@ -161,6 +161,34 @@ export class SkillFormComponent implements OnInit, OnDestroy {
       });
   }
 
+  private uploadSvgIconAfterCreate(file: File, skillName: string): void {
+    if (!this.skillId) return;
+
+    this.logger.info('[SKILL_FORM] Uploading SVG icon after create', { skillId: this.skillId });
+
+    this.skillService
+      .uploadIcon(this.skillId, file)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.logger.info('[SKILL_FORM] SVG icon uploaded after create', {
+            skillId: this.skillId,
+          });
+          this.toastr.success(
+            this.translate.instant('admin.skills.createSuccess', { name: skillName })
+          );
+          this.submitting = false;
+          this.router.navigate(['/admin/skills']);
+        },
+        error: (error) => {
+          this.logger.error('[SKILL_FORM] Failed to upload SVG icon after create', { error });
+          this.toastr.warning(this.translate.instant('admin.skills.iconUploadError'));
+          this.submitting = false;
+          this.router.navigate(['/admin/skills']);
+        },
+      });
+  }
+
   subscribeToDemoMode(): void {
     this.updateFormDisabledState();
   }
@@ -238,6 +266,17 @@ export class SkillFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Validate CUSTOM_SVG requires a file (for new skills) or existing URL (for edit)
+    const formValue = this.skillForm.value;
+    if (formValue.iconType === IconType.CUSTOM_SVG) {
+      const hasExistingIcon = this.isEditMode && formValue.customIconUrl;
+      const hasPendingFile = !!this.pendingSvgFile;
+      if (!hasExistingIcon && !hasPendingFile) {
+        this.toastr.warning(this.translate.instant('admin.skills.svgFileRequired'));
+        return;
+      }
+    }
+
     if (this.isEditMode) {
       this.updateSkill();
     } else {
@@ -249,17 +288,25 @@ export class SkillFormComponent implements OnInit, OnDestroy {
     this.submitting = true;
     const formValue = this.skillForm.value;
 
+    // When creating with pending SVG file, use FONT_AWESOME first
+    // The uploadSvgIcon will switch to CUSTOM_SVG after upload
+    const hasPendingSvg = this.pendingSvgFile && formValue.iconType === IconType.CUSTOM_SVG;
+    const effectiveIconType = hasPendingSvg ? IconType.FONT_AWESOME : formValue.iconType;
+
     const request: CreateSkillRequest = {
       name: formValue.name,
-      iconType: formValue.iconType,
-      icon: formValue.iconType === IconType.FONT_AWESOME ? formValue.icon : undefined,
+      iconType: effectiveIconType,
+      icon:
+        effectiveIconType === IconType.FONT_AWESOME
+          ? formValue.icon || 'fa-solid fa-code'
+          : undefined,
       customIconUrl: formValue.customIconUrl || undefined,
       color: formValue.color,
       category: formValue.category,
       displayOrder: formValue.displayOrder,
     };
 
-    this.logger.info('[SKILL_FORM] Creating skill', { name: request.name });
+    this.logger.info('[SKILL_FORM] Creating skill', { name: request.name, hasPendingSvg });
 
     this.skillService
       .create(request)
@@ -268,18 +315,18 @@ export class SkillFormComponent implements OnInit, OnDestroy {
         next: (skill) => {
           this.logger.info('[SKILL_FORM] Skill created', { id: skill.id });
 
-          // If there's a pending SVG file, upload it
-          if (this.pendingSvgFile && formValue.iconType === IconType.CUSTOM_SVG) {
+          // If there's a pending SVG file, upload it (this will switch to CUSTOM_SVG)
+          if (hasPendingSvg && this.pendingSvgFile) {
             this.skillId = skill.id;
-            this.uploadSvgIcon(this.pendingSvgFile);
+            this.uploadSvgIconAfterCreate(this.pendingSvgFile, skill.name);
             this.pendingSvgFile = undefined;
+          } else {
+            this.toastr.success(
+              this.translate.instant('admin.skills.createSuccess', { name: skill.name })
+            );
+            this.submitting = false;
+            this.router.navigate(['/admin/skills']);
           }
-
-          this.toastr.success(
-            this.translate.instant('admin.skills.createSuccess', { name: skill.name })
-          );
-          this.submitting = false;
-          this.router.navigate(['/admin/skills']);
         },
         error: (error) => {
           this.logger.error('[SKILL_FORM] Failed to create skill', { error });

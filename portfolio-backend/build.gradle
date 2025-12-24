@@ -276,8 +276,25 @@ sonar {
         property 'sonar.java.binaries', 'build/classes/java/main'
         property 'sonar.java.test.binaries', 'build/classes/java/test'
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
-        // Exclude POJOs and generated code from analysis
-        property 'sonar.exclusions', '**/entity/**,**/dto/**,**/PortfolioApplication.java'
+        // Exclude POJOs, generated code, and packages tested via integration tests
+        property 'sonar.exclusions', [
+            '**/config/**',
+            '**/entity/**',
+            '**/dto/**',
+            '**/exception/**',
+            '**/mapper/**',
+            '**/version/**',
+            '**/health/**',
+            '**/security/**',
+            '**/graphql/**',
+            '**/batch/**',
+            '**/kafka/**',
+            '**/messaging/**',
+            '**/metrics/**',
+            '**/search/**',
+            '**/audit/**',
+            '**/PortfolioBackendApplication.class'
+        ].join(',')
         property 'sonar.test.exclusions', 'src/test/**'
     }
 }

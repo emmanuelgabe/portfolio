@@ -416,6 +416,7 @@
       "svgSizeError": "File must not exceed 100KB",
       "iconUploadSuccess": "Icon uploaded successfully",
       "iconUploadError": "Error uploading icon",
+      "svgFileRequired": "Please select an SVG file",
       "createSuccess": "Skill created successfully",
       "createError": "Error creating skill",
       "updateSuccess": "Skill updated successfully",

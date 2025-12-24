@@ -405,6 +405,7 @@
       "svgSizeError": "El archivo no debe exceder 100KB",
       "iconUploadSuccess": "Icono subido exitosamente",
       "iconUploadError": "Error al subir el icono",
+      "svgFileRequired": "Por favor seleccione un archivo SVG",
       "createSuccess": "Competencia creada exitosamente",
       "createError": "Error al crear la competencia",
       "updateSuccess": "Competencia actualizada exitosamente",

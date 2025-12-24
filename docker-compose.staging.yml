@@ -85,9 +85,6 @@ services:
     ports:
       - "3000:80"  # Staging accessible on port 3000
 
-  zookeeper:
-    container_name: portfolio-zookeeper-staging
-
   kafka:
     container_name: portfolio-kafka-staging
 

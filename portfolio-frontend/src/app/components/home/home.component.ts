@@ -14,7 +14,6 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProjectCardComponent } from '../project-card/project-card.component';
 import { ArticleCardComponent } from '../article-card/article-card.component';
-import { ContactFormComponent } from '../contact-form/contact-form.component';
 import {
   SkeletonProjectCardComponent,
   SkeletonArticleCardComponent,
@@ -46,7 +45,6 @@ import lottie, { AnimationItem } from 'lottie-web';
     TranslateModule,
     ProjectCardComponent,
     ArticleCardComponent,
-    ContactFormComponent,
     RouterLink,
     SkeletonProjectCardComponent,
     SkeletonArticleCardComponent,
@@ -290,7 +288,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         next: (experiences) => {
           this.allExperiences = experiences;
           this.isLoadingExperiences = false;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          this.observeTimelineItems();
         },
         error: (err) => {
           this.logger.error('[HTTP_ERROR] Failed to load experiences', {
@@ -373,7 +372,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }, options);
 
-    const timelineItems = document.querySelectorAll('.timeline-item');
+    this.observeTimelineItems();
+  }
+
+  /**
+   * Observe timeline items for scroll animation
+   * Called after initial render and after experiences are loaded
+   */
+  private observeTimelineItems(): void {
+    if (!this.intersectionObserver) return;
+
+    const timelineItems = document.querySelectorAll('.timeline-item:not(.visible)');
     timelineItems.forEach((item) => this.intersectionObserver?.observe(item));
   }
 

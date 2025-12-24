@@ -416,6 +416,7 @@
       "svgSizeError": "Le fichier ne doit pas dépasser 100KB",
       "iconUploadSuccess": "Icône uploadée avec succès",
       "iconUploadError": "Erreur lors de l'upload de l'icône",
+      "svgFileRequired": "Veuillez sélectionner un fichier SVG",
       "createSuccess": "Compétence créée avec succès",
       "createError": "Erreur lors de la création de la compétence",
       "updateSuccess": "Compétence mise à jour avec succès",

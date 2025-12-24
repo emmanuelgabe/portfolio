@@ -209,12 +209,11 @@ jobs:
             echo "[CLEANUP] No remaining containers found"
           fi
 
-          # Cleanup Kafka/Zookeeper volumes if requested (fixes cluster ID mismatch)
+          # Cleanup Kafka volume if requested (KRaft mode - no Zookeeper)
           if [ "${{ github.event.inputs.clean_messaging_volumes }}" = "true" ]; then
             echo ""
-            echo "[CLEANUP] Cleaning Kafka/Zookeeper volumes (requested via workflow input)..."
+            echo "[CLEANUP] Cleaning Kafka volume (requested via workflow input)..."
             docker volume rm -f "portfolio-${ENV_NAME}_portfolio_kafka_data" 2>/dev/null && echo "[CLEANUP] Removed Kafka volume" || echo "[CLEANUP] Kafka volume not found"
-            docker volume rm -f "portfolio-${ENV_NAME}_portfolio_zookeeper_data" 2>/dev/null && echo "[CLEANUP] Removed Zookeeper volume" || echo "[CLEANUP] Zookeeper volume not found"
           fi
 
           # Cleanup zombie docker-proxy processes holding environment-specific ports

@@ -398,6 +398,7 @@
       "svgSizeError": "ファイルは100KB以下にしてください",
       "iconUploadSuccess": "アイコンをアップロードしました",
       "iconUploadError": "アイコンのアップロードに失敗しました",
+      "svgFileRequired": "SVGファイルを選択してください",
       "createSuccess": "スキルを作成しました",
       "createError": "スキルの作成に失敗しました",
       "updateSuccess": "スキルを更新しました",

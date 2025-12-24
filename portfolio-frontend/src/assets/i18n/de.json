@@ -405,6 +405,7 @@
       "svgSizeError": "Datei darf 100KB nicht ueberschreiten",
       "iconUploadSuccess": "Symbol erfolgreich hochgeladen",
       "iconUploadError": "Fehler beim Hochladen des Symbols",
+      "svgFileRequired": "Bitte waehlen Sie eine SVG-Datei aus",
       "createSuccess": "Kompetenz erfolgreich erstellt",
       "createError": "Fehler beim Erstellen der Kompetenz",
       "updateSuccess": "Kompetenz erfolgreich aktualisiert",

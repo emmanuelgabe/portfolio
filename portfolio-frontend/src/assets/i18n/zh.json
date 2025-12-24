@@ -398,6 +398,7 @@
       "svgSizeError": "文件大小不能超过100KB",
       "iconUploadSuccess": "图标上传成功",
       "iconUploadError": "上传图标时出错",
+      "svgFileRequired": "请选择一个SVG文件",
       "createSuccess": "技能创建成功",
       "createError": "创建技能时出错",
       "updateSuccess": "技能更新成功",
