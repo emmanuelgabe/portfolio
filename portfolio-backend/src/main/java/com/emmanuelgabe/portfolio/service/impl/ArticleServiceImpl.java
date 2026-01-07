@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.service.impl;
 import com.emmanuelgabe.portfolio.audit.AuditAction;
 import com.emmanuelgabe.portfolio.audit.Auditable;
 import com.emmanuelgabe.portfolio.dto.PreparedImageInfo;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.article.ArticleImageResponse;
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
 import com.emmanuelgabe.portfolio.dto.article.CreateArticleRequest;
@@ -303,5 +304,20 @@ public class ArticleServiceImpl implements ArticleService {
         articleRepository.save(article);
 
         log.info("[REMOVE_ARTICLE_IMAGE] Success - articleId={}, imageId={}", articleId, imageId);
+    }
+
+    @Override
+    public void reorderArticles(ReorderRequest request) {
+        log.debug("[REORDER_ARTICLES] Reordering articles - count={}", request.getOrderedIds().size());
+
+        List<Long> orderedIds = request.getOrderedIds();
+        for (int i = 0; i < orderedIds.size(); i++) {
+            Long articleId = orderedIds.get(i);
+            Article article = findOrThrow(articleRepository.findById(articleId), "Article", "id", articleId);
+            article.setDisplayOrder(i);
+            articleRepository.save(article);
+        }
+
+        log.info("[REORDER_ARTICLES] Articles reordered - count={}", orderedIds.size());
     }
 }

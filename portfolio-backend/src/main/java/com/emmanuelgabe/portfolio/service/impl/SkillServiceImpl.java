@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.service.impl;
 import com.emmanuelgabe.portfolio.audit.AuditAction;
 import com.emmanuelgabe.portfolio.audit.Auditable;
 import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
 import com.emmanuelgabe.portfolio.entity.IconType;
@@ -143,5 +144,21 @@ public class SkillServiceImpl implements SkillService {
         return skills.stream()
                 .map(skillMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    @CacheEvict(value = "skills", allEntries = true)
+    public void reorderSkills(ReorderRequest request) {
+        log.debug("[REORDER_SKILLS] Reordering skills - count={}", request.getOrderedIds().size());
+
+        List<Long> orderedIds = request.getOrderedIds();
+        for (int i = 0; i < orderedIds.size(); i++) {
+            Long skillId = orderedIds.get(i);
+            Skill skill = findOrThrow(skillRepository.findById(skillId), "Skill", "id", skillId);
+            skill.setDisplayOrder(i);
+            skillRepository.save(skill);
+        }
+
+        log.info("[REORDER_SKILLS] Skills reordered - count={}", orderedIds.size());
     }
 }
