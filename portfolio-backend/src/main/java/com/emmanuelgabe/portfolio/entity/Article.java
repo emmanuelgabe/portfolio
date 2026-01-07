@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -81,6 +82,10 @@ public class Article {
 
     @Column(name = "reading_time_minutes")
     private Integer readingTimeMinutes;
+
+    @Min(value = 0, message = "Display order must be at least 0")
+    @Column(name = "display_order", nullable = false)
+    private Integer displayOrder = 0;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
