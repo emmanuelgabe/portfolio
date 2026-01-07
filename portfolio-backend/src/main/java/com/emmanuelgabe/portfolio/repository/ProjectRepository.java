@@ -12,11 +12,17 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     /**
-     * Find all projects with their tags eagerly loaded
+     * Find all projects ordered by display order
+     * @return List of all projects sorted by displayOrder
+     */
+    List<Project> findAllByOrderByDisplayOrderAsc();
+
+    /**
+     * Find all projects with their tags eagerly loaded, ordered by display order
      * Prevents N+1 query problem by using JOIN FETCH
      * @return List of all projects with tags
      */
-    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN FETCH p.tags")
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN FETCH p.tags ORDER BY p.displayOrder ASC")
     List<Project> findAllWithTags();
 
     /**
@@ -26,11 +32,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByFeaturedTrue();
 
     /**
-     * Find all featured projects with their tags eagerly loaded
+     * Find all featured projects with their tags eagerly loaded, ordered by display order
      * Prevents N+1 query problem by using JOIN FETCH
      * @return List of featured projects with tags
      */
-    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN FETCH p.tags WHERE p.featured = true")
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN FETCH p.tags WHERE p.featured = true ORDER BY p.displayOrder ASC")
     List<Project> findFeaturedWithTags();
 
     /**
