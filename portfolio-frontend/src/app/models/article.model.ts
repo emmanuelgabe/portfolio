@@ -17,6 +17,7 @@ export interface ArticleResponse {
   createdAt: string;
   updatedAt: string;
   readingTimeMinutes: number;
+  displayOrder: number;
   tags: TagResponse[];
   images: ArticleImageResponse[];
 }
