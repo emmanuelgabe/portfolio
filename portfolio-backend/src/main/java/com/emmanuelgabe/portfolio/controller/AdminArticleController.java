@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.controller;
 
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
 import com.emmanuelgabe.portfolio.dto.article.CreateArticleRequest;
 import com.emmanuelgabe.portfolio.dto.article.UpdateArticleRequest;
@@ -146,5 +147,17 @@ public class AdminArticleController {
         ArticleResponse unpublished = articleService.unpublishArticle(id);
         log.info("[ADMIN_ARTICLES] Unpublished article id={}", unpublished.getId());
         return ResponseEntity.ok(unpublished);
+    }
+
+    @PutMapping("/reorder")
+    @Operation(summary = "Reorder articles", description = "Updates the display order of articles")
+    @ApiResponse(responseCode = "204", description = "Articles reordered")
+    @ApiResponse(responseCode = "400", description = "Invalid request")
+    @ApiResponse(responseCode = "403", description = "Forbidden")
+    public ResponseEntity<Void> reorderArticles(@Valid @RequestBody ReorderRequest request) {
+        log.info("[ADMIN_ARTICLES] Reordering articles - count={}", request.getOrderedIds().size());
+        articleService.reorderArticles(request);
+        log.info("[ADMIN_ARTICLES] Articles reordered");
+        return ResponseEntity.noContent().build();
     }
 }
