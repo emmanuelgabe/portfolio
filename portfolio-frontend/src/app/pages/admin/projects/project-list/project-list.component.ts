@@ -49,6 +49,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   isSearching = false;
   isSearchActive = false;
 
+  // Reorder state
+  reordering = false;
+
   // Default placeholder image as SVG data URL
   readonly defaultImage =
     'data:image/svg+xml;base64,' +
@@ -74,7 +77,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (projects) => {
-          this.projects = projects;
+          this.projects = projects.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
           this.loading = false;
           this.logger.info('[HTTP_SUCCESS] Projects loaded', { count: projects.length });
         },
@@ -83,6 +86,64 @@ export class ProjectListComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.logger.error('[HTTP_ERROR] Failed to load projects', { error });
           this.toastr.error(this.translate.instant('admin.projects.loadError'));
+        },
+      });
+  }
+
+  moveUp(index: number): void {
+    if (index <= 0 || this.reordering || this.demoModeService.isDemo() || this.isSearchActive) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index - 1);
+  }
+
+  moveDown(index: number): void {
+    if (
+      index >= this.projects.length - 1 ||
+      this.reordering ||
+      this.demoModeService.isDemo() ||
+      this.isSearchActive
+    ) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index + 1);
+  }
+
+  private swapAndSave(fromIndex: number, toIndex: number): void {
+    this.reordering = true;
+
+    // Swap items in the array
+    const temp = this.projects[fromIndex];
+    this.projects[fromIndex] = this.projects[toIndex];
+    this.projects[toIndex] = temp;
+
+    // Update display order values
+    this.projects.forEach((project, i) => (project.displayOrder = i));
+
+    // Get ordered IDs
+    const orderedIds = this.projects.map((p) => p.id);
+
+    this.projectService
+      .reorder(orderedIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.reordering = false;
+          this.logger.info('[ADMIN_PROJECTS] Projects reordered');
+        },
+        error: (error) => {
+          this.reordering = false;
+          this.logger.error('[ADMIN_PROJECTS] Failed to reorder projects', { error });
+          this.toastr.error(this.translate.instant('admin.common.reorderError'));
+          this.loadProjects(); // Reload to restore original order
         },
       });
   }
