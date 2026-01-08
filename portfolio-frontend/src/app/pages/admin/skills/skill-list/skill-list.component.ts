@@ -32,6 +32,8 @@ export class SkillListComponent implements OnInit, OnDestroy {
   loading = false;
   error?: string;
 
+  reordering = false;
+
   ngOnInit(): void {
     this.loadSkills();
   }
@@ -56,6 +58,59 @@ export class SkillListComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.logger.error('[ADMIN_SKILLS] Failed to load skills', { error });
           this.toastr.error(this.translate.instant('admin.skills.loadError'));
+        },
+      });
+  }
+
+  moveUp(index: number): void {
+    if (index <= 0 || this.reordering || this.demoModeService.isDemo()) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index - 1);
+  }
+
+  moveDown(index: number): void {
+    if (index >= this.skills.length - 1 || this.reordering || this.demoModeService.isDemo()) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index + 1);
+  }
+
+  private swapAndSave(fromIndex: number, toIndex: number): void {
+    this.reordering = true;
+
+    // Swap items in the array
+    const temp = this.skills[fromIndex];
+    this.skills[fromIndex] = this.skills[toIndex];
+    this.skills[toIndex] = temp;
+
+    // Update display order values
+    this.skills.forEach((skill, i) => (skill.displayOrder = i));
+
+    // Get ordered IDs
+    const orderedIds = this.skills.map((s) => s.id);
+
+    this.skillService
+      .reorder(orderedIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.reordering = false;
+          this.logger.info('[ADMIN_SKILLS] Skills reordered');
+        },
+        error: (error) => {
+          this.reordering = false;
+          this.logger.error('[ADMIN_SKILLS] Failed to reorder skills', { error });
+          this.toastr.error(this.translate.instant('admin.common.reorderError'));
+          this.loadSkills(); // Reload to restore original order
         },
       });
   }
