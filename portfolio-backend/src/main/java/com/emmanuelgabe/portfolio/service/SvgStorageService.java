@@ -40,38 +40,61 @@ public class SvgStorageService {
 
     /**
      * Allowed SVG elements (whitelist approach for security)
+     * All element names must be lowercase for case-insensitive matching
      */
     private static final Set<String> ALLOWED_SVG_ELEMENTS = Set.of(
             "svg", "g", "defs", "symbol", "use", "title", "desc",
             "path", "circle", "ellipse", "line", "polyline", "polygon", "rect",
-            "linearGradient", "radialGradient", "stop", "clipPath", "mask",
-            "pattern", "filter", "feGaussianBlur", "feOffset", "feBlend",
-            "feMerge", "feMergeNode", "feColorMatrix", "feFlood", "feComposite"
+            "lineargradient", "radialgradient", "stop", "clippath", "mask",
+            "pattern", "filter", "fegaussianblur", "feoffset", "feblend",
+            "femerge", "femergenode", "fecolormatrix", "feflood", "fecomposite",
+            // Text elements - needed for SVG logos with text
+            "text", "tspan", "textpath",
+            // Style element - needed for CSS-styled SVGs (common in icon libraries)
+            "style"
     );
 
     /**
      * Allowed SVG attributes (whitelist approach for security)
+     * All attribute names must be lowercase for case-insensitive matching
      */
     private static final Set<String> ALLOWED_SVG_ATTRIBUTES = Set.of(
-            "id", "class", "style", "viewBox", "xmlns", "xmlns:xlink",
+            "id", "class", "style", "viewbox", "xmlns", "xmlns:xlink",
             "width", "height", "x", "y", "x1", "y1", "x2", "y2",
             "cx", "cy", "r", "rx", "ry", "d", "points",
             "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin",
             "stroke-dasharray", "stroke-dashoffset", "stroke-opacity", "fill-opacity",
             "opacity", "transform", "clip-path", "mask", "filter",
-            "offset", "stop-color", "stop-opacity", "gradientUnits", "gradientTransform",
-            "spreadMethod", "xlink:href", "href", "preserveAspectRatio",
-            "patternUnits", "patternContentUnits", "patternTransform",
-            "stdDeviation", "dx", "dy", "result", "in", "in2", "mode",
+            "offset", "stop-color", "stop-opacity", "gradientunits", "gradienttransform",
+            "spreadmethod", "xlink:href", "href", "preserveaspectratio",
+            "patternunits", "patterncontentunits", "patterntransform",
+            "stddeviation", "dx", "dy", "result", "in", "in2", "mode",
             "flood-color", "flood-opacity", "operator", "k1", "k2", "k3", "k4",
-            "type", "values", "color-interpolation-filters"
+            "type", "values", "color-interpolation-filters",
+            // Text attributes - needed for text elements
+            "font-family", "font-size", "font-weight", "font-style", "text-anchor",
+            "dominant-baseline", "alignment-baseline", "baseline-shift", "letter-spacing",
+            "word-spacing", "text-decoration", "startoffset", "lengthadjust", "textlength",
+            // Fill rule for complex paths
+            "fill-rule", "clip-rule",
+            // Additional presentation attributes
+            "color", "display", "visibility", "overflow", "enable-background"
     );
 
     /**
-     * Pattern to detect dangerous content (event handlers, javascript:, data:)
+     * Pattern to detect dangerous content (event handlers, javascript:, vbscript:)
+     * Note: data: URIs are checked separately to allow safe image data URIs
+     * Uses word boundary \b to avoid false positives (e.g., "standalone=" should not match)
      */
     private static final Pattern DANGEROUS_PATTERN = Pattern.compile(
-            "(?i)(on\\w+\\s*=|javascript:|data:|vbscript:)", Pattern.CASE_INSENSITIVE
+            "(\\bon\\w+\\s*=|javascript:|vbscript:)", Pattern.CASE_INSENSITIVE
+    );
+
+    /**
+     * Pattern to detect safe data URIs (only raster images allowed, no SVG to prevent XSS)
+     */
+    private static final Pattern SAFE_DATA_URI_PATTERN = Pattern.compile(
+            "data:image/(png|jpeg|jpg|gif|webp);base64,", Pattern.CASE_INSENSITIVE
     );
 
     /**
@@ -291,6 +314,11 @@ public class SvgStorageService {
         // Sanitize recursively
         sanitizeElement(svgElement);
 
+        // Remove fixed width/height from root SVG to allow CSS sizing
+        // Keep viewBox for proper scaling
+        svgElement.removeAttr("width");
+        svgElement.removeAttr("height");
+
         // Return clean SVG with XML declaration
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + svgElement.outerHtml();
     }
@@ -324,9 +352,9 @@ public class SvgStorageService {
 
             // Check for dangerous values in allowed attributes
             boolean hasDangerousValue = attrValue.contains("javascript:")
-                    || attrValue.contains("data:")
                     || attrValue.contains("vbscript:")
-                    || DANGEROUS_PATTERN.matcher(attrValue).find();
+                    || DANGEROUS_PATTERN.matcher(attrValue).find()
+                    || containsDangerousDataUri(attrValue);
 
             if (!isAllowed || hasDangerousValue) {
                 log.debug("[SANITIZE] Removing attribute - attr={}, dangerous={}", attrName, hasDangerousValue);
@@ -342,5 +370,26 @@ public class SvgStorageService {
                 element.removeAttr("style");
             }
         }
+    }
+
+    /**
+     * Check if a value contains a dangerous data URI.
+     * Safe data URIs are image types (png, jpeg, gif, svg+xml, webp).
+     *
+     * @param value Attribute value to check
+     * @return true if contains a dangerous (non-image) data URI
+     */
+    private boolean containsDangerousDataUri(String value) {
+        if (!value.contains("data:")) {
+            return false;
+        }
+        // If it contains data: but is a safe image data URI, it's not dangerous
+        if (SAFE_DATA_URI_PATTERN.matcher(value).find()) {
+            return false;
+        }
+        // Any other data: URI is considered dangerous
+        log.debug("[SANITIZE] Dangerous data URI detected - value starts with: {}",
+                value.substring(0, Math.min(50, value.length())));
+        return true;
     }
 }
