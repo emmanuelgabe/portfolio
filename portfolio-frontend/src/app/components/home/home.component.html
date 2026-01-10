@@ -134,8 +134,7 @@
                 </span>
               </div>
 
-              <div class="timeline-card-body">
-                <p class="mb-0">{{ experience.description }}</p>
+              <div class="timeline-card-body markdown-content" [innerHTML]="renderDescription(experience.description)">
               </div>
             </div>
           </div>
