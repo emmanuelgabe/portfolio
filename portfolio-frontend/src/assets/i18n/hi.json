@@ -249,7 +249,8 @@
       "preview": "पूर्वावलोकन",
       "required": "आवश्यक",
       "optional": "वैकल्पिक",
-      "fillRequired": "कृपया सभी आवश्यक फ़ील्ड भरें"
+      "fillRequired": "कृपया सभी आवश्यक फ़ील्ड भरें",
+      "validationError": "सत्यापन त्रुटि"
     },
     "validation": {
       "required": "यह फ़ील्ड आवश्यक है",
@@ -419,6 +420,8 @@
       "endDate": "समाप्ति तिथि (जारी होने पर खाली छोड़ें)",
       "type": "प्रकार",
       "description": "विवरण",
+      "descriptionPlaceholder": "अपने अनुभव का वर्णन करें...",
+      "markdownHint": "Markdown: **बोल्ड**, *इटैलिक*, - बुलेट सूची",
       "requiredMin2": "आवश्यक (न्यूनतम 2 अक्षर)",
       "requiredMin10": "आवश्यक (न्यूनतम 10 अक्षर)",
       "period": "अवधि",
@@ -437,7 +440,8 @@
       "updateError": "अपडेट करने में त्रुटि",
       "deleteSuccess": "अनुभव हटाया गया",
       "deleteError": "हटाने में त्रुटि",
-      "loadError": "अनुभव लोड करने में त्रुटि"
+      "loadError": "अनुभव लोड करने में त्रुटि",
+      "endDateBeforeStartDate": "समाप्ति तिथि प्रारंभ तिथि के बाद होनी चाहिए"
     },
     "tags": {
       "title": "टैग प्रबंधन",

@@ -16,7 +16,7 @@ export class PrivacyPolicyComponent implements OnInit {
 
   contactEmail = '';
   fullName = '';
-  lastUpdated = new Date().toLocaleDateString('fr-FR', {
+  lastUpdated = new Date(2026, 0, 1).toLocaleDateString('fr-FR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

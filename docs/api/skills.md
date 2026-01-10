@@ -10,6 +10,7 @@
    - 2.3 [Create Skill](#23-create-skill)
    - 2.4 [Update Skill](#24-update-skill)
    - 2.5 [Delete Skill](#25-delete-skill)
+   - 2.6 [Reorder Skills](#26-reorder-skills)
 3. [Data Models](#3-data-models)
 4. [Skill Categories](#4-skill-categories)
 5. [Error Handling](#5-error-handling)
@@ -333,6 +334,53 @@ curl -X DELETE http://localhost:8080/api/admin/skills/15 \
 
 ---
 
+### 2.6 Reorder Skills
+
+Reorder skills by providing an ordered list of IDs (admin only).
+
+**Endpoint**: `PUT /api/admin/skills/reorder`
+
+**Authentication**: Required (ROLE_ADMIN)
+
+**Request Body**:
+```json
+{
+  "orderedIds": [3, 1, 2, 5, 4]
+}
+```
+
+**Request Schema**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `orderedIds` | array | Yes | Ordered list of skill IDs |
+
+**Success Response** (204 No Content): Empty body
+
+**Error Responses**:
+
+**Skill Not Found (404 Not Found)**:
+```json
+{
+  "timestamp": "2026-01-15T14:23:45.123Z",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Skill not found with id: 999",
+  "path": "/api/admin/skills/reorder"
+}
+```
+
+**Example Request (curl)**:
+```bash
+curl -X PUT http://localhost:8080/api/admin/skills/reorder \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..." \
+  -d '{"orderedIds": [3, 1, 2, 5, 4]}'
+```
+
+**Note**: This endpoint updates the `displayOrder` field for each skill. The cache is automatically invalidated after reordering.
+
+---
+
 ## 3. Data Models
 
 ### SkillResponse
@@ -342,6 +390,7 @@ curl -X DELETE http://localhost:8080/api/admin/skills/15 \
 | `id` | integer | No | Skill ID |
 | `name` | string | No | Skill name (max 100 chars) |
 | `category` | string | No | Skill category (enum) |
+| `displayOrder` | integer | No | Display order (default: 0) |
 | `createdAt` | datetime | No | Creation timestamp |
 | `updatedAt` | datetime | No | Last update timestamp |
 

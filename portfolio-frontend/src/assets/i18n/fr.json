@@ -264,7 +264,14 @@
       "searchMinLength": "Saisissez au moins {{min}} caractères",
       "searchError": "Erreur lors de la recherche",
       "noSearchResults": "Aucun résultat pour cette recherche",
-      "searchResults": "{{count}} résultat(s) trouvé(s)"
+      "searchResults": "{{count}} résultat(s) trouvé(s)",
+      "month": "Mois",
+      "year": "Année",
+      "order": "Ordre",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "reorderError": "Erreur lors du réordonnancement",
+      "validationError": "Erreur de validation"
     },
     "validation": {
       "required": "Ce champ est requis",
@@ -437,6 +444,8 @@
       "endDate": "Date de fin (vide si en cours)",
       "type": "Type",
       "description": "Description",
+      "descriptionPlaceholder": "Décrivez votre expérience...",
+      "markdownHint": "Markdown : **gras**, *italique*, - liste a puces",
       "requiredMin2": "Requis (min 2 caractères)",
       "requiredMin10": "Requis (min 10 caractères)",
       "period": "Période",
@@ -455,7 +464,12 @@
       "updateError": "Erreur lors de la mise à jour",
       "deleteSuccess": "Expérience supprimée",
       "deleteError": "Erreur lors de la suppression",
-      "loadError": "Erreur lors du chargement des expériences"
+      "loadError": "Erreur lors du chargement des expériences",
+      "alignLeft": "Aligner à gauche",
+      "alignCenter": "Centrer",
+      "alignRight": "Aligner à droite",
+      "alignedText": "Texte aligné",
+      "endDateBeforeStartDate": "La date de fin doit être après la date de début"
     },
     "tags": {
       "title": "Gestion des Tags",

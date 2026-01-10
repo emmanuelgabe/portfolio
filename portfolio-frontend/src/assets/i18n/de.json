@@ -256,7 +256,8 @@
       "preview": "Vorschau",
       "required": "erforderlich",
       "optional": "optional",
-      "fillRequired": "Bitte fuellen Sie alle erforderlichen Felder aus"
+      "fillRequired": "Bitte fuellen Sie alle erforderlichen Felder aus",
+      "validationError": "Validierungsfehler"
     },
     "validation": {
       "required": "Dieses Feld ist erforderlich",
@@ -426,6 +427,8 @@
       "endDate": "Enddatum (leer lassen wenn laufend)",
       "type": "Typ",
       "description": "Beschreibung",
+      "descriptionPlaceholder": "Beschreiben Sie Ihre Erfahrung...",
+      "markdownHint": "Markdown: **fett**, *kursiv*, - Aufzaehlung",
       "requiredMin2": "Erforderlich (min 2 Zeichen)",
       "requiredMin10": "Erforderlich (min 10 Zeichen)",
       "period": "Zeitraum",
@@ -444,7 +447,8 @@
       "updateError": "Fehler beim Aktualisieren",
       "deleteSuccess": "Erfahrung geloescht",
       "deleteError": "Fehler beim Loeschen",
-      "loadError": "Fehler beim Laden der Erfahrungen"
+      "loadError": "Fehler beim Laden der Erfahrungen",
+      "endDateBeforeStartDate": "Das Enddatum muss nach dem Startdatum liegen"
     },
     "tags": {
       "title": "Tag-Verwaltung",

@@ -108,4 +108,13 @@ public class AuthRateLimitServiceImpl implements AuthRateLimitService {
 
         return Math.max(0, maxRequests - count);
     }
+
+    @Override
+    public void resetLoginAttempts(String ip) {
+        String key = LOGIN_KEY_PREFIX + ip;
+        Boolean deleted = redisTemplate.delete(key);
+        if (Boolean.TRUE.equals(deleted)) {
+            log.debug("[AUTH_RATE_LIMIT] Login attempts reset - ip={}", ip);
+        }
+    }
 }
