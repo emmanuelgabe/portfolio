@@ -3227,7 +3227,7 @@
 - Comprehensive indexing strategy
 - UUID-based refresh tokens
 - Support for draft/publish workflows</p>
-<p><strong>Migration Tool</strong>: Flyway (V1-V25 migrations applied)</p>
+<p><strong>Migration Tool</strong>: Flyway (V1-V26 migrations applied)</p>
 <hr />
 <h2 id="2-schema-diagram">2. Schema Diagram<a class="headerlink" href="#2-schema-diagram" title="Permanent link">&para;</a></h2>
 <h3 id="entity-relationships">Entity Relationships<a class="headerlink" href="#entity-relationships" title="Permanent link">&para;</a></h3>
@@ -3321,6 +3321,12 @@
 <td>Homepage featured flag</td>
 </tr>
 <tr>
+<td>display_order</td>
+<td>INTEGER</td>
+<td>NOT NULL, DEFAULT 0, CHECK &gt;= 0</td>
+<td>Display order</td>
+</tr>
+<tr>
 <td>created_at</td>
 <td>TIMESTAMP</td>
 <td>NOT NULL, DEFAULT NOW</td>
@@ -3337,7 +3343,8 @@
 <p><strong>Indexes</strong>:
 - <code>idx_projects_featured</code> - Filter featured projects
 - <code>idx_projects_title</code> - Search by title
-- <code>idx_projects_created_at DESC</code> - Chronological sorting</p>
+- <code>idx_projects_created_at DESC</code> - Chronological sorting
+- <code>idx_projects_display_order</code> - Ordered display</p>
 <hr />
 <h3 id="tags-table">Tags Table<a class="headerlink" href="#tags-table" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: Technology tags for projects and articles</p>
@@ -4064,6 +4071,12 @@
 <td>Estimated reading time</td>
 </tr>
 <tr>
+<td>display_order</td>
+<td>INTEGER</td>
+<td>NOT NULL, DEFAULT 0, CHECK &gt;= 0</td>
+<td>Display order</td>
+</tr>
+<tr>
 <td>created_at</td>
 <td>TIMESTAMP</td>
 <td>NOT NULL, DEFAULT NOW</td>
@@ -4081,7 +4094,8 @@
 - <code>idx_articles_slug</code> - Slug lookups
 - <code>idx_articles_published DESC WHERE draft = false</code> - Published articles (partial)
 - <code>idx_articles_draft</code> - Draft filtering
-- <code>idx_articles_author</code> - Author's articles</p>
+- <code>idx_articles_author</code> - Author's articles
+- <code>idx_articles_display_order</code> - Ordered display</p>
 <hr />
 <h3 id="article-images-table">Article Images Table<a class="headerlink" href="#article-images-table" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: Images embedded in articles</p>
@@ -4403,6 +4417,11 @@
 <td>V25</td>
 <td>Visitor tracking</td>
 <td>daily_stats (added unique_visitors)</td>
+</tr>
+<tr>
+<td>V26</td>
+<td>Display order</td>
+<td>projects, articles (added display_order)</td>
 </tr>
 </tbody>
 </table>
