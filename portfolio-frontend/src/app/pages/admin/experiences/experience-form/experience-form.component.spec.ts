@@ -3,6 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastrModule } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 import { ExperienceFormComponent } from './experience-form.component';
 import { ExperienceService } from '../../../../services/experience.service';
@@ -48,6 +49,7 @@ describe('ExperienceFormComponent', () => {
         ReactiveFormsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
+        ToastrModule.forRoot(),
       ],
       providers: [
         { provide: ExperienceService, useValue: experienceServiceSpy },
@@ -194,7 +196,14 @@ describe('ExperienceFormComponent', () => {
 
       component.onSubmit();
 
-      expect(experienceService.create).toHaveBeenCalledWith(formValue);
+      expect(experienceService.create).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          company: 'New Company',
+          role: 'Developer',
+          startDate: '2023-01-01',
+          endDate: null,
+        })
+      );
       expect(router.navigate).toHaveBeenCalledWith(['/admin/experiences']);
     });
 
@@ -238,7 +247,15 @@ describe('ExperienceFormComponent', () => {
 
       component.onSubmit();
 
-      expect(experienceService.update).toHaveBeenCalledWith(1, formValue);
+      expect(experienceService.update).toHaveBeenCalledWith(
+        1,
+        jasmine.objectContaining({
+          company: 'Updated Company',
+          role: 'Senior Developer',
+          startDate: '2023-01-01',
+          endDate: null,
+        })
+      );
       expect(router.navigate).toHaveBeenCalledWith(['/admin/experiences']);
     });
 
