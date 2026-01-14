@@ -1,8 +1,10 @@
 package com.emmanuelgabe.portfolio.service;
 
 import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
+import com.emmanuelgabe.portfolio.entity.IconType;
 import com.emmanuelgabe.portfolio.entity.Skill;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
@@ -43,6 +45,9 @@ class SkillServiceTest {
 
     @Mock
     private SkillMapper skillMapper;
+
+    @Mock
+    private SvgStorageService svgStorageService;
 
     @InjectMocks
     private SkillServiceImpl skillService;
@@ -300,5 +305,81 @@ class SkillServiceTest {
         // Assert
         assertThat(result).isEmpty();
         verify(skillRepository, times(1)).findAllByOrderByDisplayOrderAsc();
+    }
+
+    // ========== Reorder Tests ==========
+
+    @Test
+    void should_updateDisplayOrder_when_reorderSkillsCalled() {
+        // Arrange
+        Skill skill1 = new Skill();
+        skill1.setId(1L);
+        skill1.setName("Java");
+        skill1.setDisplayOrder(0);
+
+        Skill skill2 = new Skill();
+        skill2.setId(2L);
+        skill2.setName("Spring");
+        skill2.setDisplayOrder(1);
+
+        Skill skill3 = new Skill();
+        skill3.setId(3L);
+        skill3.setName("Docker");
+        skill3.setDisplayOrder(2);
+
+        ReorderRequest request = new ReorderRequest();
+        request.setOrderedIds(Arrays.asList(3L, 1L, 2L));
+
+        when(skillRepository.findById(3L)).thenReturn(Optional.of(skill3));
+        when(skillRepository.findById(1L)).thenReturn(Optional.of(skill1));
+        when(skillRepository.findById(2L)).thenReturn(Optional.of(skill2));
+        when(skillRepository.save(any(Skill.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Act
+        skillService.reorderSkills(request);
+
+        // Assert
+        assertThat(skill3.getDisplayOrder()).isEqualTo(0);
+        assertThat(skill1.getDisplayOrder()).isEqualTo(1);
+        assertThat(skill2.getDisplayOrder()).isEqualTo(2);
+        verify(skillRepository, times(3)).save(any(Skill.class));
+    }
+
+    @Test
+    void should_throwException_when_reorderSkillsCalledWithNonExistentSkill() {
+        // Arrange
+        ReorderRequest request = new ReorderRequest();
+        request.setOrderedIds(Arrays.asList(1L, 999L));
+
+        when(skillRepository.findById(1L)).thenReturn(Optional.of(testSkill));
+        when(skillRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThatThrownBy(() -> skillService.reorderSkills(request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Skill not found");
+    }
+
+    // ========== Delete with Custom Icon Tests ==========
+
+    @Test
+    void should_deleteCustomIcon_when_deleteSkillCalledWithCustomSvgIcon() {
+        // Arrange
+        Skill skillWithIcon = new Skill();
+        skillWithIcon.setId(2L);
+        skillWithIcon.setName("Custom Skill");
+        skillWithIcon.setIconType(IconType.CUSTOM_SVG);
+        skillWithIcon.setCustomIconUrl("/uploads/icons/skill_2_123.svg");
+
+        when(skillRepository.findById(2L)).thenReturn(Optional.of(skillWithIcon));
+        doNothing().when(svgStorageService).deleteIconByUrl(skillWithIcon.getCustomIconUrl());
+        doNothing().when(skillRepository).delete(skillWithIcon);
+
+        // Act
+        skillService.deleteSkill(2L);
+
+        // Assert
+        verify(svgStorageService, times(1)).deleteIconByUrl("/uploads/icons/skill_2_123.svg");
+        verify(skillRepository, times(1)).delete(skillWithIcon);
     }
 }

@@ -32,6 +32,8 @@ import { CvResponse } from '../../models/cv.model';
 import { ArticleResponse } from '../../models/article.model';
 import { VERSION } from '../../../environments/version';
 import { LoggerService } from '../../services/logger.service';
+import { MarkdownService } from '../../services/markdown.service';
+import { getLocaleFromLang } from '../../utils/locale.utils';
 import { ToastrService } from 'ngx-toastr';
 import { interval, Subject, Subscription } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
@@ -65,6 +67,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly seoService = inject(SeoService);
   private readonly scrollService = inject(ScrollService);
   private readonly logger = inject(LoggerService);
+  private readonly markdownService = inject(MarkdownService);
   private readonly toastr = inject(ToastrService);
   private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
@@ -314,7 +317,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   formatExperienceDateRange(startDate: string, endDate?: string): string {
     const currentLang = this.translate.currentLang || 'fr';
-    const locale = this.getLocaleFromLang(currentLang);
+    const locale = getLocaleFromLang(currentLang);
 
     const start = new Date(startDate);
     const startStr = start.toLocaleDateString(locale, {
@@ -336,25 +339,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return `${startStr} - ${endStr}`;
   }
 
-  private getLocaleFromLang(lang: string): string {
-    const localeMap: Record<string, string> = {
-      fr: 'fr-FR',
-      en: 'en-US',
-      es: 'es-ES',
-      pt: 'pt-BR',
-      de: 'de-DE',
-      zh: 'zh-CN',
-      ja: 'ja-JP',
-      ru: 'ru-RU',
-      ar: 'ar-SA',
-      hi: 'hi-IN',
-    };
-    return localeMap[lang] || 'fr-FR';
-  }
-
   getExperienceTypeLabel(type: ExperienceType): string {
     const translationKey = `experiences.types.${type}`;
     return this.translate.instant(translationKey);
+  }
+
+  renderDescription(description: string): ReturnType<MarkdownService['toSafeHtml']> {
+    return this.markdownService.toSafeHtml(description);
   }
 
   private initIntersectionObserver(): void {
@@ -423,7 +414,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (projects) => {
-          this.allProjects = projects;
+          this.allProjects = projects.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
           this.isLoadingProjects = false;
           this.cdr.markForCheck();
         },
@@ -549,7 +540,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (articles) => {
-          this.allArticles = articles;
+          this.allArticles = articles.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
           this.isLoadingArticles = false;
           this.cdr.markForCheck();
         },

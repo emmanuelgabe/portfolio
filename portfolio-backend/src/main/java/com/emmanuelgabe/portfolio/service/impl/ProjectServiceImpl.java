@@ -8,6 +8,7 @@ import com.emmanuelgabe.portfolio.dto.PreparedImageInfo;
 import com.emmanuelgabe.portfolio.dto.ProjectImageResponse;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.ReorderProjectImagesRequest;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectImageRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
 import com.emmanuelgabe.portfolio.entity.ImageStatus;
@@ -484,6 +485,22 @@ public class ProjectServiceImpl implements ProjectService {
         log.debug("[GET_IMAGE_STATUS] Status retrieved - projectId={}, imageId={}, status={}",
                 projectId, imageId, image.getStatus());
         return image.getStatus();
+    }
+
+    @Override
+    @CacheEvict(value = "projects", allEntries = true)
+    public void reorderProjects(ReorderRequest request) {
+        log.debug("[REORDER_PROJECTS] Reordering projects - count={}", request.getOrderedIds().size());
+
+        List<Long> orderedIds = request.getOrderedIds();
+        for (int i = 0; i < orderedIds.size(); i++) {
+            Long projectId = orderedIds.get(i);
+            Project project = findOrThrow(projectRepository.findById(projectId), "Project", "id", projectId);
+            project.setDisplayOrder(i);
+            projectRepository.save(project);
+        }
+
+        log.info("[REORDER_PROJECTS] Projects reordered - count={}", orderedIds.size());
     }
 
     // ========== Private Helper Methods ==========

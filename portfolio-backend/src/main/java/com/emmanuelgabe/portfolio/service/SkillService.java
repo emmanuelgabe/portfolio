@@ -1,6 +1,7 @@
 package com.emmanuelgabe.portfolio.service;
 
 import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
@@ -62,4 +63,10 @@ public interface SkillService {
      * @return Updated skill response with custom icon URL
      */
     SkillResponse uploadSkillIcon(Long id, MultipartFile file);
+
+    /**
+     * Reorder skills by updating their display order
+     * @param request Reorder request with ordered IDs
+     */
+    void reorderSkills(ReorderRequest request);
 }

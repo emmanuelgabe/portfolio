@@ -256,7 +256,8 @@
       "preview": "Visualizar",
       "required": "obrigatorio",
       "optional": "opcional",
-      "fillRequired": "Por favor, preencha todos os campos obrigatorios"
+      "fillRequired": "Por favor, preencha todos os campos obrigatorios",
+      "validationError": "Erro de validacao"
     },
     "validation": {
       "required": "Este campo e obrigatorio",
@@ -426,6 +427,8 @@
       "endDate": "Data de termino (deixe vazio se em andamento)",
       "type": "Tipo",
       "description": "Descricao",
+      "descriptionPlaceholder": "Descreva sua experiencia...",
+      "markdownHint": "Markdown: **negrito**, *italico*, - lista com marcadores",
       "requiredMin2": "Obrigatorio (min 2 caracteres)",
       "requiredMin10": "Obrigatorio (min 10 caracteres)",
       "period": "Periodo",
@@ -444,7 +447,8 @@
       "updateError": "Erro ao atualizar",
       "deleteSuccess": "Experiencia excluida",
       "deleteError": "Erro ao excluir",
-      "loadError": "Erro ao carregar experiencias"
+      "loadError": "Erro ao carregar experiencias",
+      "endDateBeforeStartDate": "A data de termino deve ser posterior a data de inicio"
     },
     "tags": {
       "title": "Gerenciamento de Tags",

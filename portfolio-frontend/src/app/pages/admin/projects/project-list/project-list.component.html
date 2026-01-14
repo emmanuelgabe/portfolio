@@ -32,12 +32,13 @@
               <th style="width: 120px">{{ 'admin.common.image' | translate }}</th>
               <th>{{ 'admin.projects.titleField' | translate }}</th>
               <th>{{ 'admin.projects.technologies' | translate }}</th>
+              <th style="width: 100px" class="text-center">{{ 'admin.common.order' | translate }}</th>
               <th style="width: 150px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
             @for (i of [1,2,3,4,5]; track i) {
-              <app-skeleton-table-row [columns]="[{width: '120px'}, {width: '35%'}, {width: '35%'}, {width: '150px'}]" />
+              <app-skeleton-table-row [columns]="[{width: '120px'}, {width: '30%'}, {width: '30%'}, {width: '100px'}, {width: '150px'}]" />
             }
           </tbody>
         </table>
@@ -78,11 +79,12 @@
               <th style="width: 120px">{{ 'admin.common.image' | translate }}</th>
               <th>{{ 'admin.projects.titleField' | translate }}</th>
               <th>{{ 'admin.projects.technologies' | translate }}</th>
+              <th style="width: 100px" class="text-center">{{ 'admin.common.order' | translate }}</th>
               <th style="width: 150px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let project of filteredProjects">
+            <tr *ngFor="let project of filteredProjects; let i = index">
               <!-- Image -->
               <td>
                 <!-- Show image only if READY -->
@@ -118,6 +120,30 @@
                 >
                   {{ tech }}
                 </span>
+              </td>
+
+              <!-- Order -->
+              <td class="align-middle text-center">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    [disabled]="i === 0 || reordering || demoModeService.isDemo() || isSearchActive"
+                    (click)="moveUp(i)"
+                    [title]="'admin.common.moveUp' | translate"
+                  >
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    [disabled]="i === filteredProjects.length - 1 || reordering || demoModeService.isDemo() || isSearchActive"
+                    (click)="moveDown(i)"
+                    [title]="'admin.common.moveDown' | translate"
+                  >
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                </div>
               </td>
 
               <!-- Actions -->

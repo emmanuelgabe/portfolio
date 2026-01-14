@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.controller;
 import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.ImageUploadResponse;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
 import com.emmanuelgabe.portfolio.service.ProjectService;
 import jakarta.validation.Valid;
@@ -133,6 +134,19 @@ public class AdminProjectController {
         log.info("[ADMIN_PROJECTS] Deleting image - projectId={}", id);
         projectService.deleteProjectImage(id);
         log.info("[ADMIN_PROJECTS] Deleted image - projectId={}", id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Reorder projects
+     * @param request Reorder request with ordered IDs
+     * @return No content
+     */
+    @PutMapping("/reorder")
+    public ResponseEntity<Void> reorderProjects(@Valid @RequestBody ReorderRequest request) {
+        log.info("[ADMIN_PROJECTS] Reordering projects - count={}", request.getOrderedIds().size());
+        projectService.reorderProjects(request);
+        log.info("[ADMIN_PROJECTS] Projects reordered");
         return ResponseEntity.noContent().build();
     }
 }

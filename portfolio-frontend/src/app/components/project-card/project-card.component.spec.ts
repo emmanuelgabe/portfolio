@@ -29,6 +29,7 @@ describe('ProjectCardComponent', () => {
       updatedAt: '2024-01-01T00:00:00Z',
       featured: true,
       hasDetails: true,
+      displayOrder: 0,
       tags: [
         { id: 1, name: 'Angular', color: '#dd0031' },
         { id: 2, name: 'TypeScript', color: '#3178c6' },

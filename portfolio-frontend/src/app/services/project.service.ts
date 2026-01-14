@@ -212,4 +212,26 @@ export class ProjectService {
       })
     );
   }
+
+  /**
+   * Reorder projects (Admin only)
+   * @param orderedIds Ordered list of project IDs
+   * @returns Observable of void
+   */
+  reorder(orderedIds: number[]): Observable<void> {
+    this.logger.info('[HTTP_REQUEST] Reordering projects', { count: orderedIds.length });
+
+    return this.http.put<void>(`${this.adminApiUrl}/reorder`, { orderedIds }).pipe(
+      tap(() => {
+        this.logger.info('[HTTP_SUCCESS] Projects reordered');
+      }),
+      catchError((error) => {
+        this.logger.error('[HTTP_ERROR] Failed to reorder projects', {
+          status: error.status,
+          message: error.message,
+        });
+        return throwError(() => error);
+      })
+    );
+  }
 }

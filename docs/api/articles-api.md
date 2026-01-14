@@ -406,6 +406,45 @@ Unpublishes an article (sets `draft=true`).
 
 ---
 
+### Reorder Articles
+
+Reorder articles by providing an ordered list of IDs (admin only).
+
+**Endpoint:** `PUT /api/articles/admin/reorder`
+
+**Authentication:** ADMIN required
+
+**Request Body:**
+
+```json
+{
+  "orderedIds": [3, 1, 2, 5, 4]
+}
+```
+
+**Field Validation:**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `orderedIds` | Yes | Ordered list of article IDs |
+
+**Response:** `204 No Content`
+
+**Error Response:** `404 Not Found` - Article ID not found
+
+**Example:**
+```bash
+curl -X PUT \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"orderedIds": [3, 1, 2, 5, 4]}' \
+  http://localhost:8080/api/articles/admin/reorder
+```
+
+**Note:** This endpoint updates the `displayOrder` field for each article. The cache is automatically invalidated after reordering.
+
+---
+
 ## Article Image Management
 
 ### Upload Article Image
@@ -496,6 +535,7 @@ Complete article data with rendered HTML.
 | `updatedAt` | DateTime | Last update timestamp |
 | `viewsCount` | Integer | Number of views |
 | `readingTimeMinutes` | Integer | Estimated reading time |
+| `displayOrder` | Integer | Display order (default: 0) |
 | `tags` | Array[Tag] | Associated tags |
 | `images` | Array[Image] | Uploaded images |
 

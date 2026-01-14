@@ -24,6 +24,7 @@ describe('ArticleService', () => {
     createdAt: '2025-01-01T00:00:00',
     updatedAt: '2025-01-01T00:00:00',
     readingTimeMinutes: 5,
+    displayOrder: 0,
     authorName: 'Admin',
     tags: [],
     images: [],

@@ -191,4 +191,27 @@ export class ArticleService {
         })
       );
   }
+
+  /**
+   * Reorder articles (admin only)
+   * @param orderedIds Ordered list of article IDs
+   * @returns Observable of void
+   */
+  reorder(orderedIds: number[]): Observable<void> {
+    this.logger.info('[HTTP_REQUEST] PUT /api/admin/articles/reorder', {
+      count: orderedIds.length,
+    });
+
+    return this.http
+      .put<void>(`${environment.apiUrl}/api/admin/articles/reorder`, { orderedIds })
+      .pipe(
+        tap(() => {
+          this.logger.info('[HTTP_SUCCESS] Articles reordered');
+        }),
+        catchError((error) => {
+          this.logger.error('[HTTP_ERROR] Reorder articles failed', { error });
+          return throwError(() => error);
+        })
+      );
+  }
 }

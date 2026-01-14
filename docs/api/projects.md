@@ -12,6 +12,7 @@
    - 2.5 [Delete Project](#25-delete-project)
    - 2.6 [Upload Project Image](#26-upload-project-image)
    - 2.7 [Delete Project Image](#27-delete-project-image)
+   - 2.8 [Reorder Projects](#28-reorder-projects)
 3. [Data Models](#3-data-models)
 4. [Business Rules](#4-business-rules)
 5. [Error Handling](#5-error-handling)
@@ -561,6 +562,70 @@ curl -X DELETE http://localhost:8080/api/admin/projects/1/delete-image \
 
 ---
 
+### 2.8 Reorder Projects
+
+Reorder projects by providing an ordered list of IDs (admin only).
+
+**Endpoint**: `PUT /api/admin/projects/reorder`
+
+**Authentication**: Required (ROLE_ADMIN)
+
+**Request Body**:
+```json
+{
+  "orderedIds": [3, 1, 2, 5, 4]
+}
+```
+
+**Request Schema**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `orderedIds` | array | Yes | Ordered list of project IDs |
+
+**Success Response** (204 No Content): Empty body
+
+**Error Responses**:
+
+**Validation Error (400 Bad Request)**:
+```json
+{
+  "timestamp": "2026-01-15T14:23:45.123Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "orderedIds",
+      "message": "must not be null"
+    }
+  ],
+  "path": "/api/admin/projects/reorder"
+}
+```
+
+**Project Not Found (404 Not Found)**:
+```json
+{
+  "timestamp": "2026-01-15T14:23:45.123Z",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Project not found with id: 999",
+  "path": "/api/admin/projects/reorder"
+}
+```
+
+**Example Request (curl)**:
+```bash
+curl -X PUT http://localhost:8080/api/admin/projects/reorder \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..." \
+  -d '{"orderedIds": [3, 1, 2, 5, 4]}'
+```
+
+**Note**: This endpoint updates the `displayOrder` field for each project. The cache is automatically invalidated after reordering.
+
+---
+
 ## 3. Data Models
 
 ### ProjectResponse
@@ -576,6 +641,7 @@ curl -X DELETE http://localhost:8080/api/admin/projects/1/delete-image \
 | `thumbnailUrl` | string | Yes | Thumbnail image URL (400x300px) |
 | `githubUrl` | string | Yes | GitHub repository URL |
 | `liveUrl` | string | Yes | Live demo URL |
+| `displayOrder` | integer | No | Display order (default: 0) |
 | `tags` | array | No | Associated tags (can be empty) |
 | `createdAt` | datetime | No | Creation timestamp |
 | `updatedAt` | datetime | No | Last update timestamp |

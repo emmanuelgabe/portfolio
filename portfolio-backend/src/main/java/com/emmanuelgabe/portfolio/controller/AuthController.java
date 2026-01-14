@@ -5,8 +5,10 @@ import com.emmanuelgabe.portfolio.dto.AuthResponse;
 import com.emmanuelgabe.portfolio.dto.ChangePasswordRequest;
 import com.emmanuelgabe.portfolio.dto.LoginRequest;
 import com.emmanuelgabe.portfolio.exception.InvalidTokenException;
+import com.emmanuelgabe.portfolio.service.AuthRateLimitService;
 import com.emmanuelgabe.portfolio.service.AuthService;
 import com.emmanuelgabe.portfolio.util.CookieUtils;
+import com.emmanuelgabe.portfolio.util.IpAddressExtractor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -36,6 +38,7 @@ public class AuthController {
     private static final int REFRESH_TOKEN_MAX_AGE_DAYS = 7;
 
     private final AuthService authService;
+    private final AuthRateLimitService authRateLimitService;
 
     @Value("${app.cookie.secure:true}")
     private boolean secureCookie;
@@ -44,18 +47,25 @@ public class AuthController {
      * Authenticate user and generate tokens.
      * Access token is returned in response body.
      * Refresh token is set as HttpOnly cookie for security.
+     * Rate limit counter is reset on successful login.
      *
      * @param loginRequest Login credentials
+     * @param request      HTTP request for extracting client IP
      * @param response     HTTP response for setting cookie
      * @return Access token response (refresh token in HttpOnly cookie)
      */
     @PostMapping("/login")
     public ResponseEntity<AccessTokenResponse> login(
             @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletRequest request,
             HttpServletResponse response) {
         log.info("[LOGIN_REQUEST] Login request received - username={}", loginRequest.getUsername());
 
         AuthResponse authResponse = authService.login(loginRequest);
+
+        // Reset rate limit counter on successful login
+        String ip = IpAddressExtractor.extractIpAddress(request);
+        authRateLimitService.resetLoginAttempts(ip);
 
         // Set refresh token as HttpOnly cookie
         ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(

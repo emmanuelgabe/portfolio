@@ -249,7 +249,8 @@
       "preview": "معاينة",
       "required": "مطلوب",
       "optional": "اختياري",
-      "fillRequired": "يرجى ملء جميع الحقول المطلوبة"
+      "fillRequired": "يرجى ملء جميع الحقول المطلوبة",
+      "validationError": "خطأ في التحقق"
     },
     "validation": {
       "required": "هذا الحقل مطلوب",
@@ -419,6 +420,8 @@
       "endDate": "تاريخ الانتهاء (اتركه فارغاً إذا مستمر)",
       "type": "النوع",
       "description": "الوصف",
+      "descriptionPlaceholder": "صف تجربتك...",
+      "markdownHint": "Markdown: **غامق**، *مائل*، - قائمة نقطية",
       "requiredMin2": "مطلوب (حرفان على الأقل)",
       "requiredMin10": "مطلوب (10 أحرف على الأقل)",
       "period": "الفترة",
@@ -437,7 +440,8 @@
       "updateError": "خطأ في التحديث",
       "deleteSuccess": "تم حذف الخبرة",
       "deleteError": "خطأ في الحذف",
-      "loadError": "خطأ في تحميل الخبرات"
+      "loadError": "خطأ في تحميل الخبرات",
+      "endDateBeforeStartDate": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء"
     },
     "tags": {
       "title": "إدارة الوسوم",

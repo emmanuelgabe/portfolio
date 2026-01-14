@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import DOMPurify from 'dompurify';
 import { ArticleResponse } from '../../../models/article.model';
 import { ArticleService } from '../../../services/article.service';
 import { SeoService } from '../../../services/seo.service';
@@ -48,7 +49,8 @@ export class ArticleDetailComponent implements OnInit, AfterViewChecked {
     this.articleService.getBySlug(slug).subscribe({
       next: (data) => {
         this.article = data;
-        this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(data.contentHtml);
+        const cleanHtml = DOMPurify.sanitize(data.contentHtml);
+        this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(cleanHtml);
         this.updateMetaTags(data);
         this.isLoading = false;
       },

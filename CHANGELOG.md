@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-01-16
+
+### Added
+
+#### Entity Reordering System
+- Display order management for projects, articles, and skills
+- Database migration V26 for display_order columns on projects and articles
+- ReorderRequest DTO for generic reordering operations
+- Reorder endpoints for admin controllers (PUT /api/admin/*/reorder)
+- Arrow buttons (up/down) in admin list components for intuitive reordering
+- Optimistic UI updates with rollback on error
+- Cache eviction on reorder operations
+
+#### Markdown Experience Descriptions
+- MarkdownService for client-side Markdown rendering with DOMPurify
+- MonthYearPicker component for date selection without day
+- EasyMDE integration in experience form with custom alignment buttons
+- Markdown rendering in timeline for experience descriptions
+- Locale utilities for internationalized date formatting
+
+#### Admin UI Enhancements
+- Order column with arrow buttons in skill-list component
+- Order column with arrow buttons in project-list component
+- Order column with arrow buttons in article-list component
+- Buttons disabled during reordering, search active, or demo mode
+- Improved experience list with status badges (ongoing/completed)
+
+#### GDPR Compliance
+- Feature flags for Sentry, WebVitals, and VisitorTracking
+- Flags disabled by default for privacy compliance
+- Environment variable configuration for CI/CD enablement
+- Privacy policy dynamic content from site configuration
+
+### Changed
+- Projects and articles now sorted by displayOrder in public views
+- HomeComponent sorts projects and articles by displayOrder
+- ProjectListComponent (public) sorts projects by displayOrder
+- Updated ProjectResponse and ArticleResponse DTOs with displayOrder field
+- Updated frontend models with displayOrder property
+- Production log level changed from INFO to WARN
+
+### Security
+- Improved SVG sanitization with text/tspan/textpath/style elements whitelist
+- Enhanced dangerous pattern detection with word boundary matching
+- Safe data URI pattern for embedded images in SVGs
+- Case-insensitive element and attribute matching
+- DOMPurify sanitization for article detail HTML content
+
+### Dependencies
+- Added dompurify ^3.3.1 for XSS protection
+- Added @types/dompurify ^3.0.5 for TypeScript support
+
+### Database Migrations
+- V26: Add display_order to projects and articles tables with indexes and constraints
+
+---
+
 ## [1.0.0] - 2025-12-22
 
 ### Added

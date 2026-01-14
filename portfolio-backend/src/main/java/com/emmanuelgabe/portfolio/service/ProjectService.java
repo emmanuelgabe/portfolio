@@ -4,6 +4,7 @@ import com.emmanuelgabe.portfolio.dto.CreateProjectRequest;
 import com.emmanuelgabe.portfolio.dto.ProjectImageResponse;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.ReorderProjectImagesRequest;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectImageRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateProjectRequest;
 import com.emmanuelgabe.portfolio.entity.ImageStatus;
@@ -167,4 +168,10 @@ public interface ProjectService {
      * @return Current status of the image
      */
     ImageStatus getImageStatus(Long projectId, Long imageId);
+
+    /**
+     * Reorder projects by updating their display order
+     * @param request Reorder request with ordered IDs
+     */
+    void reorderProjects(ReorderRequest request);
 }

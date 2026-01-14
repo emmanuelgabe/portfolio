@@ -1,0 +1,35 @@
+<div class="month-year-picker">
+  <div class="row g-2">
+    <!-- Month Select -->
+    <div class="col-7">
+      <select
+        class="form-select"
+        [ngModel]="selectedMonth"
+        (ngModelChange)="onMonthChange($event)"
+        [disabled]="disabled"
+        [attr.aria-label]="'admin.common.month' | translate"
+      >
+        <option [ngValue]="null">{{ 'admin.common.month' | translate }}</option>
+        @for (month of months; track month.value) {
+          <option [ngValue]="month.value">{{ month.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Year Select -->
+    <div class="col-5">
+      <select
+        class="form-select"
+        [ngModel]="selectedYear"
+        (ngModelChange)="onYearChange($event)"
+        [disabled]="disabled"
+        [attr.aria-label]="'admin.common.year' | translate"
+      >
+        <option [ngValue]="null">{{ 'admin.common.year' | translate }}</option>
+        @for (year of years; track year) {
+          <option [ngValue]="year">{{ year }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</div>

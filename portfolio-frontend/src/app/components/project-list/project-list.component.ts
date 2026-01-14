@@ -44,7 +44,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (projects) => {
-          this.projects = projects;
+          this.projects = projects.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
           this.isLoading = false;
         },
         error: (err) => {
