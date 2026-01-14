@@ -14,6 +14,7 @@ export interface ProjectResponse {
   updatedAt: string;
   featured: boolean;
   hasDetails: boolean;
+  displayOrder: number;
   tags: TagResponse[];
   images: ProjectImageResponse[];
 }

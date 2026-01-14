@@ -195,4 +195,26 @@ export class SkillService {
       })
     );
   }
+
+  /**
+   * Reorder skills (Admin only)
+   * @param orderedIds Ordered list of skill IDs
+   * @returns Observable of void
+   */
+  reorder(orderedIds: number[]): Observable<void> {
+    this.logger.info('[HTTP_REQUEST] Reordering skills', { count: orderedIds.length });
+
+    return this.http.put<void>(`${this.adminApiUrl}/reorder`, { orderedIds }).pipe(
+      tap(() => {
+        this.logger.info('[HTTP_SUCCESS] Skills reordered');
+      }),
+      catchError((error) => {
+        this.logger.error('[HTTP_ERROR] Failed to reorder skills', {
+          status: error.status,
+          message: error.message,
+        });
+        return throwError(() => error);
+      })
+    );
+  }
 }

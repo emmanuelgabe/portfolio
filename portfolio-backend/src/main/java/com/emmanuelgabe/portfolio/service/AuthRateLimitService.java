@@ -51,4 +51,13 @@ public interface AuthRateLimitService {
      * @return maximum refresh requests per hour
      */
     int getMaxRefreshRequestsPerHour();
+
+    /**
+     * Reset login attempts counter for the given IP address.
+     * Should be called after a successful login to allow legitimate users
+     * to continue using the service.
+     *
+     * @param ip IP address to reset
+     */
+    void resetLoginAttempts(String ip);
 }

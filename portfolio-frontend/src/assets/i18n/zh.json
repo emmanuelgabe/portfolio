@@ -249,7 +249,8 @@
       "preview": "预览",
       "required": "必填",
       "optional": "可选",
-      "fillRequired": "请填写所有必填字段"
+      "fillRequired": "请填写所有必填字段",
+      "validationError": "验证错误"
     },
     "validation": {
       "required": "此字段为必填项",
@@ -419,6 +420,8 @@
       "endDate": "结束日期（进行中则留空）",
       "type": "类型",
       "description": "描述",
+      "descriptionPlaceholder": "描述您的经历...",
+      "markdownHint": "Markdown: **粗体**, *斜体*, - 项目符号列表",
       "requiredMin2": "必填（至少2个字符）",
       "requiredMin10": "必填（至少10个字符）",
       "period": "时间段",
@@ -437,7 +440,8 @@
       "updateError": "更新时出错",
       "deleteSuccess": "经历已删除",
       "deleteError": "删除时出错",
-      "loadError": "加载经历时出错"
+      "loadError": "加载经历时出错",
+      "endDateBeforeStartDate": "结束日期必须在开始日期之后"
     },
     "tags": {
       "title": "标签管理",

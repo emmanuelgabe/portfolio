@@ -249,7 +249,8 @@
       "preview": "プレビュー",
       "required": "必須",
       "optional": "任意",
-      "fillRequired": "すべての必須フィールドを入力してください"
+      "fillRequired": "すべての必須フィールドを入力してください",
+      "validationError": "検証エラー"
     },
     "validation": {
       "required": "このフィールドは必須です",
@@ -419,6 +420,8 @@
       "endDate": "終了日（継続中の場合は空白）",
       "type": "タイプ",
       "description": "説明",
+      "descriptionPlaceholder": "経験を説明してください...",
+      "markdownHint": "Markdown: **太字**, *斜体*, - 箇条書き",
       "requiredMin2": "必須（2文字以上）",
       "requiredMin10": "必須（10文字以上）",
       "period": "期間",
@@ -437,7 +440,8 @@
       "updateError": "更新に失敗しました",
       "deleteSuccess": "経験を削除しました",
       "deleteError": "削除に失敗しました",
-      "loadError": "経験の読み込みに失敗しました"
+      "loadError": "経験の読み込みに失敗しました",
+      "endDateBeforeStartDate": "終了日は開始日より後でなければなりません"
     },
     "tags": {
       "title": "タグ管理",

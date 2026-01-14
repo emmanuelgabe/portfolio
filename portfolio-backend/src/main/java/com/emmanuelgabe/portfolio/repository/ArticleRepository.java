@@ -20,6 +20,13 @@ import java.util.Optional;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     /**
+     * Find all articles ordered by display order.
+     *
+     * @return list of all articles sorted by displayOrder
+     */
+    List<Article> findAllByOrderByDisplayOrderAsc();
+
+    /**
      * Finds an article by its slug.
      *
      * @param slug the article slug

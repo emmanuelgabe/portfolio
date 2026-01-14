@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.service;
 
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
 import com.emmanuelgabe.portfolio.dto.article.CreateArticleRequest;
 import com.emmanuelgabe.portfolio.dto.article.UpdateArticleRequest;
@@ -126,4 +127,11 @@ public interface ArticleService {
      * @param imageId the image ID
      */
     void removeImageFromArticle(Long articleId, Long imageId);
+
+    /**
+     * Reorder articles by updating their display order.
+     *
+     * @param request Reorder request with ordered IDs
+     */
+    void reorderArticles(ReorderRequest request);
 }

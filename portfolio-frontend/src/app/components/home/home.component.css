@@ -4,10 +4,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   position: relative;
   overflow: hidden;
-  padding-top: 15vh;
+  /* Reserve space for scroll arrow at bottom (120px icon + 2rem margin) */
+  padding-bottom: calc(120px + 2rem);
   /* Compensate for body padding to extend to screen edges */
   margin: -20px -20px 0 -20px;
   padding-left: 20px;
@@ -375,7 +376,7 @@
 @media (max-width: 992px) {
   .hero-section {
     min-height: calc(100vh - 66px);
-    padding-top: 12vh;
+    padding-bottom: calc(120px + 3rem);
   }
 
   .hero-section h1 {
@@ -464,7 +465,7 @@
 @media (max-width: 576px) {
   .hero-section {
     min-height: calc(100vh - 66px);
-    padding-top: 10vh;
+    padding-bottom: calc(100px + 4rem);
   }
 
   .hero-section h1 {
@@ -504,8 +505,7 @@
   }
 
   .scroll-arrow {
-    /* Position between CV button and bottom of screen */
-    bottom: calc(12rem + env(safe-area-inset-bottom, 0px));
+    bottom: 2rem;
   }
 
   .scroll-link {
@@ -532,6 +532,52 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px 0;
+}
+
+/* Larger timeline on XL screens (1400px+) */
+@media (min-width: 1400px) {
+  .timeline-container {
+    max-width: 1400px;
+  }
+
+  .timeline-item {
+    width: calc(50% - 35px);
+  }
+
+  .timeline-item.timeline-left .timeline-card {
+    margin-right: 50px;
+  }
+
+  .timeline-item.timeline-right .timeline-card {
+    margin-left: 50px;
+  }
+}
+
+/* Even larger timeline on XXL screens (1600px+) */
+@media (min-width: 1600px) {
+  .timeline-container {
+    max-width: 1600px;
+  }
+
+  .timeline-item {
+    width: calc(50% - 30px);
+  }
+
+  .timeline-item.timeline-left .timeline-card {
+    margin-right: 45px;
+  }
+
+  .timeline-item.timeline-right .timeline-card {
+    margin-left: 45px;
+  }
+
+  .timeline-card {
+    padding: 25px;
+  }
+
+  .timeline-card-header h4 {
+    font-size: 1.35rem;
+  }
 }
 
 /* Central Vertical Line */
@@ -648,6 +694,49 @@
 .timeline-card-body {
   margin-top: 15px;
   line-height: 1.6;
+}
+
+/* Markdown content styling in timeline */
+.timeline-card-body.markdown-content {
+  text-align: left;
+}
+
+.timeline-card-body.markdown-content p {
+  margin-bottom: 0.5rem;
+}
+
+.timeline-card-body.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-card-body.markdown-content ul,
+.timeline-card-body.markdown-content ol {
+  margin-bottom: 0.5rem;
+  padding-left: 1.25rem;
+}
+
+.timeline-card-body.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.timeline-card-body.markdown-content strong {
+  font-weight: 600;
+}
+
+.timeline-card-body.markdown-content a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.timeline-card-body.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.timeline-card-body.markdown-content blockquote {
+  border-left: 3px solid #dee2e6;
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+  color: #6c757d;
 }
 
 /* Timeline Responsive Design: Tablet */

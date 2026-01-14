@@ -28,6 +28,7 @@ public class ArticleResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer readingTimeMinutes;
+    private Integer displayOrder;
     private List<TagResponse> tags;
     private List<ArticleImageResponse> images;
 }

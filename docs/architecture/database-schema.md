@@ -26,7 +26,7 @@ The portfolio database uses **PostgreSQL** with **Flyway** for version-controlle
 - UUID-based refresh tokens
 - Support for draft/publish workflows
 
-**Migration Tool**: Flyway (V1-V25 migrations applied)
+**Migration Tool**: Flyway (V1-V26 migrations applied)
 
 ---
 
@@ -76,6 +76,7 @@ daily_stats (analytics entity)
 | thumbnail_url | VARCHAR(255) | Nullable | Thumbnail (400x300px) |
 | demo_url | VARCHAR(255) | Nullable | Live demo URL |
 | featured | BOOLEAN | NOT NULL, DEFAULT false | Homepage featured flag |
+| display_order | INTEGER | NOT NULL, DEFAULT 0, CHECK >= 0 | Display order |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Creation timestamp |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Last update timestamp |
 
@@ -83,6 +84,7 @@ daily_stats (analytics entity)
 - `idx_projects_featured` - Filter featured projects
 - `idx_projects_title` - Search by title
 - `idx_projects_created_at DESC` - Chronological sorting
+- `idx_projects_display_order` - Ordered display
 
 ---
 
@@ -332,6 +334,7 @@ UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true
 | draft | BOOLEAN | NOT NULL, DEFAULT true | Draft status |
 | published_at | TIMESTAMP | Nullable | Publication timestamp |
 | reading_time_minutes | INTEGER | Nullable | Estimated reading time |
+| display_order | INTEGER | NOT NULL, DEFAULT 0, CHECK >= 0 | Display order |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Creation timestamp |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Last update timestamp |
 
@@ -340,6 +343,7 @@ UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true
 - `idx_articles_published DESC WHERE draft = false` - Published articles (partial)
 - `idx_articles_draft` - Draft filtering
 - `idx_articles_author` - Author's articles
+- `idx_articles_display_order` - Ordered display
 
 ---
 
@@ -486,6 +490,7 @@ CREATE UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true;
 | V23 | Article image status | article_images (added status column) |
 | V24 | Daily statistics | daily_stats |
 | V25 | Visitor tracking | daily_stats (added unique_visitors) |
+| V26 | Display order | projects, articles (added display_order) |
 
 ---
 

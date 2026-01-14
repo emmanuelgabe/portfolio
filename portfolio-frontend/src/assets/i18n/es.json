@@ -256,7 +256,8 @@
       "preview": "Vista previa",
       "required": "requerido",
       "optional": "opcional",
-      "fillRequired": "Por favor complete todos los campos requeridos"
+      "fillRequired": "Por favor complete todos los campos requeridos",
+      "validationError": "Error de validacion"
     },
     "validation": {
       "required": "Este campo es requerido",
@@ -426,6 +427,8 @@
       "endDate": "Fecha de fin (dejar vacio si en curso)",
       "type": "Tipo",
       "description": "Descripcion",
+      "descriptionPlaceholder": "Describa su experiencia...",
+      "markdownHint": "Markdown: **negrita**, *cursiva*, - lista con vinetas",
       "requiredMin2": "Requerido (min 2 caracteres)",
       "requiredMin10": "Requerido (min 10 caracteres)",
       "period": "Periodo",
@@ -444,7 +447,8 @@
       "updateError": "Error al actualizar",
       "deleteSuccess": "Experiencia eliminada",
       "deleteError": "Error al eliminar",
-      "loadError": "Error al cargar las experiencias"
+      "loadError": "Error al cargar las experiencias",
+      "endDateBeforeStartDate": "La fecha de fin debe ser posterior a la fecha de inicio"
     },
     "tags": {
       "title": "Gestion de Etiquetas",

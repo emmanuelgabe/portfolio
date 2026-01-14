@@ -68,7 +68,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let skill of skills">
+            <tr *ngFor="let skill of skills; let i = index">
               <!-- Icon -->
               <td class="align-middle">
                 <div class="skill-icon" [style.color]="skill.color">
@@ -104,7 +104,26 @@
 
               <!-- Display Order -->
               <td class="align-middle text-center">
-                <span class="badge bg-light text-dark">{{ skill.displayOrder }}</span>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    [disabled]="i === 0 || reordering || demoModeService.isDemo()"
+                    (click)="moveUp(i)"
+                    [title]="'admin.common.moveUp' | translate"
+                  >
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    [disabled]="i === skills.length - 1 || reordering || demoModeService.isDemo()"
+                    (click)="moveDown(i)"
+                    [title]="'admin.common.moveDown' | translate"
+                  >
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                </div>
               </td>
 
               <!-- Actions -->

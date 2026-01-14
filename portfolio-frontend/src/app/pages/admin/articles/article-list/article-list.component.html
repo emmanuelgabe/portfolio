@@ -56,12 +56,13 @@
               <th>{{ 'admin.articles.titleField' | translate }}</th>
               <th style="width: 120px">{{ 'admin.articles.status' | translate }}</th>
               <th style="width: 150px">{{ 'admin.articles.publishDate' | translate }}</th>
+              <th style="width: 100px" class="text-center">{{ 'admin.common.order' | translate }}</th>
               <th style="width: 200px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
             @for (i of [1,2,3,4,5]; track i) {
-              <app-skeleton-table-row [columns]="[{width: '45%'}, {width: '120px'}, {width: '150px'}, {width: '200px'}]" />
+              <app-skeleton-table-row [columns]="[{width: '40%'}, {width: '120px'}, {width: '150px'}, {width: '100px'}, {width: '200px'}]" />
             }
           </tbody>
         </table>
@@ -102,11 +103,12 @@
               <th>{{ 'admin.articles.titleField' | translate }}</th>
               <th style="width: 120px">{{ 'admin.articles.status' | translate }}</th>
               <th style="width: 150px">{{ 'admin.articles.publishDate' | translate }}</th>
+              <th style="width: 100px" class="text-center">{{ 'admin.common.order' | translate }}</th>
               <th style="width: 200px" class="text-center">{{ 'admin.common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let article of filteredArticles">
+            <tr *ngFor="let article of filteredArticles; let i = index">
               <!-- Title -->
               <td class="align-middle">
                 <strong>{{ article.title }}</strong>
@@ -137,6 +139,30 @@
               <!-- Published Date -->
               <td class="align-middle">
                 <small>{{ formatDate(article.publishedAt) }}</small>
+              </td>
+
+              <!-- Order -->
+              <td class="align-middle text-center">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    [disabled]="i === 0 || reordering || demoModeService.isDemo() || isSearchActive || filterStatus !== 'all'"
+                    (click)="moveUp(i)"
+                    [title]="'admin.common.moveUp' | translate"
+                  >
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    [disabled]="i === filteredArticles.length - 1 || reordering || demoModeService.isDemo() || isSearchActive || filterStatus !== 'all'"
+                    (click)="moveDown(i)"
+                    [title]="'admin.common.moveDown' | translate"
+                  >
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                </div>
               </td>
 
               <!-- Actions -->

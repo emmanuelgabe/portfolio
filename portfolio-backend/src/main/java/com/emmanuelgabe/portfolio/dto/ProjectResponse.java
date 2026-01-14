@@ -25,6 +25,7 @@ public class ProjectResponse {
     private LocalDateTime updatedAt;
     private boolean featured;
     private boolean hasDetails;
+    private Integer displayOrder;
     private Set<TagResponse> tags;
     private List<ProjectImageResponse> images;
 }

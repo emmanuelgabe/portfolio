@@ -48,6 +48,9 @@ export class AdminArticleListComponent implements OnInit, OnDestroy {
   isSearching = false;
   isSearchActive = false;
 
+  // Reorder state
+  reordering = false;
+
   ngOnInit(): void {
     this.loadArticles();
   }
@@ -65,7 +68,7 @@ export class AdminArticleListComponent implements OnInit, OnDestroy {
 
     articlesObservable.pipe(takeUntil(this.destroy$)).subscribe({
       next: (articles) => {
-        this.articles = articles;
+        this.articles = articles.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
         this.loading = false;
         this.logger.info('[HTTP_SUCCESS] Articles loaded', { count: articles.length });
       },
@@ -76,6 +79,71 @@ export class AdminArticleListComponent implements OnInit, OnDestroy {
         this.toastr.error(this.translate.instant('admin.articles.loadError'));
       },
     });
+  }
+
+  moveUp(index: number): void {
+    if (
+      index <= 0 ||
+      this.reordering ||
+      this.demoModeService.isDemo() ||
+      this.isSearchActive ||
+      this.filterStatus !== 'all'
+    ) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index - 1);
+  }
+
+  moveDown(index: number): void {
+    if (
+      index >= this.articles.length - 1 ||
+      this.reordering ||
+      this.demoModeService.isDemo() ||
+      this.isSearchActive ||
+      this.filterStatus !== 'all'
+    ) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index + 1);
+  }
+
+  private swapAndSave(fromIndex: number, toIndex: number): void {
+    this.reordering = true;
+
+    // Swap items in the array
+    const temp = this.articles[fromIndex];
+    this.articles[fromIndex] = this.articles[toIndex];
+    this.articles[toIndex] = temp;
+
+    // Update display order values
+    this.articles.forEach((article, i) => (article.displayOrder = i));
+
+    // Get ordered IDs
+    const orderedIds = this.articles.map((a) => a.id);
+
+    this.articleService
+      .reorder(orderedIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.reordering = false;
+          this.logger.info('[ADMIN_ARTICLES] Articles reordered');
+        },
+        error: (error) => {
+          this.reordering = false;
+          this.logger.error('[ADMIN_ARTICLES] Failed to reorder articles', { error });
+          this.toastr.error(this.translate.instant('admin.common.reorderError'));
+          this.loadArticles(); // Reload to restore original order
+        },
+      });
   }
 
   get filteredArticles(): ArticleResponse[] {

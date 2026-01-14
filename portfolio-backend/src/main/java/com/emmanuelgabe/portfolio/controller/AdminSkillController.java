@@ -1,6 +1,7 @@
 package com.emmanuelgabe.portfolio.controller;
 
 import com.emmanuelgabe.portfolio.dto.CreateSkillRequest;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.dto.UpdateSkillRequest;
 import com.emmanuelgabe.portfolio.service.SkillService;
@@ -118,5 +119,18 @@ public class AdminSkillController {
         log.info("[ADMIN_SKILLS] Icon uploaded for skill id={}, iconUrl={}",
                 updatedSkill.getId(), updatedSkill.getCustomIconUrl());
         return ResponseEntity.ok(updatedSkill);
+    }
+
+    /**
+     * Reorder skills
+     * @param request Reorder request with ordered IDs
+     * @return No content
+     */
+    @PutMapping("/reorder")
+    public ResponseEntity<Void> reorderSkills(@Valid @RequestBody ReorderRequest request) {
+        log.info("[ADMIN_SKILLS] Reordering skills - count={}", request.getOrderedIds().size());
+        skillService.reorderSkills(request);
+        log.info("[ADMIN_SKILLS] Skills reordered");
+        return ResponseEntity.noContent().build();
     }
 }

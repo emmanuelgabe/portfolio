@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -83,6 +84,10 @@ public class Project {
 
     @Column(name = "has_details", nullable = false)
     private boolean hasDetails = true;
+
+    @Min(value = 0, message = "Display order must be at least 0")
+    @Column(name = "display_order", nullable = false)
+    private Integer displayOrder = 0;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

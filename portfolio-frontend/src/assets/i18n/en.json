@@ -264,7 +264,14 @@
       "searchMinLength": "Enter at least {{min}} characters",
       "searchError": "Search error",
       "noSearchResults": "No results for this search",
-      "searchResults": "{{count}} result(s) found"
+      "searchResults": "{{count}} result(s) found",
+      "month": "Month",
+      "year": "Year",
+      "order": "Order",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "reorderError": "Error reordering",
+      "validationError": "Validation Error"
     },
     "validation": {
       "required": "This field is required",
@@ -437,6 +444,8 @@
       "endDate": "End date (leave empty if ongoing)",
       "type": "Type",
       "description": "Description",
+      "descriptionPlaceholder": "Describe your experience...",
+      "markdownHint": "Markdown: **bold**, *italic*, - bullet list",
       "requiredMin2": "Required (min 2 characters)",
       "requiredMin10": "Required (min 10 characters)",
       "period": "Period",
@@ -455,7 +464,12 @@
       "updateError": "Error updating",
       "deleteSuccess": "Experience deleted",
       "deleteError": "Error deleting",
-      "loadError": "Error loading experiences"
+      "loadError": "Error loading experiences",
+      "alignLeft": "Align left",
+      "alignCenter": "Center",
+      "alignRight": "Align right",
+      "alignedText": "Aligned text",
+      "endDateBeforeStartDate": "End date must be after start date"
     },
     "tags": {
       "title": "Tag Management",

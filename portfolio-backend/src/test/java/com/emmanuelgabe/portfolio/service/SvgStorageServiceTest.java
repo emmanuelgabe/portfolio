@@ -186,6 +186,85 @@ class SvgStorageServiceTest {
                 .hasMessageContaining("dangerous content");
     }
 
+    // ========== Style and Text Element Tests ==========
+
+    @Test
+    void should_uploadSuccessfully_when_uploadSkillIconCalledWithStyleElement() throws IOException {
+        // Arrange
+        String svgWithStyle = """
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <style>
+                        .cls-1 { fill: #FF6B00; }
+                        .cls-2 { fill: #7F52FF; }
+                    </style>
+                    <path class="cls-1" d="M10 10h80v80H10z"/>
+                    <circle class="cls-2" cx="50" cy="50" r="20"/>
+                </svg>
+                """;
+        when(mockFile.isEmpty()).thenReturn(false);
+        when(mockFile.getOriginalFilename()).thenReturn("icon.svg");
+        when(mockFile.getSize()).thenReturn((long) svgWithStyle.length());
+        when(mockFile.getContentType()).thenReturn("image/svg+xml");
+        when(mockFile.getBytes()).thenReturn(svgWithStyle.getBytes());
+
+        // Act
+        String result = svgStorageService.uploadSkillIcon(1L, mockFile);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result).startsWith("/uploads/icons/skill_1_");
+    }
+
+    @Test
+    void should_uploadSuccessfully_when_uploadSkillIconCalledWithTextElement() throws IOException {
+        // Arrange
+        String svgWithText = """
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <text x="10" y="50" font-family="Arial" font-size="14" fill="#333">Hello</text>
+                    <tspan x="10" y="70">World</tspan>
+                </svg>
+                """;
+        when(mockFile.isEmpty()).thenReturn(false);
+        when(mockFile.getOriginalFilename()).thenReturn("icon.svg");
+        when(mockFile.getSize()).thenReturn((long) svgWithText.length());
+        when(mockFile.getContentType()).thenReturn("image/svg+xml");
+        when(mockFile.getBytes()).thenReturn(svgWithText.getBytes());
+
+        // Act
+        String result = svgStorageService.uploadSkillIcon(1L, mockFile);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result).startsWith("/uploads/icons/skill_1_");
+    }
+
+    @Test
+    void should_uploadSuccessfully_when_uploadSkillIconCalledWithSafeDataImageUri() throws IOException {
+        // Arrange
+        String svgWithDataUri = """
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <rect fill="url(#pattern)" width="100" height="100"/>
+                    <defs>
+                        <pattern id="pattern" width="10" height="10">
+                            <path d="M0 0h10v10H0z" fill="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="/>
+                        </pattern>
+                    </defs>
+                </svg>
+                """;
+        when(mockFile.isEmpty()).thenReturn(false);
+        when(mockFile.getOriginalFilename()).thenReturn("icon.svg");
+        when(mockFile.getSize()).thenReturn((long) svgWithDataUri.length());
+        when(mockFile.getContentType()).thenReturn("image/svg+xml");
+        when(mockFile.getBytes()).thenReturn(svgWithDataUri.getBytes());
+
+        // Act
+        String result = svgStorageService.uploadSkillIcon(1L, mockFile);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result).startsWith("/uploads/icons/skill_1_");
+    }
+
     // ========== Upload Tests ==========
 
     @Test
