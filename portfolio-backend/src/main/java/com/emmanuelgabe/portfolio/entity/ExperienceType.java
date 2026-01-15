@@ -6,9 +6,14 @@ package com.emmanuelgabe.portfolio.entity;
  */
 public enum ExperienceType {
     /**
-     * Professional work experience (jobs, internships, freelance)
+     * Professional work experience (jobs, freelance)
      */
     WORK,
+
+    /**
+     * Internship experience (stage)
+     */
+    STAGE,
 
     /**
      * Educational experience (degrees, diplomas, courses)
