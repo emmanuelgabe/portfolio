@@ -23,9 +23,9 @@ export interface ProjectSearchResult {
 
 export interface ExperienceSearchResult {
   id: number;
-  company: string;
-  role: string;
-  type: string;
-  startDate: string;
-  endDate?: string;
+  company?: string | null;
+  role?: string | null;
+  type?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
 }
