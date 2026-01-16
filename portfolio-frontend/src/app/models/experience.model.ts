@@ -1,5 +1,6 @@
 export enum ExperienceType {
   WORK = 'WORK',
+  STAGE = 'STAGE',
   EDUCATION = 'EDUCATION',
   CERTIFICATION = 'CERTIFICATION',
   VOLUNTEERING = 'VOLUNTEERING',
@@ -7,31 +8,35 @@ export enum ExperienceType {
 
 export interface ExperienceResponse {
   id: number;
-  company: string;
-  role: string;
-  startDate: string;
-  endDate?: string;
+  company?: string | null;
+  role?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
   description: string;
-  type: ExperienceType;
+  type?: ExperienceType | null;
+  showMonths: boolean;
+  displayOrder?: number | null;
   createdAt: string;
   updatedAt: string;
   ongoing: boolean;
 }
 
 export interface CreateExperienceRequest {
-  company: string;
-  role: string;
-  startDate: string;
-  endDate?: string;
+  company?: string | null;
+  role?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
   description: string;
-  type: ExperienceType;
+  type?: ExperienceType | null;
+  showMonths: boolean;
 }
 
 export interface UpdateExperienceRequest {
-  company?: string;
-  role?: string;
-  startDate?: string;
-  endDate?: string;
+  company?: string | null;
+  role?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
   description?: string;
-  type?: ExperienceType;
+  type?: ExperienceType | null;
+  showMonths?: boolean;
 }
