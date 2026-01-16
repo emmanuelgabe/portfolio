@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.service;
 
 import com.emmanuelgabe.portfolio.dto.CreateExperienceRequest;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateExperienceRequest;
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public interface ExperienceService {
 
     /**
-     * Get all experiences ordered by start date descending
+     * Get all experiences ordered by display order (manual) then start date descending
      * @return List of all experiences
      */
     List<ExperienceResponse> getAllExperiences();
@@ -46,6 +47,13 @@ public interface ExperienceService {
      * @param id Experience ID
      */
     void deleteExperience(Long id);
+
+    /**
+     * Reorder experiences by updating their display order
+     * @param request Reorder request with ordered IDs
+     */
+    void reorderExperiences(ReorderRequest request);
+
 
     /**
      * Get experiences filtered by type

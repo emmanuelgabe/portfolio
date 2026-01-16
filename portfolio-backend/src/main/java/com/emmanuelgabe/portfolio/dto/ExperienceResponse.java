@@ -25,6 +25,8 @@ public class ExperienceResponse {
     private LocalDate endDate;
     private String description;
     private ExperienceType type;
+    private boolean showMonths;
+    private Integer displayOrder;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean ongoing;

@@ -120,22 +120,35 @@
 
             <div class="timeline-card">
               <div class="timeline-card-header">
-                <span class="badge bg-secondary mb-2">
-                  {{ getExperienceTypeLabel(experience.type) }}
-                </span>
-                <h4 class="mb-1">{{ experience.role }}</h4>
-                <h5 class="text-muted mb-2">{{ experience.company }}</h5>
-                <span class="timeline-date text-muted">
-                  <i class="bi bi-calendar3 me-1"></i>
-                  {{ formatExperienceDateRange(experience.startDate, experience.endDate) }}
-                  @if (experience.ongoing) {
-                    <span class="badge bg-success ms-2">{{ 'experiences.ongoing' | translate }}</span>
-                  }
-                </span>
+                @if (experience.type) {
+                  <span class="badge bg-secondary mb-2">
+                    {{ getExperienceTypeLabel(experience.type) }}
+                  </span>
+                }
+                @if (experience.role) {
+                  <h4 class="mb-1">{{ experience.role }}</h4>
+                }
+                @if (experience.company) {
+                  <h5 class="text-muted mb-2">{{ experience.company }}</h5>
+                }
+                @if (experience.startDate) {
+                  <span class="timeline-date text-muted">
+                    {{ formatExperienceDateRange(experience.startDate, experience.endDate, experience.showMonths) }}
+                    @if (experience.ongoing) {
+                      <span class="badge bg-success ms-2">{{ 'experiences.ongoing' | translate }}</span>
+                    }
+                  </span>
+                }
               </div>
 
-              <div class="timeline-card-body markdown-content" [innerHTML]="renderDescription(experience.description)">
-              </div>
+              @if (experience.description) {
+                <div class="timeline-card-body markdown-content" [innerHTML]="renderDescription(experience.description)">
+                </div>
+              } @else {
+                <div class="timeline-card-body text-muted">
+                  {{ 'common.notProvided' | translate }}
+                </div>
+              }
             </div>
           </div>
         }

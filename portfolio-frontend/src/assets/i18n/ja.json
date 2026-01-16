@@ -25,6 +25,7 @@
     "empty": "まだ経験がありません。",
     "types": {
       "WORK": "職務経験",
+      "STAGE": "インターン",
       "EDUCATION": "学歴",
       "VOLUNTEERING": "ボランティア",
       "CERTIFICATION": "資格"
@@ -129,7 +130,8 @@
     "back": "戻る",
     "next": "次へ",
     "previous": "前へ",
-    "retry": "再試行"
+    "retry": "再試行",
+    "notProvided": "未指定"
   },
   "login": {
     "title": "ログイン",
@@ -245,6 +247,7 @@
       "demoModeWarning": "デモモード - 変更は保存されません",
       "createFirst": "最初の項目を作成",
       "noData": "データがありません",
+      "notProvided": "未指定",
       "image": "画像",
       "preview": "プレビュー",
       "required": "必須",
@@ -419,6 +422,7 @@
       "startDate": "開始日",
       "endDate": "終了日（継続中の場合は空白）",
       "type": "タイプ",
+      "showMonths": "期間に月を表示",
       "description": "説明",
       "descriptionPlaceholder": "経験を説明してください...",
       "markdownHint": "Markdown: **太字**, *斜体*, - 箇条書き",
@@ -429,6 +433,7 @@
       "ongoing": "継続中",
       "ended": "終了",
       "work": "職務経験",
+      "stage": "インターン",
       "education": "学歴",
       "certification": "資格",
       "volunteering": "ボランティア",

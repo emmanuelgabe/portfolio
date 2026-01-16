@@ -178,4 +178,4 @@ volumes:
 networks:
   portfolio-net:
     external: true
-    name: ${NETWORK_NAME:-portfolio_portfolio-net}
+    name: ${NETWORK_NAME:-portfolio-prod_portfolio-net}

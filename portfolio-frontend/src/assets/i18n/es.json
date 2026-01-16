@@ -25,6 +25,7 @@
     "empty": "No hay experiencias disponibles por el momento.",
     "types": {
       "WORK": "Experiencia profesional",
+      "STAGE": "Prácticas",
       "EDUCATION": "Formacion",
       "VOLUNTEERING": "Voluntariado",
       "CERTIFICATION": "Certificacion"
@@ -136,7 +137,8 @@
     "back": "Volver",
     "next": "Siguiente",
     "previous": "Anterior",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "notProvided": "No especificado"
   },
   "login": {
     "title": "Iniciar sesion",
@@ -252,6 +254,7 @@
       "demoModeWarning": "Modo demo - Los cambios no se guardaran",
       "createFirst": "Crear primero",
       "noData": "Sin datos",
+      "notProvided": "No especificado",
       "image": "Imagen",
       "preview": "Vista previa",
       "required": "requerido",
@@ -426,6 +429,7 @@
       "startDate": "Fecha de inicio",
       "endDate": "Fecha de fin (dejar vacio si en curso)",
       "type": "Tipo",
+      "showMonths": "Mostrar los meses en el período",
       "description": "Descripcion",
       "descriptionPlaceholder": "Describa su experiencia...",
       "markdownHint": "Markdown: **negrita**, *cursiva*, - lista con vinetas",
@@ -436,6 +440,7 @@
       "ongoing": "En curso",
       "ended": "Finalizado",
       "work": "Experiencia profesional",
+      "stage": "Prácticas",
       "education": "Formacion",
       "certification": "Certificacion",
       "volunteering": "Voluntariado",

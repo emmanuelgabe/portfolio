@@ -18,20 +18,27 @@ public interface ExperienceRepository extends JpaRepository<Experience, Long> {
      * Find all experiences ordered by start date descending (most recent first)
      * @return List of all experiences sorted by start date DESC
      */
-    List<Experience> findAllByOrderByStartDateDesc();
+    List<Experience> findAllByOrderByDisplayOrderAscStartDateDesc();
 
     /**
-     * Find experiences by type ordered by start date descending
+     * Find experiences by type ordered by display order (manual) then start date descending
      * @param type The experience type to filter by
-     * @return List of experiences matching the type, sorted by start date DESC
+     * @return List of experiences matching the type, sorted by display order then start date DESC
      */
-    List<Experience> findByTypeOrderByStartDateDesc(ExperienceType type);
+    List<Experience> findByTypeOrderByDisplayOrderAscStartDateDesc(ExperienceType type);
 
     /**
-     * Find ongoing experiences (where endDate is null) ordered by start date descending
-     * @return List of ongoing experiences sorted by start date DESC
+     * Find ongoing experiences (where endDate is null) ordered by display order then start date descending
+     * @return List of ongoing experiences sorted by display order then start date DESC
      */
-    List<Experience> findByEndDateIsNullOrderByStartDateDesc();
+    List<Experience> findByEndDateIsNullOrderByDisplayOrderAscStartDateDesc();
+
+    /**
+     * Find all experiences ordered by start date descending (most recent first)
+     * Used for "recent" endpoints
+     * @return List of all experiences sorted by start date DESC
+     */
+    List<Experience> findAllByOrderByStartDateDesc();
 
     /**
      * Search experiences by company or role (case-insensitive).

@@ -77,7 +77,7 @@ public class ImageProcessorService {
         Path optimizedPath = Paths.get(event.getOptimizedFilePath());
         Path thumbnailPath = Paths.get(event.getThumbnailFilePath());
 
-        generate16x9Image(image, optimizedPath);
+        generateOptimizedImage(image, optimizedPath);
         generateThumbnail(image, thumbnailPath);
     }
 
@@ -267,11 +267,7 @@ public class ImageProcessorService {
                 throw new FileStorageException("Could not read original image file: " + originalFilePath);
             }
 
-            if (isCarousel) {
-                generate16x9Image(originalImage, optimizedFilePath);
-            } else {
-                generateOptimizedImage(originalImage, optimizedFilePath);
-            }
+            generateOptimizedImage(originalImage, optimizedFilePath);
 
             if (thumbnailFilePath != null) {
                 generateThumbnail(originalImage, thumbnailFilePath);

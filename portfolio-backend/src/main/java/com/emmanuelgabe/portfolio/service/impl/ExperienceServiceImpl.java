@@ -4,6 +4,7 @@ import com.emmanuelgabe.portfolio.audit.AuditAction;
 import com.emmanuelgabe.portfolio.audit.Auditable;
 import com.emmanuelgabe.portfolio.dto.CreateExperienceRequest;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateExperienceRequest;
 import com.emmanuelgabe.portfolio.entity.Experience;
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
@@ -42,7 +43,7 @@ public class ExperienceServiceImpl implements ExperienceService {
     @Transactional(readOnly = true)
     public List<ExperienceResponse> getAllExperiences() {
         log.debug("[LIST_EXPERIENCES] Fetching all experiences");
-        List<Experience> experiences = experienceRepository.findAllByOrderByStartDateDesc();
+        List<Experience> experiences = experienceRepository.findAllByOrderByDisplayOrderAscStartDateDesc();
         log.debug("[LIST_EXPERIENCES] Found {} experiences", experiences.size());
         return experiences.stream()
                 .map(experienceMapper::toResponse)
@@ -116,11 +117,27 @@ public class ExperienceServiceImpl implements ExperienceService {
     }
 
     @Override
+    @CacheEvict(value = "experiences", allEntries = true)
+    public void reorderExperiences(ReorderRequest request) {
+        log.debug("[REORDER_EXPERIENCES] Reordering experiences - count={}", request.getOrderedIds().size());
+
+        List<Long> orderedIds = request.getOrderedIds();
+        for (int i = 0; i < orderedIds.size(); i++) {
+            Long experienceId = orderedIds.get(i);
+            Experience experience = findOrThrow(experienceRepository.findById(experienceId), "Experience", "id", experienceId);
+            experience.setDisplayOrder(i);
+            experienceRepository.save(experience);
+        }
+
+        log.info("[REORDER_EXPERIENCES] Experiences reordered - count={}", orderedIds.size());
+    }
+
+    @Override
     @Cacheable(value = "experiences", key = "'type:' + #type.name()")
     @Transactional(readOnly = true)
     public List<ExperienceResponse> getExperiencesByType(ExperienceType type) {
         log.debug("[LIST_EXPERIENCES_BY_TYPE] Fetching experiences - type={}", type);
-        List<Experience> experiences = experienceRepository.findByTypeOrderByStartDateDesc(type);
+        List<Experience> experiences = experienceRepository.findByTypeOrderByDisplayOrderAscStartDateDesc(type);
         log.debug("[LIST_EXPERIENCES_BY_TYPE] Found {} experiences for type {}", experiences.size(), type);
         return experiences.stream()
                 .map(experienceMapper::toResponse)
@@ -132,7 +149,7 @@ public class ExperienceServiceImpl implements ExperienceService {
     @Transactional(readOnly = true)
     public List<ExperienceResponse> getOngoingExperiences() {
         log.debug("[LIST_ONGOING_EXPERIENCES] Fetching ongoing experiences");
-        List<Experience> experiences = experienceRepository.findByEndDateIsNullOrderByStartDateDesc();
+        List<Experience> experiences = experienceRepository.findByEndDateIsNullOrderByDisplayOrderAscStartDateDesc();
         log.debug("[LIST_ONGOING_EXPERIENCES] Found {} ongoing experiences", experiences.size());
         return experiences.stream()
                 .map(experienceMapper::toResponse)

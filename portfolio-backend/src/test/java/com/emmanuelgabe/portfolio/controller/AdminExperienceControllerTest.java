@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.controller;
 import com.emmanuelgabe.portfolio.config.TestSecurityConfig;
 import com.emmanuelgabe.portfolio.dto.CreateExperienceRequest;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateExperienceRequest;
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
 import com.emmanuelgabe.portfolio.exception.ResourceNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -71,7 +73,9 @@ class AdminExperienceControllerTest {
         testExperienceResponse.setEndDate(LocalDate.of(2023, 12, 31));
         testExperienceResponse.setDescription("Test description");
         testExperienceResponse.setType(ExperienceType.WORK);
+        testExperienceResponse.setShowMonths(true);
         testExperienceResponse.setCreatedAt(LocalDateTime.now());
+
         testExperienceResponse.setUpdatedAt(LocalDateTime.now());
         testExperienceResponse.setOngoing(false);
 
@@ -81,6 +85,8 @@ class AdminExperienceControllerTest {
         createRequest.setStartDate(LocalDate.of(2023, 1, 1));
         createRequest.setDescription("New experience description");
         createRequest.setType(ExperienceType.WORK);
+        createRequest.setShowMonths(true);
+
 
         updateRequest = new UpdateExperienceRequest();
         updateRequest.setCompany("Updated Company");
@@ -198,7 +204,9 @@ class AdminExperienceControllerTest {
         updatedResponse.setCompany("Updated Company");
         updatedResponse.setRole("Senior Developer");
         updatedResponse.setType(ExperienceType.WORK);
+        updatedResponse.setShowMonths(true);
         updatedResponse.setStartDate(LocalDate.of(2022, 1, 1));
+
         updatedResponse.setCreatedAt(LocalDateTime.now());
         updatedResponse.setUpdatedAt(LocalDateTime.now());
 
@@ -260,5 +268,41 @@ class AdminExperienceControllerTest {
                 .andExpect(jsonPath("$.status", is(404)));
 
         verify(experienceService).deleteExperience(999L);
+    }
+
+    // ========== Reorder Experiences Tests ==========
+
+    @Test
+    void should_return204_when_reorderExperiencesCalledWithValidRequest() throws Exception {
+        // Arrange
+        ReorderRequest reorderRequest = new ReorderRequest();
+        reorderRequest.setOrderedIds(Arrays.asList(3L, 1L, 2L));
+        doNothing().when(experienceService).reorderExperiences(any(ReorderRequest.class));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/admin/experiences/reorder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reorderRequest)))
+                .andExpect(status().isNoContent());
+
+        verify(experienceService).reorderExperiences(any(ReorderRequest.class));
+    }
+
+    @Test
+    void should_return404_when_reorderExperiencesCalledWithNonExistingId() throws Exception {
+        // Arrange
+        ReorderRequest reorderRequest = new ReorderRequest();
+        reorderRequest.setOrderedIds(Arrays.asList(1L, 999L));
+        doThrow(new ResourceNotFoundException("Experience", "id", 999L))
+                .when(experienceService).reorderExperiences(any(ReorderRequest.class));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/admin/experiences/reorder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reorderRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is(404)));
+
+        verify(experienceService).reorderExperiences(any(ReorderRequest.class));
     }
 }

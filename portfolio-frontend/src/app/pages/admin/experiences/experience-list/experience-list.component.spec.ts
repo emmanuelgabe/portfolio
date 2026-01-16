@@ -27,6 +27,8 @@ describe('ExperienceListComponent', () => {
       endDate: '2023-12-31',
       description: 'Test description 1',
       type: ExperienceType.WORK,
+      showMonths: true,
+      displayOrder: 0,
       createdAt: '2024-01-01T00:00:00',
       updatedAt: '2024-01-01T00:00:00',
       ongoing: false,
@@ -39,6 +41,8 @@ describe('ExperienceListComponent', () => {
       endDate: undefined,
       description: 'Test description 2',
       type: ExperienceType.WORK,
+      showMonths: true,
+      displayOrder: 1,
       createdAt: '2024-01-01T00:00:00',
       updatedAt: '2024-01-01T00:00:00',
       ongoing: true,
@@ -46,7 +50,11 @@ describe('ExperienceListComponent', () => {
   ];
 
   beforeEach(async () => {
-    const experienceServiceSpy = jasmine.createSpyObj('ExperienceService', ['getAll', 'delete']);
+    const experienceServiceSpy = jasmine.createSpyObj('ExperienceService', [
+      'getAll',
+      'delete',
+      'reorder',
+    ]);
     const searchServiceSpy = jasmine.createSpyObj('SearchService', ['searchExperiences']);
     searchServiceSpy.searchExperiences.and.returnValue(of([]));
     const modalServiceSpy = jasmine.createSpyObj('ModalService', ['confirm']);
@@ -108,6 +116,10 @@ describe('ExperienceListComponent', () => {
       expect(component.getTypeLabel(ExperienceType.WORK)).toBe('admin.experiences.work');
     });
 
+    it('should return correct label for STAGE type', () => {
+      expect(component.getTypeLabel(ExperienceType.STAGE)).toBe('admin.experiences.stage');
+    });
+
     it('should return correct label for EDUCATION type', () => {
       expect(component.getTypeLabel(ExperienceType.EDUCATION)).toBe('admin.experiences.education');
     });
@@ -124,6 +136,10 @@ describe('ExperienceListComponent', () => {
       );
     });
 
+    it('should return not provided label when type is missing', () => {
+      expect(component.getTypeLabel(undefined)).toBe('admin.common.notProvided');
+    });
+
     it('should return type itself if not found in labels', () => {
       const unknownType = 'UNKNOWN' as ExperienceType;
       expect(component.getTypeLabel(unknownType)).toBe(unknownType);
@@ -133,6 +149,10 @@ describe('ExperienceListComponent', () => {
   describe('getTypeBadgeClass', () => {
     it('should return correct badge class for WORK type', () => {
       expect(component.getTypeBadgeClass(ExperienceType.WORK)).toBe('bg-primary');
+    });
+
+    it('should return correct badge class for STAGE type', () => {
+      expect(component.getTypeBadgeClass(ExperienceType.STAGE)).toBe('bg-dark');
     });
 
     it('should return correct badge class for EDUCATION type', () => {
@@ -145,6 +165,10 @@ describe('ExperienceListComponent', () => {
 
     it('should return correct badge class for VOLUNTEERING type', () => {
       expect(component.getTypeBadgeClass(ExperienceType.VOLUNTEERING)).toBe('bg-info');
+    });
+
+    it('should return default badge class if type is missing', () => {
+      expect(component.getTypeBadgeClass(undefined)).toBe('bg-secondary');
     });
 
     it('should return default badge class if type not found', () => {

@@ -2,7 +2,6 @@ package com.emmanuelgabe.portfolio.dto;
 
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,15 +19,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class CreateExperienceRequest {
 
-    @NotBlank(message = "Company/Organization is required")
-    @Size(min = 2, max = 200, message = "Company/Organization must be between 2 and 200 characters")
+    @Size(max = 200, message = "Company/Organization must be at most 200 characters")
     private String company;
 
-    @NotBlank(message = "Role/Position is required")
-    @Size(min = 2, max = 200, message = "Role/Position must be between 2 and 200 characters")
+    @Size(max = 200, message = "Role/Position must be at most 200 characters")
     private String role;
 
-    @NotNull(message = "Start date is required")
     @PastOrPresent(message = "Start date cannot be in the future")
     private LocalDate startDate;
 
@@ -39,6 +35,8 @@ public class CreateExperienceRequest {
     @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters")
     private String description;
 
-    @NotNull(message = "Experience type is required")
     private ExperienceType type;
+
+    private Boolean showMonths;
+
 }

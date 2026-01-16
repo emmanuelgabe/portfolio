@@ -134,6 +134,30 @@ export class ExperienceService {
   }
 
   /**
+   * Reorder experiences (Admin only)
+   * @param orderedIds Ordered experience IDs
+   * @returns Observable of void
+   */
+  reorder(orderedIds: number[]): Observable<void> {
+    this.logger.info('[HTTP] POST /api/admin/experiences/reorder', {
+      count: orderedIds.length,
+    });
+
+    return this.http.post<void>(`${this.adminApiUrl}/reorder`, { orderedIds }).pipe(
+      tap(() => {
+        this.logger.info('[HTTP_SUCCESS] Experiences reordered', { count: orderedIds.length });
+      }),
+      catchError((error) => {
+        this.logger.error('[HTTP_ERROR] Failed to reorder experiences', {
+          status: error.status,
+          message: error.message,
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Get experiences filtered by type
    * @param type Experience type
    * @returns Observable of filtered experiences

@@ -23,6 +23,7 @@ enum SkillCategory {
 
 enum ExperienceType {
     WORK
+    STAGE
     EDUCATION
     CERTIFICATION
     VOLUNTEERING
@@ -137,12 +138,14 @@ type Skill {
 
 type Experience {
     id: Long!
-    company: String!
-    role: String!
-    startDate: Date!
+    company: String
+    role: String
+    startDate: Date
     endDate: Date
     description: String!
-    type: ExperienceType!
+    type: ExperienceType
+    showMonths: Boolean!
+    displayOrder: Int
     ongoing: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -347,12 +350,13 @@ input UpdateSkillInput {
 }
 
 input CreateExperienceInput {
-    company: String!
-    role: String!
-    startDate: Date!
+    company: String
+    role: String
+    startDate: Date
     endDate: Date
     description: String!
-    type: ExperienceType!
+    type: ExperienceType
+    showMonths: Boolean = true
 }
 
 input UpdateExperienceInput {
@@ -362,7 +366,9 @@ input UpdateExperienceInput {
     endDate: Date
     description: String
     type: ExperienceType
+    showMonths: Boolean
 }
+
 
 input CreateTagInput {
     name: String!

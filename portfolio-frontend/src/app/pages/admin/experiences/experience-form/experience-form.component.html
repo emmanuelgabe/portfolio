@@ -18,29 +18,26 @@
             <form [formGroup]="experienceForm" (ngSubmit)="onSubmit()">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">{{ 'admin.experiences.company' | translate }} *</label>
+                  <label class="form-label">{{ 'admin.experiences.company' | translate }}</label>
                   <input type="text" class="form-control" formControlName="company" [readonly]="demoModeService.isDemo()" />
-                  @if (experienceForm.get('company')?.invalid && experienceForm.get('company')?.touched) {
-                    <small class="text-danger">{{ 'admin.experiences.companyRequired' | translate }}</small>
+                  @if (experienceForm.get('company')?.hasError('minlength') && experienceForm.get('company')?.touched) {
+                    <small class="text-danger">{{ 'admin.validation.minLength' | translate:{min: 2} }}</small>
                   }
                 </div>
 
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">{{ 'admin.experiences.role' | translate }} *</label>
+                  <label class="form-label">{{ 'admin.experiences.role' | translate }}</label>
                   <input type="text" class="form-control" formControlName="role" [readonly]="demoModeService.isDemo()" />
-                  @if (experienceForm.get('role')?.invalid && experienceForm.get('role')?.touched) {
-                    <small class="text-danger">{{ 'admin.experiences.roleRequired' | translate }}</small>
+                  @if (experienceForm.get('role')?.hasError('minlength') && experienceForm.get('role')?.touched) {
+                    <small class="text-danger">{{ 'admin.validation.minLength' | translate:{min: 2} }}</small>
                   }
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">{{ 'admin.experiences.startDate' | translate }} *</label>
+                  <label class="form-label">{{ 'admin.experiences.startDate' | translate }}</label>
                   <app-month-year-picker formControlName="startDate"></app-month-year-picker>
-                  @if (experienceForm.get('startDate')?.invalid && experienceForm.get('startDate')?.touched) {
-                    <small class="text-danger">{{ 'admin.common.required' | translate }}</small>
-                  }
                 </div>
 
                 <div class="col-md-4 mb-3">
@@ -49,12 +46,28 @@
                 </div>
 
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">{{ 'admin.experiences.type' | translate }} *</label>
+                  <label class="form-label">{{ 'admin.experiences.type' | translate }}</label>
                   <select class="form-select" formControlName="type">
+                    <option [ngValue]="null">{{ 'admin.common.optional' | translate }}</option>
                     @for (type of experienceTypes; track type) {
-                      <option [value]="type">{{ getTypeLabel(type) }}</option>
+                      <option [ngValue]="type">{{ getTypeLabel(type) }}</option>
                     }
                   </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check form-switch">
+                  <input
+                    id="showMonthsSwitch"
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="showMonths"
+                    [disabled]="demoModeService.isDemo()"
+                  />
+                  <label class="form-check-label" for="showMonthsSwitch">
+                    {{ 'admin.experiences.showMonths' | translate }}
+                  </label>
                 </div>
               </div>
 
@@ -135,8 +148,11 @@
                   <div class="markdown-preview" [innerHTML]="descriptionPreview"></div>
                 }
 
-                @if (experienceForm.get('description')?.invalid && experienceForm.get('description')?.touched) {
-                  <small class="text-danger">{{ 'admin.experiences.descriptionRequired' | translate }}</small>
+                @if (experienceForm.get('description')?.hasError('required') && experienceForm.get('description')?.touched) {
+                  <small class="text-danger">{{ 'admin.validation.required' | translate }}</small>
+                }
+                @if (experienceForm.get('description')?.hasError('minlength') && experienceForm.get('description')?.touched) {
+                  <small class="text-danger">{{ 'admin.validation.minLength' | translate:{min: 10} }}</small>
                 }
               </div>
 
