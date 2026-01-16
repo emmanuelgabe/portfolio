@@ -21,4 +21,6 @@ public class CreateExperienceInput {
     private LocalDate endDate;
     private String description;
     private ExperienceType type;
+    private Boolean showMonths;
+
 }
