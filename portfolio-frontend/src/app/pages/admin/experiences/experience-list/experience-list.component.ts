@@ -118,6 +118,43 @@ export class ExperienceListComponent implements OnInit, OnDestroy {
     return parsedDate.toLocaleDateString('fr-FR', options);
   }
 
+  formatDateRange(
+    startDate?: string | null,
+    endDate?: string | null,
+    showMonths: boolean = true
+  ): string {
+    if (!startDate) {
+      return '';
+    }
+
+    const options: Intl.DateTimeFormatOptions = showMonths
+      ? { month: 'long', year: 'numeric' }
+      : { year: 'numeric' };
+
+    const start = new Date(startDate);
+    if (Number.isNaN(start.getTime())) {
+      return '';
+    }
+    const startStr = start.toLocaleDateString('fr-FR', options);
+
+    if (!endDate) {
+      return startStr;
+    }
+
+    const end = new Date(endDate);
+    if (Number.isNaN(end.getTime())) {
+      return `${startStr} - ${this.translate.instant('admin.common.notProvided')}`;
+    }
+
+    // If showMonths is false and same year, display only once (e.g., "2019" instead of "2019 - 2019")
+    if (!showMonths && start.getFullYear() === end.getFullYear()) {
+      return startStr;
+    }
+
+    const endStr = end.toLocaleDateString('fr-FR', options);
+    return `${startStr} - ${endStr}`;
+  }
+
   moveUp(index: number): void {
     if (this.isSearchActive) {
       return;

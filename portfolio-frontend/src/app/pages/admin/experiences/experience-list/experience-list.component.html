@@ -96,10 +96,8 @@
                     <td>
                       @if (experience.startDate) {
                         <small class="text-muted">
-                          {{ formatDate(experience.startDate, experience.showMonths) }}
-                          @if (experience.endDate) {
-                            - {{ formatDate(experience.endDate, experience.showMonths) }}
-                          } @else {
+                          {{ formatDateRange(experience.startDate, experience.endDate, experience.showMonths) }}
+                          @if (!experience.endDate) {
                             - {{ 'admin.experiences.present' | translate }}
                           }
                         </small>

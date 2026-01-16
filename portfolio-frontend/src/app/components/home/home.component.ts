@@ -348,8 +348,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (Number.isNaN(end.getTime())) {
       return `${startStr} - ${this.translate.instant('common.notProvided')}`;
     }
-    const endStr = end.toLocaleDateString(locale, options);
 
+    // If showMonths is false and same year, display only once (e.g., "2019" instead of "2019 - 2019")
+    if (!showMonths && start.getFullYear() === end.getFullYear()) {
+      return startStr;
+    }
+
+    const endStr = end.toLocaleDateString(locale, options);
     return `${startStr} - ${endStr}`;
   }
 
