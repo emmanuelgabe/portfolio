@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,6 +30,44 @@ export class ProjectDetailComponent implements OnInit {
   error: string | undefined;
   notFound = false;
   currentSlideIndex = 0;
+  isLightboxOpen = false;
+
+  /**
+   * Handle keyboard events for lightbox navigation
+   */
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    if (!this.isLightboxOpen) return;
+
+    switch (event.key) {
+      case 'Escape':
+        this.closeLightbox();
+        break;
+      case 'ArrowLeft':
+        this.prevSlide();
+        break;
+      case 'ArrowRight':
+        this.nextSlide();
+        break;
+    }
+  }
+
+  /**
+   * Open lightbox at specified image index
+   */
+  openLightbox(index: number): void {
+    this.currentSlideIndex = index;
+    this.isLightboxOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Close the lightbox
+   */
+  closeLightbox(): void {
+    this.isLightboxOpen = false;
+    document.body.style.overflow = '';
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

@@ -5,7 +5,6 @@ export const environment = {
   apiUrl: '',
   baseUrl: 'http://localhost:4200',
   version: VERSION,
-  logLevel: 'DEBUG',
   // Feature flags - Privacy by default (GDPR compliant)
   // These features are disabled by default to avoid cookie consent requirement
   sentry: {

@@ -5,7 +5,6 @@ export const environment = {
   apiUrl: 'https://emmanuelgabe.com',
   baseUrl: 'https://emmanuelgabe.com',
   version: VERSION,
-  logLevel: 'WARN',
   // Feature flags - Privacy by default (GDPR compliant)
   // Disabled by default to avoid cookie consent requirement
   // Enable via environment variables during CI/CD build if needed

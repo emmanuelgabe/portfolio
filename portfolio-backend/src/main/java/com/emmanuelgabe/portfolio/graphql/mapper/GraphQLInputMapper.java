@@ -61,9 +61,11 @@ public interface GraphQLInputMapper {
 
     // ========== Experience Mappings ==========
 
+    @Mapping(target = "showMonths", source = "showMonths", qualifiedByName = "booleanToShowMonths")
     CreateExperienceRequest toCreateExperienceRequest(CreateExperienceInput input);
 
     UpdateExperienceRequest toUpdateExperienceRequest(UpdateExperienceInput input);
+
 
     // ========== Tag Mappings ==========
 
@@ -100,4 +102,10 @@ public interface GraphQLInputMapper {
     default IconType iconTypeWithDefault(IconType iconType) {
         return iconType != null ? iconType : IconType.FONT_AWESOME;
     }
+
+    @Named("booleanToShowMonths")
+    default Boolean booleanToShowMonths(Boolean showMonths) {
+        return showMonths != null ? showMonths : true;
+    }
 }
+

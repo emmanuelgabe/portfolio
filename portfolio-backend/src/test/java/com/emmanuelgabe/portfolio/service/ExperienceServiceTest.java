@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.service;
 
 import com.emmanuelgabe.portfolio.dto.CreateExperienceRequest;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateExperienceRequest;
 import com.emmanuelgabe.portfolio.entity.Experience;
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
@@ -59,7 +60,9 @@ class ExperienceServiceTest {
         testExperience.setEndDate(LocalDate.of(2023, 12, 31));
         testExperience.setDescription("Test description for experience");
         testExperience.setType(ExperienceType.WORK);
+        testExperience.setShowMonths(true);
         testExperience.setCreatedAt(LocalDateTime.now());
+
         testExperience.setUpdatedAt(LocalDateTime.now());
 
         testExperienceResponse = new ExperienceResponse();
@@ -70,7 +73,9 @@ class ExperienceServiceTest {
         testExperienceResponse.setEndDate(LocalDate.of(2023, 12, 31));
         testExperienceResponse.setDescription("Test description for experience");
         testExperienceResponse.setType(ExperienceType.WORK);
+        testExperienceResponse.setShowMonths(true);
         testExperienceResponse.setCreatedAt(testExperience.getCreatedAt());
+
         testExperienceResponse.setUpdatedAt(testExperience.getUpdatedAt());
         testExperienceResponse.setOngoing(false);
 
@@ -85,7 +90,9 @@ class ExperienceServiceTest {
             response.setEndDate(experience.getEndDate());
             response.setDescription(experience.getDescription());
             response.setType(experience.getType());
+            response.setShowMonths(experience.isShowMonths());
             response.setCreatedAt(experience.getCreatedAt());
+
             response.setUpdatedAt(experience.getUpdatedAt());
             response.setOngoing(experience.isOngoing());
             return response;
@@ -97,7 +104,7 @@ class ExperienceServiceTest {
     void should_returnListOfExperiences_when_getAllExperiencesCalled() {
         // Arrange
         List<Experience> experiences = Arrays.asList(testExperience);
-        when(experienceRepository.findAllByOrderByStartDateDesc()).thenReturn(experiences);
+        when(experienceRepository.findAllByOrderByDisplayOrderAscStartDateDesc()).thenReturn(experiences);
 
         // Act
         List<ExperienceResponse> result = experienceService.getAllExperiences();
@@ -106,7 +113,7 @@ class ExperienceServiceTest {
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getCompany()).isEqualTo("Test Company");
-        verify(experienceRepository).findAllByOrderByStartDateDesc();
+        verify(experienceRepository).findAllByOrderByDisplayOrderAscStartDateDesc();
     }
 
     @Test
@@ -148,6 +155,8 @@ class ExperienceServiceTest {
         request.setEndDate(null);
         request.setDescription("New experience description");
         request.setType(ExperienceType.WORK);
+        request.setShowMonths(true);
+
 
         Experience newExperience = new Experience();
         newExperience.setId(2L);
@@ -157,7 +166,9 @@ class ExperienceServiceTest {
         newExperience.setEndDate(null);
         newExperience.setDescription("New experience description");
         newExperience.setType(ExperienceType.WORK);
+        newExperience.setShowMonths(true);
         newExperience.setCreatedAt(LocalDateTime.now());
+
         newExperience.setUpdatedAt(LocalDateTime.now());
 
         when(experienceMapper.toEntity(request)).thenReturn(newExperience);
@@ -184,6 +195,8 @@ class ExperienceServiceTest {
         request.setEndDate(LocalDate.of(2023, 1, 1)); // End before start
         request.setDescription("Invalid experience");
         request.setType(ExperienceType.WORK);
+        request.setShowMonths(true);
+
 
         Experience invalidExperience = new Experience();
         invalidExperience.setCompany("New Company");
@@ -192,6 +205,8 @@ class ExperienceServiceTest {
         invalidExperience.setEndDate(LocalDate.of(2023, 1, 1));
         invalidExperience.setDescription("Invalid experience");
         invalidExperience.setType(ExperienceType.WORK);
+        invalidExperience.setShowMonths(true);
+
 
         when(experienceMapper.toEntity(request)).thenReturn(invalidExperience);
 
@@ -266,10 +281,58 @@ class ExperienceServiceTest {
         verify(experienceRepository, never()).deleteById(999L);
     }
 
+    // ========== Reorder Tests ==========
+
+    @Test
+    void should_reorderExperiences_when_reorderExperiencesCalledWithValidRequest() {
+        // Arrange
+        Experience experience2 = new Experience();
+        experience2.setId(2L);
+        experience2.setCompany("Company 2");
+        experience2.setRole("Role 2");
+        experience2.setDescription("Description 2");
+
+        ReorderRequest request = new ReorderRequest();
+        request.setOrderedIds(Arrays.asList(2L, 1L));
+
+        when(experienceRepository.findById(2L)).thenReturn(Optional.of(experience2));
+        when(experienceRepository.findById(1L)).thenReturn(Optional.of(testExperience));
+        when(experienceRepository.save(any(Experience.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        experienceService.reorderExperiences(request);
+
+        // Assert
+        verify(experienceRepository).findById(2L);
+        verify(experienceRepository).findById(1L);
+        verify(experienceRepository).save(experience2);
+        verify(experienceRepository).save(testExperience);
+        assertThat(experience2.getDisplayOrder()).isEqualTo(0);
+        assertThat(testExperience.getDisplayOrder()).isEqualTo(1);
+    }
+
+    @Test
+    void should_throwResourceNotFoundException_when_reorderExperiencesCalledWithInvalidId() {
+        // Arrange
+        ReorderRequest request = new ReorderRequest();
+        request.setOrderedIds(Arrays.asList(1L, 999L));
+
+        when(experienceRepository.findById(1L)).thenReturn(Optional.of(testExperience));
+        when(experienceRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThatThrownBy(() -> experienceService.reorderExperiences(request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Experience")
+                .hasMessageContaining("999");
+    }
+
+    // ========== Get By Type Tests ==========
+
     @Test
     void should_returnExperiencesByType_when_validType() {
         // Arrange
-        when(experienceRepository.findByTypeOrderByStartDateDesc(ExperienceType.WORK))
+        when(experienceRepository.findByTypeOrderByDisplayOrderAscStartDateDesc(ExperienceType.WORK))
                 .thenReturn(Arrays.asList(testExperience));
 
         // Act
@@ -279,7 +342,7 @@ class ExperienceServiceTest {
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getType()).isEqualTo(ExperienceType.WORK);
-        verify(experienceRepository).findByTypeOrderByStartDateDesc(ExperienceType.WORK);
+        verify(experienceRepository).findByTypeOrderByDisplayOrderAscStartDateDesc(ExperienceType.WORK);
     }
 
     @Test
@@ -294,7 +357,7 @@ class ExperienceServiceTest {
         ongoingExperience.setDescription("Ongoing experience");
         ongoingExperience.setType(ExperienceType.WORK);
 
-        when(experienceRepository.findByEndDateIsNullOrderByStartDateDesc())
+        when(experienceRepository.findByEndDateIsNullOrderByDisplayOrderAscStartDateDesc())
                 .thenReturn(Arrays.asList(ongoingExperience));
 
         // Act
@@ -304,7 +367,7 @@ class ExperienceServiceTest {
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
         assertThat(result.get(0).isOngoing()).isTrue();
-        verify(experienceRepository).findByEndDateIsNullOrderByStartDateDesc();
+        verify(experienceRepository).findByEndDateIsNullOrderByDisplayOrderAscStartDateDesc();
     }
 
     @Test

@@ -19,10 +19,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UpdateExperienceRequest {
 
-    @Size(min = 2, max = 200, message = "Company/Organization must be between 2 and 200 characters")
+    @Size(max = 200, message = "Company/Organization must be at most 200 characters")
     private String company;
 
-    @Size(min = 2, max = 200, message = "Role/Position must be between 2 and 200 characters")
+    @Size(max = 200, message = "Role/Position must be at most 200 characters")
     private String role;
 
     @PastOrPresent(message = "Start date cannot be in the future")
@@ -35,4 +35,7 @@ public class UpdateExperienceRequest {
     private String description;
 
     private ExperienceType type;
+
+    private Boolean showMonths;
+
 }

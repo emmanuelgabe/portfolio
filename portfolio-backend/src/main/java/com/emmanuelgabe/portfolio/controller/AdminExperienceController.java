@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.controller;
 
 import com.emmanuelgabe.portfolio.dto.CreateExperienceRequest;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
+import com.emmanuelgabe.portfolio.dto.ReorderRequest;
 import com.emmanuelgabe.portfolio.dto.UpdateExperienceRequest;
 import com.emmanuelgabe.portfolio.service.ExperienceService;
 import jakarta.validation.Valid;
@@ -98,6 +99,18 @@ public class AdminExperienceController {
         log.info("[ADMIN_EXPERIENCES] Deleting experience id={}", id);
         experienceService.deleteExperience(id);
         log.info("[ADMIN_EXPERIENCES] Deleted experience id={}", id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Reorder experiences
+     * @param request Reorder request with ordered IDs
+     * @return No content
+     */
+    @PostMapping("/reorder")
+    public ResponseEntity<Void> reorderExperiences(@Valid @RequestBody ReorderRequest request) {
+        log.info("[ADMIN_EXPERIENCES] Reordering experiences - count={}", request.getOrderedIds().size());
+        experienceService.reorderExperiences(request);
         return ResponseEntity.noContent().build();
     }
 }

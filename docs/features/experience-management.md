@@ -7,10 +7,9 @@
 2. [Experience Types](#2-experience-types)
 3. [Experience Structure](#3-experience-structure)
 4. [Date Range Management](#4-date-range-management)
-5. [Ongoing Experiences](#5-ongoing-experiences)
+5. [Display Order](#5-display-order)
 6. [Filtering and Retrieval](#6-filtering-and-retrieval)
-7. [Chronological Sorting](#7-chronological-sorting)
-8. [Configuration](#8-configuration)
+7. [Configuration](#7-configuration)
 
 ---
 
@@ -19,24 +18,23 @@
 The Experience Management feature provides a comprehensive system for managing professional, educational, certification, and volunteering experiences. Used to build an interactive timeline showcasing career and educational milestones.
 
 **Key Capabilities**:
-- Four distinct experience types for categorization
+- Five distinct experience types for categorization
+- Optional fields for flexible experience entries
 - Date range tracking with ongoing experience support
+- Manual display order with reorder endpoint
 - Type-based filtering for targeted retrieval
-- Chronological sorting by start date
-- Recent experiences summary for homepage
-- Full CRUD operations with admin access control
-- Date validation and business logic
+- Chronological sorting by display order then start date
 
 **Public Access**:
-- View all experiences in chronological order
+- View all experiences in sorted order
 - Filter experiences by type
 - View ongoing experiences
 - Retrieve recent experiences with configurable limit
 
 **Admin Access**:
 - Create, update, and delete experiences
+- Reorder experiences manually
 - Manage all experience types
-- Edit date ranges and descriptions
 
 ---
 
@@ -49,6 +47,7 @@ The Experience Management feature provides a comprehensive system for managing p
 ```java
 public enum ExperienceType {
     WORK,           // Professional work experience
+    STAGE,          // Internship experience
     EDUCATION,      // Educational experience
     CERTIFICATION,  // Professional certifications
     VOLUNTEERING    // Volunteer work and community service
@@ -59,22 +58,16 @@ public enum ExperienceType {
 
 | Type | Description | Use Cases |
 |------|-------------|-----------|
-| `WORK` | Professional work experience | Full-time jobs, internships, freelance projects, consulting |
+| `WORK` | Professional work experience | Full-time jobs, freelance projects, consulting |
+| `STAGE` | Internship experience | Internships, trainee positions, apprenticeships |
 | `EDUCATION` | Educational experience | Bachelor's, Master's, PhD degrees, diplomas, online courses |
-| `CERTIFICATION` | Professional certifications | Technical certifications (AWS, Azure, Oracle), qualifications, licenses |
-| `VOLUNTEERING` | Volunteer work | Community service, open source contributions, mentorship, non-profit work |
+| `CERTIFICATION` | Professional certifications | Technical certifications (AWS, Azure, Oracle), qualifications |
+| `VOLUNTEERING` | Volunteer work | Community service, open source contributions, mentorship |
 
-### Type-Specific Fields
+### Field Naming Conventions
 
-**All Types Share**:
-- Company/Organization name
-- Role/Position/Degree title
-- Start and end dates
-- Detailed description
-- Created/Updated timestamps
-
-**Field Naming Conventions**:
 - `WORK`: company = "Acme Corporation", role = "Senior Software Engineer"
+- `STAGE`: company = "Tech Startup", role = "Software Development Intern"
 - `EDUCATION`: company = "Tech University", role = "Master's Degree in Computer Science"
 - `CERTIFICATION`: company = "Oracle", role = "Oracle Certified Professional Java SE 17"
 - `VOLUNTEERING`: company = "Local Tech Community", role = "Volunteer Mentor"
@@ -87,37 +80,21 @@ public enum ExperienceType {
 
 **Experience Entity** (`com.emmanuelgabe.portfolio.entity.Experience`):
 
-```java
-@Entity
-@Table(name = "experiences")
-public class Experience {
-    private Long id;
-    private String company;           // 2-200 characters
-    private String role;              // 2-200 characters
-    private LocalDate startDate;      // Required, past or present
-    private LocalDate endDate;        // Optional, null for ongoing
-    private String description;       // 10-2000 characters
-    private ExperienceType type;      // Required enum value
-    private LocalDateTime createdAt;  // Auto-generated
-    private LocalDateTime updatedAt;  // Auto-updated
-}
-```
-
-### Field Details
-
 | Field | Type | Required | Constraints | Description |
 |-------|------|----------|-------------|-------------|
 | `id` | Long | No | Auto-generated | Primary key |
-| `company` | String | Yes | 2-200 chars | Company or organization name |
-| `role` | String | Yes | 2-200 chars | Job title, degree, or certification name |
-| `startDate` | LocalDate | Yes | Past/present | Experience start date |
+| `company` | String | No | max 200 chars | Company or organization name |
+| `role` | String | No | max 200 chars | Job title, degree, or certification name |
+| `startDate` | LocalDate | No | Past/present | Experience start date |
 | `endDate` | LocalDate | No | Past/present, nullable | Experience end date (null = ongoing) |
-| `description` | String | Yes | 10-2000 chars | Detailed description of responsibilities, achievements |
-| `type` | ExperienceType | Yes | Enum value | Type of experience |
+| `description` | String | Yes | 10-2000 chars | Detailed description |
+| `type` | ExperienceType | No | Enum value | Type of experience |
+| `showMonths` | boolean | No | Default true | Show months in displayed date range |
+| `displayOrder` | Integer | No | Nullable | Manual display order |
 | `createdAt` | LocalDateTime | No | Auto-generated | Creation timestamp |
 | `updatedAt` | LocalDateTime | No | Auto-updated | Last modification timestamp |
 
-### Business Methods
+### Computed Properties
 
 **Check if Experience is Ongoing**:
 ```java
@@ -129,7 +106,8 @@ public boolean isOngoing() {
 **Date Validation**:
 ```java
 public void validateDates() {
-    if (this.endDate != null && this.endDate.isBefore(this.startDate)) {
+    if (this.endDate != null && this.startDate != null
+            && this.endDate.isBefore(this.startDate)) {
         throw new IllegalStateException("End date cannot be before start date");
     }
 }
@@ -141,109 +119,47 @@ public void validateDates() {
 
 ### Date Validation Rules
 
-1. **Start Date**:
-   - Must not be null
-   - Must be in the past or present (not future)
-   - Validated via `@PastOrPresent` annotation
-
-2. **End Date**:
-   - Optional (nullable for ongoing experiences)
-   - Must be in the past or present if provided
-   - Must be equal to or after start date
-   - Validated via `@PastOrPresent` annotation
-
-### Date Validation Examples
-
-**Valid Date Ranges**:
-```
-startDate: 2020-01-15, endDate: 2023-06-30  [OK] Completed experience
-startDate: 2023-01-15, endDate: null         [OK] Ongoing experience
-startDate: 2023-05-10, endDate: 2023-05-10  [OK] Single-day experience (certifications)
-```
-
-**Invalid Date Ranges**:
-```
-startDate: 2030-01-01, endDate: null         [ERR] Future start date
-startDate: 2020-01-15, endDate: 2019-12-31  [ERR] End before start
-startDate: 2020-01-15, endDate: 2030-12-31  [ERR] Future end date
-```
+1. **Start Date**: Optional, must be past or present if provided
+2. **End Date**: Optional, must be past or present if provided, must be after start date
+3. **Ongoing**: Experience is ongoing when `endDate` is null
 
 ### Date Handling in UI
 
 **Display Formats**:
 - **Ongoing**: "January 2023 - Present"
 - **Completed**: "January 2023 - June 2023"
+- **Year Only**: "2022 - 2024" (when `showMonths` is false)
 - **Single Day**: "May 10, 2023" (for certifications)
-
-**Duration Calculation**:
-```
-startDate: 2020-01-15
-endDate: 2023-06-30
-→ Duration: 3 years 5 months
-```
 
 ---
 
-## 5. Ongoing Experiences
+## 5. Display Order
 
-### Definition
+### Reorder Functionality
 
-An experience is considered **ongoing** when `endDate` is `null`.
+The reorder endpoint allows manual ordering of experiences independent of dates.
 
-**Endpoint**: `GET /api/experiences/ongoing`
+**Endpoint**: `POST /api/admin/experiences/reorder`
 
-### Use Cases
-
-1. **Current Job**: Display current employment status
-2. **Active Studies**: Show ongoing education programs
-3. **Long-term Volunteering**: Indicate active volunteer commitments
-
-### Examples
-
-**Ongoing Work Experience**:
+**Request Body**:
 ```json
 {
-  "id": 1,
-  "company": "Acme Corporation",
-  "role": "Senior Software Engineer",
-  "startDate": "2023-01-15",
-  "endDate": null,
-  "type": "WORK",
-  "ongoing": true,
-  "description": "Leading development of microservices..."
+  "orderedIds": [3, 1, 2, 5, 4]
 }
 ```
 
-**Ongoing Volunteering**:
-```json
-{
-  "id": 5,
-  "company": "Local Tech Community",
-  "role": "Volunteer Mentor",
-  "startDate": "2024-06-01",
-  "endDate": null,
-  "type": "VOLUNTEERING",
-  "ongoing": true,
-  "description": "Mentoring aspiring developers..."
-}
-```
+### Sorting Logic
 
-### Ongoing Experience Query
-
-**Service Method**:
+**Repository Methods**:
 ```java
-public List<ExperienceResponse> getOngoingExperiences() {
-    return experienceRepository.findByEndDateIsNull()
-        .stream()
-        .map(experienceMapper::toResponse)
-        .collect(Collectors.toList());
-}
+List<Experience> findAllByOrderByDisplayOrderAscStartDateDesc();
+List<Experience> findByTypeOrderByDisplayOrderAscStartDateDesc(ExperienceType type);
+List<Experience> findByEndDateIsNullOrderByDisplayOrderAscStartDateDesc();
 ```
 
-**Repository Method**:
-```java
-List<Experience> findByEndDateIsNull();
-```
+**Sort Priority**:
+1. `displayOrder` ascending (experiences with order appear first)
+2. `startDate` descending (most recent first)
 
 ---
 
@@ -253,45 +169,13 @@ List<Experience> findByEndDateIsNull();
 
 **Endpoint**: `GET /api/experiences/type/{type}`
 
-**Supported Types**:
-- `GET /api/experiences/type/WORK` - All work experiences
-- `GET /api/experiences/type/EDUCATION` - All education experiences
-- `GET /api/experiences/type/CERTIFICATION` - All certifications
-- `GET /api/experiences/type/VOLUNTEERING` - All volunteering experiences
+**Supported Types**: WORK, STAGE, EDUCATION, CERTIFICATION, VOLUNTEERING
 
-**Use Cases**:
-- Display work history separately from education
-- Show certifications in a dedicated section
-- Highlight volunteer work
+### Ongoing Experiences
 
-**Example Request**:
-```bash
-curl -X GET http://localhost:8080/api/experiences/type/WORK
-```
+**Endpoint**: `GET /api/experiences/ongoing`
 
-**Example Response**:
-```json
-[
-  {
-    "id": 1,
-    "company": "Acme Corporation",
-    "role": "Senior Software Engineer",
-    "startDate": "2023-01-15",
-    "endDate": null,
-    "type": "WORK",
-    "ongoing": true
-  },
-  {
-    "id": 4,
-    "company": "Previous Company",
-    "role": "Software Developer",
-    "startDate": "2020-06-01",
-    "endDate": "2022-12-31",
-    "type": "WORK",
-    "ongoing": false
-  }
-]
-```
+Returns experiences where `endDate` is null.
 
 ### Recent Experiences
 
@@ -299,68 +183,11 @@ curl -X GET http://localhost:8080/api/experiences/type/WORK
 
 **Default Limit**: 3 experiences
 
-**Use Case**: Homepage summary showing most recent achievements
-
-**Query Parameters**:
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `limit` | integer | 3 | Maximum number of experiences to return |
-
-**Example Request**:
-```bash
-# Get 5 most recent experiences
-curl -X GET "http://localhost:8080/api/experiences/recent?limit=5"
-```
-
-**Sorting**: Ordered by `startDate` descending (most recent first)
+Returns the N most recent experiences for homepage display.
 
 ---
 
-## 7. Chronological Sorting
-
-### Default Sort Order
-
-**All Listing Endpoints**: Sorted by `startDate` in **descending order** (newest first)
-
-**Rationale**: Users typically want to see the most recent experiences first
-
-### Sort Implementation
-
-**Service Layer**:
-```java
-public List<ExperienceResponse> getAllExperiences() {
-    return experienceRepository.findAllByOrderByStartDateDesc()
-        .stream()
-        .map(experienceMapper::toResponse)
-        .collect(Collectors.toList());
-}
-```
-
-**Repository Method**:
-```java
-List<Experience> findAllByOrderByStartDateDesc();
-List<Experience> findByTypeOrderByStartDateDesc(ExperienceType type);
-```
-
-### Timeline Display
-
-**Chronological Order**:
-1. Current ongoing experiences (most recent start date first)
-2. Completed experiences (most recent start date first)
-3. Older experiences
-
-**Example Timeline**:
-```
-2024-06-01 - Present    : Volunteer Mentor (VOLUNTEERING)
-2023-01-15 - Present    : Senior Software Engineer (WORK)
-2023-05-10 - 2023-05-10 : Oracle Java Certification (CERTIFICATION)
-2020-09-01 - 2022-06-30 : Master's Degree (EDUCATION)
-2018-06-01 - 2020-05-31 : Software Developer (WORK)
-```
-
----
-
-## 8. Configuration
+## 7. Configuration
 
 ### Entity Configuration
 
@@ -380,26 +207,32 @@ public class Experience { ... }
 
 ### Validation Annotations
 
-**Field Validation**:
 ```java
-@NotBlank(message = "Company/Organization is required")
-@Size(min = 2, max = 200)
-private String company;
+@Size(max = 200)
+private String company;  // Optional
 
-@NotNull(message = "Start date is required")
+@Size(max = 200)
+private String role;  // Optional
+
 @PastOrPresent(message = "Start date cannot be in the future")
-private LocalDate startDate;
+private LocalDate startDate;  // Optional
 
 @PastOrPresent(message = "End date cannot be in the future")
-private LocalDate endDate;  // Nullable
+private LocalDate endDate;  // Optional
 
 @NotBlank(message = "Description is required")
 @Size(min = 10, max = 2000)
-private String description;
+private String description;  // Required
 
-@NotNull(message = "Experience type is required")
 @Enumerated(EnumType.STRING)
-private ExperienceType type;
+private ExperienceType type;  // Optional
+
+@Column(name = "show_months", nullable = false)
+private boolean showMonths = true;
+
+@Min(value = 0)
+@Column(name = "display_order")
+private Integer displayOrder;  // Optional
 ```
 
 ### MapStruct Configuration
@@ -411,14 +244,28 @@ public interface ExperienceMapper {
     ExperienceResponse toResponse(Experience experience);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "showMonths", defaultValue = "true")
     Experience toEntity(CreateExperienceRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromRequest(UpdateExperienceRequest request, @MappingTarget Experience experience);
+
+    @AfterMapping
+    default void setOngoingFlag(Experience experience, @MappingTarget ExperienceResponse response) {
+        response.setOngoing(experience.getEndDate() == null);
+    }
 }
 ```
 
-**Partial Update Support**: `UpdateExperienceRequest` allows null values, only provided fields are updated
+### Cache Configuration
+
+**Cache Names**:
+- `experiences` - All experiences list
+- `experiencesByType` - Experiences filtered by type
+- `ongoingExperiences` - Ongoing experiences
+- `recentExperiences` - Recent experiences
+
+**Cache Eviction**: All caches are evicted on create, update, delete, and reorder operations.
 
 ---
 

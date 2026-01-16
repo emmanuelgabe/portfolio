@@ -57,7 +57,9 @@ class ExperienceControllerTest {
         testExperienceResponse.setEndDate(LocalDate.of(2023, 12, 31));
         testExperienceResponse.setDescription("Test description for the experience");
         testExperienceResponse.setType(ExperienceType.WORK);
+        testExperienceResponse.setShowMonths(true);
         testExperienceResponse.setCreatedAt(LocalDateTime.now());
+
         testExperienceResponse.setUpdatedAt(LocalDateTime.now());
         testExperienceResponse.setOngoing(false);
     }
@@ -128,7 +130,9 @@ class ExperienceControllerTest {
         ongoingExp.setEndDate(null);
         ongoingExp.setDescription("Ongoing experience description");
         ongoingExp.setType(ExperienceType.WORK);
+        ongoingExp.setShowMonths(true);
         ongoingExp.setOngoing(true);
+
 
         List<ExperienceResponse> experiences = List.of(ongoingExp);
         when(experienceService.getOngoingExperiences()).thenReturn(experiences);

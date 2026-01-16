@@ -8,8 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -41,19 +41,16 @@ public class Experience {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @NotBlank(message = "Company/Organization is required")
-    @Size(min = 2, max = 200, message = "Company/Organization must be between 2 and 200 characters")
-    @Column(nullable = false, length = 200)
+    @Size(max = 200, message = "Company/Organization must be at most 200 characters")
+    @Column(length = 200)
     private String company;
 
-    @NotBlank(message = "Role/Position is required")
-    @Size(min = 2, max = 200, message = "Role/Position must be between 2 and 200 characters")
-    @Column(nullable = false, length = 200)
+    @Size(max = 200, message = "Role/Position must be at most 200 characters")
+    @Column(length = 200)
     private String role;
 
-    @NotNull(message = "Start date is required")
     @PastOrPresent(message = "Start date cannot be in the future")
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     private LocalDate startDate;
 
     @PastOrPresent(message = "End date cannot be in the future")
@@ -65,10 +62,16 @@ public class Experience {
     @Column(nullable = false, length = 2000, columnDefinition = "TEXT")
     private String description;
 
-    @NotNull(message = "Experience type is required")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private ExperienceType type;
+
+    @Column(name = "show_months", nullable = false)
+    private boolean showMonths = true;
+
+    @Min(value = 0, message = "Display order must be at least 0")
+    @Column(name = "display_order")
+    private Integer displayOrder;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -91,7 +94,7 @@ public class Experience {
      * @throws IllegalStateException if endDate is before startDate
      */
     public void validateDates() {
-        if (this.endDate != null && this.endDate.isBefore(this.startDate)) {
+        if (this.startDate != null && this.endDate != null && this.endDate.isBefore(this.startDate)) {
             throw new IllegalStateException("End date cannot be before start date");
         }
     }

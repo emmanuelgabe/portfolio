@@ -25,6 +25,7 @@
     "empty": "Derzeit keine Erfahrungen verfuegbar.",
     "types": {
       "WORK": "Berufserfahrung",
+      "STAGE": "Praktikum",
       "EDUCATION": "Ausbildung",
       "VOLUNTEERING": "Ehrenamt",
       "CERTIFICATION": "Zertifizierung"
@@ -136,7 +137,8 @@
     "back": "Zurueck",
     "next": "Weiter",
     "previous": "Zurueck",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "notProvided": "Nicht angegeben"
   },
   "login": {
     "title": "Anmelden",
@@ -252,6 +254,7 @@
       "demoModeWarning": "Demo-Modus - Aenderungen werden nicht gespeichert",
       "createFirst": "Zuerst erstellen",
       "noData": "Keine Daten",
+      "notProvided": "Nicht angegeben",
       "image": "Bild",
       "preview": "Vorschau",
       "required": "erforderlich",
@@ -426,6 +429,7 @@
       "startDate": "Startdatum",
       "endDate": "Enddatum (leer lassen wenn laufend)",
       "type": "Typ",
+      "showMonths": "Monate im Zeitraum anzeigen",
       "description": "Beschreibung",
       "descriptionPlaceholder": "Beschreiben Sie Ihre Erfahrung...",
       "markdownHint": "Markdown: **fett**, *kursiv*, - Aufzaehlung",
@@ -436,6 +440,7 @@
       "ongoing": "Laufend",
       "ended": "Beendet",
       "work": "Berufserfahrung",
+      "stage": "Praktikum",
       "education": "Ausbildung",
       "certification": "Zertifizierung",
       "volunteering": "Ehrenamt",

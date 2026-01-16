@@ -25,6 +25,7 @@
     "empty": "暂无经历",
     "types": {
       "WORK": "工作经历",
+      "STAGE": "实习",
       "EDUCATION": "教育经历",
       "VOLUNTEERING": "志愿服务",
       "CERTIFICATION": "资格认证"
@@ -129,7 +130,8 @@
     "back": "返回",
     "next": "下一步",
     "previous": "上一步",
-    "retry": "重试"
+    "retry": "重试",
+    "notProvided": "未提供"
   },
   "login": {
     "title": "登录",
@@ -245,6 +247,7 @@
       "demoModeWarning": "演示模式 - 更改不会被保存",
       "createFirst": "创建第一个",
       "noData": "暂无数据",
+      "notProvided": "未提供",
       "image": "图片",
       "preview": "预览",
       "required": "必填",
@@ -419,6 +422,7 @@
       "startDate": "开始日期",
       "endDate": "结束日期（进行中则留空）",
       "type": "类型",
+      "showMonths": "显示月份区间",
       "description": "描述",
       "descriptionPlaceholder": "描述您的经历...",
       "markdownHint": "Markdown: **粗体**, *斜体*, - 项目符号列表",
@@ -429,6 +433,7 @@
       "ongoing": "进行中",
       "ended": "已结束",
       "work": "工作经历",
+      "stage": "实习",
       "education": "教育经历",
       "certification": "资格认证",
       "volunteering": "志愿服务",

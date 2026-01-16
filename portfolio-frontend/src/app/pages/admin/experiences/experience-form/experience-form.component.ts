@@ -60,12 +60,13 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
 
   initForm(): void {
     this.experienceForm = this.fb.group({
-      company: ['', [Validators.required, Validators.minLength(2)]],
-      role: ['', [Validators.required, Validators.minLength(2)]],
-      startDate: ['', Validators.required],
+      company: ['', [Validators.minLength(2)]],
+      role: ['', [Validators.minLength(2)]],
+      startDate: [''],
       endDate: [''],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      type: [ExperienceType.WORK, Validators.required],
+      type: [null],
+      showMonths: [true],
     });
   }
 
@@ -80,10 +81,12 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
       this.experienceForm.get('startDate')?.disable();
       this.experienceForm.get('endDate')?.disable();
       this.experienceForm.get('type')?.disable();
+      this.experienceForm.get('showMonths')?.disable();
     } else {
       this.experienceForm.get('startDate')?.enable();
       this.experienceForm.get('endDate')?.enable();
       this.experienceForm.get('type')?.enable();
+      this.experienceForm.get('showMonths')?.enable();
     }
   }
 
@@ -104,12 +107,13 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (experience) => {
           this.experienceForm.patchValue({
-            company: experience.company,
-            role: experience.role,
-            startDate: experience.startDate,
-            endDate: experience.endDate || '',
+            company: experience.company ?? '',
+            role: experience.role ?? '',
+            startDate: experience.startDate ?? '',
+            endDate: experience.endDate ?? '',
             description: experience.description,
-            type: experience.type,
+            type: experience.type ?? null,
+            showMonths: experience.showMonths ?? true,
           });
           this.loading = false;
         },
@@ -136,12 +140,24 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
     // Use getRawValue() to include disabled controls
     const formValue = this.experienceForm.getRawValue();
 
-    // Convert empty endDate to null for backend compatibility
+    // Convert empty optional fields to null for backend compatibility
+    if (!formValue.company) {
+      formValue.company = null;
+    }
+    if (!formValue.role) {
+      formValue.role = null;
+    }
+    if (!formValue.startDate) {
+      formValue.startDate = null;
+    }
     if (!formValue.endDate) {
       formValue.endDate = null;
     }
+    if (!formValue.type) {
+      formValue.type = null;
+    }
 
-    // Validate that endDate is after startDate if endDate is provided
+    // Validate that endDate is after startDate if both dates are provided
     if (formValue.endDate && formValue.startDate) {
       const startDate = new Date(formValue.startDate);
       const endDate = new Date(formValue.endDate);
@@ -194,11 +210,12 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
   getTypeLabel(type: ExperienceType): string {
     const labels: Record<ExperienceType, string> = {
       [ExperienceType.WORK]: this.translate.instant('admin.experiences.work'),
+      [ExperienceType.STAGE]: this.translate.instant('admin.experiences.stage'),
       [ExperienceType.EDUCATION]: this.translate.instant('admin.experiences.education'),
       [ExperienceType.CERTIFICATION]: this.translate.instant('admin.experiences.certification'),
       [ExperienceType.VOLUNTEERING]: this.translate.instant('admin.experiences.volunteering'),
     };
-    return labels[type];
+    return labels[type] ?? type;
   }
 
   togglePreview(): void {

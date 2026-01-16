@@ -7,7 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.1.0] - 2026-01-16
+## [1.2.0] - 2026-01-16
+
+### Added
+
+#### Experience Management Enhancements
+- New STAGE (internship) experience type for differentiated career entries
+- showMonths field to control date display granularity (show months vs year only)
+- displayOrder field for manual sorting of experiences
+- Admin reorder endpoint (PUT /api/admin/experiences/reorder)
+- Repository methods for ordered queries (findByTypeOrderByDisplayOrderAsc, findAllByOrderByDisplayOrderAsc)
+- GraphQL schema updates with ExperienceOrderByInput and new fields
+
+#### Project Detail Page
+- Image lightbox with fullscreen gallery view
+- Keyboard navigation (Escape to close, Arrow keys to navigate)
+- Social sharing buttons (Twitter, LinkedIn, Copy link)
+- Improved image carousel with sorted display order
+
+#### Admin Experience UI
+- Display order column with up/down arrow buttons
+- Status badges (ongoing/completed) in experience list
+- Improved form with optional fields handling
+- Sorting by type and display order
+
+#### Build Configuration
+- Added fileReplacements for production in angular.json
+- Added complete staging configuration with fileReplacements and budgets
+
+### Changed
+- Experience entity fields now optional (company, role, startDate, type)
+- Only description field remains required
+- Experience list sorted by displayOrder in public views
+- Home component sorts experiences by displayOrder
+- Updated i18n translations for STAGE type in 10 languages
+- LoggerService now uses Angular isDevMode() for automatic log level detection
+- Removed logLevel from all environment files (dev, staging, prod)
+- Simplified Sentry message capture in LoggerService
+
+### Fixed
+- Docker network configuration for monitoring stack (Prometheus/Grafana "No Data" fix)
+- Network name default changed to portfolio-prod_portfolio-net for production
+- Added NETWORK_NAME documentation to .env.example
+
+### Database Migrations
+- V27: Add show_months boolean column to experiences table
+- V28: Add display_order column, make fields nullable, add STAGE to type constraint
+
+---
+
+## [1.1.0] - 2026-01-14
 
 ### Added
 
