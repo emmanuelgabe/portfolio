@@ -33,7 +33,9 @@ public interface ExperienceMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "showMonths", defaultValue = "true")
     Experience toEntity(CreateExperienceRequest request);
+
 
     /**
      * Update existing Experience entity with values from UpdateExperienceRequest
@@ -45,7 +47,27 @@ public interface ExperienceMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "company", expression = "java(normalizeEmptyString(request.getCompany(), experience.getCompany()))")
+    @Mapping(target = "role", expression = "java(normalizeEmptyString(request.getRole(), experience.getRole()))")
     void updateEntityFromRequest(UpdateExperienceRequest request, @MappingTarget Experience experience);
+
+    /**
+     * Normalize empty strings to null for optional fields
+     * If the new value is an empty/blank string, return null
+     * If the new value is null, keep the existing value (partial update behavior)
+     * @param newValue The new value from the request
+     * @param existingValue The existing value in the entity
+     * @return The normalized value
+     */
+    default String normalizeEmptyString(String newValue, String existingValue) {
+        if (newValue == null) {
+            return existingValue;
+        }
+        if (newValue.isBlank()) {
+            return null;
+        }
+        return newValue;
+    }
 
     /**
      * After mapping, set the ongoing flag based on endDate
