@@ -289,7 +289,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (experiences) => {
-          this.allExperiences = experiences;
+          this.allExperiences = this.sortExperiences(experiences);
           this.isLoadingExperiences = false;
           this.cdr.detectChanges();
           this.observeTimelineItems();
@@ -305,47 +305,79 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  getExperienceIcon(type: ExperienceType): string {
+  getExperienceIcon(type?: ExperienceType | null): string {
+    if (!type) {
+      return 'bi-question-circle';
+    }
     const icons: Record<ExperienceType, string> = {
       [ExperienceType.WORK]: 'bi-briefcase',
+      [ExperienceType.STAGE]: 'bi-person-badge',
       [ExperienceType.EDUCATION]: 'bi-mortarboard',
       [ExperienceType.CERTIFICATION]: 'bi-award',
       [ExperienceType.VOLUNTEERING]: 'bi-heart',
     };
-    return icons[type] || 'bi-circle';
+    return icons[type] || 'bi-question-circle';
   }
 
-  formatExperienceDateRange(startDate: string, endDate?: string): string {
+  formatExperienceDateRange(
+    startDate?: string | null,
+    endDate?: string | null,
+    showMonths: boolean = true
+  ): string {
+    if (!startDate) {
+      return this.translate.instant('common.notProvided');
+    }
+
     const currentLang = this.translate.currentLang || 'fr';
     const locale = getLocaleFromLang(currentLang);
+    const options: Intl.DateTimeFormatOptions = showMonths
+      ? { month: 'long', year: 'numeric' }
+      : { year: 'numeric' };
 
     const start = new Date(startDate);
-    const startStr = start.toLocaleDateString(locale, {
-      month: 'short',
-      year: 'numeric',
-    });
+    if (Number.isNaN(start.getTime())) {
+      return this.translate.instant('common.notProvided');
+    }
+    const startStr = start.toLocaleDateString(locale, options);
 
     if (!endDate) {
-      const presentLabel = this.translate.instant('experiences.ongoing');
-      return `${startStr} - ${presentLabel}`;
+      return startStr;
     }
 
     const end = new Date(endDate);
-    const endStr = end.toLocaleDateString(locale, {
-      month: 'short',
-      year: 'numeric',
-    });
+    if (Number.isNaN(end.getTime())) {
+      return `${startStr} - ${this.translate.instant('common.notProvided')}`;
+    }
+    const endStr = end.toLocaleDateString(locale, options);
 
     return `${startStr} - ${endStr}`;
   }
 
-  getExperienceTypeLabel(type: ExperienceType): string {
+  getExperienceTypeLabel(type?: ExperienceType | null): string {
+    if (!type) {
+      return this.translate.instant('common.notProvided');
+    }
     const translationKey = `experiences.types.${type}`;
     return this.translate.instant(translationKey);
   }
 
-  renderDescription(description: string): ReturnType<MarkdownService['toSafeHtml']> {
-    return this.markdownService.toSafeHtml(description);
+  renderDescription(description?: string | null): ReturnType<MarkdownService['toSafeHtml']> {
+    return this.markdownService.toSafeHtml(description ?? '');
+  }
+
+  private sortExperiences(experiences: ExperienceResponse[]): ExperienceResponse[] {
+    return [...experiences].sort((a, b) => {
+      const orderA = a.displayOrder ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.displayOrder ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      const timeA = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const timeB = b.startDate ? new Date(b.startDate).getTime() : 0;
+      const safeTimeA = Number.isNaN(timeA) ? 0 : timeA;
+      const safeTimeB = Number.isNaN(timeB) ? 0 : timeB;
+      return safeTimeB - safeTimeA;
+    });
   }
 
   private initIntersectionObserver(): void {
