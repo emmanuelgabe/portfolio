@@ -1,12 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SafeHtml } from '@angular/platform-browser';
 import { SkeletonProjectDetailComponent } from '../shared/skeleton';
 import { ProjectService } from '../../services/project.service';
 import { ProjectResponse } from '../../models';
 import { ProjectImageResponse } from '../../models/project-image.model';
 import { LoggerService } from '../../services/logger.service';
+import { MarkdownService } from '../../services/markdown.service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../environments/environment';
 
@@ -22,14 +24,54 @@ export class ProjectDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
+  private readonly markdownService = inject(MarkdownService);
   private readonly toastr = inject(ToastrService);
   private readonly translate = inject(TranslateService);
 
   project: ProjectResponse | undefined;
+  descriptionHtml: SafeHtml = '';
   isLoading = true;
   error: string | undefined;
   notFound = false;
   currentSlideIndex = 0;
+  isLightboxOpen = false;
+
+  /**
+   * Handle keyboard events for lightbox navigation
+   */
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    if (!this.isLightboxOpen) return;
+
+    switch (event.key) {
+      case 'Escape':
+        this.closeLightbox();
+        break;
+      case 'ArrowLeft':
+        this.prevSlide();
+        break;
+      case 'ArrowRight':
+        this.nextSlide();
+        break;
+    }
+  }
+
+  /**
+   * Open lightbox at specified image index
+   */
+  openLightbox(index: number): void {
+    this.currentSlideIndex = index;
+    this.isLightboxOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Close the lightbox
+   */
+  closeLightbox(): void {
+    this.isLightboxOpen = false;
+    document.body.style.overflow = '';
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -88,6 +130,7 @@ export class ProjectDetailComponent implements OnInit {
           return;
         }
         this.project = project;
+        this.descriptionHtml = this.markdownService.toSafeHtml(project.description);
         this.isLoading = false;
       },
       error: (err) => {
