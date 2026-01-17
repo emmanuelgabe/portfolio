@@ -26,6 +26,7 @@ describe('ExperienceService', () => {
     endDate: '2023-12-31',
     description: 'Test description',
     type: ExperienceType.WORK,
+    showMonths: true,
     createdAt: '2024-01-01T00:00:00',
     updatedAt: '2024-01-01T00:00:00',
     ongoing: false,
@@ -127,6 +128,7 @@ describe('ExperienceService', () => {
         startDate: '2023-01-01',
         description: 'New experience description',
         type: ExperienceType.WORK,
+        showMonths: true,
       };
 
       const createdResponse: ExperienceResponse = {
@@ -162,6 +164,7 @@ describe('ExperienceService', () => {
         startDate: '2023-01-01',
         description: 'New experience description',
         type: ExperienceType.WORK,
+        showMonths: true,
       };
 
       service.create(createRequest).subscribe({
