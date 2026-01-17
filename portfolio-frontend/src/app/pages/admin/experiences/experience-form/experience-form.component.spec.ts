@@ -27,6 +27,7 @@ describe('ExperienceFormComponent', () => {
     endDate: '2023-12-31',
     description: 'Test description',
     type: ExperienceType.WORK,
+    showMonths: true,
     createdAt: '2024-01-01T00:00:00',
     updatedAt: '2024-01-01T00:00:00',
     ongoing: false,
@@ -37,6 +38,7 @@ describe('ExperienceFormComponent', () => {
       'getById',
       'create',
       'update',
+      'reorder',
     ]);
     const loggerServiceSpy = jasmine.createSpyObj('LoggerService', ['error', 'info']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -91,17 +93,17 @@ describe('ExperienceFormComponent', () => {
       expect(component.experienceForm.get('startDate')?.value).toBe('');
       expect(component.experienceForm.get('endDate')?.value).toBe('');
       expect(component.experienceForm.get('description')?.value).toBe('');
-      expect(component.experienceForm.get('type')?.value).toBe(ExperienceType.WORK);
+      expect(component.experienceForm.get('type')?.value).toBeNull();
+      expect(component.experienceForm.get('showMonths')?.value).toBe(true);
     });
 
     it('should validate required fields', () => {
       const form = component.experienceForm;
 
-      expect(form.get('company')?.hasError('required')).toBe(true);
-      expect(form.get('role')?.hasError('required')).toBe(true);
-      expect(form.get('startDate')?.hasError('required')).toBe(true);
+      expect(form.get('company')?.hasError('required')).toBe(false);
+      expect(form.get('role')?.hasError('required')).toBe(false);
+      expect(form.get('startDate')?.hasError('required')).toBe(false);
       expect(form.get('description')?.hasError('required')).toBe(true);
-      // type has default value ExperienceType.WORK, so no required error
       expect(form.get('type')?.hasError('required')).toBe(false);
     });
 
@@ -151,6 +153,7 @@ describe('ExperienceFormComponent', () => {
       expect(component.experienceForm.get('description')?.value).toBe(
         mockExperienceResponse.description
       );
+      expect(component.experienceForm.get('showMonths')?.value).toBe(true);
       expect(component.loading).toBe(false);
     });
 
@@ -189,6 +192,7 @@ describe('ExperienceFormComponent', () => {
         endDate: '',
         description: 'This is a valid description for testing purposes',
         type: ExperienceType.WORK,
+        showMonths: true,
       };
 
       component.experienceForm.patchValue(formValue);
@@ -215,6 +219,7 @@ describe('ExperienceFormComponent', () => {
         endDate: undefined,
         description: 'This is a valid description for testing purposes',
         type: ExperienceType.WORK,
+        showMonths: true,
       };
 
       const errorResponse = { message: 'Validation failed' };
@@ -238,6 +243,7 @@ describe('ExperienceFormComponent', () => {
         endDate: '',
         description: 'This is an updated description for testing purposes',
         type: ExperienceType.WORK,
+        showMonths: true,
       };
 
       component.isEditMode = true;
@@ -267,6 +273,7 @@ describe('ExperienceFormComponent', () => {
         endDate: undefined,
         description: 'This is an updated description for testing purposes',
         type: ExperienceType.WORK,
+        showMonths: true,
       };
 
       const errorResponse = { message: 'Not found' };
@@ -288,6 +295,10 @@ describe('ExperienceFormComponent', () => {
   describe('getTypeLabel', () => {
     it('should return correct label for WORK type', () => {
       expect(component.getTypeLabel(ExperienceType.WORK)).toBe('admin.experiences.work');
+    });
+
+    it('should return correct label for STAGE type', () => {
+      expect(component.getTypeLabel(ExperienceType.STAGE)).toBe('admin.experiences.stage');
     });
 
     it('should return correct label for EDUCATION type', () => {
