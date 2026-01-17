@@ -122,21 +122,19 @@ class ProjectEntityTest {
         // Assert
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessage())
-                .contains("Description must be between 10 and 2000 characters");
+                .contains("Description must be at least 10 characters");
     }
 
     @Test
-    void should_haveConstraintViolation_when_descriptionIsTooLong() {
-        // Arrange
-        project.setDescription("A".repeat(2001)); // More than 2000 characters
+    void should_haveNoViolation_when_descriptionIsVeryLong() {
+        // Arrange - description now supports unlimited length (TEXT column)
+        project.setDescription("A".repeat(10000)); // Very long description (10000 chars)
 
         // Act
         Set<ConstraintViolation<Project>> violations = validator.validate(project);
 
-        // Assert
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage())
-                .contains("Description must be between 10 and 2000 characters");
+        // Assert - no violations since description is unlimited
+        assertThat(violations).isEmpty();
     }
 
     @Test

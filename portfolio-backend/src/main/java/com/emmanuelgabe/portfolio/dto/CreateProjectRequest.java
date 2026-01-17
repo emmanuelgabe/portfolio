@@ -19,7 +19,7 @@ public class CreateProjectRequest {
     private String title;
 
     @NotBlank(message = "Description is required")
-    @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters")
+    @Size(min = 10, message = "Description must be at least 10 characters")
     private String description;
 
     @Size(max = 500, message = "Tech stack cannot exceed 500 characters")

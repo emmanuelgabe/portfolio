@@ -320,7 +320,9 @@
       "maxImagesWarning": "الحد الأقصى {{max}} صورة. تم تجاهل {{ignored}} ملف(ات).",
       "waitForUpload": "يرجى الانتظار حتى يتم رفع الصور",
       "fillRequired": "يرجى ملء جميع الحقول المطلوبة",
-      "noProjectsFound": "لم يتم العثور على مشاريع"
+      "noProjectsFound": "لم يتم العثور على مشاريع",
+      "editor": "محرر",
+      "preview": "معاينة"
     },
     "articles": {
       "title": "إدارة المقالات",

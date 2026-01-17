@@ -327,7 +327,9 @@
       "maxImagesWarning": "Maximo {{max}} imagenes. {{ignored}} archivo(s) ignorado(s).",
       "waitForUpload": "Por favor espere a que termine la subida de imagenes",
       "fillRequired": "Por favor complete todos los campos requeridos",
-      "noProjectsFound": "No se encontraron proyectos"
+      "noProjectsFound": "No se encontraron proyectos",
+      "editor": "Editor",
+      "preview": "Vista previa"
     },
     "articles": {
       "title": "Gestion de Articulos",

@@ -344,7 +344,9 @@
       "maxImagesWarning": "Maximum {{max}} images. {{ignored}} file(s) ignored.",
       "waitForUpload": "Please wait for image upload to complete",
       "fillRequired": "Please fill in all required fields",
-      "noProjectsFound": "No projects found"
+      "noProjectsFound": "No projects found",
+      "editor": "Editor",
+      "preview": "Preview"
     },
     "articles": {
       "title": "Article Management",

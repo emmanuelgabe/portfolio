@@ -166,11 +166,7 @@
       <div class="col-lg-8 mb-4">
         <div class="card h-100 shadow-sm">
           <div class="card-body">
-            <h5 class="card-title">
-              <i class="bi bi-file-text me-2 text-primary"></i>
-              {{ 'projects.description' | translate }}
-            </h5>
-            <p class="card-text">{{ project.description }}</p>
+            <div class="card-text markdown-content" [innerHTML]="descriptionHtml"></div>
           </div>
         </div>
       </div>

@@ -320,7 +320,9 @@
       "maxImagesWarning": "अधिकतम {{max}} छवियां। {{ignored}} फ़ाइल(ें) अनदेखी गईं।",
       "waitForUpload": "कृपया छवियों के अपलोड होने की प्रतीक्षा करें",
       "fillRequired": "कृपया सभी आवश्यक फ़ील्ड भरें",
-      "noProjectsFound": "कोई परियोजना नहीं मिली"
+      "noProjectsFound": "कोई परियोजना नहीं मिली",
+      "editor": "संपादक",
+      "preview": "पूर्वावलोकन"
     },
     "articles": {
       "title": "लेख प्रबंधन",
