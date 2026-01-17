@@ -41,6 +41,7 @@ export class ExperienceListComponent implements OnInit, OnDestroy {
   experiences: ExperienceResponse[] = [];
   loading = true;
   error?: string;
+  reordering = false;
 
   // Search state
   searchQuery = '';
@@ -63,7 +64,7 @@ export class ExperienceListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (experiences) => {
-          this.experiences = experiences;
+          this.experiences = this.sortExperiences(experiences);
           this.loading = false;
         },
         error: (err) => {
@@ -76,9 +77,13 @@ export class ExperienceListComponent implements OnInit, OnDestroy {
       });
   }
 
-  getTypeLabel(type: ExperienceType): string {
+  getTypeLabel(type?: ExperienceType | null): string {
+    if (!type) {
+      return this.translate.instant('admin.common.notProvided');
+    }
     const labels: Record<ExperienceType, string> = {
       [ExperienceType.WORK]: this.translate.instant('admin.experiences.work'),
+      [ExperienceType.STAGE]: this.translate.instant('admin.experiences.stage'),
       [ExperienceType.EDUCATION]: this.translate.instant('admin.experiences.education'),
       [ExperienceType.CERTIFICATION]: this.translate.instant('admin.experiences.certification'),
       [ExperienceType.VOLUNTEERING]: this.translate.instant('admin.experiences.volunteering'),
@@ -86,20 +91,103 @@ export class ExperienceListComponent implements OnInit, OnDestroy {
     return labels[type] || type;
   }
 
-  getTypeBadgeClass(type: ExperienceType): string {
+  getTypeBadgeClass(type?: ExperienceType | null): string {
     const classes: Record<ExperienceType, string> = {
       [ExperienceType.WORK]: 'bg-primary',
+      [ExperienceType.STAGE]: 'bg-dark',
       [ExperienceType.EDUCATION]: 'bg-success',
       [ExperienceType.CERTIFICATION]: 'bg-warning',
       [ExperienceType.VOLUNTEERING]: 'bg-info',
     };
-    return classes[type] || 'bg-secondary';
+    return type ? classes[type] || 'bg-secondary' : 'bg-secondary';
   }
 
-  formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      month: 'short',
-      year: 'numeric',
+  formatDate(date?: string | null, showMonths: boolean = true): string {
+    if (!date) {
+      return '';
+    }
+    const options: Intl.DateTimeFormatOptions = showMonths
+      ? { month: 'long', year: 'numeric' }
+      : { year: 'numeric' };
+
+    const parsedDate = new Date(date);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return '';
+    }
+
+    return parsedDate.toLocaleDateString('fr-FR', options);
+  }
+
+  moveUp(index: number): void {
+    if (this.isSearchActive) {
+      return;
+    }
+    if (index <= 0 || this.reordering || this.demoModeService.isDemo()) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index - 1);
+  }
+
+  moveDown(index: number): void {
+    if (this.isSearchActive) {
+      return;
+    }
+    if (index >= this.experiences.length - 1 || this.reordering || this.demoModeService.isDemo()) {
+      if (this.demoModeService.isDemo()) {
+        this.toastr.info(this.translate.instant('admin.common.demoModeDisabled'));
+      }
+      return;
+    }
+
+    this.swapAndSave(index, index + 1);
+  }
+
+  private swapAndSave(fromIndex: number, toIndex: number): void {
+    this.reordering = true;
+
+    const temp = this.experiences[fromIndex];
+    this.experiences[fromIndex] = this.experiences[toIndex];
+    this.experiences[toIndex] = temp;
+
+    this.experiences.forEach((experience, idx) => {
+      experience.displayOrder = idx;
+    });
+
+    const orderedIds = this.experiences.map((experience) => experience.id);
+
+    this.experienceService
+      .reorder(orderedIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.reordering = false;
+          this.logger.info('[ADMIN_EXPERIENCES] Experiences reordered');
+        },
+        error: (error) => {
+          this.reordering = false;
+          this.logger.error('[ADMIN_EXPERIENCES] Failed to reorder experiences', { error });
+          this.toastr.error(this.translate.instant('admin.common.reorderError'));
+          this.loadExperiences();
+        },
+      });
+  }
+
+  private sortExperiences(experiences: ExperienceResponse[]): ExperienceResponse[] {
+    return [...experiences].sort((a, b) => {
+      const orderA = a.displayOrder ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.displayOrder ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      const timeA = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const timeB = b.startDate ? new Date(b.startDate).getTime() : 0;
+      const safeTimeA = Number.isNaN(timeA) ? 0 : timeA;
+      const safeTimeB = Number.isNaN(timeB) ? 0 : timeB;
+      return safeTimeB - safeTimeA;
     });
   }
 
@@ -108,8 +196,8 @@ export class ExperienceListComponent implements OnInit, OnDestroy {
       .confirm({
         title: this.translate.instant('admin.common.confirmDelete'),
         message: this.translate.instant('admin.experiences.deleteConfirm', {
-          role: experience.role,
-          company: experience.company,
+          role: experience.role || this.translate.instant('admin.common.notProvided'),
+          company: experience.company || this.translate.instant('admin.common.notProvided'),
         }),
         confirmText: this.translate.instant('admin.common.delete'),
         cancelText: this.translate.instant('admin.common.cancel'),

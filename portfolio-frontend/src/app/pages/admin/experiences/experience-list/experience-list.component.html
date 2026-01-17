@@ -27,12 +27,13 @@
                 <th>{{ 'admin.experiences.company' | translate }}</th>
                 <th>{{ 'admin.experiences.period' | translate }}</th>
                 <th>{{ 'admin.experiences.status' | translate }}</th>
+                <th class="text-center">{{ 'admin.common.order' | translate }}</th>
                 <th>{{ 'admin.common.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               @for (i of [1,2,3,4,5]; track i) {
-                <app-skeleton-table-row [columns]="[{width: '100px'}, {width: '25%'}, {width: '25%'}, {width: '150px'}, {width: '80px'}, {width: '100px'}]" />
+                <app-skeleton-table-row [columns]="[{width: '100px'}, {width: '22%'}, {width: '22%'}, {width: '150px'}, {width: '80px'}, {width: '100px'}, {width: '100px'}]" />
               }
             </tbody>
           </table>
@@ -66,6 +67,7 @@
                   <th>{{ 'admin.experiences.company' | translate }}</th>
                   <th>{{ 'admin.experiences.period' | translate }}</th>
                   <th>{{ 'admin.experiences.status' | translate }}</th>
+                  <th class="text-center">{{ 'admin.common.order' | translate }}</th>
                   <th>{{ 'admin.common.actions' | translate }}</th>
                 </tr>
               </thead>
@@ -78,18 +80,32 @@
                       </span>
                     </td>
                     <td>
-                      <strong>{{ experience.role }}</strong>
+                      @if (experience.role) {
+                        <strong>{{ experience.role }}</strong>
+                      } @else {
+                        <span class="text-muted fst-italic">-</span>
+                      }
                     </td>
-                    <td>{{ experience.company }}</td>
                     <td>
-                      <small class="text-muted">
-                        {{ formatDate(experience.startDate) }}
-                        @if (experience.endDate) {
-                          - {{ formatDate(experience.endDate) }}
-                        } @else {
-                          - {{ 'admin.experiences.present' | translate }}
-                        }
-                      </small>
+                      @if (experience.company) {
+                        {{ experience.company }}
+                      } @else {
+                        <span class="text-muted fst-italic">-</span>
+                      }
+                    </td>
+                    <td>
+                      @if (experience.startDate) {
+                        <small class="text-muted">
+                          {{ formatDate(experience.startDate, experience.showMonths) }}
+                          @if (experience.endDate) {
+                            - {{ formatDate(experience.endDate, experience.showMonths) }}
+                          } @else {
+                            - {{ 'admin.experiences.present' | translate }}
+                          }
+                        </small>
+                      } @else {
+                        <span class="text-muted fst-italic">-</span>
+                      }
                     </td>
                     <td>
                       @if (experience.ongoing) {
@@ -97,6 +113,28 @@
                       } @else {
                         <span class="badge bg-secondary">{{ 'admin.experiences.completed' | translate }}</span>
                       }
+                    </td>
+                    <td class="text-center">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          [disabled]="$index === 0 || reordering || demoModeService.isDemo() || isSearchActive"
+                          (click)="moveUp($index)"
+                          [title]="'admin.common.moveUp' | translate"
+                        >
+                          <i class="bi bi-arrow-up"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          [disabled]="$index === filteredExperiences.length - 1 || reordering || demoModeService.isDemo() || isSearchActive"
+                          (click)="moveDown($index)"
+                          [title]="'admin.common.moveDown' | translate"
+                        >
+                          <i class="bi bi-arrow-down"></i>
+                        </button>
+                      </div>
                     </td>
                     <td>
                       <div class="btn-group btn-group-sm" role="group">
