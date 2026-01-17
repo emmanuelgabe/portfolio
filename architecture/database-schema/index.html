@@ -3227,7 +3227,7 @@
 - Comprehensive indexing strategy
 - UUID-based refresh tokens
 - Support for draft/publish workflows</p>
-<p><strong>Migration Tool</strong>: Flyway (V1-V26 migrations applied)</p>
+<p><strong>Migration Tool</strong>: Flyway (V1-V30 migrations applied)</p>
 <hr />
 <h2 id="2-schema-diagram">2. Schema Diagram<a class="headerlink" href="#2-schema-diagram" title="Permanent link">&para;</a></h2>
 <h3 id="entity-relationships">Entity Relationships<a class="headerlink" href="#entity-relationships" title="Permanent link">&para;</a></h3>
@@ -3282,7 +3282,7 @@
 <td>description</td>
 <td>TEXT</td>
 <td>NOT NULL</td>
-<td>Full project description</td>
+<td>Unlimited Markdown description</td>
 </tr>
 <tr>
 <td>tech_stack</td>
@@ -3476,19 +3476,19 @@
 <tr>
 <td>company</td>
 <td>VARCHAR(200)</td>
-<td>NOT NULL</td>
+<td>Nullable</td>
 <td>Company or institution name</td>
 </tr>
 <tr>
 <td>role</td>
 <td>VARCHAR(200)</td>
-<td>NOT NULL</td>
+<td>Nullable</td>
 <td>Job title, degree, or certification</td>
 </tr>
 <tr>
 <td>start_date</td>
 <td>DATE</td>
-<td>NOT NULL</td>
+<td>Nullable</td>
 <td>Experience start date</td>
 </tr>
 <tr>
@@ -3501,13 +3501,25 @@
 <td>description</td>
 <td>TEXT</td>
 <td>NOT NULL</td>
-<td>Detailed description</td>
+<td>Detailed Markdown description</td>
 </tr>
 <tr>
 <td>type</td>
 <td>VARCHAR(50)</td>
-<td>NOT NULL, CHECK enum</td>
-<td>WORK, EDUCATION, CERTIFICATION, VOLUNTEERING</td>
+<td>Nullable, CHECK enum</td>
+<td>WORK, STAGE, EDUCATION, CERTIFICATION, VOLUNTEERING</td>
+</tr>
+<tr>
+<td>show_months</td>
+<td>BOOLEAN</td>
+<td>NOT NULL, DEFAULT true</td>
+<td>Display months in dates (vs year only)</td>
+</tr>
+<tr>
+<td>display_order</td>
+<td>INTEGER</td>
+<td>NOT NULL, DEFAULT 0, CHECK &gt;= 0</td>
+<td>Manual sorting order</td>
 </tr>
 <tr>
 <td>created_at</td>
@@ -3524,13 +3536,15 @@
 </tbody>
 </table>
 <p><strong>Constraints</strong>:
-<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;WORK&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;EDUCATION&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CERTIFICATION&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;VOLUNTEERING&#39;</span><span class="p">))</span>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;WORK&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;STAGE&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;EDUCATION&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CERTIFICATION&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;VOLUNTEERING&#39;</span><span class="p">))</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">end_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">end_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">start_date</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">display_order</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 </span></code></pre></div></p>
 <p><strong>Indexes</strong>:
 - <code>idx_experiences_start_date DESC</code> - Chronological sorting
 - <code>idx_experiences_type</code> - Filter by type
-- <code>idx_experiences_ongoing WHERE end_date IS NULL</code> - Ongoing experiences (partial index)</p>
+- <code>idx_experiences_ongoing WHERE end_date IS NULL</code> - Ongoing experiences (partial index)
+- <code>idx_experiences_display_order</code> - Ordered display</p>
 <hr />
 <h2 id="4-authentication-and-security">4. Authentication and Security<a class="headerlink" href="#4-authentication-and-security" title="Permanent link">&para;</a></h2>
 <h3 id="users-table">Users Table<a class="headerlink" href="#users-table" title="Permanent link">&para;</a></h3>
@@ -4422,6 +4436,26 @@
 <td>V26</td>
 <td>Display order</td>
 <td>projects, articles (added display_order)</td>
+</tr>
+<tr>
+<td>V27</td>
+<td>Experience months</td>
+<td>experiences (added show_months)</td>
+</tr>
+<tr>
+<td>V28</td>
+<td>Experience enhancements</td>
+<td>experiences (display_order, optional fields, STAGE type)</td>
+</tr>
+<tr>
+<td>V29</td>
+<td>Project details</td>
+<td>project_details (created, later removed in V30)</td>
+</tr>
+<tr>
+<td>V30</td>
+<td>Unlimited project description</td>
+<td>project_details (dropped), projects (description → TEXT)</td>
 </tr>
 </tbody>
 </table>
