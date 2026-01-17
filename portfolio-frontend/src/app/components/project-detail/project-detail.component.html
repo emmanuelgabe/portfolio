@@ -96,7 +96,8 @@
               <img
                 [src]="getFullImageUrl(image.imageUrl)"
                 [alt]="image.altText || project.title"
-                class="d-block w-100 carousel-image"
+                class="d-block w-100 carousel-image cursor-zoom-in"
+                (click)="openLightbox(i)"
               />
               <div class="carousel-caption d-none d-md-block" *ngIf="image.caption">
                 <p class="mb-0">{{ image.caption }}</p>
@@ -152,7 +153,8 @@
           <img
             [src]="legacyImageSrc"
             [alt]="project.title"
-            class="img-fluid rounded shadow"
+            class="img-fluid rounded shadow cursor-zoom-in"
+            (click)="openLightbox(0)"
           />
         </div>
       </div>
@@ -239,4 +241,68 @@
     </div>
 
   </div>
+</div>
+
+<!-- Image Lightbox -->
+<div class="lightbox-overlay" *ngIf="isLightboxOpen" (click)="closeLightbox()">
+  <!-- Close Button -->
+  <button
+    type="button"
+    class="lightbox-close"
+    (click)="closeLightbox()"
+    [attr.aria-label]="'common.close' | translate"
+  >
+    <i class="bi bi-x-lg"></i>
+  </button>
+
+  <!-- Image Counter -->
+  <div class="lightbox-counter" *ngIf="sortedImages.length > 1">
+    {{ currentSlideIndex + 1 }} / {{ sortedImages.length }}
+  </div>
+
+  <!-- Main Image Container -->
+  <div class="lightbox-content" (click)="$event.stopPropagation()">
+    <!-- Multiple Images -->
+    <ng-container *ngIf="hasMultipleImages">
+      <img
+        [src]="getFullImageUrl(sortedImages[currentSlideIndex].imageUrl)"
+        [alt]="sortedImages[currentSlideIndex].altText || project?.title"
+        class="lightbox-image"
+        (click)="closeLightbox()"
+      />
+      <div class="lightbox-caption" *ngIf="sortedImages[currentSlideIndex].caption">
+        {{ sortedImages[currentSlideIndex].caption }}
+      </div>
+    </ng-container>
+
+    <!-- Legacy Single Image -->
+    <ng-container *ngIf="hasLegacyImage">
+      <img
+        [src]="legacyImageSrc"
+        [alt]="project?.title"
+        class="lightbox-image"
+        (click)="closeLightbox()"
+      />
+    </ng-container>
+  </div>
+
+  <!-- Navigation Controls -->
+  <ng-container *ngIf="sortedImages.length > 1">
+    <button
+      type="button"
+      class="lightbox-nav lightbox-prev"
+      (click)="$event.stopPropagation(); prevSlide()"
+      [attr.aria-label]="'common.previous' | translate"
+    >
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <button
+      type="button"
+      class="lightbox-nav lightbox-next"
+      (click)="$event.stopPropagation(); nextSlide()"
+      [attr.aria-label]="'common.next' | translate"
+    >
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </ng-container>
 </div>
