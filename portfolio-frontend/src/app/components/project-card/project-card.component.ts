@@ -15,15 +15,35 @@ export class ProjectCardComponent {
 
   /**
    * Truncate description to specified length
-   * @param text Text to truncate
+   * Removes Markdown syntax before truncating for clean display
+   * @param text Text to truncate (may contain Markdown)
    * @param maxLength Maximum length
    * @returns Truncated text with ellipsis
    */
   truncateDescription(text: string, maxLength: number = 150): string {
-    if (!text || text.length <= maxLength) {
-      return text;
+    if (!text) return '';
+
+    // Remove Markdown syntax for clean preview
+    const plainText = text
+      .replace(/#{1,6}\s+/g, '') // Remove headers
+      .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold
+      .replace(/\*(.+?)\*/g, '$1') // Remove italic
+      .replace(/\[(.+?)\]\(.+?\)/g, '$1') // Remove links, keep text
+      .replace(/`(.+?)`/g, '$1') // Remove inline code
+      .replace(/^[-*+]\s+/gm, '') // Remove list markers
+      .replace(/^\d+\.\s+/gm, '') // Remove numbered list markers
+      .replace(/\n+/g, ' ') // Replace newlines with spaces
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+
+    if (plainText.length <= maxLength) {
+      return plainText;
     }
-    return text.substring(0, maxLength).trim() + '...';
+
+    // Truncate at word boundary
+    const truncated = plainText.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    return (lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated).trim() + '...';
   }
 
   /**
