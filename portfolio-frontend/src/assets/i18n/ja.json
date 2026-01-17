@@ -320,7 +320,9 @@
       "maxImagesWarning": "最大{{max}}枚です。{{ignored}}ファイルを無視しました。",
       "waitForUpload": "画像のアップロードをお待ちください",
       "fillRequired": "すべての必須フィールドを入力してください",
-      "noProjectsFound": "プロジェクトが見つかりません"
+      "noProjectsFound": "プロジェクトが見つかりません",
+      "editor": "エディタ",
+      "preview": "プレビュー"
     },
     "articles": {
       "title": "記事管理",

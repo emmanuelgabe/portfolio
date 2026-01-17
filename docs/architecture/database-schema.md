@@ -26,7 +26,7 @@ The portfolio database uses **PostgreSQL** with **Flyway** for version-controlle
 - UUID-based refresh tokens
 - Support for draft/publish workflows
 
-**Migration Tool**: Flyway (V1-V26 migrations applied)
+**Migration Tool**: Flyway (V1-V30 migrations applied)
 
 ---
 
@@ -69,7 +69,7 @@ daily_stats (analytics entity)
 |--------|------|-------------|-------------|
 | id | BIGSERIAL | PK | Auto-incrementing primary key |
 | title | VARCHAR(100) | NOT NULL | Project title |
-| description | TEXT | NOT NULL | Full project description |
+| description | TEXT | NOT NULL | Unlimited Markdown description |
 | tech_stack | VARCHAR(500) | NOT NULL | Technologies used |
 | github_url | VARCHAR(255) | Nullable | GitHub repository URL |
 | image_url | VARCHAR(255) | Nullable | Project image (WebP) |
@@ -143,25 +143,29 @@ CHECK (display_order >= 0)
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | BIGSERIAL | PK | Auto-incrementing primary key |
-| company | VARCHAR(200) | NOT NULL | Company or institution name |
-| role | VARCHAR(200) | NOT NULL | Job title, degree, or certification |
-| start_date | DATE | NOT NULL | Experience start date |
+| company | VARCHAR(200) | Nullable | Company or institution name |
+| role | VARCHAR(200) | Nullable | Job title, degree, or certification |
+| start_date | DATE | Nullable | Experience start date |
 | end_date | DATE | Nullable | End date (NULL = ongoing) |
-| description | TEXT | NOT NULL | Detailed description |
-| type | VARCHAR(50) | NOT NULL, CHECK enum | WORK, EDUCATION, CERTIFICATION, VOLUNTEERING |
+| description | TEXT | NOT NULL | Detailed Markdown description |
+| type | VARCHAR(50) | Nullable, CHECK enum | WORK, STAGE, EDUCATION, CERTIFICATION, VOLUNTEERING |
+| show_months | BOOLEAN | NOT NULL, DEFAULT true | Display months in dates (vs year only) |
+| display_order | INTEGER | NOT NULL, DEFAULT 0, CHECK >= 0 | Manual sorting order |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Creation timestamp |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Last update timestamp |
 
 **Constraints**:
 ```sql
-CHECK (type IN ('WORK', 'EDUCATION', 'CERTIFICATION', 'VOLUNTEERING'))
+CHECK (type IN ('WORK', 'STAGE', 'EDUCATION', 'CERTIFICATION', 'VOLUNTEERING'))
 CHECK (end_date IS NULL OR end_date >= start_date)
+CHECK (display_order >= 0)
 ```
 
 **Indexes**:
 - `idx_experiences_start_date DESC` - Chronological sorting
 - `idx_experiences_type` - Filter by type
 - `idx_experiences_ongoing WHERE end_date IS NULL` - Ongoing experiences (partial index)
+- `idx_experiences_display_order` - Ordered display
 
 ---
 
@@ -491,6 +495,10 @@ CREATE UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true;
 | V24 | Daily statistics | daily_stats |
 | V25 | Visitor tracking | daily_stats (added unique_visitors) |
 | V26 | Display order | projects, articles (added display_order) |
+| V27 | Experience months | experiences (added show_months) |
+| V28 | Experience enhancements | experiences (display_order, optional fields, STAGE type) |
+| V29 | Project details | project_details (created, later removed in V30) |
+| V30 | Unlimited project description | project_details (dropped), projects (description → TEXT) |
 
 ---
 

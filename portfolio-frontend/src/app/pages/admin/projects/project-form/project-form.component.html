@@ -75,19 +75,104 @@
           </div>
         </div>
 
-        <!-- Description -->
+        <!-- Description (Markdown) -->
         <div class="mb-3">
-          <label for="description" class="form-label">
-            {{ 'admin.projects.description' | translate }} <span class="text-danger">*</span>
-          </label>
-          <textarea
-            id="description"
-            class="form-control"
-            formControlName="description"
-            [class.is-invalid]="isFieldInvalid('description')"
-            [readonly]="demoModeService.isDemo()"
-            rows="4"
-          ></textarea>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label for="description" class="form-label mb-0">
+              {{ 'admin.projects.description' | translate }} <span class="text-danger">*</span>
+              <small class="text-muted ms-2">(Markdown)</small>
+            </label>
+            <div class="btn-group btn-group-sm" role="group">
+              <button
+                type="button"
+                class="btn"
+                [class.btn-primary]="!showDescriptionPreview"
+                [class.btn-outline-primary]="showDescriptionPreview"
+                (click)="toggleDescriptionPreview()"
+                [disabled]="demoModeService.isDemo()"
+              >
+                <i class="bi bi-pencil me-1"></i>
+                {{ 'admin.projects.editor' | translate }}
+              </button>
+              <button
+                type="button"
+                class="btn"
+                [class.btn-primary]="showDescriptionPreview"
+                [class.btn-outline-primary]="!showDescriptionPreview"
+                (click)="toggleDescriptionPreview()"
+                [disabled]="demoModeService.isDemo()"
+              >
+                <i class="bi bi-eye me-1"></i>
+                {{ 'admin.projects.preview' | translate }}
+              </button>
+            </div>
+          </div>
+
+          @if (!showDescriptionPreview) {
+            <!-- Markdown Toolbar -->
+            <div class="btn-toolbar mb-2" role="toolbar">
+              <div class="btn-group btn-group-sm me-2" role="group">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="insertBold()"
+                  [disabled]="demoModeService.isDemo()"
+                  title="Gras"
+                >
+                  <i class="bi bi-type-bold"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="insertItalic()"
+                  [disabled]="demoModeService.isDemo()"
+                  title="Italique"
+                >
+                  <i class="bi bi-type-italic"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="insertBulletList()"
+                  [disabled]="demoModeService.isDemo()"
+                  title="Liste a puces"
+                >
+                  <i class="bi bi-list-ul"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="insertNumberedList()"
+                  [disabled]="demoModeService.isDemo()"
+                  title="Liste numerotee"
+                >
+                  <i class="bi bi-list-ol"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="insertLink()"
+                  [disabled]="demoModeService.isDemo()"
+                  title="Lien"
+                >
+                  <i class="bi bi-link-45deg"></i>
+                </button>
+              </div>
+            </div>
+            <textarea
+              #descriptionTextarea
+              id="description"
+              class="form-control font-monospace"
+              formControlName="description"
+              [class.is-invalid]="isFieldInvalid('description')"
+              [readonly]="demoModeService.isDemo()"
+              (input)="onDescriptionChange()"
+              rows="12"
+            ></textarea>
+          } @else {
+            <div class="markdown-preview border rounded p-3" [innerHTML]="descriptionPreview"></div>
+          }
+
           <div class="invalid-feedback" *ngIf="hasError('description', 'required')">
             {{ 'admin.projects.descriptionRequired' | translate }}
           </div>

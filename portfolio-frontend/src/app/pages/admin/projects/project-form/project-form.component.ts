@@ -5,8 +5,11 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
+import { SafeHtml } from '@angular/platform-browser';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -22,6 +25,7 @@ import { ProjectService } from '../../../../services/project.service';
 import { ProjectImageService } from '../../../../services/project-image.service';
 import { TagService } from '../../../../services/tag.service';
 import { LoggerService } from '../../../../services/logger.service';
+import { MarkdownService } from '../../../../services/markdown.service';
 import { DemoModeService } from '../../../../services/demo-mode.service';
 import { ToastrService } from 'ngx-toastr';
 import { CreateProjectRequest, UpdateProjectRequest } from '../../../../models/project.model';
@@ -56,11 +60,14 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   private readonly logger = inject(LoggerService);
   private readonly toastr = inject(ToastrService);
   private readonly translate = inject(TranslateService);
+  private readonly markdownService = inject(MarkdownService);
   readonly demoModeService = inject(DemoModeService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
   private readonly MAX_IMAGES = 10;
+
+  @ViewChild('descriptionTextarea') descriptionTextarea?: ElementRef<HTMLTextAreaElement>;
 
   projectForm!: FormGroup;
   isEditMode = false;
@@ -69,6 +76,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   submitting = false;
   availableTags: TagResponse[] = [];
   selectedTags: number[] = [];
+
+  // Markdown description management
+  descriptionPreview: SafeHtml = '';
+  showDescriptionPreview = false;
 
   // Multi-image management
   projectImages: ProjectImageResponse[] = [];
@@ -657,6 +668,138 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     }
     this.projectImages.sort((a, b) => a.displayOrder - b.displayOrder);
     this.cdr.markForCheck();
+  }
+
+  // ========== Markdown Editor ==========
+
+  /**
+   * Toggle description preview mode
+   */
+  toggleDescriptionPreview(): void {
+    this.showDescriptionPreview = !this.showDescriptionPreview;
+    if (this.showDescriptionPreview) {
+      this.updateDescriptionPreview();
+    }
+  }
+
+  /**
+   * Update description markdown preview
+   */
+  updateDescriptionPreview(): void {
+    const description = this.projectForm.get('description')?.value || '';
+    this.descriptionPreview = this.markdownService.toSafeHtml(description);
+  }
+
+  /**
+   * Handle description change
+   */
+  onDescriptionChange(): void {
+    if (this.showDescriptionPreview) {
+      this.updateDescriptionPreview();
+    }
+  }
+
+  /**
+   * Insert bold markdown
+   */
+  insertBold(): void {
+    this.wrapSelection('**', '**');
+  }
+
+  /**
+   * Insert italic markdown
+   */
+  insertItalic(): void {
+    this.wrapSelection('*', '*');
+  }
+
+  /**
+   * Insert bullet list
+   */
+  insertBulletList(): void {
+    this.insertAtLineStart('- ');
+  }
+
+  /**
+   * Insert numbered list
+   */
+  insertNumberedList(): void {
+    this.insertAtLineStart('1. ');
+  }
+
+  /**
+   * Insert link markdown
+   */
+  insertLink(): void {
+    const textarea = this.descriptionTextarea?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end) || 'texte';
+
+    const newText = text.substring(0, start) + `[${selectedText}](url)` + text.substring(end);
+    this.updateDescription(newText);
+
+    setTimeout(() => {
+      const linkStart = start + selectedText.length + 3;
+      textarea.focus();
+      textarea.setSelectionRange(linkStart, linkStart + 3);
+    });
+  }
+
+  /**
+   * Wrap selected text with markdown syntax
+   */
+  private wrapSelection(before: string, after: string): void {
+    const textarea = this.descriptionTextarea?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+
+    const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
+    this.updateDescription(newText);
+
+    setTimeout(() => {
+      textarea.focus();
+      if (selectedText) {
+        textarea.setSelectionRange(start + before.length, end + before.length);
+      } else {
+        textarea.setSelectionRange(start + before.length, start + before.length);
+      }
+    });
+  }
+
+  /**
+   * Insert text at the beginning of current line
+   */
+  private insertAtLineStart(prefix: string): void {
+    const textarea = this.descriptionTextarea?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const text = textarea.value;
+
+    const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+    const newText = text.substring(0, lineStart) + prefix + text.substring(lineStart);
+    this.updateDescription(newText);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length);
+    });
+  }
+
+  /**
+   * Update description form control value
+   */
+  private updateDescription(newValue: string): void {
+    this.projectForm.patchValue({ description: newValue });
+    this.onDescriptionChange();
   }
 
   ngOnDestroy(): void {

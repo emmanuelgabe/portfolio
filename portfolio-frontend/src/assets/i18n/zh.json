@@ -320,7 +320,9 @@
       "maxImagesWarning": "最多{{max}}张图片，{{ignored}}个文件被忽略",
       "waitForUpload": "请等待图片上传完成",
       "fillRequired": "请填写所有必填字段",
-      "noProjectsFound": "未找到项目"
+      "noProjectsFound": "未找到项目",
+      "editor": "编辑器",
+      "preview": "预览"
     },
     "articles": {
       "title": "文章管理",

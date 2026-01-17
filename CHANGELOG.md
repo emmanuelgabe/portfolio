@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.2.0] - 2026-01-16
+## [1.2.0] - 2026-01-17
 
 ### Added
 
@@ -19,11 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Repository methods for ordered queries (findByTypeOrderByDisplayOrderAsc, findAllByOrderByDisplayOrderAsc)
 - GraphQL schema updates with ExperienceOrderByInput and new fields
 
+#### Project Markdown Enhancements
+- Unlimited Markdown description for projects (TEXT column)
+- Markdown editor with toolbar in admin project form (bold, italic, lists, links)
+- Editor/Preview toggle for real-time Markdown rendering
+- Smart description truncation in project cards (strips Markdown syntax)
+
 #### Project Detail Page
 - Image lightbox with fullscreen gallery view
 - Keyboard navigation (Escape to close, Arrow keys to navigate)
 - Social sharing buttons (Twitter, LinkedIn, Copy link)
 - Improved image carousel with sorted display order
+- Full Markdown-rendered description display
 
 #### Admin Experience UI
 - Display order column with up/down arrow buttons
@@ -36,23 +43,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added complete staging configuration with fileReplacements and budgets
 
 ### Changed
+- **Project description**: Changed from VARCHAR(2000) to TEXT for unlimited Markdown content
 - Experience entity fields now optional (company, role, startDate, type)
-- Only description field remains required
+- Only description field remains required for both projects and experiences
 - Experience list sorted by displayOrder in public views
 - Home component sorts experiences by displayOrder
 - Updated i18n translations for STAGE type in 10 languages
 - LoggerService now uses Angular isDevMode() for automatic log level detection
 - Removed logLevel from all environment files (dev, staging, prod)
 - Simplified Sentry message capture in LoggerService
+- Project detail page: Removed "Description" heading for cleaner layout
+
+### Removed
+- **ProjectDetails entity**: Removed unused ProjectDetails table and related code (entity, repository, mapper, DTOs)
+- Removed `markdownSupport` i18n key from all 10 language files (redundant)
+- Removed max length validation on project description field
 
 ### Fixed
 - Docker network configuration for monitoring stack (Prometheus/Grafana "No Data" fix)
 - Network name default changed to portfolio-prod_portfolio-net for production
 - Added NETWORK_NAME documentation to .env.example
+- **Tests**: Updated ProjectEntityTest for unlimited description length
+- **ESLint**: Fixed prefer-const error in project-card.component.ts
 
 ### Database Migrations
 - V27: Add show_months boolean column to experiences table
 - V28: Add display_order column, make fields nullable, add STAGE to type constraint
+- V29: Create project_details table (later removed in V30)
+- V30: Drop project_details table and alter projects.description to TEXT (unlimited Markdown)
 
 ---
 

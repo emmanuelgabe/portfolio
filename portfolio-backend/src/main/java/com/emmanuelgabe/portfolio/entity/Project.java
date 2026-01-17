@@ -47,8 +47,8 @@ public class Project {
     private String title;
 
     @NotBlank(message = "Description is required")
-    @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters")
-    @Column(nullable = false, length = 2000, columnDefinition = "TEXT")
+    @Size(min = 10, message = "Description must be at least 10 characters")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Size(max = 500, message = "Tech stack cannot exceed 500 characters")
