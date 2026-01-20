@@ -25,6 +25,7 @@
     "empty": "अभी कोई अनुभव नहीं।",
     "types": {
       "WORK": "कार्य अनुभव",
+      "STAGE": "इंटर्नशिप",
       "EDUCATION": "शिक्षा",
       "VOLUNTEERING": "स्वयंसेवा",
       "CERTIFICATION": "प्रमाणन"
@@ -129,7 +130,8 @@
     "back": "वापस",
     "next": "अगला",
     "previous": "पिछला",
-    "retry": "पुनः प्रयास"
+    "retry": "पुनः प्रयास",
+    "notProvided": "निर्दिष्ट नहीं"
   },
   "login": {
     "title": "लॉगिन",
@@ -245,6 +247,7 @@
       "demoModeWarning": "डेमो मोड - बदलाव सहेजे नहीं जाएंगे",
       "createFirst": "पहला बनाएं",
       "noData": "कोई डेटा नहीं",
+      "notProvided": "निर्दिष्ट नहीं",
       "image": "छवि",
       "preview": "पूर्वावलोकन",
       "required": "आवश्यक",
@@ -419,6 +422,7 @@
       "startDate": "प्रारंभ तिथि",
       "endDate": "समाप्ति तिथि (जारी होने पर खाली छोड़ें)",
       "type": "प्रकार",
+      "showMonths": "अवधि में महीने दिखाएँ",
       "description": "विवरण",
       "descriptionPlaceholder": "अपने अनुभव का वर्णन करें...",
       "markdownHint": "Markdown: **बोल्ड**, *इटैलिक*, - बुलेट सूची",
@@ -429,6 +433,7 @@
       "ongoing": "जारी",
       "ended": "समाप्त",
       "work": "कार्य अनुभव",
+      "stage": "इंटर्नशिप",
       "education": "शिक्षा",
       "certification": "प्रमाणन",
       "volunteering": "स्वयंसेवा",
