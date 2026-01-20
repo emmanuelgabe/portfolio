@@ -25,6 +25,7 @@
     "empty": "Aucune expérience disponible pour le moment.",
     "types": {
       "WORK": "Expérience professionnelle",
+      "STAGE": "Stage",
       "EDUCATION": "Formation",
       "VOLUNTEERING": "Bénévolat",
       "CERTIFICATION": "Certification"
@@ -136,7 +137,8 @@
     "back": "Retour",
     "next": "Suivant",
     "previous": "Précédent",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "notProvided": "Non renseigné"
   },
   "login": {
     "title": "Connexion",
@@ -254,6 +256,7 @@
       "demoModeWarning": "Mode démonstration - Les modifications ne seront pas enregistrées",
       "createFirst": "Créer le premier",
       "noData": "Aucune donnée",
+      "notProvided": "Non renseigné",
       "image": "Image",
       "preview": "Aperçu",
       "required": "requis",
@@ -341,7 +344,9 @@
       "maxImagesWarning": "Maximum {{max}} images. {{ignored}} fichier(s) ignoré(s).",
       "waitForUpload": "Veuillez attendre la fin de l'upload des images",
       "fillRequired": "Veuillez remplir tous les champs requis",
-      "noProjectsFound": "Aucun projet trouvé"
+      "noProjectsFound": "Aucun projet trouvé",
+      "editor": "Éditeur",
+      "preview": "Aperçu"
     },
     "articles": {
       "title": "Gestion des Articles",
@@ -443,6 +448,7 @@
       "startDate": "Date de début",
       "endDate": "Date de fin (vide si en cours)",
       "type": "Type",
+      "showMonths": "Afficher les mois dans la période",
       "description": "Description",
       "descriptionPlaceholder": "Décrivez votre expérience...",
       "markdownHint": "Markdown : **gras**, *italique*, - liste a puces",
@@ -453,6 +459,7 @@
       "ongoing": "En cours",
       "ended": "Terminé",
       "work": "Expérience professionnelle",
+      "stage": "Stage",
       "education": "Formation",
       "certification": "Certification",
       "volunteering": "Bénévolat",

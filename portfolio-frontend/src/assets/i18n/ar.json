@@ -25,6 +25,7 @@
     "empty": "لا توجد خبرات حتى الآن.",
     "types": {
       "WORK": "خبرة العمل",
+      "STAGE": "تدريب",
       "EDUCATION": "التعليم",
       "VOLUNTEERING": "التطوع",
       "CERTIFICATION": "الشهادات"
@@ -129,7 +130,8 @@
     "back": "رجوع",
     "next": "التالي",
     "previous": "السابق",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "notProvided": "غير متوفر"
   },
   "login": {
     "title": "تسجيل الدخول",
@@ -245,6 +247,7 @@
       "demoModeWarning": "وضع العرض - لن يتم حفظ التغييرات",
       "createFirst": "إنشاء الأول",
       "noData": "لا توجد بيانات",
+      "notProvided": "غير متوفر",
       "image": "صورة",
       "preview": "معاينة",
       "required": "مطلوب",
@@ -317,7 +320,9 @@
       "maxImagesWarning": "الحد الأقصى {{max}} صورة. تم تجاهل {{ignored}} ملف(ات).",
       "waitForUpload": "يرجى الانتظار حتى يتم رفع الصور",
       "fillRequired": "يرجى ملء جميع الحقول المطلوبة",
-      "noProjectsFound": "لم يتم العثور على مشاريع"
+      "noProjectsFound": "لم يتم العثور على مشاريع",
+      "editor": "محرر",
+      "preview": "معاينة"
     },
     "articles": {
       "title": "إدارة المقالات",
@@ -419,6 +424,7 @@
       "startDate": "تاريخ البدء",
       "endDate": "تاريخ الانتهاء (اتركه فارغاً إذا مستمر)",
       "type": "النوع",
+      "showMonths": "إظهار الأشهر في الفترة",
       "description": "الوصف",
       "descriptionPlaceholder": "صف تجربتك...",
       "markdownHint": "Markdown: **غامق**، *مائل*، - قائمة نقطية",
@@ -429,6 +435,7 @@
       "ongoing": "مستمر",
       "ended": "منتهي",
       "work": "خبرة العمل",
+      "stage": "تدريب",
       "education": "التعليم",
       "certification": "الشهادات",
       "volunteering": "التطوع",

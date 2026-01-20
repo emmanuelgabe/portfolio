@@ -25,6 +25,7 @@
     "empty": "Nenhuma experiencia disponivel no momento.",
     "types": {
       "WORK": "Experiencia profissional",
+      "STAGE": "Estágio",
       "EDUCATION": "Formacao",
       "VOLUNTEERING": "Voluntariado",
       "CERTIFICATION": "Certificacao"
@@ -136,7 +137,8 @@
     "back": "Voltar",
     "next": "Proximo",
     "previous": "Anterior",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "notProvided": "Não informado"
   },
   "login": {
     "title": "Login",
@@ -252,6 +254,7 @@
       "demoModeWarning": "Modo demo - Alteracoes nao serao salvas",
       "createFirst": "Criar primeiro",
       "noData": "Sem dados",
+      "notProvided": "Não informado",
       "image": "Imagem",
       "preview": "Visualizar",
       "required": "obrigatorio",
@@ -324,7 +327,9 @@
       "maxImagesWarning": "Maximo {{max}} imagens. {{ignored}} arquivo(s) ignorado(s).",
       "waitForUpload": "Por favor, aguarde o envio das imagens",
       "fillRequired": "Por favor, preencha todos os campos obrigatorios",
-      "noProjectsFound": "Nenhum projeto encontrado"
+      "noProjectsFound": "Nenhum projeto encontrado",
+      "editor": "Editor",
+      "preview": "Visualizacao"
     },
     "articles": {
       "title": "Gerenciamento de Artigos",
@@ -426,6 +431,7 @@
       "startDate": "Data de inicio",
       "endDate": "Data de termino (deixe vazio se em andamento)",
       "type": "Tipo",
+      "showMonths": "Mostrar meses no período",
       "description": "Descricao",
       "descriptionPlaceholder": "Descreva sua experiencia...",
       "markdownHint": "Markdown: **negrito**, *italico*, - lista com marcadores",
@@ -436,6 +442,7 @@
       "ongoing": "Em andamento",
       "ended": "Encerrado",
       "work": "Experiencia profissional",
+      "stage": "Estágio",
       "education": "Formacao",
       "certification": "Certificacao",
       "volunteering": "Voluntariado",

@@ -25,6 +25,7 @@
     "empty": "No experience available at the moment.",
     "types": {
       "WORK": "Work experience",
+      "STAGE": "Internship",
       "EDUCATION": "Education",
       "VOLUNTEERING": "Volunteering",
       "CERTIFICATION": "Certification"
@@ -136,7 +137,8 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "retry": "Retry"
+    "retry": "Retry",
+    "notProvided": "Not provided"
   },
   "login": {
     "title": "Login",
@@ -254,6 +256,7 @@
       "demoModeWarning": "Demo mode - Changes will not be saved",
       "createFirst": "Create first",
       "noData": "No data",
+      "notProvided": "Not provided",
       "image": "Image",
       "preview": "Preview",
       "required": "required",
@@ -341,7 +344,9 @@
       "maxImagesWarning": "Maximum {{max}} images. {{ignored}} file(s) ignored.",
       "waitForUpload": "Please wait for image upload to complete",
       "fillRequired": "Please fill in all required fields",
-      "noProjectsFound": "No projects found"
+      "noProjectsFound": "No projects found",
+      "editor": "Editor",
+      "preview": "Preview"
     },
     "articles": {
       "title": "Article Management",
@@ -443,6 +448,7 @@
       "startDate": "Start date",
       "endDate": "End date (leave empty if ongoing)",
       "type": "Type",
+      "showMonths": "Show months in date range",
       "description": "Description",
       "descriptionPlaceholder": "Describe your experience...",
       "markdownHint": "Markdown: **bold**, *italic*, - bullet list",
@@ -453,6 +459,7 @@
       "ongoing": "Ongoing",
       "ended": "Ended",
       "work": "Work experience",
+      "stage": "Internship",
       "education": "Education",
       "certification": "Certification",
       "volunteering": "Volunteering",
