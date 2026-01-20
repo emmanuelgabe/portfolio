@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { environment } from '../../environments/environment';
 
@@ -13,23 +13,19 @@ export enum LogLevel {
 
 /**
  * Logging service with structured logging support
- * Provides log level filtering based on environment configuration
+ * Automatically adjusts log level based on build mode (development vs production)
+ * - Development: DEBUG level (all logs visible)
+ * - Production: WARN level (only warnings and errors)
  */
 @Injectable({
   providedIn: 'root',
 })
 export class LoggerService {
-  private readonly levelMap: Record<string, LogLevel> = {
-    TRACE: LogLevel.TRACE,
-    DEBUG: LogLevel.DEBUG,
-    INFO: LogLevel.INFO,
-    WARN: LogLevel.WARN,
-    ERROR: LogLevel.ERROR,
-    FATAL: LogLevel.FATAL,
-  };
-
   private get minLevel(): LogLevel {
-    return this.levelMap[environment.logLevel] || LogLevel.INFO;
+    if (isDevMode()) {
+      return LogLevel.DEBUG;
+    }
+    return LogLevel.WARN;
   }
 
   /**
@@ -131,19 +127,10 @@ export class LoggerService {
 
     const sentryLevel = this.mapToSentryLevel(level);
 
-    if (level >= LogLevel.ERROR) {
-      Sentry.captureMessage(message, {
-        level: sentryLevel,
-        extra: context as Record<string, unknown>,
-      });
-    } else {
-      Sentry.addBreadcrumb({
-        category: 'log',
-        message: message,
-        level: sentryLevel,
-        data: context as Record<string, unknown>,
-      });
-    }
+    Sentry.captureMessage(message, {
+      level: sentryLevel,
+      extra: context as Record<string, unknown>,
+    });
   }
 
   private mapToSentryLevel(level: LogLevel): Sentry.SeverityLevel {
