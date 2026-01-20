@@ -5,10 +5,10 @@ export const environment = {
   apiUrl: 'https://staging.emmanuelgabe.com',
   baseUrl: 'https://staging.emmanuelgabe.com',
   version: VERSION,
-  logLevel: 'INFO',
+  // Feature flags - Privacy by default (GDPR compliant)
   sentry: {
     dsn: '',
-    enabled: false,
+    enabled: false, // Set to true via SENTRY_ENABLED env var
     tracesSampleRate: 0.1,
   },
   webVitals: {
