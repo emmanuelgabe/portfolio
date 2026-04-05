@@ -2,8 +2,11 @@ package com.emmanuelgabe.portfolio.service.impl;
 
 import com.emmanuelgabe.portfolio.dto.ContactRequest;
 import com.emmanuelgabe.portfolio.dto.ContactResponse;
+import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ContactEmailEvent;
 import com.emmanuelgabe.portfolio.messaging.publisher.EventPublisher;
+import com.emmanuelgabe.portfolio.moderation.ContactModerationService;
+import com.emmanuelgabe.portfolio.moderation.ModerationResult;
 import com.emmanuelgabe.portfolio.service.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,14 +23,25 @@ import org.springframework.stereotype.Service;
 public class ContactServiceImpl implements ContactService {
 
     private final EventPublisher eventPublisher;
+    private final ContactModerationService moderationService;
 
     @Value("${spring.mail.username}")
     private String recipientEmail;
+
+    @Value("${ai.autoreply.enabled:false}")
+    private boolean autoReplyEnabled;
 
     @Override
     public ContactResponse sendContactEmail(ContactRequest request) {
         log.info("[CONTACT] Processing contact form - from={}, subject={}",
                 request.getEmail(), request.getSubject());
+
+        ModerationResult moderation = moderationService.moderate(request);
+        if (!moderation.isApproved()) {
+            log.info("[CONTACT] Message rejected by moderation - email={}, reason={}, confidence={}",
+                    request.getEmail(), moderation.reason(), moderation.confidenceScore());
+            return ContactResponse.success("Message sent successfully");
+        }
 
         String htmlContent = buildEmailContent(request);
 
@@ -45,7 +59,30 @@ public class ContactServiceImpl implements ContactService {
         log.info("[CONTACT] Contact email queued - eventId={}, from={}",
                 event.getEventId(), request.getEmail());
 
+        publishAutoReplyEvent(request);
+
         return ContactResponse.success("Message sent successfully");
+    }
+
+    private void publishAutoReplyEvent(ContactRequest request) {
+        if (!autoReplyEnabled) {
+            return;
+        }
+        try {
+            AutoReplyEvent autoReplyEvent = AutoReplyEvent.of(
+                    request.getName(),
+                    request.getEmail(),
+                    request.getSubject(),
+                    request.getMessage(),
+                    recipientEmail
+            );
+            eventPublisher.publishAutoReplyEvent(autoReplyEvent);
+            log.info("[CONTACT] Auto-reply event queued - eventId={}, sender={}",
+                    autoReplyEvent.getEventId(), request.getEmail());
+        } catch (Exception e) {
+            log.error("[CONTACT] Failed to publish auto-reply event - email={}, error={}",
+                    request.getEmail(), e.getMessage());
+        }
     }
 
     private String buildEmailContent(ContactRequest request) {
