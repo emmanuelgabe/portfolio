@@ -1,6 +1,7 @@
 package com.emmanuelgabe.portfolio.messaging.publisher;
 
 import com.emmanuelgabe.portfolio.messaging.event.AuditEvent;
+import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.EmailEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ImageProcessingEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,12 @@ public class NoOpEventPublisher implements EventPublisher {
     public void publishAuditEvent(AuditEvent event) {
         log.warn("[RABBITMQ] RabbitMQ is disabled - audit event not published - eventId={}, action={}",
                 event.getEventId(), event.getAction());
+    }
+
+    @Override
+    public void publishAutoReplyEvent(AutoReplyEvent event) {
+        log.warn("[RABBITMQ] RabbitMQ is disabled - auto-reply event not published - eventId={}",
+                event.getEventId());
     }
 
     @Override

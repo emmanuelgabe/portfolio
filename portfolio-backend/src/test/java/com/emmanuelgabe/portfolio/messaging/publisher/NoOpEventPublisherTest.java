@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.messaging.publisher;
 
 import com.emmanuelgabe.portfolio.audit.AuditAction;
 import com.emmanuelgabe.portfolio.messaging.event.AuditEvent;
+import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ContactEmailEvent;
 import com.emmanuelgabe.portfolio.messaging.event.EmailEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ImageProcessingEvent;
@@ -113,6 +114,19 @@ class NoOpEventPublisherTest {
 
         // Act & Assert
         assertThatCode(() -> noOpEventPublisher.publishAuditEvent(event))
+                .doesNotThrowAnyException();
+    }
+
+    // ========== Publish Auto-Reply Event Tests ==========
+
+    @Test
+    void should_notThrowException_when_publishAutoReplyEventCalled() {
+        // Arrange
+        AutoReplyEvent event = AutoReplyEvent.of(
+                "John Doe", "john@example.com", "Inquiry", "Hello", "owner@example.com");
+
+        // Act & Assert
+        assertThatCode(() -> noOpEventPublisher.publishAutoReplyEvent(event))
                 .doesNotThrowAnyException();
     }
 
