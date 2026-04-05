@@ -27,6 +27,12 @@ public class BusinessMetrics {
     private final Counter imageProcessingFailures;
     private final Counter auditLogsCreated;
     private final Counter auditLogFailures;
+    private final Counter autoReplyGenerated;
+    private final Counter autoReplyFailures;
+    private final Counter moderationApprovals;
+    private final Counter moderationRejections;
+    private final Counter moderationFailures;
+    private final Timer moderationTimer;
     private final Timer imageProcessingTimer;
     private final Timer emailSendingTimer;
 
@@ -74,6 +80,30 @@ public class BusinessMetrics {
 
         this.auditLogFailures = Counter.builder("portfolio.audit.failures")
                 .description("Total audit log creation failures")
+                .register(registry);
+
+        this.autoReplyGenerated = Counter.builder("portfolio.autoreply.generated")
+                .description("Total auto-replies generated and sent")
+                .register(registry);
+
+        this.autoReplyFailures = Counter.builder("portfolio.autoreply.failures")
+                .description("Total auto-reply generation failures")
+                .register(registry);
+
+        this.moderationApprovals = Counter.builder("portfolio.moderation.approvals")
+                .description("Total messages approved by moderation")
+                .register(registry);
+
+        this.moderationRejections = Counter.builder("portfolio.moderation.rejections")
+                .description("Total messages rejected by moderation")
+                .register(registry);
+
+        this.moderationFailures = Counter.builder("portfolio.moderation.failures")
+                .description("Total moderation failures (auto-approved on error)")
+                .register(registry);
+
+        this.moderationTimer = Timer.builder("portfolio.moderation.duration")
+                .description("AI moderation analysis duration")
                 .register(registry);
 
         this.imageProcessingTimer = Timer.builder("portfolio.image.processing")
@@ -125,6 +155,50 @@ public class BusinessMetrics {
      */
     public void recordAuthFailure() {
         authFailures.increment();
+    }
+
+    /**
+     * Record a successfully generated and sent auto-reply
+     */
+    public void recordAutoReplyGenerated() {
+        autoReplyGenerated.increment();
+    }
+
+    /**
+     * Record an auto-reply generation failure
+     */
+    public void recordAutoReplyFailure() {
+        autoReplyFailures.increment();
+    }
+
+    /**
+     * Record a moderation approval
+     */
+    public void recordModerationApproval() {
+        moderationApprovals.increment();
+    }
+
+    /**
+     * Record a moderation rejection
+     */
+    public void recordModerationRejection() {
+        moderationRejections.increment();
+    }
+
+    /**
+     * Record a moderation failure (AI error, timeout)
+     */
+    public void recordModerationFailure() {
+        moderationFailures.increment();
+    }
+
+    /**
+     * Get the moderation timer for recording duration
+     *
+     * @return the moderation timer
+     */
+    public Timer getModerationTimer() {
+        return moderationTimer;
     }
 
     /**

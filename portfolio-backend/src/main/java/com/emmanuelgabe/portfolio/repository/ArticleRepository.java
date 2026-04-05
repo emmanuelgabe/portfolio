@@ -87,4 +87,25 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
      * @return list of matching articles
      */
     List<Article> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String title, String content);
+
+    /**
+     * Finds all published articles with tags eagerly loaded.
+     * Used by embedding ingestion to avoid N+1 queries and exclude drafts.
+     *
+     * @param now the current timestamp
+     * @return list of published articles with tags
+     */
+    @Query("SELECT DISTINCT a FROM Article a LEFT JOIN FETCH a.tags "
+            + "WHERE a.draft = false AND a.publishedAt <= :now")
+    List<Article> findPublishedWithTags(@Param("now") LocalDateTime now);
+
+    /**
+     * Finds an article by ID with tags eagerly loaded.
+     * Prevents LazyInitializationException when called outside a transaction.
+     *
+     * @param id the article ID
+     * @return the article with tags loaded
+     */
+    @Query("SELECT a FROM Article a LEFT JOIN FETCH a.tags WHERE a.id = :id")
+    Optional<Article> findByIdWithTags(@Param("id") Long id);
 }
