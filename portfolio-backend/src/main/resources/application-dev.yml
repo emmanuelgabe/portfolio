@@ -1,4 +1,10 @@
 # Development environment configuration
+ai:
+  enabled: ${AI_ENABLED:false}
+  chat:
+    rate-limit:
+      max-requests-per-hour: 100
+
 app:
   jwt:
     # Development: Comfortable expiration for local development

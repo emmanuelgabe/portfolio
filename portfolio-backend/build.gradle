@@ -33,6 +33,9 @@ repositories {
 }
 
 dependencies {
+    // Spring AI BOM for version management
+    implementation platform("org.springframework.ai:spring-ai-bom:1.1.2")
+
     // Security: Force secure versions of transitive dependencies to fix CVEs
     constraints {
         implementation('org.apache.commons:commons-lang3:3.18.0') {
@@ -90,6 +93,12 @@ dependencies {
     // Image processing
     implementation 'net.coobird:thumbnailator:0.4.20'
     implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+
+    // Spring AI: Google Gemini chat + embeddings + Elasticsearch vector store (non-starter, manually configured via AiConfig)
+    implementation 'org.springframework.ai:spring-ai-google-genai'
+    implementation 'org.springframework.ai:spring-ai-google-genai-embedding'
+    implementation 'org.springframework.ai:spring-ai-client-chat'
+    implementation 'org.springframework.ai:spring-ai-elasticsearch-store'
 
     // Markdown processing
     implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
