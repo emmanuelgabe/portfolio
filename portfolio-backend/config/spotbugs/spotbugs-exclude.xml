@@ -34,6 +34,12 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 
+    <!-- Exclude moderation DTOs - AI response data carriers -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.moderation.AiModerationResponse"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
     <!-- Exclude GraphQL types and inputs - Data carriers for GraphQL API -->
     <Match>
         <Package name="~com\.emmanuelgabe\.portfolio\.graphql\.type.*"/>
@@ -98,10 +104,19 @@
         </Or>
     </Match>
 
-    <!-- Exclude VA_FORMAT_STRING_USES_NEWLINE for HTML templates -->
+    <!-- Exclude VA_FORMAT_STRING_USES_NEWLINE for HTML templates and AI prompts -->
     <Match>
         <Class name="com.emmanuelgabe.portfolio.service.impl.ContactServiceImpl"/>
         <Method name="buildEmailContent"/>
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    </Match>
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.moderation.ModerationPromptBuilder"/>
+        <Method name="buildUserPrompt"/>
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    </Match>
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.messaging.consumer.AutoReplyConsumer"/>
         <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
     </Match>
 
