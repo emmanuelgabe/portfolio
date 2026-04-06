@@ -92,6 +92,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/chat", "/api/chat/stream").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/visitors/heartbeat").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/graphql", "/graphiql/**").permitAll()

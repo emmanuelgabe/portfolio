@@ -104,6 +104,17 @@
         </Or>
     </Match>
 
+    <!-- Exclude EI_EXPOSE_REP for AI service beans (manually wired via @Configuration classes,
+         Lombok SOURCE-retention annotations are not visible to SpotBugs bytecode analysis) -->
+    <Match>
+        <Or>
+            <Package name="~com\.emmanuelgabe\.portfolio\.chat.*"/>
+            <Package name="~com\.emmanuelgabe\.portfolio\.autoreply.*"/>
+            <Package name="~com\.emmanuelgabe\.portfolio\.moderation.*"/>
+        </Or>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
     <!-- Exclude VA_FORMAT_STRING_USES_NEWLINE for HTML templates and AI prompts -->
     <Match>
         <Class name="com.emmanuelgabe.portfolio.service.impl.ContactServiceImpl"/>
