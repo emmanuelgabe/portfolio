@@ -2,8 +2,6 @@ package com.emmanuelgabe.portfolio.moderation;
 
 import com.emmanuelgabe.portfolio.dto.ContactRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Service;
 
 /**
  * No-operation moderation service used when AI moderation is unavailable.
