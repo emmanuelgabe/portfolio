@@ -1,5 +1,7 @@
 package com.emmanuelgabe.portfolio.moderation;
 
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -19,7 +21,8 @@ class ModerationConfigTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withUserConfiguration(ModerationConfig.class)
-            .withBean(ModerationPromptBuilder.class);
+            .withBean(ModerationPromptBuilder.class)
+            .withBean(BusinessMetrics.class, () -> new BusinessMetrics(new SimpleMeterRegistry()));
 
     // ========== AI moderation enabled with ChatClient ==========
 

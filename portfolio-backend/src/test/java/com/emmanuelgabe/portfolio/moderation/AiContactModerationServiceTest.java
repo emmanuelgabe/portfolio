@@ -1,6 +1,10 @@
 package com.emmanuelgabe.portfolio.moderation;
 
 import com.emmanuelgabe.portfolio.dto.ContactRequest;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,14 +36,24 @@ class AiContactModerationServiceTest {
     @Mock
     private ChatClient.CallResponseSpec callResponseSpec;
 
+    @Mock
+    private BusinessMetrics metrics;
+
     @InjectMocks
     private AiContactModerationService aiContactModerationService;
 
     private ContactRequest validRequest;
+    private Timer moderationTimer;
 
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(aiContactModerationService, "timeoutSeconds", 5);
+
+        // Use a real Timer from SimpleMeterRegistry: sample.stop(timer) needs an actual
+        // timer instance, which is hard to mock correctly through Mockito's proxy
+        MeterRegistry registry = new SimpleMeterRegistry();
+        moderationTimer = Timer.builder("test.moderation.duration").register(registry);
+        when(metrics.getModerationTimer()).thenReturn(moderationTimer);
 
         validRequest = new ContactRequest(
                 "John Doe",
