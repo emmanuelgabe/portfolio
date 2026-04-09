@@ -9,12 +9,13 @@ import org.springframework.core.env.Environment;
 
 /**
  * Configuration for chat service bean selection.
- * Uses {@link ObjectProvider} for optional dependencies to avoid bean-ordering
- * issues with {@code @ConditionalOnBean}.
  *
  * <p>When {@code ai.enabled=true} and both {@link ChatClient} and {@link VectorStore}
- * are available, creates {@link RagChatService}. Otherwise falls back to
- * {@link NoOpChatService} so the chat endpoint remains callable.</p>
+ * are available, creates {@link RagChatService} with all agent tools registered.
+ * Otherwise falls back to {@link NoOpChatService} so the chat endpoint remains callable.</p>
+ *
+ * <p>Tool instances are created via {@link ChatToolFactory} to keep the parameter
+ * count manageable and improve testability.</p>
  */
 @Configuration
 public class ChatConfig {
@@ -25,9 +26,11 @@ public class ChatConfig {
             ObjectProvider<VectorStore> vectorStoreProvider,
             ObjectProvider<ChatPromptBuilder> promptBuilderProvider,
             ObjectProvider<ConversationHistoryStore> historyStoreProvider,
+            ChatToolFactory toolFactory,
             Environment environment) {
 
-        boolean aiEnabled = Boolean.parseBoolean(environment.getProperty("ai.enabled", "false"));
+        boolean aiEnabled = Boolean.parseBoolean(
+                environment.getProperty("ai.enabled", "false"));
         ChatClient chatClient = chatClientProvider.getIfAvailable();
         VectorStore vectorStore = vectorStoreProvider.getIfAvailable();
         ChatPromptBuilder promptBuilder = promptBuilderProvider.getIfAvailable();
@@ -35,7 +38,8 @@ public class ChatConfig {
 
         if (aiEnabled && chatClient != null && vectorStore != null
                 && promptBuilder != null && historyStore != null) {
-            return new RagChatService(chatClient, vectorStore, historyStore, promptBuilder);
+            Object[] tools = toolFactory.createTools(vectorStore);
+            return new RagChatService(chatClient, historyStore, promptBuilder, tools);
         }
         return new NoOpChatService();
     }
