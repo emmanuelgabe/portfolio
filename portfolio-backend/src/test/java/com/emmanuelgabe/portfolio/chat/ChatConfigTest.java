@@ -6,7 +6,9 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link ChatConfig} bean selection logic.
@@ -19,7 +21,12 @@ import static org.mockito.Mockito.mock;
 class ChatConfigTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withUserConfiguration(ChatConfig.class);
+            .withUserConfiguration(ChatConfig.class)
+            .withBean(ChatToolFactory.class, () -> {
+                ChatToolFactory factory = mock(ChatToolFactory.class);
+                when(factory.createTools(any())).thenReturn(new Object[0]);
+                return factory;
+            });
 
     // ========== AI enabled with all dependencies ==========
 
@@ -120,7 +127,7 @@ class ChatConfigTest {
     }
 
     @Test
-    void should_createNoOpChatService_when_aiEnabledButAllDependenciesMissing() {
+    void should_createNoOpChatService_when_aiEnabledButAiDependenciesMissing() {
         // Arrange & Act & Assert
         contextRunner
                 .withPropertyValues("ai.enabled=true")
