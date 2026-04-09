@@ -188,6 +188,7 @@
       "experiences": "Expériences",
       "articles": "Articles",
       "cv": "CV",
+      "contacts": "Contacts",
       "audit": "Journaux d'audit",
       "backToSite": "Retour au site",
       "brand": "Portfolio Admin"
@@ -561,6 +562,39 @@
       "imageUploadError": "Erreur lors du téléchargement de la photo",
       "imageDeleteSuccess": "Photo de profil supprimée",
       "imageDeleteError": "Erreur lors de la suppression de la photo"
+    },
+    "contacts": {
+      "title": "Modération des contacts",
+      "period": "Période",
+      "lastDays": "{{days}} derniers jours",
+      "totalContacts": "Total contacts",
+      "approved": "Approuvés",
+      "rejected": "Rejetés",
+      "categoryBreakdown": "Répartition par catégorie",
+      "categoryFilter": "Catégorie",
+      "allCategories": "Toutes les catégories",
+      "clearFilters": "Effacer les filtres",
+      "date": "Date",
+      "name": "Nom",
+      "subject": "Sujet",
+      "category": "Catégorie",
+      "verdict": "Verdict",
+      "confidence": "Confiance",
+      "noContacts": "Aucun contact enregistré",
+      "loadError": "Erreur lors du chargement des contacts",
+      "showing": "Affichage",
+      "of": "sur",
+      "categories": {
+        "MISSION": "Mission",
+        "QUESTION": "Question",
+        "FEEDBACK": "Retour",
+        "SPAM": "Spam",
+        "INAPPROPRIATE": "Inapproprié"
+      },
+      "verdicts": {
+        "APPROVED": "Approuvé",
+        "REJECTED": "Rejeté"
+      }
     },
     "audit": {
       "title": "Journaux d'audit",

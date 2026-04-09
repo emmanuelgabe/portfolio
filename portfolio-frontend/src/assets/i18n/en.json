@@ -188,6 +188,7 @@
       "experiences": "Experiences",
       "articles": "Articles",
       "cv": "CV",
+      "contacts": "Contacts",
       "audit": "Audit Logs",
       "backToSite": "Back to site",
       "brand": "Portfolio Admin"
@@ -561,6 +562,39 @@
       "imageUploadError": "Error uploading photo",
       "imageDeleteSuccess": "Profile photo deleted",
       "imageDeleteError": "Error deleting photo"
+    },
+    "contacts": {
+      "title": "Contact Moderation",
+      "period": "Period",
+      "lastDays": "Last {{days}} days",
+      "totalContacts": "Total contacts",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "categoryBreakdown": "Category breakdown",
+      "categoryFilter": "Category",
+      "allCategories": "All categories",
+      "clearFilters": "Clear filters",
+      "date": "Date",
+      "name": "Name",
+      "subject": "Subject",
+      "category": "Category",
+      "verdict": "Verdict",
+      "confidence": "Confidence",
+      "noContacts": "No contacts recorded",
+      "loadError": "Error loading contacts",
+      "showing": "Showing",
+      "of": "of",
+      "categories": {
+        "MISSION": "Mission",
+        "QUESTION": "Question",
+        "FEEDBACK": "Feedback",
+        "SPAM": "Spam",
+        "INAPPROPRIATE": "Inappropriate"
+      },
+      "verdicts": {
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      }
     },
     "audit": {
       "title": "Audit Logs",
