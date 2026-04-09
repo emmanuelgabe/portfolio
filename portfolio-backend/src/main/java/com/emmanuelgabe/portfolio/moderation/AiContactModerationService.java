@@ -16,7 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * AI-powered contact moderation service using Google Gemini via Spring AI.
- * Analyzes messages for spam, toxicity, and professional relevance.
+ * Analyzes messages for spam, toxicity, and professional relevance,
+ * and assigns a category (MISSION, QUESTION, FEEDBACK, SPAM, INAPPROPRIATE).
  *
  * <p>Follows the fail-open contract: any AI failure (timeout, parsing error,
  * API unavailability) results in automatic approval to avoid blocking
@@ -59,11 +60,7 @@ public class AiContactModerationService implements ContactModerationService {
             ).get(timeoutSeconds, TimeUnit.SECONDS);
 
             ModerationResult result = convertToResult(aiResponse, request.getEmail());
-            if (result.verdict() == ModerationVerdict.APPROVED) {
-                metrics.recordModerationApproval();
-            } else {
-                metrics.recordModerationRejection();
-            }
+            recordMetrics(result);
             return result;
 
         } catch (Exception e) {
@@ -73,6 +70,17 @@ public class AiContactModerationService implements ContactModerationService {
             return ModerationResult.approved();
         } finally {
             sample.stop(metrics.getModerationTimer());
+        }
+    }
+
+    private void recordMetrics(ModerationResult result) {
+        if (result.verdict() == ModerationVerdict.APPROVED) {
+            metrics.recordModerationApproval();
+        } else {
+            metrics.recordModerationRejection();
+        }
+        if (result.category() != null) {
+            metrics.recordModerationCategory(result.category().name());
         }
     }
 
@@ -93,18 +101,29 @@ public class AiContactModerationService implements ContactModerationService {
 
         double confidence = clampConfidence(aiResponse.getConfidenceScore());
         String reason = aiResponse.getReason() != null ? aiResponse.getReason() : "No reason provided";
+        ContactCategory category = parseCategory(aiResponse.getCategory());
 
-        ModerationResult result;
-        if (ModerationVerdict.APPROVED.name().equalsIgnoreCase(verdict)) {
-            result = new ModerationResult(ModerationVerdict.APPROVED, reason, confidence);
-        } else {
-            result = ModerationResult.rejected(reason, confidence);
-        }
+        ModerationVerdict moderationVerdict = ModerationVerdict.APPROVED.name().equalsIgnoreCase(verdict)
+                ? ModerationVerdict.APPROVED
+                : ModerationVerdict.REJECTED;
 
-        log.info("[MODERATION] AI analysis complete - verdict={}, reason={}, confidence={}, email={}",
-                result.verdict(), result.reason(), confidence, email);
+        ModerationResult result = new ModerationResult(moderationVerdict, category, reason, confidence);
+
+        log.info("[MODERATION] AI analysis complete - verdict={}, category={}, reason={}, confidence={}, email={}",
+                result.verdict(), result.category(), result.reason(), confidence, email);
 
         return result;
+    }
+
+    private static ContactCategory parseCategory(String categoryStr) {
+        if (categoryStr == null) {
+            return null;
+        }
+        try {
+            return ContactCategory.valueOf(categoryStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private static double clampConfidence(double score) {

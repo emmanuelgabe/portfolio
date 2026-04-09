@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 public class AiModerationResponse {
 
     private String verdict;
+    private String category;
     private String reason;
     private double confidenceScore;
 }

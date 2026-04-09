@@ -1,21 +1,36 @@
 package com.emmanuelgabe.portfolio.service.impl;
 
+import com.emmanuelgabe.portfolio.dto.ContactHistoryResponse;
 import com.emmanuelgabe.portfolio.dto.ContactRequest;
 import com.emmanuelgabe.portfolio.dto.ContactResponse;
+import com.emmanuelgabe.portfolio.dto.ContactStatsResponse;
+import com.emmanuelgabe.portfolio.entity.Contact;
+import com.emmanuelgabe.portfolio.mapper.ContactMapper;
 import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ContactEmailEvent;
 import com.emmanuelgabe.portfolio.messaging.publisher.EventPublisher;
+import com.emmanuelgabe.portfolio.moderation.ContactCategory;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.moderation.ContactModerationService;
 import com.emmanuelgabe.portfolio.moderation.ModerationResult;
+import com.emmanuelgabe.portfolio.repository.ContactRepository;
 import com.emmanuelgabe.portfolio.service.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of ContactService.
- * Handles contact form submissions by publishing events for async email processing.
+ * Handles contact form submissions by publishing events for async email processing,
+ * persists contacts with moderation results, and provides admin statistics.
  */
 @Slf4j
 @Service
@@ -24,6 +39,9 @@ public class ContactServiceImpl implements ContactService {
 
     private final EventPublisher eventPublisher;
     private final ContactModerationService moderationService;
+    private final ContactRepository contactRepository;
+    private final ContactMapper contactMapper;
+    private final BusinessMetrics metrics;
 
     @Value("${spring.mail.username}")
     private String recipientEmail;
@@ -37,6 +55,8 @@ public class ContactServiceImpl implements ContactService {
                 request.getEmail(), request.getSubject());
 
         ModerationResult moderation = moderationService.moderate(request);
+        persistContact(request, moderation);
+
         if (!moderation.isApproved()) {
             log.info("[CONTACT] Message rejected by moderation - email={}, reason={}, confidence={}",
                     request.getEmail(), moderation.reason(), moderation.confidenceScore());
@@ -62,6 +82,50 @@ public class ContactServiceImpl implements ContactService {
         publishAutoReplyEvent(request);
 
         return ContactResponse.success("Message sent successfully");
+    }
+
+    @Override
+    public ContactStatsResponse getContactStats(LocalDateTime since) {
+        log.debug("[CONTACT_ADMIN] Fetching contact stats - since={}", since);
+
+        long total = contactRepository.countSince(since);
+        Map<String, Long> categoryCounts = toMap(contactRepository.countByCategorySince(since));
+        Map<String, Long> verdictCounts = toMap(contactRepository.countByVerdictSince(since));
+        Map<String, Long> dailyActivity = toMap(contactRepository.countDailySince(since));
+
+        return new ContactStatsResponse(total, categoryCounts, verdictCounts, dailyActivity);
+    }
+
+    @Override
+    public Page<ContactHistoryResponse> getContactHistory(ContactCategory category, Pageable pageable) {
+        log.debug("[CONTACT_ADMIN] Fetching contact history - category={}, page={}",
+                category, pageable.getPageNumber());
+
+        Page<Contact> contacts = (category != null)
+                ? contactRepository.findByCategory(category, pageable)
+                : contactRepository.findAll(pageable);
+
+        return contacts.map(contactMapper::toHistoryResponse);
+    }
+
+    private void persistContact(ContactRequest request, ModerationResult moderation) {
+        try {
+            Contact contact = new Contact();
+            contact.setName(request.getName());
+            contact.setSubject(request.getSubject());
+            contact.setMessage(request.getMessage());
+            contact.setCategory(moderation.category());
+            contact.setModerationVerdict(moderation.verdict());
+            contact.setModerationReason(moderation.reason());
+            contact.setConfidenceScore(moderation.confidenceScore());
+            contactRepository.save(contact);
+            log.debug("[CONTACT] Contact persisted - name={}, category={}, verdict={}",
+                    request.getName(), moderation.category(), moderation.verdict());
+        } catch (Exception e) {
+            log.error("[CONTACT] Failed to persist contact - name={}, error={}",
+                    request.getName(), e.getMessage());
+            metrics.recordContactPersistenceFailure();
+        }
     }
 
     private void publishAutoReplyEvent(ContactRequest request) {
@@ -152,5 +216,15 @@ public class ContactServiceImpl implements ContactService {
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "&#x27;");
+    }
+
+    private static Map<String, Long> toMap(List<Object[]> rows) {
+        Map<String, Long> map = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            String key = row[0] != null ? row[0].toString() : "UNCATEGORIZED";
+            long value = ((Number) row[1]).longValue();
+            map.put(key, value);
+        }
+        return map;
     }
 }

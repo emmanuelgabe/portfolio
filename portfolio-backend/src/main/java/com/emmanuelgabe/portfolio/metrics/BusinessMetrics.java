@@ -90,6 +90,10 @@ public class BusinessMetrics {
                 .description("Total auto-reply generation failures")
                 .register(registry);
 
+        this.contactPersistenceFailures = Counter.builder("portfolio.contact.persistence.failures")
+                .description("Total contact persistence failures")
+                .register(registry);
+
         this.moderationApprovals = Counter.builder("portfolio.moderation.approvals")
                 .description("Total messages approved by moderation")
                 .register(registry);
@@ -172,6 +176,13 @@ public class BusinessMetrics {
     }
 
     /**
+     * Record a contact persistence failure
+     */
+    public void recordContactPersistenceFailure() {
+        contactPersistenceFailures.increment();
+    }
+
+    /**
      * Record a moderation approval
      */
     public void recordModerationApproval() {
@@ -245,6 +256,23 @@ public class BusinessMetrics {
         Counter.builder("portfolio.dlq.messages")
                 .description("Messages sent to dead letter queue")
                 .tags(Tags.of("queue_type", queueType))
+                .register(registry)
+                .increment();
+    }
+
+    private final Counter contactPersistenceFailures;
+
+    // ========== Moderation Category Metrics ==========
+
+    /**
+     * Record a contact message categorized by AI moderation.
+     *
+     * @param category the assigned category name (MISSION, QUESTION, FEEDBACK, SPAM, INAPPROPRIATE)
+     */
+    public void recordModerationCategory(String category) {
+        Counter.builder("portfolio.moderation.categories")
+                .description("Contact messages by AI moderation category")
+                .tags(Tags.of("category", category))
                 .register(registry)
                 .increment();
     }
