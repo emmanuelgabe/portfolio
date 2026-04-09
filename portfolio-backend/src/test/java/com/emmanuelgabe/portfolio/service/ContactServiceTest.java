@@ -2,11 +2,14 @@ package com.emmanuelgabe.portfolio.service;
 
 import com.emmanuelgabe.portfolio.dto.ContactRequest;
 import com.emmanuelgabe.portfolio.dto.ContactResponse;
+import com.emmanuelgabe.portfolio.mapper.ContactMapper;
 import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ContactEmailEvent;
 import com.emmanuelgabe.portfolio.messaging.publisher.EventPublisher;
+import com.emmanuelgabe.portfolio.metrics.BusinessMetrics;
 import com.emmanuelgabe.portfolio.moderation.ContactModerationService;
 import com.emmanuelgabe.portfolio.moderation.ModerationResult;
+import com.emmanuelgabe.portfolio.repository.ContactRepository;
 import com.emmanuelgabe.portfolio.service.impl.ContactServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +40,15 @@ class ContactServiceTest {
 
     @Mock
     private ContactModerationService moderationService;
+
+    @Mock
+    private ContactRepository contactRepository;
+
+    @Mock
+    private ContactMapper contactMapper;
+
+    @Mock
+    private BusinessMetrics metrics;
 
     @Captor
     private ArgumentCaptor<ContactEmailEvent> eventCaptor;

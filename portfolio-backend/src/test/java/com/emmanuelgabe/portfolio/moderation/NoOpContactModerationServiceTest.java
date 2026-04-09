@@ -37,7 +37,7 @@ class NoOpContactModerationServiceTest {
     }
 
     @Test
-    void should_returnConfidenceOne_when_moderateCalled() {
+    void should_returnConfidenceOneAndNullCategory_when_moderateCalled() {
         // Arrange
         ContactRequest request = new ContactRequest(
                 "Jane Doe",
@@ -52,6 +52,7 @@ class NoOpContactModerationServiceTest {
         // Assert
         assertThat(result.confidenceScore()).isEqualTo(1.0);
         assertThat(result.reason()).isEqualTo("Approved");
+        assertThat(result.category()).isNull();
     }
 
     @Test

@@ -25,6 +25,7 @@ class ModerationPromptBuilderTest {
         assertThat(systemPrompt).contains("verdict");
         assertThat(systemPrompt).contains("APPROVED");
         assertThat(systemPrompt).contains("REJECTED");
+        assertThat(systemPrompt).contains("category");
         assertThat(systemPrompt).contains("reason");
         assertThat(systemPrompt).contains("confidenceScore");
     }
@@ -67,6 +68,31 @@ class ModerationPromptBuilderTest {
 
         // Assert
         assertThat(systemPrompt).containsIgnoringCase("french");
+    }
+
+    // ========== Categorization Tests ==========
+
+    @Test
+    void should_includeAllCategories_when_buildSystemPromptCalled() {
+        // Act
+        String systemPrompt = promptBuilder.buildSystemPrompt();
+
+        // Assert
+        assertThat(systemPrompt).contains("MISSION");
+        assertThat(systemPrompt).contains("QUESTION");
+        assertThat(systemPrompt).contains("FEEDBACK");
+        assertThat(systemPrompt).contains("SPAM");
+        assertThat(systemPrompt).contains("INAPPROPRIATE");
+    }
+
+    @Test
+    void should_includeVerdictRules_when_buildSystemPromptCalled() {
+        // Act
+        String systemPrompt = promptBuilder.buildSystemPrompt();
+
+        // Assert
+        assertThat(systemPrompt).containsIgnoringCase("verdict");
+        assertThat(systemPrompt).containsIgnoringCase("categorization");
     }
 
     // ========== User Prompt Tests ==========

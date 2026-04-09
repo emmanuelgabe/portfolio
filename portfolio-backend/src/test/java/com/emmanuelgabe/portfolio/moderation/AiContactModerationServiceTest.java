@@ -71,7 +71,8 @@ class AiContactModerationServiceTest {
     @Test
     void should_returnApproved_when_aiReturnsApprovedVerdict() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("APPROVED", "Legitimate inquiry", 0.95);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", "QUESTION", "Legitimate inquiry", 0.95);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -85,7 +86,8 @@ class AiContactModerationServiceTest {
     @Test
     void should_returnRejected_when_aiReturnsRejectedForSpam() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("REJECTED", "SEO spam detected", 0.92);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "REJECTED", "SPAM", "SEO spam detected", 0.92);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -96,6 +98,94 @@ class AiContactModerationServiceTest {
         assertThat(result.verdict()).isEqualTo(ModerationVerdict.REJECTED);
         assertThat(result.reason()).isEqualTo("SEO spam detected");
         assertThat(result.confidenceScore()).isEqualTo(0.92);
+    }
+
+    // ========== Category Tests ==========
+
+    @Test
+    void should_parseMissionCategory_when_aiReturnsMission() {
+        // Arrange
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", "MISSION", "Freelance request", 0.9);
+        mockChatClientChain(aiResponse);
+
+        // Act
+        ModerationResult result = aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        assertThat(result.category()).isEqualTo(ContactCategory.MISSION);
+    }
+
+    @Test
+    void should_parseSpamCategory_when_aiReturnsSpam() {
+        // Arrange
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "REJECTED", "SPAM", "Marketing spam", 0.95);
+        mockChatClientChain(aiResponse);
+
+        // Act
+        ModerationResult result = aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        assertThat(result.category()).isEqualTo(ContactCategory.SPAM);
+    }
+
+    @Test
+    void should_parseInappropriateCategory_when_aiReturnsInappropriate() {
+        // Arrange
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "REJECTED", "INAPPROPRIATE", "Hate speech detected", 0.98);
+        mockChatClientChain(aiResponse);
+
+        // Act
+        ModerationResult result = aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        assertThat(result.category()).isEqualTo(ContactCategory.INAPPROPRIATE);
+    }
+
+    @Test
+    void should_returnNullCategory_when_aiReturnsInvalidCategory() {
+        // Arrange
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", "UNKNOWN_CATEGORY", "Some message", 0.8);
+        mockChatClientChain(aiResponse);
+
+        // Act
+        ModerationResult result = aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        assertThat(result.isApproved()).isTrue();
+        assertThat(result.category()).isNull();
+    }
+
+    @Test
+    void should_returnNullCategory_when_aiReturnsNullCategory() {
+        // Arrange
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", null, "Looks fine", 0.85);
+        mockChatClientChain(aiResponse);
+
+        // Act
+        ModerationResult result = aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        assertThat(result.isApproved()).isTrue();
+        assertThat(result.category()).isNull();
+    }
+
+    @Test
+    void should_parseCategoryCaseInsensitive_when_aiReturnsLowercaseCategory() {
+        // Arrange
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", "feedback", "User feedback", 0.88);
+        mockChatClientChain(aiResponse);
+
+        // Act
+        ModerationResult result = aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        assertThat(result.category()).isEqualTo(ContactCategory.FEEDBACK);
     }
 
     // ========== Fail-Open Tests ==========
@@ -111,6 +201,7 @@ class AiContactModerationServiceTest {
         // Assert
         assertThat(result.isApproved()).isTrue();
         assertThat(result.confidenceScore()).isEqualTo(1.0);
+        assertThat(result.category()).isNull();
     }
 
     @Test
@@ -123,12 +214,14 @@ class AiContactModerationServiceTest {
 
         // Assert
         assertThat(result.isApproved()).isTrue();
+        assertThat(result.category()).isNull();
     }
 
     @Test
     void should_returnApproved_when_aiReturnsInvalidVerdict() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("MAYBE", "Unclear", 0.5);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "MAYBE", "QUESTION", "Unclear", 0.5);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -141,7 +234,8 @@ class AiContactModerationServiceTest {
     @Test
     void should_returnApproved_when_aiReturnsNullVerdict() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse(null, "No verdict", 0.5);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                null, "QUESTION", "No verdict", 0.5);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -156,7 +250,8 @@ class AiContactModerationServiceTest {
     @Test
     void should_preserveAiConfidenceScore_when_aiReturnsApproved() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("APPROVED", "Looks legitimate", 0.75);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", "QUESTION", "Looks legitimate", 0.75);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -171,7 +266,8 @@ class AiContactModerationServiceTest {
     @Test
     void should_clampConfidenceScore_when_aiReturnsValueAboveOne() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("REJECTED", "Spam", 1.5);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "REJECTED", "SPAM", "Spam", 1.5);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -184,7 +280,8 @@ class AiContactModerationServiceTest {
     @Test
     void should_clampConfidenceScore_when_aiReturnsNegativeValue() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("REJECTED", "Spam", -0.5);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "REJECTED", "SPAM", "Spam", -0.5);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -194,12 +291,42 @@ class AiContactModerationServiceTest {
         assertThat(result.confidenceScore()).isEqualTo(0.0);
     }
 
+    // ========== Metrics Tests ==========
+
+    @Test
+    void should_recordCategoryMetric_when_categoryPresent() {
+        // Arrange
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", "MISSION", "Job offer", 0.9);
+        mockChatClientChain(aiResponse);
+
+        // Act
+        aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        verify(metrics).recordModerationApproval();
+        verify(metrics).recordModerationCategory("MISSION");
+    }
+
+    @Test
+    void should_recordFailureMetric_when_aiCallFails() {
+        // Arrange
+        when(chatClient.prompt()).thenThrow(new RuntimeException("Timeout"));
+
+        // Act
+        aiContactModerationService.moderate(validRequest);
+
+        // Assert
+        verify(metrics).recordModerationFailure();
+    }
+
     // ========== Interaction Tests ==========
 
     @Test
     void should_useModerationPromptBuilder_when_moderateCalled() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("APPROVED", "OK", 0.9);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "APPROVED", "QUESTION", "OK", 0.9);
         mockChatClientChain(aiResponse);
 
         // Act
@@ -213,7 +340,8 @@ class AiContactModerationServiceTest {
     @Test
     void should_handleCaseInsensitiveVerdict_when_aiReturnsLowercase() {
         // Arrange
-        AiModerationResponse aiResponse = new AiModerationResponse("approved", "Looks good", 0.8);
+        AiModerationResponse aiResponse = new AiModerationResponse(
+                "approved", "QUESTION", "Looks good", 0.8);
         mockChatClientChain(aiResponse);
 
         // Act
