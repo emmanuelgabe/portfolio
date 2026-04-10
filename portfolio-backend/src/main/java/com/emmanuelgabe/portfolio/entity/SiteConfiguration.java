@@ -78,6 +78,9 @@ public class SiteConfiguration {
     @Column(name = "linkedin_url", nullable = false, length = 500)
     private String linkedinUrl;
 
+    @Column(name = "chatbot_info_url", length = 500)
+    private String chatbotInfoUrl;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

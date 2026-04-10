@@ -47,4 +47,8 @@ public class UpdateSiteConfigurationRequest {
     @NotBlank(message = "LinkedIn URL is required")
     @Pattern(regexp = "^https?://.*", message = "LinkedIn URL must be a valid URL")
     private String linkedinUrl;
+
+    @Size(max = 500, message = "Chatbot info URL must not exceed 500 characters")
+    @Pattern(regexp = "^$|^https?://.*", message = "Chatbot info URL must be a valid URL")
+    private String chatbotInfoUrl;
 }
