@@ -85,8 +85,14 @@
            [class.chat-bubble--user]="msg.role === 'user'"
            [class.chat-bubble--assistant]="msg.role === 'assistant'">
         <span>{{ msg.content }}</span>
-        <!-- Typing cursor (R3) -->
-        <span class="chat-cursor" *ngIf="isStreaming && msg.role === 'assistant' && last"></span>
+        <!-- Typing indicator shown only while waiting for the first streamed token -->
+        <span class="chat-typing"
+              *ngIf="isStreaming && msg.role === 'assistant' && last && !msg.content"
+              aria-hidden="true">
+          <span class="chat-typing__dot"></span>
+          <span class="chat-typing__dot"></span>
+          <span class="chat-typing__dot"></span>
+        </span>
       </div>
 
       <!-- Contact form pre-fill button -->
