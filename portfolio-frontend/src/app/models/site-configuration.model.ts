@@ -24,6 +24,9 @@ export interface SiteConfigurationResponse {
   githubUrl: string;
   linkedinUrl: string;
 
+  // Chatbot
+  chatbotInfoUrl: string | undefined;
+
   // Timestamps
   createdAt: string;
   updatedAt: string;
@@ -49,4 +52,7 @@ export interface UpdateSiteConfigurationRequest {
   // Social Links
   githubUrl: string;
   linkedinUrl: string;
+
+  // Chatbot
+  chatbotInfoUrl: string | undefined;
 }
