@@ -24,6 +24,8 @@ const RATE_LIMIT_WARNING_THRESHOLD = 3;
 /** Tool name to i18n key mapping. */
 const TOOL_LABEL_KEYS: Record<string, string> = {
   searchProjects: 'chat.tools.searchProjects',
+  listProjects: 'chat.tools.listProjects',
+  getFeaturedProjects: 'chat.tools.getFeaturedProjects',
   getProjectDetails: 'chat.tools.getProjectDetails',
   listArticles: 'chat.tools.listArticles',
   getArticle: 'chat.tools.getArticle',

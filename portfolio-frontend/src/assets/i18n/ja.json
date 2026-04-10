@@ -648,6 +648,8 @@
     },
     "tools": {
       "searchProjects": "プロジェクトを検索中",
+      "listProjects": "すべてのプロジェクトを確認中",
+      "getFeaturedProjects": "注目プロジェクトを選定中",
       "getProjectDetails": "プロジェクト詳細を読み込み中",
       "listArticles": "記事を参照中",
       "getArticle": "記事を読み込み中",

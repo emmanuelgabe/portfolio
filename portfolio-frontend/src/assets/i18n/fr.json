@@ -712,6 +712,8 @@
     },
     "tools": {
       "searchProjects": "Exploration des projets",
+      "listProjects": "Revue des projets",
+      "getFeaturedProjects": "Sélection des projets phares",
       "getProjectDetails": "Analyse du projet",
       "listArticles": "Parcours des articles",
       "getArticle": "Lecture de l'article",

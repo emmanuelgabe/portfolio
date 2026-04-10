@@ -648,6 +648,8 @@
     },
     "tools": {
       "searchProjects": "搜索项目中",
+      "listProjects": "浏览所有项目",
+      "getFeaturedProjects": "精选项目",
       "getProjectDetails": "加载项目详情",
       "listArticles": "浏览文章中",
       "getArticle": "阅读文章",

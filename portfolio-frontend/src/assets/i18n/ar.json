@@ -648,6 +648,8 @@
     },
     "tools": {
       "searchProjects": "البحث عن المشاريع",
+      "listProjects": "استعراض جميع المشاريع",
+      "getFeaturedProjects": "اختيار المشاريع المميزة",
       "getProjectDetails": "تحميل تفاصيل المشروع",
       "listArticles": "استعراض المقالات",
       "getArticle": "قراءة المقالة",

@@ -648,6 +648,8 @@
     },
     "tools": {
       "searchProjects": "Поиск проектов",
+      "listProjects": "Обзор всех проектов",
+      "getFeaturedProjects": "Выбор избранных проектов",
       "getProjectDetails": "Загрузка деталей проекта",
       "listArticles": "Просмотр статей",
       "getArticle": "Чтение статьи",

@@ -712,6 +712,8 @@
     },
     "tools": {
       "searchProjects": "Exploring projects",
+      "listProjects": "Reviewing all projects",
+      "getFeaturedProjects": "Picking featured projects",
       "getProjectDetails": "Analysing the project",
       "listArticles": "Browsing articles",
       "getArticle": "Reading the article",

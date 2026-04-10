@@ -655,6 +655,8 @@
     },
     "tools": {
       "searchProjects": "Projekte durchsuchen",
+      "listProjects": "Alle Projekte ansehen",
+      "getFeaturedProjects": "Ausgewaehlte Projekte anzeigen",
       "getProjectDetails": "Projektdetails laden",
       "listArticles": "Artikel durchsuchen",
       "getArticle": "Artikel lesen",

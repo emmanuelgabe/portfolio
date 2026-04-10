@@ -648,6 +648,8 @@
     },
     "tools": {
       "searchProjects": "परियोजनाएँ खोज रहे हैं",
+      "listProjects": "सभी परियोजनाओं की समीक्षा",
+      "getFeaturedProjects": "प्रमुख परियोजनाओं का चयन",
       "getProjectDetails": "परियोजना विवरण लोड हो रहा है",
       "listArticles": "लेख देख रहे हैं",
       "getArticle": "लेख पढ़ रहे हैं",
