@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.search.ProjectSearchResult;
 import com.emmanuelgabe.portfolio.service.ProjectService;
@@ -24,6 +25,9 @@ class ProjectSearchToolTest {
 
     @Mock
     private SearchService searchService;
+
+    @Mock
+    private ToolCallTracker tracker;
 
     @InjectMocks
     private ProjectSearchTool projectSearchTool;

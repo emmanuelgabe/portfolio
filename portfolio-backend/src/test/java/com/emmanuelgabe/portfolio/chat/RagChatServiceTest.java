@@ -10,6 +10,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -41,6 +43,12 @@ class RagChatServiceTest {
     private ChatPromptBuilder promptBuilder;
 
     @Mock
+    private ChatToolFactory toolFactory;
+
+    @Mock
+    private VectorStore vectorStore;
+
+    @Mock
     private ChatClient.ChatClientRequestSpec requestSpec;
 
     @Mock
@@ -54,11 +62,15 @@ class RagChatServiceTest {
     @BeforeEach
     void setUp() {
         ragChatService = new RagChatService(
-                chatClient, historyStore, promptBuilder, new Object[0]);
+                chatClient, historyStore, promptBuilder, toolFactory, vectorStore);
 
         lenient().when(promptBuilder.buildSystemPrompt()).thenReturn("system prompt");
         lenient().when(promptBuilder.wrapUserMessage(anyString()))
                 .thenReturn("<visitor_message>msg</visitor_message>");
+        lenient().when(toolFactory.createTools(any(VectorStore.class)))
+                .thenReturn(new Object[0]);
+        lenient().when(toolFactory.createTools(any(VectorStore.class), any(ToolCallTracker.class)))
+                .thenReturn(new Object[0]);
     }
 
     // ========== chat: Happy Path ==========
@@ -212,16 +224,17 @@ class RagChatServiceTest {
     // ========== streamChat: Happy Path ==========
 
     @Test
-    void should_streamChunks_when_streamChatCalled() {
+    void should_streamTokenEvents_when_streamChatCalled() {
         // Arrange
         when(historyStore.history(CONVERSATION_ID)).thenReturn(List.of());
         mockStreamChain(List.of(), Flux.just("Hello ", "world", "!"));
 
         // Act & Assert
         StepVerifier.create(ragChatService.streamChat(CONVERSATION_ID, USER_MESSAGE))
-                .expectNext("Hello ")
-                .expectNext("world")
-                .expectNext("!")
+                .expectNextMatches(sse -> isToken(sse, "Hello "))
+                .expectNextMatches(sse -> isToken(sse, "world"))
+                .expectNextMatches(sse -> isToken(sse, "!"))
+                .expectNextMatches(this::isDone)
                 .verifyComplete();
     }
 
@@ -233,7 +246,7 @@ class RagChatServiceTest {
 
         // Act
         StepVerifier.create(ragChatService.streamChat(CONVERSATION_ID, USER_MESSAGE))
-                .expectNextCount(3)
+                .expectNextCount(4)
                 .verifyComplete();
 
         // Assert
@@ -254,7 +267,8 @@ class RagChatServiceTest {
 
         // Act
         StepVerifier.create(ragChatService.streamChat(CONVERSATION_ID, USER_MESSAGE))
-                .expectNext("Reply")
+                .expectNextMatches(sse -> isToken(sse, "Reply"))
+                .expectNextMatches(this::isDone)
                 .verifyComplete();
 
         // Assert
@@ -271,7 +285,10 @@ class RagChatServiceTest {
 
         // Act & Assert
         StepVerifier.create(ragChatService.streamChat(CONVERSATION_ID, USER_MESSAGE))
-                .expectNextMatches(msg -> msg.toLowerCase().contains("contact"))
+                .expectNextMatches(sse -> "token".equals(sse.event())
+                        && sse.data() != null
+                        && sse.data().toLowerCase().contains("contact"))
+                .expectNextMatches(this::isDone)
                 .verifyComplete();
     }
 
@@ -283,7 +300,10 @@ class RagChatServiceTest {
 
         // Act & Assert
         StepVerifier.create(ragChatService.streamChat(CONVERSATION_ID, USER_MESSAGE))
-                .expectNextMatches(msg -> msg.toLowerCase().contains("contact"))
+                .expectNextMatches(sse -> "token".equals(sse.event())
+                        && sse.data() != null
+                        && sse.data().toLowerCase().contains("contact"))
+                .expectNextMatches(this::isDone)
                 .verifyComplete();
     }
 
@@ -295,7 +315,10 @@ class RagChatServiceTest {
 
         // Act & Assert
         StepVerifier.create(ragChatService.streamChat(CONVERSATION_ID, USER_MESSAGE))
-                .expectNextMatches(msg -> msg.toLowerCase().contains("contact"))
+                .expectNextMatches(sse -> "token".equals(sse.event())
+                        && sse.data() != null
+                        && sse.data().toLowerCase().contains("contact"))
+                .expectNextMatches(this::isDone)
                 .verifyComplete();
     }
 
@@ -307,7 +330,7 @@ class RagChatServiceTest {
 
         // Act
         StepVerifier.create(ragChatService.streamChat(CONVERSATION_ID, USER_MESSAGE))
-                .expectNextCount(2)
+                .expectNextCount(3)
                 .verifyComplete();
 
         // Assert
@@ -315,6 +338,14 @@ class RagChatServiceTest {
     }
 
     // ========== Helper Methods ==========
+
+    private boolean isToken(ServerSentEvent<String> sse, String expected) {
+        return "token".equals(sse.event()) && expected.equals(sse.data());
+    }
+
+    private boolean isDone(ServerSentEvent<String> sse) {
+        return "done".equals(sse.event());
+    }
 
     private void mockCallChain(List<Message> history, String responseContent) {
         when(chatClient.prompt()).thenReturn(requestSpec);

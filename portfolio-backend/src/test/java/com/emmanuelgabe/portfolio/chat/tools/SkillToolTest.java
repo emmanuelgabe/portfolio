@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
 import com.emmanuelgabe.portfolio.service.SkillService;
@@ -21,6 +22,9 @@ class SkillToolTest {
 
     @Mock
     private SkillService skillService;
+
+    @Mock
+    private ToolCallTracker tracker;
 
     @InjectMocks
     private SkillTool skillTool;

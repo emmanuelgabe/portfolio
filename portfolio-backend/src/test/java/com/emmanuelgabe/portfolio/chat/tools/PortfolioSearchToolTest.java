@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,9 @@ class PortfolioSearchToolTest {
 
     @Mock
     private VectorStore vectorStore;
+
+    @Mock
+    private ToolCallTracker tracker;
 
     @InjectMocks
     private PortfolioSearchTool portfolioSearchTool;

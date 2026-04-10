@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
 import com.emmanuelgabe.portfolio.service.ExperienceService;
@@ -21,6 +22,9 @@ class ExperienceToolTest {
 
     @Mock
     private ExperienceService experienceService;
+
+    @Mock
+    private ToolCallTracker tracker;
 
     @InjectMocks
     private ExperienceTool experienceTool;

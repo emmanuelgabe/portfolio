@@ -1,12 +1,13 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ContactPrepareToolTest {
 
-    private final ContactPrepareTool contactPrepareTool = new ContactPrepareTool();
+    private final ContactPrepareTool contactPrepareTool = new ContactPrepareTool(ToolCallTracker.noop());
 
     // ========== prepareContact ==========
 

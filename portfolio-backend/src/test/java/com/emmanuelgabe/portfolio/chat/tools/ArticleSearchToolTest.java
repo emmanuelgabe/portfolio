@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
 import com.emmanuelgabe.portfolio.service.ArticleService;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,9 @@ class ArticleSearchToolTest {
 
     @Mock
     private ArticleService articleService;
+
+    @Mock
+    private ToolCallTracker tracker;
 
     @InjectMocks
     private ArticleSearchTool articleSearchTool;

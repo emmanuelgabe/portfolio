@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.CvResponse;
 import com.emmanuelgabe.portfolio.dto.SiteConfigurationResponse;
 import com.emmanuelgabe.portfolio.service.CvService;
@@ -24,6 +25,9 @@ class SiteInfoToolTest {
 
     @Mock
     private CvService cvService;
+
+    @Mock
+    private ToolCallTracker tracker;
 
     @InjectMocks
     private SiteInfoTool siteInfoTool;

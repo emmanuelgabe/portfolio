@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import reactor.core.publisher.Flux;
@@ -209,7 +210,9 @@ class ChatControllerTest {
         ChatRequest request = new ChatRequest(CONVERSATION_ID, VALID_MESSAGE);
         when(rateLimiter.tryAcquire(any(RateLimitPolicy.class), anyString())).thenReturn(true);
         when(chatService.streamChat(CONVERSATION_ID, VALID_MESSAGE))
-                .thenReturn(Flux.just("Hello ", "world"));
+                .thenReturn(Flux.just(
+                        ServerSentEvent.<String>builder().event("token").data("Hello world").build(),
+                        ServerSentEvent.<String>builder().event("done").data("").build()));
 
         // Act -- Flux response body requires async dispatch
         MvcResult result = mockMvc.perform(post("/api/chat/stream")
