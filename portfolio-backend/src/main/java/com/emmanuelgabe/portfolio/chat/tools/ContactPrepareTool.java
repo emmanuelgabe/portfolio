@@ -1,5 +1,7 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -10,7 +12,10 @@ import org.springframework.ai.tool.annotation.ToolParam;
  * widget uses to open the contact form with pre-filled fields.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class ContactPrepareTool {
+
+    private final ToolCallTracker tracker;
 
     /**
      * Prepare contact form data for the visitor.
@@ -25,8 +30,11 @@ public class ContactPrepareTool {
     public ContactFormData prepareContact(
             @ToolParam(description = "Subject line for the contact message") String subject,
             @ToolParam(description = "Suggested message body for the contact form") String message) {
+        tracker.record("prepareContact");
         log.debug("[CHAT_TOOL] prepareContact - subject={}", subject);
-        return new ContactFormData(subject, message);
+        ContactFormData data = new ContactFormData(subject, message);
+        tracker.recordContactForm(data);
+        return data;
     }
 
     /**

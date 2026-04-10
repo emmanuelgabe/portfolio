@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.article.ArticleResponse;
 import com.emmanuelgabe.portfolio.service.ArticleService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class ArticleSearchTool {
     private static final int MAX_PAGE_SIZE = 10;
 
     private final ArticleService articleService;
+    private final ToolCallTracker tracker;
 
     /**
      * List published articles with pagination.
@@ -34,6 +36,7 @@ public class ArticleSearchTool {
     public Page<ArticleResponse> listArticles(
             @ToolParam(description = "Page number (0-based)") int page,
             @ToolParam(description = "Number of articles per page (1 to 10)") int size) {
+        tracker.record("listArticles");
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
         log.debug("[CHAT_TOOL] listArticles - page={}, size={}", page, safeSize);
         return articleService.getAllPublishedPaginated(
@@ -49,6 +52,7 @@ public class ArticleSearchTool {
     @Tool(description = "Get the full content of a specific blog article by its slug.")
     public ArticleResponse getArticle(
             @ToolParam(description = "The article slug (URL-friendly identifier)") String slug) {
+        tracker.record("getArticle");
         log.debug("[CHAT_TOOL] getArticle - slug={}", slug);
         return articleService.getBySlug(slug);
     }

@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.SkillResponse;
 import com.emmanuelgabe.portfolio.entity.SkillCategory;
 import com.emmanuelgabe.portfolio.service.SkillService;
@@ -19,6 +20,7 @@ import java.util.List;
 public class SkillTool {
 
     private final SkillService skillService;
+    private final ToolCallTracker tracker;
 
     /**
      * List skills, optionally filtered by category.
@@ -32,6 +34,7 @@ public class SkillTool {
             @ToolParam(description = "Skill category: FRONTEND, BACKEND, DATABASE, DEVOPS, "
                     + "or TOOLS. Omit to list all skills.", required = false)
             @Nullable String category) {
+        tracker.record("listSkills");
         log.debug("[CHAT_TOOL] listSkills - category={}", category);
         if (category != null && !category.isBlank()) {
             SkillCategory skillCategory = SkillCategory.valueOf(category.toUpperCase().trim());

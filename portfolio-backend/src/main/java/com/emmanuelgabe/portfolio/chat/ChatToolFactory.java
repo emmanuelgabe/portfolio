@@ -39,21 +39,34 @@ public class ChatToolFactory {
     private final SearchService searchService;
 
     /**
-     * Create all chat agent tools. The vector store is passed as a parameter
-     * because it is a conditional bean (only available when AI is enabled).
+     * Create all chat agent tools without call tracking.
+     * Used by the synchronous endpoint and in tests.
      *
      * @param vectorStore the Elasticsearch vector store for semantic search
      * @return array of tool instances ready for Spring AI function calling
      */
     public Object[] createTools(VectorStore vectorStore) {
+        return createTools(vectorStore, ToolCallTracker.noop());
+    }
+
+    /**
+     * Create all chat agent tools with call tracking for the streaming endpoint.
+     * The tracker records which tools were invoked so the SSE stream can include
+     * tool call metadata for the frontend.
+     *
+     * @param vectorStore the Elasticsearch vector store for semantic search
+     * @param tracker     per-request tracker for tool call metadata
+     * @return array of tool instances ready for Spring AI function calling
+     */
+    public Object[] createTools(VectorStore vectorStore, ToolCallTracker tracker) {
         return new Object[]{
-            new ProjectSearchTool(projectService, searchService),
-            new ArticleSearchTool(articleService),
-            new ExperienceTool(experienceService),
-            new SkillTool(skillService),
-            new SiteInfoTool(siteConfigService, cvService),
-            new ContactPrepareTool(),
-            new PortfolioSearchTool(vectorStore)
+            new ProjectSearchTool(projectService, searchService, tracker),
+            new ArticleSearchTool(articleService, tracker),
+            new ExperienceTool(experienceService, tracker),
+            new SkillTool(skillService, tracker),
+            new SiteInfoTool(siteConfigService, cvService, tracker),
+            new ContactPrepareTool(tracker),
+            new PortfolioSearchTool(vectorStore, tracker)
         };
     }
 }

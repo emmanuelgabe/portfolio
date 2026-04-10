@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.CvResponse;
 import com.emmanuelgabe.portfolio.dto.SiteConfigurationResponse;
 import com.emmanuelgabe.portfolio.service.CvService;
@@ -17,6 +18,7 @@ public class SiteInfoTool {
 
     private final SiteConfigurationService siteConfigService;
     private final CvService cvService;
+    private final ToolCallTracker tracker;
 
     /**
      * Get the site configuration (bio, social links, etc.).
@@ -26,6 +28,7 @@ public class SiteInfoTool {
     @Tool(description = "Get site configuration: Emmanuel's full name, bio, hero description, "
             + "profile image URL, and social links (GitHub, LinkedIn).")
     public SiteConfigurationResponse getSiteConfig() {
+        tracker.record("getSiteConfig");
         log.debug("[CHAT_TOOL] getSiteConfig");
         return siteConfigService.getSiteConfiguration();
     }
@@ -37,6 +40,7 @@ public class SiteInfoTool {
      */
     @Tool(description = "Get the link to Emmanuel's current CV/resume PDF file for download.")
     public CvResponse getCurrentCV() {
+        tracker.record("getCurrentCV");
         log.debug("[CHAT_TOOL] getCurrentCV");
         return cvService.getCurrentCv().orElse(null);
     }

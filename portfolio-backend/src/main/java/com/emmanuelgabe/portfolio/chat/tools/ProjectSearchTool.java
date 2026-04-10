@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.ProjectResponse;
 import com.emmanuelgabe.portfolio.dto.search.ProjectSearchResult;
 import com.emmanuelgabe.portfolio.service.ProjectService;
@@ -22,6 +23,7 @@ public class ProjectSearchTool {
 
     private final ProjectService projectService;
     private final SearchService searchService;
+    private final ToolCallTracker tracker;
 
     /**
      * Search projects using Elasticsearch full-text search.
@@ -34,6 +36,7 @@ public class ProjectSearchTool {
     public List<ProjectSearchResult> searchProjects(
             @ToolParam(description = "Search keyword for project title, description, or technology name")
             String query) {
+        tracker.record("searchProjects");
         log.debug("[CHAT_TOOL] searchProjects - query={}", query);
         return searchService.searchProjects(query);
     }
@@ -48,6 +51,7 @@ public class ProjectSearchTool {
             + "including description, tech stack, GitHub URL, and demo URL.")
     public ProjectResponse getProjectDetails(
             @ToolParam(description = "The project ID") Long projectId) {
+        tracker.record("getProjectDetails");
         log.debug("[CHAT_TOOL] getProjectDetails - projectId={}", projectId);
         return projectService.getProjectById(projectId);
     }

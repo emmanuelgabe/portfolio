@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
@@ -25,6 +26,7 @@ public class PortfolioSearchTool {
     private static final int MAX_CONTENT_LENGTH = 600;
 
     private final VectorStore vectorStore;
+    private final ToolCallTracker tracker;
 
     /**
      * Semantic search across all indexed portfolio content.
@@ -37,6 +39,7 @@ public class PortfolioSearchTool {
             + "philosophy, approach, or when other specific tools do not match the question.")
     public String searchPortfolio(
             @ToolParam(description = "Natural language search query") String query) {
+        tracker.record("searchPortfolio");
         log.debug("[CHAT_TOOL] searchPortfolio - query={}", query);
         try {
             List<Document> docs = vectorStore.similaritySearch(

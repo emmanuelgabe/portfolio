@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat;
 
+import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
 /**
@@ -27,13 +28,14 @@ public interface ChatService {
     String chat(String conversationId, String userMessage);
 
     /**
-     * Generate a streaming RAG-powered reply. Emits response chunks as the
-     * model produces them. The stream completes when generation finishes
-     * and errors are surfaced as a single fallback message.
+     * Generate a streaming RAG-powered reply as typed Server-Sent Events.
+     * Emits {@code tool_calls}, {@code token}, {@code contact_form}, and
+     * {@code done} events so the frontend can render tool activity indicators
+     * and structured actions alongside the progressive text response.
      *
      * @param conversationId the conversation identifier, used to maintain history
      * @param userMessage    the raw visitor message
-     * @return a flux of response chunks
+     * @return a flux of typed SSE events
      */
-    Flux<String> streamChat(String conversationId, String userMessage);
+    Flux<ServerSentEvent<String>> streamChat(String conversationId, String userMessage);
 }

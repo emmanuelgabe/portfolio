@@ -1,6 +1,7 @@
 package com.emmanuelgabe.portfolio.chat;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
 /**
@@ -22,8 +23,11 @@ public class NoOpChatService implements ChatService {
     }
 
     @Override
-    public Flux<String> streamChat(String conversationId, String userMessage) {
+    public Flux<ServerSentEvent<String>> streamChat(String conversationId, String userMessage) {
         log.debug("[CHAT] Service disabled, returning fallback stream - conversationId={}", conversationId);
-        return Flux.just(DISABLED_MESSAGE);
+        return Flux.just(
+                ServerSentEvent.<String>builder().event("token").data(DISABLED_MESSAGE).build(),
+                ServerSentEvent.<String>builder().event("done").data("").build()
+        );
     }
 }

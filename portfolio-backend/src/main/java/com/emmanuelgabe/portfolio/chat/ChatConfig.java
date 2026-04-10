@@ -11,11 +11,9 @@ import org.springframework.core.env.Environment;
  * Configuration for chat service bean selection.
  *
  * <p>When {@code ai.enabled=true} and both {@link ChatClient} and {@link VectorStore}
- * are available, creates {@link RagChatService} with all agent tools registered.
- * Otherwise falls back to {@link NoOpChatService} so the chat endpoint remains callable.</p>
- *
- * <p>Tool instances are created via {@link ChatToolFactory} to keep the parameter
- * count manageable and improve testability.</p>
+ * are available, creates {@link RagChatService} with the tool factory for per-request
+ * tool creation. Otherwise falls back to {@link NoOpChatService} so the chat endpoint
+ * remains callable.</p>
  */
 @Configuration
 public class ChatConfig {
@@ -38,8 +36,8 @@ public class ChatConfig {
 
         if (aiEnabled && chatClient != null && vectorStore != null
                 && promptBuilder != null && historyStore != null) {
-            Object[] tools = toolFactory.createTools(vectorStore);
-            return new RagChatService(chatClient, historyStore, promptBuilder, tools);
+            return new RagChatService(chatClient, historyStore, promptBuilder,
+                    toolFactory, vectorStore);
         }
         return new NoOpChatService();
     }

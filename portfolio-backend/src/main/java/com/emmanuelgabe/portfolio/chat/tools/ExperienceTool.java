@@ -1,5 +1,6 @@
 package com.emmanuelgabe.portfolio.chat.tools;
 
+import com.emmanuelgabe.portfolio.chat.ToolCallTracker;
 import com.emmanuelgabe.portfolio.dto.ExperienceResponse;
 import com.emmanuelgabe.portfolio.entity.ExperienceType;
 import com.emmanuelgabe.portfolio.service.ExperienceService;
@@ -22,6 +23,7 @@ public class ExperienceTool {
     private static final int MAX_RECENT_LIMIT = 10;
 
     private final ExperienceService experienceService;
+    private final ToolCallTracker tracker;
 
     /**
      * List experiences, optionally filtered by type.
@@ -35,6 +37,7 @@ public class ExperienceTool {
             @ToolParam(description = "Experience type: WORK, STAGE, EDUCATION, CERTIFICATION, "
                     + "or VOLUNTEERING. Omit to list all experiences.", required = false)
             @Nullable String type) {
+        tracker.record("listExperiences");
         log.debug("[CHAT_TOOL] listExperiences - type={}", type);
         if (type != null && !type.isBlank()) {
             ExperienceType experienceType = ExperienceType.valueOf(type.toUpperCase().trim());
@@ -53,6 +56,7 @@ public class ExperienceTool {
             + "Useful for a quick overview of Emmanuel's career.")
     public List<ExperienceResponse> getRecentExperiences(
             @ToolParam(description = "Maximum number of experiences to return (1 to 10)") int limit) {
+        tracker.record("getRecentExperiences");
         int safeLimit = Math.min(Math.max(limit, 1), MAX_RECENT_LIMIT);
         log.debug("[CHAT_TOOL] getRecentExperiences - limit={}", safeLimit);
         return experienceService.getRecentExperiences(safeLimit);

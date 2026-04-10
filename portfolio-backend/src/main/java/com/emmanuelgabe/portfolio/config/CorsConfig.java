@@ -35,6 +35,10 @@ public class CorsConfig {
                 "X-Requested-With",
                 "Cache-Control"
         ));
+        configuration.setExposedHeaders(Arrays.asList(
+                "X-RateLimit-Limit",
+                "X-RateLimit-Remaining"
+        ));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
