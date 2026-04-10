@@ -70,6 +70,17 @@ class ChatPromptBuilderTest {
         assertThat(prompt).containsIgnoringCase("searchPortfolio");
     }
 
+    @Test
+    void should_documentProjectListingTools_when_buildSystemPromptCalled() {
+        // Act
+        String prompt = promptBuilder.buildSystemPrompt();
+
+        // Assert
+        assertThat(prompt).containsIgnoringCase("listProjects");
+        assertThat(prompt).containsIgnoringCase("getFeaturedProjects");
+        assertThat(prompt).containsIgnoringCase("fallback");
+    }
+
     // ========== Wrap User Message ==========
 
     @Test

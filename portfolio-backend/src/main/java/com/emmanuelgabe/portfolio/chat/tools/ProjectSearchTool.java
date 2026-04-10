@@ -42,6 +42,42 @@ public class ProjectSearchTool {
     }
 
     /**
+     * List all portfolio projects ordered by display order.
+     * Use as a fallback when a keyword search yields no result or when
+     * the visitor asks for a broad overview (e.g. "show me his projects",
+     * "what else has he built", "voir d'autres projets").
+     *
+     * @return all projects with full metadata
+     */
+    @Tool(description = "List all portfolio projects ordered by display order. "
+            + "Use this tool for broad project listing requests (e.g. 'show all projects', "
+            + "'what other projects', 'voir d'autres projets') or as a fallback when "
+            + "searchProjects returns no results.")
+    public List<ProjectResponse> listProjects() {
+        tracker.record("listProjects");
+        log.debug("[CHAT_TOOL] listProjects");
+        return projectService.getAllProjects();
+    }
+
+    /**
+     * Retrieve the curated list of featured (highlighted) projects.
+     * Featured projects are explicitly marked by Emmanuel as showcase-worthy
+     * and are the canonical answer to "projets phares", "projets vedettes",
+     * or "featured projects" questions.
+     *
+     * @return featured projects with full metadata
+     */
+    @Tool(description = "Get the curated list of featured (highlighted) projects. "
+            + "Use this tool when the visitor asks for Emmanuel's main, flagship, "
+            + "showcase or featured projects (e.g. 'projets phares', 'vitrine', "
+            + "'featured projects', 'main work').")
+    public List<ProjectResponse> getFeaturedProjects() {
+        tracker.record("getFeaturedProjects");
+        log.debug("[CHAT_TOOL] getFeaturedProjects");
+        return projectService.getFeaturedProjects();
+    }
+
+    /**
      * Retrieve full details of a specific project.
      *
      * @param projectId the project ID

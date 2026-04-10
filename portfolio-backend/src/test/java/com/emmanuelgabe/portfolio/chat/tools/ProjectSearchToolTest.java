@@ -63,6 +63,77 @@ class ProjectSearchToolTest {
         assertThat(results).isEmpty();
     }
 
+    // ========== listProjects ==========
+
+    @Test
+    void should_returnAllProjects_when_listProjectsCalled() {
+        // Arrange
+        ProjectResponse first = new ProjectResponse();
+        first.setId(1L);
+        first.setTitle("Portfolio Backend");
+        ProjectResponse second = new ProjectResponse();
+        second.setId(2L);
+        second.setTitle("Portfolio Frontend");
+        when(projectService.getAllProjects()).thenReturn(List.of(first, second));
+
+        // Act
+        List<ProjectResponse> results = projectSearchTool.listProjects();
+
+        // Assert
+        assertThat(results).hasSize(2);
+        assertThat(results).extracting(ProjectResponse::getTitle)
+                .containsExactly("Portfolio Backend", "Portfolio Frontend");
+        verify(projectService).getAllProjects();
+        verify(tracker).record("listProjects");
+    }
+
+    @Test
+    void should_returnEmptyList_when_listProjectsHasNoData() {
+        // Arrange
+        when(projectService.getAllProjects()).thenReturn(List.of());
+
+        // Act
+        List<ProjectResponse> results = projectSearchTool.listProjects();
+
+        // Assert
+        assertThat(results).isEmpty();
+        verify(tracker).record("listProjects");
+    }
+
+    // ========== getFeaturedProjects ==========
+
+    @Test
+    void should_returnFeaturedProjects_when_getFeaturedProjectsCalled() {
+        // Arrange
+        ProjectResponse featured = new ProjectResponse();
+        featured.setId(10L);
+        featured.setTitle("Flagship Project");
+        featured.setFeatured(true);
+        when(projectService.getFeaturedProjects()).thenReturn(List.of(featured));
+
+        // Act
+        List<ProjectResponse> results = projectSearchTool.getFeaturedProjects();
+
+        // Assert
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getTitle()).isEqualTo("Flagship Project");
+        verify(projectService).getFeaturedProjects();
+        verify(tracker).record("getFeaturedProjects");
+    }
+
+    @Test
+    void should_returnEmptyList_when_getFeaturedProjectsHasNoData() {
+        // Arrange
+        when(projectService.getFeaturedProjects()).thenReturn(List.of());
+
+        // Act
+        List<ProjectResponse> results = projectSearchTool.getFeaturedProjects();
+
+        // Assert
+        assertThat(results).isEmpty();
+        verify(tracker).record("getFeaturedProjects");
+    }
+
     // ========== getProjectDetails ==========
 
     @Test
