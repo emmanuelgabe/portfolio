@@ -22,6 +22,7 @@ describe('SiteConfigurationService', () => {
     profileImageUrl: '/uploads/profile/profile.webp',
     githubUrl: 'https://github.com/emmanuelgabe',
     linkedinUrl: 'https://linkedin.com/in/egabe',
+    chatbotInfoUrl: undefined,
     createdAt: '2025-01-01T00:00:00',
     updatedAt: '2025-01-01T00:00:00',
   };
@@ -68,6 +69,7 @@ describe('SiteConfigurationService', () => {
         seoDescription: 'Updated SEO Description',
         githubUrl: 'https://github.com/updated',
         linkedinUrl: 'https://linkedin.com/in/updated',
+        chatbotInfoUrl: undefined,
       };
 
       service.updateSiteConfiguration(updateRequest).subscribe((config) => {

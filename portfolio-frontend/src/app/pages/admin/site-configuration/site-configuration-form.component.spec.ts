@@ -30,6 +30,7 @@ describe('SiteConfigurationFormComponent', () => {
     profileImageUrl: '/uploads/profile/profile.webp',
     githubUrl: 'https://github.com/emmanuelgabe',
     linkedinUrl: 'https://linkedin.com/in/egabe',
+    chatbotInfoUrl: undefined,
     createdAt: '2025-01-01T00:00:00',
     updatedAt: '2025-01-01T00:00:00',
   };
