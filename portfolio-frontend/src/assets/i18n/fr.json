@@ -561,7 +561,12 @@
       "imageUploadSuccess": "Photo de profil mise à jour",
       "imageUploadError": "Erreur lors du téléchargement de la photo",
       "imageDeleteSuccess": "Photo de profil supprimée",
-      "imageDeleteError": "Erreur lors de la suppression de la photo"
+      "imageDeleteError": "Erreur lors de la suppression de la photo",
+      "chatbotSection": "Chatbot",
+      "chatbotDescription": "Configuration du chatbot IA intégré au site.",
+      "chatbotInfoUrl": "URL d'information AI-powered",
+      "chatbotInfoUrlPlaceholder": "https://exemple.com/article-chatbot",
+      "chatbotInfoUrlHelp": "Lien affiché sur le badge 'AI-powered' dans le widget de chat. Laissez vide pour ne pas afficher de lien."
     },
     "contacts": {
       "title": "Modération des contacts",
@@ -679,6 +684,44 @@
         "title": "Responsabilité",
         "description": "L'éditeur ne peut être tenu responsable des erreurs ou omissions présentes sur ce site, ni des dommages directs ou indirects résultant de son utilisation."
       }
+    }
+  },
+  "chat": {
+    "title": "Assistant d'Emmanuel",
+    "toggleLabel": "Ouvrir le chat",
+    "panelLabel": "Chat avec l'assistant d'Emmanuel",
+    "closeLabel": "Fermer le chat",
+    "welcome": "Bonjour et bienvenue ! Je suis là pour vous faire découvrir le travail d'Emmanuel : ses projets, ses compétences techniques et son parcours. Par quoi souhaitez-vous commencer ?",
+    "inputPlaceholder": "Posez votre question...",
+    "inputLabel": "Message",
+    "sendLabel": "Envoyer",
+    "error": "Oups, une petite erreur de mon côté. Réessayez dans un instant, ou contactez Emmanuel directement via le formulaire.",
+    "openContactForm": "Ouvrir le formulaire de contact",
+    "rateLimitWarning": "Encore {{remaining}} message(s) pour cette session.",
+    "rateLimitExhausted": "Vous avez atteint la limite de cette session. Pour poursuivre l'échange, n'hésitez pas à contacter Emmanuel via le formulaire.",
+    "starters": {
+      "projects": "Montrez-moi ses projets phares",
+      "skills": "Quelles sont ses expertises techniques ?",
+      "experience": "Racontez-moi son parcours",
+      "contact": "Comment entrer en contact avec lui ?"
+    },
+    "suggestions": {
+      "moreDetails": "En savoir plus",
+      "otherProjects": "Voir d'autres projets",
+      "contactMe": "Prendre contact"
+    },
+    "tools": {
+      "searchProjects": "Exploration des projets",
+      "getProjectDetails": "Analyse du projet",
+      "listArticles": "Parcours des articles",
+      "getArticle": "Lecture de l'article",
+      "listExperiences": "Revue du parcours",
+      "getRecentExperiences": "Expériences récentes",
+      "listSkills": "Revue des compétences",
+      "getSiteConfig": "Informations générales",
+      "getCurrentCV": "Accès au CV",
+      "prepareContact": "Préparation du message",
+      "searchPortfolio": "Recherche approfondie"
     }
   }
 }

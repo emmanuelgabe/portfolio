@@ -561,7 +561,12 @@
       "imageUploadSuccess": "Profile photo updated",
       "imageUploadError": "Error uploading photo",
       "imageDeleteSuccess": "Profile photo deleted",
-      "imageDeleteError": "Error deleting photo"
+      "imageDeleteError": "Error deleting photo",
+      "chatbotSection": "Chatbot",
+      "chatbotDescription": "Configuration for the AI chatbot integrated into the site.",
+      "chatbotInfoUrl": "AI-powered info URL",
+      "chatbotInfoUrlPlaceholder": "https://example.com/chatbot-article",
+      "chatbotInfoUrlHelp": "Link displayed on the 'AI-powered' badge in the chat widget. Leave empty to hide the link."
     },
     "contacts": {
       "title": "Contact Moderation",
@@ -679,6 +684,44 @@
         "title": "Liability",
         "description": "The publisher cannot be held responsible for errors or omissions on this website, nor for direct or indirect damages resulting from its use."
       }
+    }
+  },
+  "chat": {
+    "title": "Emmanuel's Assistant",
+    "toggleLabel": "Open chat",
+    "panelLabel": "Chat with Emmanuel's assistant",
+    "closeLabel": "Close chat",
+    "welcome": "Hi, welcome! I'm here to help you explore Emmanuel's work: his projects, technical skills and background. Where would you like to start?",
+    "inputPlaceholder": "Ask a question...",
+    "inputLabel": "Message",
+    "sendLabel": "Send",
+    "error": "Sorry, something went wrong on my side. Please try again, or reach out to Emmanuel directly through the contact form.",
+    "openContactForm": "Open contact form",
+    "rateLimitWarning": "{{remaining}} message(s) left for this session.",
+    "rateLimitExhausted": "You've reached the session limit. To continue the conversation, feel free to contact Emmanuel through the contact form.",
+    "starters": {
+      "projects": "Show me his flagship projects",
+      "skills": "What are his technical strengths?",
+      "experience": "Tell me about his background",
+      "contact": "How can I get in touch with him?"
+    },
+    "suggestions": {
+      "moreDetails": "Tell me more",
+      "otherProjects": "Show other projects",
+      "contactMe": "Get in touch"
+    },
+    "tools": {
+      "searchProjects": "Exploring projects",
+      "getProjectDetails": "Analysing the project",
+      "listArticles": "Browsing articles",
+      "getArticle": "Reading the article",
+      "listExperiences": "Reviewing the background",
+      "getRecentExperiences": "Recent experience",
+      "listSkills": "Reviewing the skills",
+      "getSiteConfig": "General information",
+      "getCurrentCV": "Accessing the CV",
+      "prepareContact": "Preparing the message",
+      "searchPortfolio": "Deep search"
     }
   }
 }

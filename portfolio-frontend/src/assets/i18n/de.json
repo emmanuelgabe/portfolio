@@ -539,7 +539,12 @@
       "imageUploadSuccess": "Profilfoto aktualisiert",
       "imageUploadError": "Fehler beim Hochladen des Fotos",
       "imageDeleteSuccess": "Profilfoto geloescht",
-      "imageDeleteError": "Fehler beim Loeschen des Fotos"
+      "imageDeleteError": "Fehler beim Loeschen des Fotos",
+      "chatbotSection": "Chatbot",
+      "chatbotDescription": "Konfiguration des integrierten KI-Chatbots.",
+      "chatbotInfoUrl": "AI-powered Info-URL",
+      "chatbotInfoUrlPlaceholder": "https://beispiel.de/chatbot-artikel",
+      "chatbotInfoUrlHelp": "Link auf dem 'AI-powered'-Badge im Chat-Widget. Leer lassen, um keinen Link anzuzeigen."
     },
     "audit": {
       "title": "Audit-Protokolle",
@@ -622,6 +627,44 @@
         "title": "Haftung",
         "description": "Der Herausgeber kann nicht fuer Fehler oder Auslas sungen auf dieser Website verantwortlich gemacht werden, noch fuer direkte oder indirekte Schaeden, die aus ihrer Nutzung resultieren."
       }
+    }
+  },
+  "chat": {
+    "title": "Assistent",
+    "toggleLabel": "Chat oeffnen",
+    "panelLabel": "Chat mit KI-Assistent",
+    "closeLabel": "Chat schliessen",
+    "welcome": "Hallo! Ich bin der KI-Assistent dieses Portfolios. Fragen Sie mich zu Projekten, Faehigkeiten oder Erfahrungen.",
+    "inputPlaceholder": "Nachricht eingeben...",
+    "inputLabel": "Nachricht",
+    "sendLabel": "Senden",
+    "error": "Entschuldigung, ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut oder nutzen Sie das Kontaktformular.",
+    "openContactForm": "Kontaktformular oeffnen",
+    "rateLimitWarning": "Sie haben noch {{remaining}} Nachricht(en) uebrig.",
+    "rateLimitExhausted": "Nachrichtenlimit erreicht. Bitte versuchen Sie es spaeter erneut.",
+    "starters": {
+      "projects": "Was sind Ihre wichtigsten Projekte?",
+      "skills": "Welche technischen Faehigkeiten haben Sie?",
+      "experience": "Erzaehlen Sie mir von Ihrem beruflichen Werdegang.",
+      "contact": "Wie kann ich Sie kontaktieren?"
+    },
+    "suggestions": {
+      "moreDetails": "Mehr Details",
+      "otherProjects": "Andere Projekte?",
+      "contactMe": "Ich moechte Sie kontaktieren"
+    },
+    "tools": {
+      "searchProjects": "Projekte durchsuchen",
+      "getProjectDetails": "Projektdetails laden",
+      "listArticles": "Artikel durchsuchen",
+      "getArticle": "Artikel lesen",
+      "listExperiences": "Erfahrungen durchsuchen",
+      "getRecentExperiences": "Aktuelle Erfahrungen",
+      "listSkills": "Faehigkeiten durchsuchen",
+      "getSiteConfig": "Website-Informationen",
+      "getCurrentCV": "Lebenslauf pruefen",
+      "prepareContact": "Kontakt vorbereiten",
+      "searchPortfolio": "Portfolio durchsuchen"
     }
   }
 }

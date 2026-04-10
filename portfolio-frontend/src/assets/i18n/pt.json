@@ -539,7 +539,12 @@
       "imageUploadSuccess": "Foto de perfil atualizada",
       "imageUploadError": "Erro ao enviar foto",
       "imageDeleteSuccess": "Foto de perfil excluida",
-      "imageDeleteError": "Erro ao excluir foto"
+      "imageDeleteError": "Erro ao excluir foto",
+      "chatbotSection": "Chatbot",
+      "chatbotDescription": "Configuracao do chatbot IA integrado ao site.",
+      "chatbotInfoUrl": "URL de informacao AI-powered",
+      "chatbotInfoUrlPlaceholder": "https://exemplo.com/artigo-chatbot",
+      "chatbotInfoUrlHelp": "Link exibido no selo 'AI-powered' do widget de chat. Deixe vazio para nao exibir link."
     },
     "audit": {
       "title": "Registros de auditoria",
@@ -622,6 +627,44 @@
         "title": "Responsabilidade",
         "description": "O editor nao pode ser responsabilizado por erros ou omissoes neste site, nem por danos diretos ou indiretos resultantes de seu uso."
       }
+    }
+  },
+  "chat": {
+    "title": "Assistente",
+    "toggleLabel": "Abrir chat",
+    "panelLabel": "Chat com assistente IA",
+    "closeLabel": "Fechar chat",
+    "welcome": "Ola! Sou o assistente IA deste portfolio. Pergunte-me sobre projetos, habilidades ou experiencia.",
+    "inputPlaceholder": "Digite sua mensagem...",
+    "inputLabel": "Mensagem",
+    "sendLabel": "Enviar",
+    "error": "Desculpe, ocorreu um erro. Tente novamente ou use o formulario de contato.",
+    "openContactForm": "Abrir formulario de contato",
+    "rateLimitWarning": "Voce tem {{remaining}} mensagem(ns) restante(s).",
+    "rateLimitExhausted": "Limite de mensagens atingido. Tente novamente mais tarde.",
+    "starters": {
+      "projects": "Quais sao seus principais projetos?",
+      "skills": "Quais sao suas habilidades tecnicas?",
+      "experience": "Fale-me sobre sua trajetoria profissional.",
+      "contact": "Como posso entrar em contato?"
+    },
+    "suggestions": {
+      "moreDetails": "Mais detalhes",
+      "otherProjects": "Outros projetos?",
+      "contactMe": "Gostaria de entrar em contato"
+    },
+    "tools": {
+      "searchProjects": "Pesquisando projetos",
+      "getProjectDetails": "Carregando detalhes do projeto",
+      "listArticles": "Consultando artigos",
+      "getArticle": "Lendo artigo",
+      "listExperiences": "Consultando experiencia",
+      "getRecentExperiences": "Experiencia recente",
+      "listSkills": "Consultando habilidades",
+      "getSiteConfig": "Informacoes do site",
+      "getCurrentCV": "Consultando CV",
+      "prepareContact": "Preparando contato",
+      "searchPortfolio": "Pesquisando no portfolio"
     }
   }
 }

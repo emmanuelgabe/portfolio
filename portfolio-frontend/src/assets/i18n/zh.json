@@ -532,7 +532,12 @@
       "imageUploadSuccess": "头像更新成功",
       "imageUploadError": "上传头像时出错",
       "imageDeleteSuccess": "头像已删除",
-      "imageDeleteError": "删除头像时出错"
+      "imageDeleteError": "删除头像时出错",
+      "chatbotSection": "聊天机器人",
+      "chatbotDescription": "集成到网站的AI聊天机器人的配置。",
+      "chatbotInfoUrl": "AI-powered 信息链接",
+      "chatbotInfoUrlPlaceholder": "https://example.com/chatbot-article",
+      "chatbotInfoUrlHelp": "聊天小部件中 'AI-powered' 徽章显示的链接。留空则不显示链接。"
     },
     "audit": {
       "title": "审计日志",
@@ -615,6 +620,44 @@
         "title": "责任",
         "description": "发布者不对本网站的错误或遗漏承担责任，也不对因使用本网站而产生的直接或间接损害承担责任。"
       }
+    }
+  },
+  "chat": {
+    "title": "助手",
+    "toggleLabel": "打开聊天",
+    "panelLabel": "与AI助手聊天",
+    "closeLabel": "关闭聊天",
+    "welcome": "你好！我是本作品集的AI助手。可以询问我关于项目、技能或经验的问题。",
+    "inputPlaceholder": "输入您的消息...",
+    "inputLabel": "消息",
+    "sendLabel": "发送",
+    "error": "抱歉，发生错误。请重试或使用联系表单。",
+    "openContactForm": "打开联系表单",
+    "rateLimitWarning": "您还剩 {{remaining}} 条消息。",
+    "rateLimitExhausted": "已达到消息限制。请稍后再试。",
+    "starters": {
+      "projects": "您的主要项目有哪些？",
+      "skills": "您的技术技能有哪些？",
+      "experience": "请介绍您的职业经历。",
+      "contact": "我如何联系您？"
+    },
+    "suggestions": {
+      "moreDetails": "更多详情",
+      "otherProjects": "其他项目？",
+      "contactMe": "我想联系您"
+    },
+    "tools": {
+      "searchProjects": "搜索项目中",
+      "getProjectDetails": "加载项目详情",
+      "listArticles": "浏览文章中",
+      "getArticle": "阅读文章",
+      "listExperiences": "浏览经历中",
+      "getRecentExperiences": "最近经历",
+      "listSkills": "浏览技能中",
+      "getSiteConfig": "站点信息",
+      "getCurrentCV": "查看简历",
+      "prepareContact": "准备联系",
+      "searchPortfolio": "搜索作品集"
     }
   }
 }
