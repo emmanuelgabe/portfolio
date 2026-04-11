@@ -100,6 +100,10 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-client-chat'
     implementation 'org.springframework.ai:spring-ai-elasticsearch-store'
 
+    // Docker API client (used by AI Health Monitor agent via docker-socket-proxy sidecar)
+    implementation 'com.github.docker-java:docker-java-core:3.4.0'
+    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.4.0'
+
     // Markdown processing
     implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 
@@ -205,6 +209,8 @@ jacocoTestReport {
                 '**/metrics/**',
                 '**/search/**',
                 '**/audit/**',
+                '**/healthmonitor/**',
+                '**/controller/AdminHealthMonitorController.class',
                 '**/service/ImageService.class',
                 '**/service/ImageProcessorService.class',
                 '**/service/VisitorTrackingService.class',
@@ -255,6 +261,8 @@ jacocoTestCoverageVerification {
                 '**/metrics/**',
                 '**/search/**',
                 '**/audit/**',
+                '**/healthmonitor/**',
+                '**/controller/AdminHealthMonitorController.class',
                 '**/service/ImageService.class',
                 '**/service/ImageProcessorService.class',
                 '**/service/VisitorTrackingService.class',

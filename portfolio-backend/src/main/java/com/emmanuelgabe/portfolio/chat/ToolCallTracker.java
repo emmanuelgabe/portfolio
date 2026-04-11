@@ -65,7 +65,7 @@ public class ToolCallTracker {
         return NOOP_INSTANCE;
     }
 
-    private static class NoOpToolCallTracker extends ToolCallTracker {
+    private static final class NoOpToolCallTracker extends ToolCallTracker {
 
         @Override
         public void record(String toolName) {

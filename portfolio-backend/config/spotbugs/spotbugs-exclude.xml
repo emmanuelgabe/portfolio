@@ -111,8 +111,16 @@
             <Package name="~com\.emmanuelgabe\.portfolio\.chat.*"/>
             <Package name="~com\.emmanuelgabe\.portfolio\.autoreply.*"/>
             <Package name="~com\.emmanuelgabe\.portfolio\.moderation.*"/>
+            <Package name="~com\.emmanuelgabe\.portfolio\.healthmonitor.*"/>
         </Or>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- HealthToolCallTracker: looks like a singleton due to noop() factory but
+         is intentionally a regular class with a public ctor for per-cycle instances -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.healthmonitor.HealthToolCallTracker"/>
+        <Bug pattern="SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR"/>
     </Match>
 
     <!-- Exclude VA_FORMAT_STRING_USES_NEWLINE for HTML templates and AI prompts -->
@@ -140,6 +148,15 @@
             <Class name="com.emmanuelgabe.portfolio.service.ImageProcessorService"/>
             <Class name="com.emmanuelgabe.portfolio.service.impl.SitemapServiceImpl"/>
         </Or>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
+    <!-- ChatController.buildSseEvent: ServerSentEvent is a record with immutable
+         accessors; ternary null-checks are correct but SpotBugs dataflow cannot
+         prove record accessor stability between calls -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.controller.ChatController"/>
+        <Method name="buildSseEvent"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
 
