@@ -290,6 +290,20 @@ ai:
   embedding:
     index-name: ${AI_EMBEDDING_INDEX:portfolio-embeddings}
     dimensions: ${AI_EMBEDDING_DIMENSIONS:3072}
+  health-monitor:
+    enabled: ${AI_HEALTH_MONITOR_ENABLED:false}
+    demo-mode: ${AI_HEALTH_MONITOR_DEMO_MODE:false}
+    schedule-cron: ${AI_HEALTH_MONITOR_CRON:0 */15 * * * *}
+    on-demand-bypass-precheck: ${AI_HEALTH_MONITOR_BYPASS_PRECHECK:true}
+    action-expiration-minutes: ${AI_HEALTH_MONITOR_EXPIRATION_MINUTES:60}
+    max-mutations-per-hour: ${AI_HEALTH_MONITOR_MAX_MUTATIONS:10}
+    docker:
+      host: ${AI_HEALTH_MONITOR_DOCKER_HOST:tcp://docker-socket-proxy:2375}
+    history:
+      reports-in-context: ${AI_HEALTH_MONITOR_REPORTS_CONTEXT:3}
+      rejected-actions-in-context: ${AI_HEALTH_MONITOR_REJECTED_CONTEXT:5}
+    logs:
+      max-lines-per-call: ${AI_HEALTH_MONITOR_LOG_LINES:50}
 
 # Elasticsearch configuration
 elasticsearch:
