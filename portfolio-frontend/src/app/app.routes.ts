@@ -23,6 +23,7 @@ import { TagFormComponent } from './pages/admin/tags/tag-form/tag-form.component
 import { SiteConfigurationFormComponent } from './pages/admin/site-configuration/site-configuration-form.component';
 import { AdminAuditListComponent } from './pages/admin/audit/audit-list/audit-list.component';
 import { AdminContactListComponent } from './pages/admin/contacts/contact-list/contact-list.component';
+import { HealthMonitorComponent } from './pages/admin/health-monitor/health-monitor.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
 import { LegalNoticeComponent } from './pages/legal/legal-notice/legal-notice.component';
@@ -106,6 +107,10 @@ const adminChildRoutes: Route[] = [
   {
     path: 'contacts',
     component: AdminContactListComponent,
+  },
+  {
+    path: 'health-monitor',
+    component: HealthMonitorComponent,
   },
   {
     path: 'audit',
