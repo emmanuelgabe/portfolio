@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -2793,6 +2793,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#6-ai-powered-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. AI-Powered Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. AI-Powered Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-agentic-chatbot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Agentic Chatbot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-contact-moderation-and-auto-reply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Contact Moderation and Auto-Reply
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-health-monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Health Monitor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2832,6 +2882,7 @@
 <li><a href="#3-user-interaction-features">User Interaction Features</a></li>
 <li><a href="#4-media-processing-features">Media Processing Features</a></li>
 <li><a href="#5-infrastructure-features">Infrastructure Features</a></li>
+<li><a href="#6-ai-powered-features">AI-Powered Features</a></li>
 </ol>
 <hr />
 <h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
@@ -2840,7 +2891,8 @@
 - Content Management: Blog articles, experiences, CV management, site configuration
 - User Interaction: Contact form with rate limiting
 - Media Processing: Image optimization, file storage
-- Infrastructure: Messaging, event streaming, caching, resilience</p>
+- Infrastructure: Messaging, event streaming, caching, resilience
+- AI-Powered: Agentic chatbot, contact moderation, health monitor</p>
 <hr />
 <h2 id="2-content-management-features">2. Content Management Features<a class="headerlink" href="#2-content-management-features" title="Permanent link">&para;</a></h2>
 <h3 id="21-blog-articles">2.1 Blog Articles<a class="headerlink" href="#21-blog-articles" title="Permanent link">&para;</a></h3>
@@ -2940,6 +2992,22 @@
 <p><strong>File</strong>: <a href="caching/">caching.md</a></p>
 <p>Redis-based application caching.</p>
 <p><strong>Capabilities</strong>: 5 caches (siteConfig, skills, projects, experiences, tags), TTL expiration, auto-eviction</p>
+<hr />
+<h2 id="6-ai-powered-features">6. AI-Powered Features<a class="headerlink" href="#6-ai-powered-features" title="Permanent link">&para;</a></h2>
+<h3 id="61-agentic-chatbot">6.1 Agentic Chatbot<a class="headerlink" href="#61-agentic-chatbot" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="ai-chatbot/">ai-chatbot.md</a></p>
+<p>Conversational assistant with function calling, multi-step reasoning, and SSE streaming.</p>
+<p><strong>Capabilities</strong>: 13 tools (projects, articles, experiences, skills, site info, CV, contact, RAG search), in-memory conversation history, auto language detection</p>
+<hr />
+<h3 id="62-contact-moderation-and-auto-reply">6.2 Contact Moderation and Auto-Reply<a class="headerlink" href="#62-contact-moderation-and-auto-reply" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="contact-moderation/">contact-moderation.md</a></p>
+<p>AI-powered contact form moderation with spam filtering and automatic email responses.</p>
+<p><strong>Capabilities</strong>: 5-category classification, confidence scoring, fail-open contract, RAG auto-reply, GDPR-compliant persistence, 12-month retention</p>
+<hr />
+<h3 id="63-health-monitor">6.3 Health Monitor<a class="headerlink" href="#63-health-monitor" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <a href="health-monitor/">health-monitor.md</a></p>
+<p>AI diagnostic agent with tiered autonomy for infrastructure monitoring.</p>
+<p><strong>Capabilities</strong>: 7 diagnostic tools, 5 remediation actions (ORANGE/RED), human-in-the-loop approval, pre-check cost gate, SSE notifications, Docker socket proxy</p>
 <hr />
 <h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>

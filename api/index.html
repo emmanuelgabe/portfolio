@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -2854,10 +2854,43 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#717-health-check" class="md-nav__link">
+  <a href="#717-chat-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.17 Health Check
+        7.17 Chat API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#718-contacts-admin-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.18 Contacts Admin API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#719-health-monitor-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.19 Health Monitor API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#720-health-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.20 Health Check
       
     </span>
   </a>
@@ -3871,7 +3904,131 @@
 </tr>
 </tbody>
 </table>
-<h3 id="717-health-check">7.17 Health Check<a class="headerlink" href="#717-health-check" title="Permanent link">&para;</a></h3>
+<h3 id="717-chat-api">7.17 Chat API<a class="headerlink" href="#717-chat-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/chat</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/api/chat</code></td>
+<td>Public</td>
+<td>Synchronous chat message</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/chat/stream</code></td>
+<td>Public</td>
+<td>SSE streaming chat response</td>
+</tr>
+</tbody>
+</table>
+<p>Rate limited per IP. Response headers: <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>.</p>
+<p>See <a href="../features/ai-chatbot/">Features: AI Chatbot</a> for details.</p>
+<h3 id="718-contacts-admin-api">7.18 Contacts Admin API<a class="headerlink" href="#718-contacts-admin-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/admin/contacts</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/contacts/stats</code></td>
+<td>Admin</td>
+<td>Moderation statistics (query: <code>days</code>)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/contacts/history</code></td>
+<td>Admin</td>
+<td>Paginated contact history with filters</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/contacts/categories</code></td>
+<td>Admin</td>
+<td>Available contact categories</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../features/contact-moderation/">Features: Contact Moderation</a> for details.</p>
+<h3 id="719-health-monitor-api">7.19 Health Monitor API<a class="headerlink" href="#719-health-monitor-api" title="Permanent link">&para;</a></h3>
+<p><strong>Base Path</strong>: <code>/api/admin/health-monitor</code></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/health-monitor/reports</code></td>
+<td>Admin</td>
+<td>Recent diagnostic reports</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/health-monitor/reports/{id}</code></td>
+<td>Admin</td>
+<td>Specific report</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/health-monitor/analyze-now</code></td>
+<td>Admin</td>
+<td>Trigger on-demand analysis</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/health-monitor/actions/pending</code></td>
+<td>Admin</td>
+<td>Pending actions</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/health-monitor/actions</code></td>
+<td>Admin</td>
+<td>All actions with history</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/health-monitor/actions/{id}/approve</code></td>
+<td>Admin</td>
+<td>Approve action</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/health-monitor/actions/{id}/reject</code></td>
+<td>Admin</td>
+<td>Reject action</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/health-monitor/stream</code></td>
+<td>Admin</td>
+<td>SSE real-time notifications</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../features/health-monitor/">Features: Health Monitor</a> for details.</p>
+<h3 id="720-health-check">7.20 Health Check<a class="headerlink" href="#720-health-check" title="Permanent link">&para;</a></h3>
 <p><strong>Base Path</strong>: <code>/actuator</code></p>
 <table>
 <thead>
@@ -3925,6 +4082,9 @@
 <li><a href="cv/">CV API</a> - CV management endpoints</li>
 <li><a href="site-configuration/">Site Configuration API</a> - Site configuration endpoints</li>
 <li><a href="files/">Files API</a> - File upload endpoints</li>
+<li><a href="../features/ai-chatbot/">Features: AI Chatbot</a> - Chat API details</li>
+<li><a href="../features/contact-moderation/">Features: Contact Moderation</a> - Contact admin API details</li>
+<li><a href="../features/health-monitor/">Features: Health Monitor</a> - Health monitor API details</li>
 <li><a href="../security/rbac/">Security: RBAC</a> - Role-based access control</li>
 <li><a href="../deployment/ci-cd/">CI/CD Documentation</a> - Deployment pipeline</li>
 </ul>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -2719,6 +2719,7 @@
 - <strong>Messaging</strong>: RabbitMQ for async processing
 - <strong>Event Streaming</strong>: Apache Kafka for event-driven architecture
 - <strong>Search</strong>: Elasticsearch for full-text search
+- <strong>AI</strong>: Spring AI with Google Gemini (chatbot, moderation, health monitor)
 - <strong>Deployment</strong>: Docker Compose containerization
 - <strong>Proxy</strong>: Nginx reverse proxy</p>
 <p><strong>Key Architectural Principles</strong>:
@@ -2727,6 +2728,7 @@
 - RESTful and GraphQL API design
 - Event-driven architecture (Kafka)
 - Asynchronous processing (RabbitMQ)
+- AI-assisted operations with human-in-the-loop
 - Container-based deployment
 - Environment-specific configuration</p>
 <hr />
@@ -2751,8 +2753,8 @@
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│                              │   │                              │
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  - Standalone Components     │   │  - REST API + GraphQL API    │
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│  - PWA Support               │   │  - JWT Authentication        │
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│  - i18n (10 languages)       │   │  - Spring Batch Jobs         │
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│  - Chart.js Dashboards       │   │  - Circuit Breaker           │
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│  - i18n (10 languages)       │   │  - Spring AI (Gemini)        │
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│  - Chart.js Dashboards       │   │  - Spring Batch Jobs         │
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>└──────────────────────────────┘   └──────────────────────────────┘
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                                                │
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                    ┌───────────────────────────┼───────────────────────────┐
@@ -2761,9 +2763,9 @@
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│      POSTGRESQL          │   │        REDIS             │   │     ELASTICSEARCH        │
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│      (Port 5432)         │   │      (Port 6379)         │   │      (Port 9200)         │
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│                          │   │                          │   │                          │
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│  - 14 tables             │   │  - Rate Limiting         │   │  - Full-text Search      │
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│  - Flyway V1-V25         │   │  - Session Cache         │   │  - Articles &amp; Projects   │
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│  - Audit Logs            │   │  - Visitor Tracking      │   │                          │
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│  - 17 tables             │   │  - Rate Limiting         │   │  - Full-text Search      │
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│  - Flyway V1-V33         │   │  - Session Cache         │   │  - Articles &amp; Projects   │
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│  - Audit Logs            │   │  - Visitor Tracking      │   │  - Vector Embeddings     │
 </span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>└──────────────────────────┘   └──────────────────────────┘   └──────────────────────────┘
 </span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>                                                │
 </span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>                    ┌───────────────────────────┼───────────────────────────┐
@@ -2829,6 +2831,16 @@
 <td>Event streaming</td>
 </tr>
 <tr>
+<td>Google Gemini</td>
+<td>External</td>
+<td>LLM and embeddings (Spring AI)</td>
+</tr>
+<tr>
+<td>Docker Socket Proxy</td>
+<td>2375</td>
+<td>Restricted Docker API for health monitor</td>
+</tr>
+<tr>
 <td>Prometheus</td>
 <td>9090</td>
 <td>Metrics collection</td>
@@ -2881,8 +2893,8 @@
 <p><strong>File</strong>: <a href="database-schema/">database-schema.md</a></p>
 <p>Complete PostgreSQL database schema with Flyway migrations.</p>
 <p><strong>Topics</strong>:
-- 25 Flyway migrations (V1-V25)
-- 14 database tables
+- 33 Flyway migrations (V1-V33)
+- 17 database tables
 - Entity relationships
 - Indexes and constraints</p>
 <hr />

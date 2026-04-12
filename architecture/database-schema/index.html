@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -1289,6 +1289,39 @@
     <span class="md-ellipsis">
       
         Daily Stats Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contacts-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-reports-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health Reports Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-proposed-actions-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health Proposed Actions Table
       
     </span>
   </a>
@@ -3040,6 +3073,39 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#contacts-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-reports-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health Reports Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-proposed-actions-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health Proposed Actions Table
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3227,7 +3293,7 @@
 - Comprehensive indexing strategy
 - UUID-based refresh tokens
 - Support for draft/publish workflows</p>
-<p><strong>Migration Tool</strong>: Flyway (V1-V30 migrations applied)</p>
+<p><strong>Migration Tool</strong>: Flyway (V1-V33 migrations applied)</p>
 <hr />
 <h2 id="2-schema-diagram">2. Schema Diagram<a class="headerlink" href="#2-schema-diagram" title="Permanent link">&para;</a></h2>
 <h3 id="entity-relationships">Entity Relationships<a class="headerlink" href="#entity-relationships" title="Permanent link">&para;</a></h3>
@@ -3246,11 +3312,15 @@
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>skills (independent entity)
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>site_configuration (singleton entity)
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>site_configuration (singleton entity, chatbot_info_url)
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>audit_logs (audit trail entity)
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>daily_stats (analytics entity)
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>contacts (AI-moderated contact submissions)
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>health_reports ──── 1:N ── health_proposed_actions
 </span></code></pre></div>
 <hr />
 <h2 id="3-core-entities">3. Core Entities<a class="headerlink" href="#3-core-entities" title="Permanent link">&para;</a></h2>
@@ -4017,6 +4087,256 @@
 <p><strong>Indexes</strong>:
 - <code>idx_daily_stats_date DESC</code> - Chronological sorting</p>
 <hr />
+<h3 id="contacts-table">Contacts Table<a class="headerlink" href="#contacts-table" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Contact form submissions with AI moderation results (GDPR retention: 12 months)</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>BIGSERIAL</td>
+<td>PK</td>
+<td>Auto-incrementing primary key</td>
+</tr>
+<tr>
+<td>name</td>
+<td>VARCHAR(100)</td>
+<td>NOT NULL</td>
+<td>Submitter name</td>
+</tr>
+<tr>
+<td>subject</td>
+<td>VARCHAR(200)</td>
+<td>NOT NULL</td>
+<td>Message subject</td>
+</tr>
+<tr>
+<td>message</td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>Message content</td>
+</tr>
+<tr>
+<td>category</td>
+<td>VARCHAR(15)</td>
+<td>Nullable</td>
+<td>AI category: MISSION, QUESTION, FEEDBACK, SPAM, INAPPROPRIATE</td>
+</tr>
+<tr>
+<td>moderation_verdict</td>
+<td>VARCHAR(10)</td>
+<td>NOT NULL</td>
+<td>AI verdict: APPROVED or REJECTED</td>
+</tr>
+<tr>
+<td>moderation_reason</td>
+<td>TEXT</td>
+<td>Nullable</td>
+<td>AI justification</td>
+</tr>
+<tr>
+<td>confidence_score</td>
+<td>DOUBLE PRECISION</td>
+<td>NOT NULL, DEFAULT 1.0</td>
+<td>AI confidence (0.0 to 1.0)</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TIMESTAMP</td>
+<td>NOT NULL, DEFAULT NOW</td>
+<td>Submission timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Indexes</strong>:
+- <code>idx_contacts_category</code> - Filter by category
+- <code>idx_contacts_created_at</code> - Chronological sorting and retention cleanup
+- <code>idx_contacts_moderation_verdict</code> - Filter by verdict</p>
+<p><strong>Note</strong>: email address intentionally NOT stored (GDPR compliance).</p>
+<hr />
+<h3 id="health-reports-table">Health Reports Table<a class="headerlink" href="#health-reports-table" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: AI diagnostic cycle reports with severity and anomaly tracking</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>BIGSERIAL</td>
+<td>PK</td>
+<td>Auto-incrementing primary key</td>
+</tr>
+<tr>
+<td>cycle_type</td>
+<td>VARCHAR(20)</td>
+<td>NOT NULL</td>
+<td>SCHEDULED, ON_DEMAND, or PRECHECK_ONLY</td>
+</tr>
+<tr>
+<td>severity</td>
+<td>VARCHAR(15)</td>
+<td>NOT NULL</td>
+<td>OK, WARNING, CRITICAL, or UNKNOWN</td>
+</tr>
+<tr>
+<td>summary</td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>LLM-generated diagnostic summary</td>
+</tr>
+<tr>
+<td>anomalies_json</td>
+<td>TEXT</td>
+<td>Nullable</td>
+<td>JSON array of detected anomalies</td>
+</tr>
+<tr>
+<td>tool_calls_json</td>
+<td>TEXT</td>
+<td>Nullable</td>
+<td>JSON array of tools invoked during cycle</td>
+</tr>
+<tr>
+<td>duration_ms</td>
+<td>BIGINT</td>
+<td>NOT NULL, DEFAULT 0</td>
+<td>Cycle duration in milliseconds</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TIMESTAMP</td>
+<td>NOT NULL</td>
+<td>Immutable timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Indexes</strong>:
+- <code>idx_health_reports_created_at DESC</code> - Chronological sorting
+- <code>idx_health_reports_severity</code> - Filter by severity</p>
+<hr />
+<h3 id="health-proposed-actions-table">Health Proposed Actions Table<a class="headerlink" href="#health-proposed-actions-table" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Agent-proposed remediation actions with approval workflow</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>BIGSERIAL</td>
+<td>PK</td>
+<td>Auto-incrementing primary key</td>
+</tr>
+<tr>
+<td>report_id</td>
+<td>BIGINT</td>
+<td>NOT NULL, FK -&gt; health_reports(id) CASCADE</td>
+<td>Associated report</td>
+</tr>
+<tr>
+<td>level</td>
+<td>VARCHAR(10)</td>
+<td>NOT NULL</td>
+<td>ORANGE or RED</td>
+</tr>
+<tr>
+<td>action_type</td>
+<td>VARCHAR(40)</td>
+<td>NOT NULL</td>
+<td>Action identifier</td>
+</tr>
+<tr>
+<td>params_json</td>
+<td>TEXT</td>
+<td>Nullable</td>
+<td>JSON action parameters</td>
+</tr>
+<tr>
+<td>justification</td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>LLM reasoning</td>
+</tr>
+<tr>
+<td>status</td>
+<td>VARCHAR(15)</td>
+<td>NOT NULL</td>
+<td>PENDING, APPROVED, REJECTED, EXECUTED, FAILED, EXPIRED</td>
+</tr>
+<tr>
+<td>approved_by</td>
+<td>VARCHAR(100)</td>
+<td>Nullable</td>
+<td>Username of approver</td>
+</tr>
+<tr>
+<td>approved_at</td>
+<td>TIMESTAMP</td>
+<td>Nullable</td>
+<td>Approval timestamp</td>
+</tr>
+<tr>
+<td>executed_at</td>
+<td>TIMESTAMP</td>
+<td>Nullable</td>
+<td>Execution timestamp</td>
+</tr>
+<tr>
+<td>rejection_reason</td>
+<td>TEXT</td>
+<td>Nullable</td>
+<td>Reason for rejection</td>
+</tr>
+<tr>
+<td>result_json</td>
+<td>TEXT</td>
+<td>Nullable</td>
+<td>Execution result JSON</td>
+</tr>
+<tr>
+<td>expires_at</td>
+<td>TIMESTAMP</td>
+<td>NOT NULL</td>
+<td>Action expiration time</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TIMESTAMP</td>
+<td>NOT NULL</td>
+<td>Immutable timestamp</td>
+</tr>
+<tr>
+<td>version</td>
+<td>BIGINT</td>
+<td>NOT NULL, DEFAULT 0</td>
+<td>Optimistic locking version</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Indexes</strong>:
+- <code>idx_health_proposed_actions_status</code> - Filter by status
+- <code>idx_health_proposed_actions_report_id</code> - Actions per report
+- <code>idx_health_proposed_actions_expires_at</code> - Expiration queries
+- <code>idx_health_proposed_actions_created_at DESC</code> - Chronological sorting</p>
+<hr />
 <h2 id="5-content-management">5. Content Management<a class="headerlink" href="#5-content-management" title="Permanent link">&para;</a></h2>
 <h3 id="articles-table">Articles Table<a class="headerlink" href="#articles-table" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: Blog articles with Markdown content</p>
@@ -4455,7 +4775,22 @@
 <tr>
 <td>V30</td>
 <td>Unlimited project description</td>
-<td>project_details (dropped), projects (description → TEXT)</td>
+<td>project_details (dropped), projects (description -&gt; TEXT)</td>
+</tr>
+<tr>
+<td>V31</td>
+<td>Contact persistence</td>
+<td>contacts (with moderation columns and indexes)</td>
+</tr>
+<tr>
+<td>V32</td>
+<td>Chatbot configuration</td>
+<td>site_configuration (added chatbot_info_url)</td>
+</tr>
+<tr>
+<td>V33</td>
+<td>Health monitor</td>
+<td>health_reports, health_proposed_actions (with indexes and FK)</td>
 </tr>
 </tbody>
 </table>
@@ -4464,6 +4799,8 @@
 <ul>
 <li><a href="../../api/">API Overview</a> - API documentation</li>
 <li><a href="../../features/image-processing/">Features: Image Processing</a> - Image storage</li>
+<li><a href="../../features/contact-moderation/">Features: Contact Moderation</a> - Contact persistence</li>
+<li><a href="../../features/health-monitor/">Features: Health Monitor</a> - Health monitor entities</li>
 <li><a href="../../security/authentication/">Security: Authentication</a> - Auth system</li>
 <li><a href="../../development/setup/">Development: Setup</a> - Database setup instructions</li>
 </ul>
