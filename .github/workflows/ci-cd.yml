@@ -402,6 +402,13 @@ jobs:
           echo 'GRAFANA_ADMIN_USER=admin' >> .env
           echo 'GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}' >> .env
 
+          # AI
+          echo 'AI_ENABLED=${{ vars.AI_ENABLED }}' >> .env
+          echo 'GOOGLE_GENAI_API_KEY=${{ secrets.GOOGLE_GENAI_API_KEY }}' >> .env
+          echo 'AI_MODERATION_ENABLED=${{ vars.AI_MODERATION_ENABLED }}' >> .env
+          echo 'AI_AUTOREPLY_ENABLED=${{ vars.AI_AUTOREPLY_ENABLED }}' >> .env
+          echo 'AI_HEALTH_MONITOR_ENABLED=${{ vars.AI_HEALTH_MONITOR_ENABLED }}' >> .env
+
           # Restrict permissions on .env file
           chmod 600 .env
 

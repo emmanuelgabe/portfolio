@@ -41,6 +41,10 @@ services:
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_ENABLED=${ELASTICSEARCH_ENABLED:-true}
+      - AI_ENABLED=${AI_ENABLED:-false}
+      - GOOGLE_GENAI_API_KEY=${GOOGLE_GENAI_API_KEY:-}
+      - AI_MODERATION_ENABLED=${AI_MODERATION_ENABLED:-true}
+      - AI_AUTOREPLY_ENABLED=${AI_AUTOREPLY_ENABLED:-false}
     volumes:
       - portfolio_uploads_prod:/app/uploads
     depends_on:
