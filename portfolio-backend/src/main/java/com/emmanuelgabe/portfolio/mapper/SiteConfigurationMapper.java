@@ -38,6 +38,10 @@ public interface SiteConfigurationMapper {
     @Mapping(target = "profileImagePath", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    // chatbotInfoUrl is the only optional field and must be clearable by the admin.
+    // Override the bean-level IGNORE strategy so that a null value unsets the URL in the database.
+    @Mapping(target = "chatbotInfoUrl",
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     void updateEntityFromRequest(UpdateSiteConfigurationRequest request,
                                   @MappingTarget SiteConfiguration siteConfiguration);
 }

@@ -69,6 +69,10 @@ cd portfolio-frontend && npm list
 - **resilience4j-spring-boot3** - Circuit breaker, retry patterns
 - **resilience4j-micrometer** - Metrics integration
 
+### AI
+- **spring-ai-starter-model-google-genai** - Spring AI with Google Gemini (chat + embeddings)
+- **spring-ai-starter-vector-store-elasticsearch** - Elasticsearch vector store for RAG
+
 ### GraphQL
 - **spring-boot-starter-graphql** - GraphQL API support
 
@@ -140,6 +144,9 @@ cd portfolio-frontend && npm list
 - **Grafana** - Dashboards and visualization
 - **Loki** - Log aggregation
 - **Promtail** - Log collector
+
+### Docker Management
+- **tecnativa/docker-socket-proxy** (`0.3.0`) - Restricted Docker API proxy for AI health monitor
 
 ### Cache Infrastructure
 - **Redis** - Distributed cache and rate limiting

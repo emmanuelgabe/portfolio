@@ -1,0 +1,149 @@
+<!-- Floating chat toggle button -->
+<button
+  class="chat-toggle-btn"
+  [class.chat-toggle-btn--open]="isOpen"
+  (click)="toggleChat()"
+  [attr.aria-label]="'chat.toggleLabel' | translate"
+  aria-haspopup="dialog">
+  <i class="bi" [class.bi-chat-dots-fill]="!isOpen" [class.bi-x-lg]="isOpen"></i>
+</button>
+
+<!-- Chat panel -->
+<div
+  class="chat-panel"
+  [class.chat-panel--open]="isOpen"
+  role="dialog"
+  [attr.aria-label]="'chat.panelLabel' | translate">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header__info">
+      <div class="chat-header__avatar">
+        <i class="bi bi-robot"></i>
+      </div>
+      <div>
+        <span class="chat-header__title">{{ 'chat.title' | translate }}</span>
+        <span class="chat-header__badge" *ngIf="chatbotInfoUrl">
+          <a [href]="chatbotInfoUrl"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="chat-header__badge-link">
+            AI-powered
+          </a>
+        </span>
+        <span class="chat-header__badge chat-header__badge--static" *ngIf="!chatbotInfoUrl">
+          AI-powered
+        </span>
+      </div>
+    </div>
+    <button
+      class="chat-header__close"
+      (click)="closeChat()"
+      [attr.aria-label]="'chat.closeLabel' | translate">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- Messages area -->
+  <div class="chat-messages" #messagesContainer>
+
+    <!-- Welcome message when empty -->
+    <div class="chat-welcome" *ngIf="messages.length === 0">
+      <div class="chat-welcome__icon">
+        <i class="bi bi-chat-square-text"></i>
+      </div>
+      <p class="chat-welcome__text">{{ 'chat.welcome' | translate }}</p>
+    </div>
+
+    <!-- Conversation starters -->
+    <div class="chat-starters" *ngIf="showStarters">
+      <button
+        class="chat-starter-btn"
+        *ngFor="let starter of starters"
+        (click)="sendStarter(starter)">
+        {{ starter | translate }}
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div
+      class="chat-message"
+      [class.chat-message--user]="msg.role === 'user'"
+      [class.chat-message--assistant]="msg.role === 'assistant'"
+      *ngFor="let msg of messages; let last = last">
+
+      <!-- Tool call indicators (R1) -->
+      <div class="chat-tool-calls" *ngIf="msg.toolCalls && msg.toolCalls.length > 0">
+        <div class="chat-tool-call" *ngFor="let tool of msg.toolCalls">
+          <i class="bi bi-gear-fill chat-tool-call__icon"></i>
+          <span class="chat-tool-call__label">{{ getToolLabel(tool) }}</span>
+        </div>
+      </div>
+
+      <!-- Message content -->
+      <div class="chat-bubble"
+           [class.chat-bubble--user]="msg.role === 'user'"
+           [class.chat-bubble--assistant]="msg.role === 'assistant'">
+        <span>{{ msg.content }}</span>
+        <!-- Typing indicator shown only while waiting for the first streamed token -->
+        <span class="chat-typing"
+              *ngIf="isStreaming && msg.role === 'assistant' && last && !msg.content"
+              aria-hidden="true">
+          <span class="chat-typing__dot"></span>
+          <span class="chat-typing__dot"></span>
+          <span class="chat-typing__dot"></span>
+        </span>
+      </div>
+
+      <!-- Contact form pre-fill button -->
+      <div class="chat-contact-action" *ngIf="msg.contactForm">
+        <button
+          class="chat-contact-btn"
+          (click)="navigateToContact(msg.contactForm)">
+          <i class="bi bi-envelope-fill"></i>
+          {{ 'chat.openContactForm' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rate limit warning -->
+  <div class="chat-rate-limit" *ngIf="showRateLimitWarning">
+    <i class="bi bi-exclamation-triangle"></i>
+    {{ 'chat.rateLimitWarning' | translate:{ remaining: rateLimit.remaining } }}
+  </div>
+  <div class="chat-rate-limit chat-rate-limit--exhausted" *ngIf="isRateLimitExhausted">
+    <i class="bi bi-x-circle"></i>
+    {{ 'chat.rateLimitExhausted' | translate }}
+  </div>
+
+  <!-- Contextual suggestions (R2) -->
+  <div class="chat-suggestions" *ngIf="showSuggestions">
+    <button
+      class="chat-suggestion-btn"
+      *ngFor="let suggestion of suggestions"
+      (click)="sendSuggestion(suggestion)">
+      {{ suggestion | translate }}
+    </button>
+  </div>
+
+  <!-- Input area -->
+  <div class="chat-input-area">
+    <textarea
+      #messageInput
+      class="chat-input"
+      [(ngModel)]="userInput"
+      (keydown)="onKeyDown($event)"
+      [placeholder]="'chat.inputPlaceholder' | translate"
+      [disabled]="isStreaming || isRateLimitExhausted"
+      rows="1"
+      [attr.aria-label]="'chat.inputLabel' | translate"></textarea>
+    <button
+      class="chat-send-btn"
+      (click)="sendMessage()"
+      [disabled]="!userInput.trim() || isStreaming || isRateLimitExhausted"
+      [attr.aria-label]="'chat.sendLabel' | translate">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </div>
+</div>

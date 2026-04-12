@@ -26,7 +26,7 @@ The portfolio database uses **PostgreSQL** with **Flyway** for version-controlle
 - UUID-based refresh tokens
 - Support for draft/publish workflows
 
-**Migration Tool**: Flyway (V1-V30 migrations applied)
+**Migration Tool**: Flyway (V1-V33 migrations applied)
 
 ---
 
@@ -50,11 +50,15 @@ experiences (independent entity)
 
 skills (independent entity)
 
-site_configuration (singleton entity)
+site_configuration (singleton entity, chatbot_info_url)
 
 audit_logs (audit trail entity)
 
 daily_stats (analytics entity)
+
+contacts (AI-moderated contact submissions)
+
+health_reports ──── 1:N ── health_proposed_actions
 ```
 
 ---
@@ -321,6 +325,82 @@ UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true
 
 ---
 
+### Contacts Table
+
+**Purpose**: Contact form submissions with AI moderation results (GDPR retention: 12 months)
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | BIGSERIAL | PK | Auto-incrementing primary key |
+| name | VARCHAR(100) | NOT NULL | Submitter name |
+| subject | VARCHAR(200) | NOT NULL | Message subject |
+| message | TEXT | NOT NULL | Message content |
+| category | VARCHAR(15) | Nullable | AI category: MISSION, QUESTION, FEEDBACK, SPAM, INAPPROPRIATE |
+| moderation_verdict | VARCHAR(10) | NOT NULL | AI verdict: APPROVED or REJECTED |
+| moderation_reason | TEXT | Nullable | AI justification |
+| confidence_score | DOUBLE PRECISION | NOT NULL, DEFAULT 1.0 | AI confidence (0.0 to 1.0) |
+| created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | Submission timestamp |
+
+**Indexes**:
+- `idx_contacts_category` - Filter by category
+- `idx_contacts_created_at` - Chronological sorting and retention cleanup
+- `idx_contacts_moderation_verdict` - Filter by verdict
+
+**Note**: email address intentionally NOT stored (GDPR compliance).
+
+---
+
+### Health Reports Table
+
+**Purpose**: AI diagnostic cycle reports with severity and anomaly tracking
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | BIGSERIAL | PK | Auto-incrementing primary key |
+| cycle_type | VARCHAR(20) | NOT NULL | SCHEDULED, ON_DEMAND, or PRECHECK_ONLY |
+| severity | VARCHAR(15) | NOT NULL | OK, WARNING, CRITICAL, or UNKNOWN |
+| summary | TEXT | NOT NULL | LLM-generated diagnostic summary |
+| anomalies_json | TEXT | Nullable | JSON array of detected anomalies |
+| tool_calls_json | TEXT | Nullable | JSON array of tools invoked during cycle |
+| duration_ms | BIGINT | NOT NULL, DEFAULT 0 | Cycle duration in milliseconds |
+| created_at | TIMESTAMP | NOT NULL | Immutable timestamp |
+
+**Indexes**:
+- `idx_health_reports_created_at DESC` - Chronological sorting
+- `idx_health_reports_severity` - Filter by severity
+
+---
+
+### Health Proposed Actions Table
+
+**Purpose**: Agent-proposed remediation actions with approval workflow
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | BIGSERIAL | PK | Auto-incrementing primary key |
+| report_id | BIGINT | NOT NULL, FK -> health_reports(id) CASCADE | Associated report |
+| level | VARCHAR(10) | NOT NULL | ORANGE or RED |
+| action_type | VARCHAR(40) | NOT NULL | Action identifier |
+| params_json | TEXT | Nullable | JSON action parameters |
+| justification | TEXT | NOT NULL | LLM reasoning |
+| status | VARCHAR(15) | NOT NULL | PENDING, APPROVED, REJECTED, EXECUTED, FAILED, EXPIRED |
+| approved_by | VARCHAR(100) | Nullable | Username of approver |
+| approved_at | TIMESTAMP | Nullable | Approval timestamp |
+| executed_at | TIMESTAMP | Nullable | Execution timestamp |
+| rejection_reason | TEXT | Nullable | Reason for rejection |
+| result_json | TEXT | Nullable | Execution result JSON |
+| expires_at | TIMESTAMP | NOT NULL | Action expiration time |
+| created_at | TIMESTAMP | NOT NULL | Immutable timestamp |
+| version | BIGINT | NOT NULL, DEFAULT 0 | Optimistic locking version |
+
+**Indexes**:
+- `idx_health_proposed_actions_status` - Filter by status
+- `idx_health_proposed_actions_report_id` - Actions per report
+- `idx_health_proposed_actions_expires_at` - Expiration queries
+- `idx_health_proposed_actions_created_at DESC` - Chronological sorting
+
+---
+
 ## 5. Content Management
 
 ### Articles Table
@@ -498,7 +578,10 @@ CREATE UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true;
 | V27 | Experience months | experiences (added show_months) |
 | V28 | Experience enhancements | experiences (display_order, optional fields, STAGE type) |
 | V29 | Project details | project_details (created, later removed in V30) |
-| V30 | Unlimited project description | project_details (dropped), projects (description → TEXT) |
+| V30 | Unlimited project description | project_details (dropped), projects (description -> TEXT) |
+| V31 | Contact persistence | contacts (with moderation columns and indexes) |
+| V32 | Chatbot configuration | site_configuration (added chatbot_info_url) |
+| V33 | Health monitor | health_reports, health_proposed_actions (with indexes and FK) |
 
 ---
 
@@ -506,5 +589,7 @@ CREATE UNIQUE INDEX idx_cvs_user_current ON cvs(user_id) WHERE current = true;
 
 - [API Overview](../api/README.md) - API documentation
 - [Features: Image Processing](../features/image-processing.md) - Image storage
+- [Features: Contact Moderation](../features/contact-moderation.md) - Contact persistence
+- [Features: Health Monitor](../features/health-monitor.md) - Health monitor entities
 - [Security: Authentication](../security/authentication.md) - Auth system
 - [Development: Setup](../development/setup.md) - Database setup instructions

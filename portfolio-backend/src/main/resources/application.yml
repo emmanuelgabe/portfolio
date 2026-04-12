@@ -106,6 +106,19 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration
       - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchClientAutoConfiguration
+  ai:
+    google:
+      genai:
+        api-key: ${GOOGLE_GENAI_API_KEY:}
+        chat:
+          options:
+            model: ${AI_CHAT_MODEL:gemini-2.5-flash}
+            temperature: ${AI_CHAT_TEMPERATURE:0.7}
+            max-output-tokens: ${AI_CHAT_MAX_TOKENS:500}
+        embedding:
+          text:
+            options:
+              model: ${AI_EMBEDDING_MODEL:gemini-embedding-001}
 
   # Internationalization (i18n) configuration
   messages:
@@ -212,10 +225,13 @@ rabbitmq:
     image-dlq: portfolio.image.dlq
     audit: portfolio.audit.queue
     audit-dlq: portfolio.audit.dlq
+    autoreply: portfolio.autoreply.queue
+    autoreply-dlq: portfolio.autoreply.dlq
   exchanges:
     email: portfolio.email.exchange
     image: portfolio.image.exchange
     audit: portfolio.audit.exchange
+    autoreply: portfolio.autoreply.exchange
     dlx: portfolio.dlx.exchange
   routing-keys:
     email: email.send
@@ -224,6 +240,8 @@ rabbitmq:
     image-dlq: image.dlq
     audit: audit.log
     audit-dlq: audit.dlq
+    autoreply: autoreply.generate
+    autoreply-dlq: autoreply.dlq
 
 # Batch jobs configuration
 batch:
@@ -241,6 +259,8 @@ batch:
   image-reprocessing:
     chunk-size: ${BATCH_IMAGE_CHUNK_SIZE:10}  # Number of images per chunk
     # No cron - triggered manually via REST endpoint when quality settings change
+  embedding-ingestion:
+    cron: ${BATCH_EMBEDDING_INGESTION_CRON:0 0 4 * * SUN}  # Weekly Sunday at 4 AM
 
 # Sitemap configuration
 sitemap:
@@ -252,6 +272,38 @@ kafka:
   enabled: ${KAFKA_ENABLED:true}
   consumer:
     group-id: ${KAFKA_CONSUMER_GROUP:portfolio-group}
+
+# AI configuration (Spring AI + Google Gemini)
+ai:
+  enabled: ${AI_ENABLED:false}
+  chat:
+    max-tokens: ${AI_CHAT_MAX_TOKENS:500}
+    rate-limit:
+      max-requests-per-hour: ${AI_CHAT_RATE_LIMIT:10}
+  moderation:
+    enabled: ${AI_MODERATION_ENABLED:true}
+    timeout-seconds: ${AI_MODERATION_TIMEOUT:5}
+  autoreply:
+    enabled: ${AI_AUTOREPLY_ENABLED:false}
+    timeout-seconds: ${AI_AUTOREPLY_TIMEOUT:10}
+    max-documents: ${AI_AUTOREPLY_MAX_DOCS:5}
+  embedding:
+    index-name: ${AI_EMBEDDING_INDEX:portfolio-embeddings}
+    dimensions: ${AI_EMBEDDING_DIMENSIONS:3072}
+  health-monitor:
+    enabled: ${AI_HEALTH_MONITOR_ENABLED:false}
+    demo-mode: ${AI_HEALTH_MONITOR_DEMO_MODE:false}
+    schedule-cron: ${AI_HEALTH_MONITOR_CRON:0 */15 * * * *}
+    on-demand-bypass-precheck: ${AI_HEALTH_MONITOR_BYPASS_PRECHECK:true}
+    action-expiration-minutes: ${AI_HEALTH_MONITOR_EXPIRATION_MINUTES:60}
+    max-mutations-per-hour: ${AI_HEALTH_MONITOR_MAX_MUTATIONS:10}
+    docker:
+      host: ${AI_HEALTH_MONITOR_DOCKER_HOST:tcp://docker-socket-proxy:2375}
+    history:
+      reports-in-context: ${AI_HEALTH_MONITOR_REPORTS_CONTEXT:3}
+      rejected-actions-in-context: ${AI_HEALTH_MONITOR_REJECTED_CONTEXT:5}
+    logs:
+      max-lines-per-call: ${AI_HEALTH_MONITOR_LOG_LINES:50}
 
 # Elasticsearch configuration
 elasticsearch:

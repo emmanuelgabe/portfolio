@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
@@ -90,4 +91,14 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @return list of matching projects
      */
     List<Project> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String title, String description);
+
+    /**
+     * Finds a project by ID with tags eagerly loaded.
+     * Prevents LazyInitializationException when called outside a transaction.
+     *
+     * @param id the project ID
+     * @return the project with tags loaded
+     */
+    @Query("SELECT p FROM Project p LEFT JOIN FETCH p.tags WHERE p.id = :id")
+    Optional<Project> findByIdWithTags(@Param("id") Long id);
 }

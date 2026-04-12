@@ -532,7 +532,12 @@
       "imageUploadSuccess": "Фото профиля обновлено",
       "imageUploadError": "Ошибка при загрузке фото",
       "imageDeleteSuccess": "Фото профиля удалено",
-      "imageDeleteError": "Ошибка при удалении фото"
+      "imageDeleteError": "Ошибка при удалении фото",
+      "chatbotSection": "Чат-бот",
+      "chatbotDescription": "Настройки AI чат-бота, интегрированного в сайт.",
+      "chatbotInfoUrl": "URL информации AI-powered",
+      "chatbotInfoUrlPlaceholder": "https://example.com/chatbot-article",
+      "chatbotInfoUrlHelp": "Ссылка, отображаемая на значке 'AI-powered' в виджете чата. Оставьте пустым, чтобы скрыть ссылку."
     },
     "audit": {
       "title": "Журнал аудита",
@@ -615,6 +620,46 @@
         "title": "Ответственность",
         "description": "Издатель не несет ответственности за ошибки или упущения на этом сайте, а также за прямой или косвенный ущерб, возникший в результате его использования."
       }
+    }
+  },
+  "chat": {
+    "title": "Ассистент",
+    "toggleLabel": "Открыть чат",
+    "panelLabel": "Чат с AI-ассистентом",
+    "closeLabel": "Закрыть чат",
+    "welcome": "Здравствуйте! Я AI-ассистент этого портфолио. Спросите меня о проектах, навыках или опыте.",
+    "inputPlaceholder": "Введите ваше сообщение...",
+    "inputLabel": "Сообщение",
+    "sendLabel": "Отправить",
+    "error": "Извините, произошла ошибка. Пожалуйста, попробуйте снова или воспользуйтесь контактной формой.",
+    "openContactForm": "Открыть контактную форму",
+    "rateLimitWarning": "У вас осталось {{remaining}} сообщений.",
+    "rateLimitExhausted": "Лимит сообщений исчерпан. Пожалуйста, попробуйте позже.",
+    "starters": {
+      "projects": "Какие у вас основные проекты?",
+      "skills": "Какие у вас технические навыки?",
+      "experience": "Расскажите о вашем профессиональном опыте.",
+      "contact": "Как я могу с вами связаться?"
+    },
+    "suggestions": {
+      "moreDetails": "Подробнее",
+      "otherProjects": "Другие проекты?",
+      "contactMe": "Я хочу связаться с вами"
+    },
+    "tools": {
+      "searchProjects": "Поиск проектов",
+      "listProjects": "Обзор всех проектов",
+      "getFeaturedProjects": "Выбор избранных проектов",
+      "getProjectDetails": "Загрузка деталей проекта",
+      "listArticles": "Просмотр статей",
+      "getArticle": "Чтение статьи",
+      "listExperiences": "Просмотр опыта",
+      "getRecentExperiences": "Недавний опыт",
+      "listSkills": "Просмотр навыков",
+      "getSiteConfig": "Информация о сайте",
+      "getCurrentCV": "Просмотр резюме",
+      "prepareContact": "Подготовка контакта",
+      "searchPortfolio": "Поиск в портфолио"
     }
   }
 }

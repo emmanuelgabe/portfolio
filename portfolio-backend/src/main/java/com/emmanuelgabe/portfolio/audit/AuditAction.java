@@ -26,7 +26,14 @@ public enum AuditAction {
     LOGIN("User logged in"),
     LOGOUT("User logged out"),
     LOGIN_FAILED("Login attempt failed"),
-    PASSWORD_CHANGE("Password changed");
+    PASSWORD_CHANGE("Password changed"),
+
+    // AI Health Monitor
+    PROPOSE("Health action proposed by agent"),
+    APPROVE("Health action approved by admin"),
+    REJECT("Health action rejected by admin"),
+    EXECUTE("Health action executed"),
+    EXPIRE("Health action expired");
 
     private final String description;
 

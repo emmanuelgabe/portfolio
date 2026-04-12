@@ -368,6 +368,7 @@ public class AuditServiceImpl implements AuditService {
             case CV -> cvRepository.findById(entityId).orElse(null);
             case SITE_CONFIGURATION -> siteConfigurationRepository.findById(entityId).orElse(null);
             case USER -> userRepository.findById(entityId).orElse(null);
+            case HEALTH_REPORT, HEALTH_PROPOSED_ACTION -> null;
         };
     }
 

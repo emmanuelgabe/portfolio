@@ -20,6 +20,7 @@ This section provides documentation of the Portfolio application architecture. T
 - **Messaging**: RabbitMQ for async processing
 - **Event Streaming**: Apache Kafka for event-driven architecture
 - **Search**: Elasticsearch for full-text search
+- **AI**: Spring AI with Google Gemini (chatbot, moderation, health monitor)
 - **Deployment**: Docker Compose containerization
 - **Proxy**: Nginx reverse proxy
 
@@ -29,6 +30,7 @@ This section provides documentation of the Portfolio application architecture. T
 - RESTful and GraphQL API design
 - Event-driven architecture (Kafka)
 - Asynchronous processing (RabbitMQ)
+- AI-assisted operations with human-in-the-loop
 - Container-based deployment
 - Environment-specific configuration
 
@@ -58,8 +60,8 @@ This section provides documentation of the Portfolio application architecture. T
 │                              │   │                              │
 │  - Standalone Components     │   │  - REST API + GraphQL API    │
 │  - PWA Support               │   │  - JWT Authentication        │
-│  - i18n (10 languages)       │   │  - Spring Batch Jobs         │
-│  - Chart.js Dashboards       │   │  - Circuit Breaker           │
+│  - i18n (10 languages)       │   │  - Spring AI (Gemini)        │
+│  - Chart.js Dashboards       │   │  - Spring Batch Jobs         │
 └──────────────────────────────┘   └──────────────────────────────┘
                                                 │
                     ┌───────────────────────────┼───────────────────────────┐
@@ -68,9 +70,9 @@ This section provides documentation of the Portfolio application architecture. T
 │      POSTGRESQL          │   │        REDIS             │   │     ELASTICSEARCH        │
 │      (Port 5432)         │   │      (Port 6379)         │   │      (Port 9200)         │
 │                          │   │                          │   │                          │
-│  - 14 tables             │   │  - Rate Limiting         │   │  - Full-text Search      │
-│  - Flyway V1-V25         │   │  - Session Cache         │   │  - Articles & Projects   │
-│  - Audit Logs            │   │  - Visitor Tracking      │   │                          │
+│  - 17 tables             │   │  - Rate Limiting         │   │  - Full-text Search      │
+│  - Flyway V1-V33         │   │  - Session Cache         │   │  - Articles & Projects   │
+│  - Audit Logs            │   │  - Visitor Tracking      │   │  - Vector Embeddings     │
 └──────────────────────────┘   └──────────────────────────┘   └──────────────────────────┘
                                                 │
                     ┌───────────────────────────┼───────────────────────────┐
@@ -98,6 +100,8 @@ This section provides documentation of the Portfolio application architecture. T
 | Elasticsearch | 9200 | Full-text search |
 | RabbitMQ | 5672/15672 | Message queue |
 | Kafka | 9092 | Event streaming |
+| Google Gemini | External | LLM and embeddings (Spring AI) |
+| Docker Socket Proxy | 2375 | Restricted Docker API for health monitor |
 | Prometheus | 9090 | Metrics collection |
 | Grafana | 3001 | Dashboards |
 | Loki | 3100 | Log aggregation |
@@ -154,8 +158,8 @@ Controller Layer → Service Layer → Repository Layer → Database
 Complete PostgreSQL database schema with Flyway migrations.
 
 **Topics**:
-- 25 Flyway migrations (V1-V25)
-- 14 database tables
+- 33 Flyway migrations (V1-V33)
+- 17 database tables
 - Entity relationships
 - Indexes and constraints
 

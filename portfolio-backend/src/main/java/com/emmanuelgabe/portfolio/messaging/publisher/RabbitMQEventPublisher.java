@@ -2,6 +2,7 @@ package com.emmanuelgabe.portfolio.messaging.publisher;
 
 import com.emmanuelgabe.portfolio.messaging.config.RabbitMQProperties;
 import com.emmanuelgabe.portfolio.messaging.event.AuditEvent;
+import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.EmailEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ImageProcessingEvent;
 import lombok.RequiredArgsConstructor;
@@ -79,6 +80,26 @@ public class RabbitMQEventPublisher implements EventPublisher {
                     event.getEventId(), event.getAction());
         } catch (AmqpException e) {
             log.error("[RABBITMQ] Failed to publish audit event - eventId={}, error={}",
+                    event.getEventId(), e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void publishAutoReplyEvent(AutoReplyEvent event) {
+        log.debug("[RABBITMQ] Publishing auto-reply event - eventId={}, sender={}",
+                event.getEventId(), event.getSenderEmail());
+
+        try {
+            rabbitTemplate.convertAndSend(
+                    properties.getExchanges().getAutoreply(),
+                    properties.getRoutingKeys().getAutoreply(),
+                    event
+            );
+            log.info("[RABBITMQ] Auto-reply event published - eventId={}",
+                    event.getEventId());
+        } catch (AmqpException e) {
+            log.error("[RABBITMQ] Failed to publish auto-reply event - eventId={}, error={}",
                     event.getEventId(), e.getMessage(), e);
             throw e;
         }

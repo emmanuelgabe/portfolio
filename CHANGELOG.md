@@ -7,6 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-04-12
+
+### Added
+
+#### AI Foundation (Spring AI + Google Gemini)
+- Spring AI integration with Google Gemini 2.0 Flash (`spring-ai-starter-model-google-genai`)
+- Vector embedding ingestion using Gemini text-embedding-004 via Elasticsearch vector store
+- AI feature flag (`ai.enabled`) for global enable/disable
+- Redis-backed rate limiting service for AI endpoints
+
+#### Agentic Chatbot
+- Conversational chatbot agent with function calling and multi-step reasoning
+- 10 read-only tools: project search, project details, list articles, get article, list experiences, recent experiences, list skills, site config, current CV, prepare contact
+- Portfolio search tool (RAG) as complementary fallback source
+- SSE streaming responses with real-time tool call tracking
+- In-memory conversation session (`MessageWindowChatMemory`, no persistence for GDPR)
+- Rate limiting: 10 messages/hour/IP, max 500 tokens per response
+- Auto-detect visitor language from message (handled in system prompt)
+- Frontend chat widget with floating button, collapsible panel, bouncing dots animation
+- Tool call indicators in chat UI (search, loading states)
+- Contact form pre-fill from chatbot `prepareContact` tool
+- Chat widget i18n support (FR, EN)
+- Chatbot info URL field in site configuration (admin-configurable)
+
+#### Contact Moderation and Auto-Reply
+- AI-powered contact form moderation before RabbitMQ queue
+- Message classification: MISSION, QUESTION, FEEDBACK, SPAM, INAPPROPRIATE
+- Confidence score (0.0 to 1.0) and justification for each moderation decision
+- Spam and inappropriate messages blocked before email queue (no delivery)
+- RAG-powered auto-reply email generation based on contact category
+- Two emails sent: auto-reply to visitor + original message with AI reply to owner
+- Contact persistence in database (name, subject, message, category, verdict, score -- no email stored for GDPR)
+- 12-month automatic retention with scheduled bulk cleanup
+- Admin endpoints: aggregated stats and paginated contact history with filters
+- Grafana moderation dashboard (approval rate, rejections/day, response time)
+- Admin contacts page with stats cards, category distribution, filterable history table
+- Demo mode with realistic mock data for `/admindemo/contacts`
+
+#### Agentic Health Monitor
+- AI health diagnostic agent with tiered autonomy (GREEN/ORANGE/RED)
+- 6 GREEN tools (auto, read-only): service health, service logs, service metrics, circuit breakers, dead letter queue, audit stats
+- 4 ORANGE tools (requires admin approval): flush Redis cache, retry DLQ messages, reindex Elasticsearch, trigger image reprocessing
+- 1 RED tool (requires approval + reason): restart Docker container
+- Proposed action flow: agent proposes, admin approves/rejects, agent executes
+- Action expiration: pending actions expire after 1 hour
+- Diagnostic scheduling: automatic cycle every 5 minutes (configurable)
+- On-demand diagnostic via "Analyze now" button
+- Critical alert email via existing RabbitMQ email queue
+- Health reports persisted with severity (OK/WARNING/CRITICAL), anomalies, and tool calls
+- Docker socket proxy for secure container management (no shell exec)
+- Admin health monitor page with report timeline, action approval panel
+- Rejection reason field mandatory for RED-level actions
+
+### Changed
+- Contact form flow now includes AI moderation before RabbitMQ publish
+- `EmailConsumer` integrates auto-reply generation after moderation approval
+- Site configuration entity extended with `chatbotInfoUrl` field
+- Admin sidebar updated with "Contacts" and "Health Monitor" navigation links
+- Demo layout updated with corresponding sidebar links
+
+### Database Migrations
+- V31: Create contacts table with moderation columns and indexes
+- V32: Add chatbot_info_url column to site_configuration table
+- V33: Create health_reports and health_proposed_actions tables with indexes
+
+---
+
 ## [1.2.0] - 2026-01-17
 
 ### Added

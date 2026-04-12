@@ -8,6 +8,7 @@
 3. [User Interaction Features](#3-user-interaction-features)
 4. [Media Processing Features](#4-media-processing-features)
 5. [Infrastructure Features](#5-infrastructure-features)
+6. [AI-Powered Features](#6-ai-powered-features)
 
 ---
 
@@ -20,6 +21,7 @@ Overview of the Portfolio application features. Each feature is documented in de
 - User Interaction: Contact form with rate limiting
 - Media Processing: Image optimization, file storage
 - Infrastructure: Messaging, event streaming, caching, resilience
+- AI-Powered: Agentic chatbot, contact moderation, health monitor
 
 ---
 
@@ -218,6 +220,38 @@ Dynamic sitemap.xml generation.
 Redis-based application caching.
 
 **Capabilities**: 5 caches (siteConfig, skills, projects, experiences, tags), TTL expiration, auto-eviction
+
+---
+
+## 6. AI-Powered Features
+
+### 6.1 Agentic Chatbot
+
+**File**: [ai-chatbot.md](./ai-chatbot.md)
+
+Conversational assistant with function calling, multi-step reasoning, and SSE streaming.
+
+**Capabilities**: 13 tools (projects, articles, experiences, skills, site info, CV, contact, RAG search), in-memory conversation history, auto language detection
+
+---
+
+### 6.2 Contact Moderation and Auto-Reply
+
+**File**: [contact-moderation.md](./contact-moderation.md)
+
+AI-powered contact form moderation with spam filtering and automatic email responses.
+
+**Capabilities**: 5-category classification, confidence scoring, fail-open contract, RAG auto-reply, GDPR-compliant persistence, 12-month retention
+
+---
+
+### 6.3 Health Monitor
+
+**File**: [health-monitor.md](./health-monitor.md)
+
+AI diagnostic agent with tiered autonomy for infrastructure monitoring.
+
+**Capabilities**: 7 diagnostic tools, 5 remediation actions (ORANGE/RED), human-in-the-loop approval, pre-check cost gate, SSE notifications, Docker socket proxy
 
 ---
 

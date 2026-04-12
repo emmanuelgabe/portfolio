@@ -7,6 +7,8 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,15 @@ public class BatchJobScheduler {
     private final Job statsAggregationJob;
     private final Job sitemapGenerationJob;
     private final Job searchReindexJob;
+
+    /** Optional: only available when AI + Elasticsearch are both enabled. */
+    private Job embeddingIngestionJob;
+
+    @Autowired(required = false)
+    @Qualifier("embeddingIngestionJob")
+    public void setEmbeddingIngestionJob(Job embeddingIngestionJob) {
+        this.embeddingIngestionJob = embeddingIngestionJob;
+    }
 
     /**
      * Run audit cleanup job daily at 2:00 AM.
@@ -140,6 +151,35 @@ public class BatchJobScheduler {
 
         } catch (Exception e) {
             log.error("[BATCH_SCHEDULER] Failed to run search reindex job - error={}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Run embedding ingestion job every Sunday at 4:00 AM.
+     * Re-indexes all portfolio content as vector embeddings for RAG.
+     * Only runs when AI and Elasticsearch are both enabled.
+     */
+    @Scheduled(cron = "${batch.embedding-ingestion.cron:0 0 4 * * SUN}")
+    public void runEmbeddingIngestionJob() {
+        if (embeddingIngestionJob == null) {
+            log.debug("[BATCH_SCHEDULER] Embedding ingestion job skipped - AI not enabled");
+            return;
+        }
+
+        log.info("[BATCH_SCHEDULER] Starting scheduled embedding ingestion job");
+
+        try {
+            JobParameters params = new JobParametersBuilder()
+                    .addLong("timestamp", System.currentTimeMillis())
+                    .toJobParameters();
+
+            JobExecution execution = jobLauncher.run(embeddingIngestionJob, params);
+
+            log.info("[BATCH_SCHEDULER] Embedding ingestion job completed - status={}, exitCode={}",
+                    execution.getStatus(), execution.getExitStatus().getExitCode());
+
+        } catch (Exception e) {
+            log.error("[BATCH_SCHEDULER] Failed to run embedding ingestion job - error={}", e.getMessage(), e);
         }
     }
 }

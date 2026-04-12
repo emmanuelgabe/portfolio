@@ -50,6 +50,15 @@ public class DeadLetterConsumer {
     }
 
     /**
+     * Handle messages that failed auto-reply processing.
+     */
+    @RabbitListener(queues = "${rabbitmq.queues.autoreply-dlq}")
+    public void handleAutoReplyDeadLetter(Message message) {
+        logDeadLetterMessage("autoreply", message);
+        metrics.recordDeadLetterMessage("autoreply");
+    }
+
+    /**
      * Log dead letter message details for debugging.
      */
     private void logDeadLetterMessage(String queueType, Message message) {

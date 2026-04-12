@@ -532,7 +532,12 @@
       "imageUploadSuccess": "プロフィール画像を更新しました",
       "imageUploadError": "画像のアップロードに失敗しました",
       "imageDeleteSuccess": "プロフィール画像を削除しました",
-      "imageDeleteError": "画像の削除に失敗しました"
+      "imageDeleteError": "画像の削除に失敗しました",
+      "chatbotSection": "チャットボット",
+      "chatbotDescription": "サイトに統合されたAIチャットボットの設定。",
+      "chatbotInfoUrl": "AI-powered 情報URL",
+      "chatbotInfoUrlPlaceholder": "https://example.com/chatbot-article",
+      "chatbotInfoUrlHelp": "チャットウィジェットの「AI-powered」バッジに表示されるリンク。リンクを非表示にする場合は空欄のままにしてください。"
     },
     "audit": {
       "title": "監査ログ",
@@ -615,6 +620,46 @@
         "title": "責任",
         "description": "発行者は、本ウェブサイトの誤りや脱落、または使用に起因する直接的または間接的な損害について責任を負いません。"
       }
+    }
+  },
+  "chat": {
+    "title": "アシスタント",
+    "toggleLabel": "チャットを開く",
+    "panelLabel": "AIアシスタントとチャット",
+    "closeLabel": "チャットを閉じる",
+    "welcome": "こんにちは！このポートフォリオのAIアシスタントです。プロジェクト、スキル、経験についてお気軽にご質問ください。",
+    "inputPlaceholder": "メッセージを入力...",
+    "inputLabel": "メッセージ",
+    "sendLabel": "送信",
+    "error": "申し訳ございません。エラーが発生しました。もう一度お試しいただくか、お問い合わせフォームをご利用ください。",
+    "openContactForm": "お問い合わせフォームを開く",
+    "rateLimitWarning": "残り{{remaining}}件のメッセージが送信可能です。",
+    "rateLimitExhausted": "メッセージの上限に達しました。しばらくしてから再度お試しください。",
+    "starters": {
+      "projects": "主なプロジェクトは何ですか？",
+      "skills": "技術的なスキルは何ですか？",
+      "experience": "職務経歴について教えてください。",
+      "contact": "どのように連絡できますか？"
+    },
+    "suggestions": {
+      "moreDetails": "詳細を見る",
+      "otherProjects": "他のプロジェクトは？",
+      "contactMe": "連絡したい"
+    },
+    "tools": {
+      "searchProjects": "プロジェクトを検索中",
+      "listProjects": "すべてのプロジェクトを確認中",
+      "getFeaturedProjects": "注目プロジェクトを選定中",
+      "getProjectDetails": "プロジェクト詳細を読み込み中",
+      "listArticles": "記事を参照中",
+      "getArticle": "記事を読み込み中",
+      "listExperiences": "経歴を参照中",
+      "getRecentExperiences": "最近の経歴",
+      "listSkills": "スキルを参照中",
+      "getSiteConfig": "サイト情報",
+      "getCurrentCV": "CVを確認中",
+      "prepareContact": "お問い合わせを準備中",
+      "searchPortfolio": "ポートフォリオを検索中"
     }
   }
 }

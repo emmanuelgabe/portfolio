@@ -39,6 +39,7 @@ describe('HomeComponent', () => {
     profileImageUrl: undefined,
     githubUrl: 'https://github.com/emmanuelgabe',
     linkedinUrl: 'https://linkedin.com/in/egabe',
+    chatbotInfoUrl: undefined,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   };

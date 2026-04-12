@@ -532,7 +532,12 @@
       "imageUploadSuccess": "प्रोफ़ाइल फ़ोटो अपडेट की गई",
       "imageUploadError": "फ़ोटो अपलोड करने में त्रुटि",
       "imageDeleteSuccess": "प्रोफ़ाइल फ़ोटो हटाई गई",
-      "imageDeleteError": "फ़ोटो हटाने में त्रुटि"
+      "imageDeleteError": "फ़ोटो हटाने में त्रुटि",
+      "chatbotSection": "चैटबॉट",
+      "chatbotDescription": "साइट में एकीकृत AI चैटबॉट की कॉन्फ़िगरेशन।",
+      "chatbotInfoUrl": "AI-powered जानकारी URL",
+      "chatbotInfoUrlPlaceholder": "https://example.com/chatbot-article",
+      "chatbotInfoUrlHelp": "चैट विजेट में 'AI-powered' बैज पर दिखाया गया लिंक। लिंक छिपाने के लिए खाली छोड़ें।"
     },
     "audit": {
       "title": "ऑडिट लॉग",
@@ -615,6 +620,46 @@
         "title": "दायित्व",
         "description": "प्रकाशक इस वेबसाइट पर त्रुटियों या चूक के लिए, या इसके उपयोग से होने वाले प्रत्यक्ष या अप्रत्यक्ष नुकसान के लिए जिम्मेदार नहीं है।"
       }
+    }
+  },
+  "chat": {
+    "title": "सहायक",
+    "toggleLabel": "चैट खोलें",
+    "panelLabel": "AI सहायक के साथ चैट",
+    "closeLabel": "चैट बंद करें",
+    "welcome": "नमस्ते! मैं इस पोर्टफोलियो का AI सहायक हूँ। मुझसे परियोजनाओं, कौशल या अनुभव के बारे में पूछें।",
+    "inputPlaceholder": "अपना संदेश लिखें...",
+    "inputLabel": "संदेश",
+    "sendLabel": "भेजें",
+    "error": "क्षमा करें, एक त्रुटि हुई। कृपया पुनः प्रयास करें या संपर्क फ़ॉर्म का उपयोग करें।",
+    "openContactForm": "संपर्क फ़ॉर्म खोलें",
+    "rateLimitWarning": "आपके पास {{remaining}} संदेश शेष हैं।",
+    "rateLimitExhausted": "संदेश सीमा पूरी हो गई। कृपया बाद में पुनः प्रयास करें।",
+    "starters": {
+      "projects": "आपकी मुख्य परियोजनाएँ क्या हैं?",
+      "skills": "आपके तकनीकी कौशल क्या हैं?",
+      "experience": "अपने पेशेवर अनुभव के बारे में बताएं।",
+      "contact": "मैं आपसे कैसे संपर्क कर सकता हूँ?"
+    },
+    "suggestions": {
+      "moreDetails": "और जानकारी",
+      "otherProjects": "अन्य परियोजनाएँ?",
+      "contactMe": "मैं आपसे संपर्क करना चाहता हूँ"
+    },
+    "tools": {
+      "searchProjects": "परियोजनाएँ खोज रहे हैं",
+      "listProjects": "सभी परियोजनाओं की समीक्षा",
+      "getFeaturedProjects": "प्रमुख परियोजनाओं का चयन",
+      "getProjectDetails": "परियोजना विवरण लोड हो रहा है",
+      "listArticles": "लेख देख रहे हैं",
+      "getArticle": "लेख पढ़ रहे हैं",
+      "listExperiences": "अनुभव देख रहे हैं",
+      "getRecentExperiences": "हाल का अनुभव",
+      "listSkills": "कौशल देख रहे हैं",
+      "getSiteConfig": "साइट जानकारी",
+      "getCurrentCV": "CV देख रहे हैं",
+      "prepareContact": "संपर्क तैयार कर रहे हैं",
+      "searchPortfolio": "पोर्टफोलियो में खोज"
     }
   }
 }

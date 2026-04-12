@@ -18,6 +18,8 @@ import {
   CircuitBreakerService,
   CircuitBreakerStatus,
 } from '../../../services/circuit-breaker.service';
+import { HealthMonitorService } from '../../../services/health-monitor.service';
+import { ReportSeverity } from '../../../models/health-monitor.model';
 import { VisitorsChartComponent } from '../../../components/shared/visitors-chart/visitors-chart.component';
 import { environment } from '../../../../environments/environment';
 
@@ -49,6 +51,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private readonly batchService = inject(BatchService);
   private readonly activeUsersService = inject(ActiveUsersService);
   private readonly circuitBreakerService = inject(CircuitBreakerService);
+  private readonly healthMonitorService = inject(HealthMonitorService);
   private readonly destroy$ = new Subject<void>();
 
   stats: DashboardStat[] = [];
@@ -70,6 +73,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Circuit breaker state
   circuitBreakers: CircuitBreakerStatus[] = [];
   circuitBreakerLoading = false;
+
+  // Health monitor state
+  healthSeverity: ReportSeverity = 'UNKNOWN';
+  healthPendingCount = 0;
+  healthMonitorLoading = false;
+  healthMonitorAvailable = true;
 
   // Visitors chart state
   dailyVisitorData: DailyVisitorData[] = [];
@@ -129,6 +138,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadStats();
     this.loadBatchStats();
     this.loadCircuitBreakerStatus();
+    this.loadHealthMonitorStats();
 
     // Only connect to visitor tracking if enabled and not in demo mode (GDPR opt-in)
     if (!this.demoModeService.isDemo() && this.visitorTrackingEnabled) {
@@ -284,6 +294,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.circuitBreakerLoading = false;
         },
       });
+  }
+
+  private loadHealthMonitorStats(): void {
+    this.healthMonitorLoading = true;
+
+    if (this.demoModeService.isDemo()) {
+      this.healthSeverity = 'WARNING';
+      this.healthPendingCount = 2;
+      this.healthMonitorLoading = false;
+      return;
+    }
+
+    forkJoin({
+      reports: this.healthMonitorService.loadRecentReports(1),
+      pending: this.healthMonitorService.loadPendingActions(),
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ reports, pending }) => {
+          this.healthSeverity = reports[0]?.severity ?? 'UNKNOWN';
+          this.healthPendingCount = pending.length;
+          this.healthMonitorLoading = false;
+        },
+        error: () => {
+          this.healthMonitorAvailable = false;
+          this.healthMonitorLoading = false;
+        },
+      });
+  }
+
+  get healthMonitorLink(): string {
+    return this.demoModeService.isDemo() ? '/admindemo/health-monitor' : '/admin/health-monitor';
+  }
+
+  getHealthSeverityBadgeClass(severity: ReportSeverity): string {
+    switch (severity) {
+      case 'OK':
+        return 'bg-success';
+      case 'WARNING':
+        return 'bg-warning text-dark';
+      case 'CRITICAL':
+        return 'bg-danger';
+      default:
+        return 'bg-secondary';
+    }
   }
 
   private loadDailyVisitorData(): void {

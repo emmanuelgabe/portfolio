@@ -7,6 +7,7 @@ import { environment } from '../environments/environment';
 import { NavbarComponent } from './components/navbar/navbar';
 import { FooterComponent } from './components/footer/footer.component';
 import { OfflineBannerComponent } from './components/offline-banner/offline-banner.component';
+import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
 import { LoggerService } from './services/logger.service';
 import { NavigationHistoryService } from './services/navigation-history.service';
 import { LanguageService } from './services/language.service';
@@ -23,6 +24,7 @@ import { VisitorTrackerService } from './services/visitor-tracker.service';
     NavbarComponent,
     FooterComponent,
     OfflineBannerComponent,
+    ChatWidgetComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],

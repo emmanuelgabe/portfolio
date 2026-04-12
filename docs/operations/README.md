@@ -100,6 +100,7 @@ curl http://localhost:8080/actuator/health/liveness
 | Circuit Breaker | Resilience4j states and metrics |
 | Spring Batch | Job executions, duration, history |
 | Security & Auth | Login attempts, rate limiting |
+| Contact Moderation | Approval rate, rejections/day, moderation response time |
 | Logs Explorer | Loki log queries |
 
 ### 3.3 Accessing Dashboards

@@ -321,6 +321,15 @@ JWT_SECRET=your_jwt_secret_key
 # Optional: Custom ports
 BACKEND_PORT=8080
 FRONTEND_PORT=4200
+
+# AI Features (all disabled by default)
+AI_ENABLED=false
+GOOGLE_GENAI_API_KEY=
+AI_CHAT_RATE_LIMIT=10
+AI_MODERATION_ENABLED=true
+AI_AUTOREPLY_ENABLED=false
+AI_HEALTH_MONITOR_ENABLED=false
+AI_HEALTH_MONITOR_DOCKER_HOST=tcp://docker-socket-proxy:2375
 ```
 
 ### Spring Profiles
@@ -345,6 +354,7 @@ Each profile has its own configuration file:
 | **Backend** | 8080 | 3001 | Internal (8080) |
 | **Database** | 5432 | Internal | Internal |
 | **Nginx** | N/A | 80/443 | 80/443 |
+| **Docker Socket Proxy** | Internal (2375) | Internal (2375) | Internal (2375) |
 
 **Internal Ports:** Accessible only within Docker network, not exposed to host.
 

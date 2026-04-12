@@ -1,0 +1,173 @@
+.health-monitor {
+  padding: 1rem 0;
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.6);
+
+  &.live {
+    background-color: #fff;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+    animation: pulse 1.8s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.stat-card {
+  border-left-width: 4px;
+  border-left-style: solid;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+  }
+
+  h6 {
+    letter-spacing: 0.03em;
+  }
+}
+
+.pending-card {
+  border-radius: 0.5rem;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+.agent-justification {
+  border-left: 3px solid #6c757d;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0 0.75rem 0;
+  background-color: #f8f9fa;
+  font-size: 0.9rem;
+  color: #495057;
+  white-space: pre-wrap;
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 1.75rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0.5rem;
+    width: 2px;
+    background-color: #e9ecef;
+  }
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1.25rem;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -1.5rem;
+  top: 0.35rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: #dee2e6;
+    box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.05);
+  }
+
+  p {
+    color: #343a40;
+    line-height: 1.45;
+  }
+}
+
+.anomalies-block {
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+
+  ul {
+    padding-left: 1.1rem;
+    color: #495057;
+
+    li + li {
+      margin-top: 0.15rem;
+    }
+  }
+}
+
+.table-responsive {
+  .table {
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #6c757d;
+      font-weight: 600;
+    }
+
+    td {
+      vertical-align: middle;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .health-monitor {
+    h1 {
+      font-size: 1.35rem;
+    }
+  }
+
+  .timeline {
+    padding-left: 1.25rem;
+  }
+
+  .timeline-marker {
+    left: -1rem;
+  }
+}
