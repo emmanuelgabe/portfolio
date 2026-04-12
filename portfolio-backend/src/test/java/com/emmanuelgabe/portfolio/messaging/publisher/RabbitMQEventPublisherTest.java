@@ -3,6 +3,7 @@ package com.emmanuelgabe.portfolio.messaging.publisher;
 import com.emmanuelgabe.portfolio.audit.AuditAction;
 import com.emmanuelgabe.portfolio.messaging.config.RabbitMQProperties;
 import com.emmanuelgabe.portfolio.messaging.event.AuditEvent;
+import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ContactEmailEvent;
 import com.emmanuelgabe.portfolio.messaging.event.EmailEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ImageProcessingEvent;
@@ -312,6 +313,49 @@ class RabbitMQEventPublisherTest {
                 event
         );
     }
+
+    // ========== Publish Auto-Reply Event Tests ==========
+
+    @Test
+    void should_publishEvent_when_publishAutoReplyEventCalledWithValidEvent() {
+        // Arrange
+        lenient().when(exchanges.getAutoreply()).thenReturn("portfolio.autoreply.exchange");
+        lenient().when(routingKeys.getAutoreply()).thenReturn("autoreply.generate");
+
+        AutoReplyEvent event = AutoReplyEvent.of(
+                "John Doe", "john@example.com", "Inquiry", "Hello", "owner@example.com");
+
+        // Act
+        eventPublisher.publishAutoReplyEvent(event);
+
+        // Assert
+        verify(rabbitTemplate).convertAndSend(
+                "portfolio.autoreply.exchange",
+                "autoreply.generate",
+                event
+        );
+    }
+
+    @Test
+    void should_throwAmqpException_when_publishAutoReplyEventAndRabbitTemplateThrowsException() {
+        // Arrange
+        lenient().when(exchanges.getAutoreply()).thenReturn("portfolio.autoreply.exchange");
+        lenient().when(routingKeys.getAutoreply()).thenReturn("autoreply.generate");
+
+        AutoReplyEvent event = AutoReplyEvent.of(
+                "John Doe", "john@example.com", "Inquiry", "Hello", "owner@example.com");
+
+        doThrow(new AmqpException("Connection failed"))
+                .when(rabbitTemplate)
+                .convertAndSend("portfolio.autoreply.exchange", "autoreply.generate", event);
+
+        // Act & Assert
+        assertThatThrownBy(() -> eventPublisher.publishAutoReplyEvent(event))
+                .isInstanceOf(AmqpException.class)
+                .hasMessageContaining("Connection failed");
+    }
+
+    // ========== Helper Methods ==========
 
     private EmailEvent createTestEmailEvent() {
         return ContactEmailEvent.builder()

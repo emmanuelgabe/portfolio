@@ -1,0 +1,378 @@
+<div class="health-monitor">
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h1 class="mb-1">
+        <i class="bi bi-heart-pulse me-2 text-danger"></i>
+        {{ 'admin.healthMonitor.title' | translate }}
+      </h1>
+      <p class="text-muted mb-0 small">{{ 'admin.healthMonitor.subtitle' | translate }}</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <span
+        class="badge d-inline-flex align-items-center gap-1"
+        [ngClass]="connected ? 'bg-success' : 'bg-secondary'">
+        <span class="status-dot" [class.live]="connected"></span>
+        {{ (connected ? 'admin.healthMonitor.connected' : 'admin.healthMonitor.disconnected') | translate }}
+      </span>
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="analyzing"
+        (click)="analyzeNow()">
+        @if (analyzing) {
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ 'admin.healthMonitor.analyzing' | translate }}
+        } @else {
+          <i class="bi bi-lightning-charge me-1"></i>
+          {{ 'admin.healthMonitor.analyzeNow' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+
+  @if (demoModeService.isDemoRoute()) {
+    <div class="alert alert-info d-flex align-items-center py-2 mb-4" role="alert">
+      <i class="bi bi-info-circle me-2"></i>
+      <small class="mb-0">{{ 'admin.healthMonitor.demo.banner' | translate }}</small>
+    </div>
+  }
+
+  <!-- Stats row -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm stat-card h-100" [ngClass]="severityBorderClass(currentSeverity)">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase small mb-2">
+            {{ 'admin.healthMonitor.stats.currentStatus' | translate }}
+          </h6>
+          <span class="badge fs-6" [ngClass]="severityBadgeClass(currentSeverity)">
+            {{ 'admin.healthMonitor.severity.' + currentSeverity | translate }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm stat-card h-100 border-warning">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase small mb-2">
+            {{ 'admin.healthMonitor.stats.pendingActions' | translate }}
+          </h6>
+          <div class="d-flex align-items-center gap-2">
+            <h3 class="mb-0 fw-bold">{{ pendingCount }}</h3>
+            <i class="bi bi-hourglass-split text-warning"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm stat-card h-100 border-info">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase small mb-2">
+            {{ 'admin.healthMonitor.stats.recentAnomalies' | translate }}
+          </h6>
+          <div class="d-flex align-items-center gap-2">
+            <h3 class="mb-0 fw-bold">{{ recentAnomaliesCount }}</h3>
+            <i class="bi bi-exclamation-triangle text-info"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="card shadow-sm stat-card h-100 border-secondary">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase small mb-2">
+            {{ 'admin.healthMonitor.stats.lastCycle' | translate }}
+          </h6>
+          <div class="small text-body">
+            @if (lastCycleAt) {
+              {{ formatDate(lastCycleAt) }}
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending actions + Reports timeline -->
+  <div class="row g-4 mb-4">
+    <!-- Pending actions (left) -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="bi bi-hourglass-split me-2 text-warning"></i>
+            {{ 'admin.healthMonitor.pendingSection.title' | translate }}
+          </h5>
+          <span class="badge bg-warning text-dark">{{ pendingCount }}</span>
+        </div>
+        <div class="card-body">
+          @if (loading) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-secondary" role="status"></div>
+            </div>
+          } @else if (pendingActions.length === 0) {
+            <div class="text-center text-muted py-4">
+              <i class="bi bi-check2-circle display-4 d-block mb-2"></i>
+              <small>{{ 'admin.healthMonitor.pendingSection.empty' | translate }}</small>
+            </div>
+          } @else {
+            <div class="d-flex flex-column gap-3">
+              @for (action of pendingActions; track action.id) {
+                <div class="pending-card card border-2" [ngClass]="levelBorderClass(action.level)">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <span class="badge" [ngClass]="levelBadgeClass(action.level)">
+                          {{ 'admin.healthMonitor.actionLevel.' + action.level | translate }}
+                        </span>
+                        <span class="ms-2 fw-semibold">
+                          {{ 'admin.healthMonitor.actionType.' + action.actionType | translate }}
+                        </span>
+                      </div>
+                      <small class="text-muted text-nowrap">
+                        @if (isExpired(action.expiresAt)) {
+                          <span class="text-danger">
+                            <i class="bi bi-clock-fill me-1"></i>
+                            {{ 'admin.healthMonitor.pendingSection.expired' | translate }}
+                          </span>
+                        } @else {
+                          <i class="bi bi-clock me-1"></i>
+                          {{ 'admin.healthMonitor.pendingSection.expiresIn' | translate:{ minutes: minutesUntilExpiry(action.expiresAt) } }}
+                        }
+                      </small>
+                    </div>
+
+                    <blockquote class="agent-justification">
+                      {{ action.justification }}
+                    </blockquote>
+
+                    @if (formatParams(action.params)) {
+                      <div class="small text-muted mb-2">
+                        <i class="bi bi-gear me-1"></i>
+                        <code class="small">{{ formatParams(action.params) }}</code>
+                      </div>
+                    }
+
+                    <div class="d-flex justify-content-end gap-2 mt-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="openRejectModal(action)">
+                        <i class="bi bi-x-lg me-1"></i>
+                        {{ 'admin.healthMonitor.modal.reject' | translate }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm"
+                        [ngClass]="action.level === 'RED' ? 'btn-danger' : 'btn-success'"
+                        (click)="openApproveModal(action)">
+                        <i class="bi bi-check2 me-1"></i>
+                        {{ 'admin.healthMonitor.modal.approve' | translate }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports timeline (right) -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">
+            <i class="bi bi-journal-text me-2 text-primary"></i>
+            {{ 'admin.healthMonitor.reportsSection.title' | translate }}
+          </h5>
+        </div>
+        <div class="card-body">
+          @if (loading) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-secondary" role="status"></div>
+            </div>
+          } @else if (reports.length === 0) {
+            <div class="text-center text-muted py-4">
+              <i class="bi bi-hourglass display-4 d-block mb-2"></i>
+              <small>{{ 'admin.healthMonitor.reportsSection.empty' | translate }}</small>
+            </div>
+          } @else {
+            <div class="timeline">
+              @for (report of reports; track report.id) {
+                <div class="timeline-item" [ngClass]="severityBorderClass(report.severity)">
+                  <div class="timeline-marker" [ngClass]="severityBadgeClass(report.severity)"></div>
+                  <div class="timeline-content">
+                    <div class="d-flex justify-content-between align-items-start mb-1 flex-wrap gap-1">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge" [ngClass]="severityBadgeClass(report.severity)">
+                          {{ 'admin.healthMonitor.severity.' + report.severity | translate }}
+                        </span>
+                        <small class="text-muted">
+                          <i class="bi me-1" [ngClass]="cycleIcon(report.cycleType)"></i>
+                          {{ 'admin.healthMonitor.cycleType.' + report.cycleType | translate }}
+                        </small>
+                      </div>
+                      <small class="text-muted">{{ formatDate(report.createdAt) }}</small>
+                    </div>
+                    <p class="mb-2 small">{{ report.summary }}</p>
+                    <div class="d-flex flex-wrap gap-3 text-muted small mb-2">
+                      @if (report.toolCalls.length > 0) {
+                        <span>
+                          <i class="bi bi-tools me-1"></i>
+                          {{ 'admin.healthMonitor.reportsSection.toolsCalled' | translate:{ count: report.toolCalls.length } }}
+                        </span>
+                      }
+                      <span>
+                        <i class="bi bi-stopwatch me-1"></i>
+                        {{ 'admin.healthMonitor.reportsSection.duration' | translate:{ ms: report.durationMs } }}
+                      </span>
+                    </div>
+                    @if (report.anomalies.length > 0) {
+                      <button
+                        type="button"
+                        class="btn btn-link btn-sm px-0 small"
+                        (click)="toggleReport(report.id)">
+                        @if (isExpanded(report.id)) {
+                          <i class="bi bi-chevron-up me-1"></i>
+                          {{ 'admin.healthMonitor.reportsSection.viewLess' | translate }}
+                        } @else {
+                          <i class="bi bi-chevron-down me-1"></i>
+                          {{ 'admin.healthMonitor.reportsSection.viewMore' | translate }}
+                        }
+                      </button>
+                      @if (isExpanded(report.id)) {
+                        <div class="anomalies-block mt-2">
+                          <small class="text-muted text-uppercase d-block mb-1">
+                            {{ 'admin.healthMonitor.reportsSection.anomalies' | translate }}
+                          </small>
+                          <ul class="small mb-0">
+                            @for (anomaly of report.anomalies; track anomaly) {
+                              <li>{{ anomaly }}</li>
+                            }
+                          </ul>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision history -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <h5 class="mb-0">
+        <i class="bi bi-clock-history me-2 text-secondary"></i>
+        {{ 'admin.healthMonitor.historySection.title' | translate }}
+      </h5>
+    </div>
+    <div class="card-body">
+      <!-- Filters -->
+      <div class="row g-2 mb-3">
+        <div class="col-md-4">
+          <label class="form-label small text-muted mb-1">
+            {{ 'admin.healthMonitor.historySection.filterStatus' | translate }}
+          </label>
+          <select class="form-select form-select-sm" [(ngModel)]="statusFilter">
+            <option [ngValue]="undefined">
+              {{ 'admin.healthMonitor.historySection.allStatuses' | translate }}
+            </option>
+            @for (status of statusOptions; track status) {
+              <option [ngValue]="status">
+                {{ 'admin.healthMonitor.actionStatus.' + status | translate }}
+              </option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small text-muted mb-1">
+            {{ 'admin.healthMonitor.historySection.filterLevel' | translate }}
+          </label>
+          <select class="form-select form-select-sm" [(ngModel)]="levelFilter">
+            <option [ngValue]="undefined">
+              {{ 'admin.healthMonitor.historySection.allLevels' | translate }}
+            </option>
+            @for (level of levelOptions; track level) {
+              <option [ngValue]="level">
+                {{ 'admin.healthMonitor.actionLevel.' + level | translate }}
+              </option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="clearHistoryFilters()">
+            <i class="bi bi-x-circle me-1"></i>
+            {{ 'admin.healthMonitor.historySection.clearFilters' | translate }}
+          </button>
+        </div>
+      </div>
+
+      @if (historyLoading) {
+        <div class="text-center py-4">
+          <div class="spinner-border text-secondary" role="status"></div>
+        </div>
+      } @else if (filteredHistory.length === 0) {
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-inbox display-4 d-block mb-2"></i>
+          <small>{{ 'admin.healthMonitor.historySection.empty' | translate }}</small>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>{{ 'admin.healthMonitor.historySection.date' | translate }}</th>
+                <th>{{ 'admin.healthMonitor.historySection.level' | translate }}</th>
+                <th>{{ 'admin.healthMonitor.historySection.type' | translate }}</th>
+                <th>{{ 'admin.healthMonitor.historySection.status' | translate }}</th>
+                <th>{{ 'admin.healthMonitor.historySection.decidedBy' | translate }}</th>
+                <th>{{ 'admin.healthMonitor.historySection.reason' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (action of filteredHistory; track action.id) {
+                <tr>
+                  <td class="small text-muted text-nowrap">{{ formatDate(action.createdAt) }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="levelBadgeClass(action.level)">
+                      {{ 'admin.healthMonitor.actionLevel.' + action.level | translate }}
+                    </span>
+                  </td>
+                  <td class="small">
+                    {{ 'admin.healthMonitor.actionType.' + action.actionType | translate }}
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="statusBadgeClass(action.status)">
+                      {{ 'admin.healthMonitor.actionStatus.' + action.status | translate }}
+                    </span>
+                  </td>
+                  <td class="small">{{ action.approvedBy ?? '-' }}</td>
+                  <td class="small text-muted">
+                    {{ action.rejectionReason ?? action.resultMessage ?? '-' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -30,6 +30,8 @@ public class RabbitMQProperties {
         private String imageDlq = "portfolio.image.dlq";
         private String audit = "portfolio.audit.queue";
         private String auditDlq = "portfolio.audit.dlq";
+        private String autoreply = "portfolio.autoreply.queue";
+        private String autoreplyDlq = "portfolio.autoreply.dlq";
     }
 
     @Getter
@@ -38,6 +40,7 @@ public class RabbitMQProperties {
         private String email = "portfolio.email.exchange";
         private String image = "portfolio.image.exchange";
         private String audit = "portfolio.audit.exchange";
+        private String autoreply = "portfolio.autoreply.exchange";
         private String dlx = "portfolio.dlx.exchange";
     }
 
@@ -50,5 +53,7 @@ public class RabbitMQProperties {
         private String imageDlq = "image.dlq";
         private String audit = "audit.log";
         private String auditDlq = "audit.dlq";
+        private String autoreply = "autoreply.generate";
+        private String autoreplyDlq = "autoreply.dlq";
     }
 }

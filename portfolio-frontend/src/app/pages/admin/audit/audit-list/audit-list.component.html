@@ -1,31 +1,21 @@
 <div class="audit-list">
-  <!-- Demo Mode Placeholder -->
-  @if (demoModeService.isDemoRoute()) {
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>{{ 'admin.audit.title' | translate }}</h1>
-    </div>
-    <div class="card shadow-sm">
-      <div class="card-body text-center py-5">
-        <i class="bi bi-lock display-1 text-muted mb-4"></i>
-        <h3 class="text-muted mb-3">{{ 'admin.audit.title' | translate }}</h3>
-        <p class="text-muted mb-2">
-          {{ 'admin.audit.demoUnavailable' | translate }}
-        </p>
-        <p class="text-muted small">
-          {{ 'admin.audit.demoDescription' | translate }}
-        </p>
-      </div>
-    </div>
-  } @else {
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>{{ 'admin.audit.title' | translate }}</h1>
     <div class="btn-group">
-      <button class="btn btn-outline-secondary" (click)="exportCsv()">
+      <button
+        class="btn btn-outline-secondary"
+        appDemoDisabled
+        [disabled]="demoModeService.isDemoRoute()"
+        (click)="exportCsv()">
         <i class="bi bi-file-earmark-spreadsheet me-2"></i>
         {{ 'admin.audit.exportCsv' | translate }}
       </button>
-      <button class="btn btn-outline-secondary" (click)="exportJson()">
+      <button
+        class="btn btn-outline-secondary"
+        appDemoDisabled
+        [disabled]="demoModeService.isDemoRoute()"
+        (click)="exportJson()">
         <i class="bi bi-file-earmark-code me-2"></i>
         {{ 'admin.audit.exportJson' | translate }}
       </button>
@@ -240,5 +230,4 @@
       </nav>
     </div>
   </div>
-  }
 </div>

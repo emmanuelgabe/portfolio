@@ -57,6 +57,20 @@ services:
       - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-}
       - JWT_SECRET=${JWT_SECRET:-}
       - SENTRY_DSN=${SENTRY_DSN:-}
+      - AI_HEALTH_MONITOR_ENABLED=${AI_HEALTH_MONITOR_ENABLED:-false}
+      - AI_HEALTH_MONITOR_DOCKER_HOST=${AI_HEALTH_MONITOR_DOCKER_HOST:-tcp://docker-socket-proxy:2375}
+      - AI_HEALTH_MONITOR_DEMO_MODE=${AI_HEALTH_MONITOR_DEMO_MODE:-false}
+      - AI_HEALTH_MONITOR_CRON=${AI_HEALTH_MONITOR_CRON:-0 */15 * * * *}
+      - AI_HEALTH_MONITOR_BYPASS_PRECHECK=${AI_HEALTH_MONITOR_BYPASS_PRECHECK:-true}
+      - AI_HEALTH_MONITOR_EXPIRATION_MINUTES=${AI_HEALTH_MONITOR_EXPIRATION_MINUTES:-60}
+      - AI_HEALTH_MONITOR_MAX_MUTATIONS=${AI_HEALTH_MONITOR_MAX_MUTATIONS:-10}
+      - AI_HEALTH_MONITOR_REPORTS_CONTEXT=${AI_HEALTH_MONITOR_REPORTS_CONTEXT:-3}
+      - AI_HEALTH_MONITOR_REJECTED_CONTEXT=${AI_HEALTH_MONITOR_REJECTED_CONTEXT:-5}
+      - AI_HEALTH_MONITOR_LOG_LINES=${AI_HEALTH_MONITOR_LOG_LINES:-50}
+      - AI_ENABLED=${AI_ENABLED:-false}
+      - GOOGLE_GENAI_API_KEY=${GOOGLE_GENAI_API_KEY:-}
+      - AI_MODERATION_ENABLED=${AI_MODERATION_ENABLED:-true}
+      - AI_AUTOREPLY_ENABLED=${AI_AUTOREPLY_ENABLED:-false}
     volumes:
       - portfolio_uploads:/app/uploads
     depends_on:
@@ -183,6 +197,33 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    container_name: portfolio-docker-proxy
+    environment:
+      # Principle of least privilege: only expose what the health agent needs
+      CONTAINERS: 1   # GET /containers/json, /containers/{id}/json, /logs, /stats
+      POST: 1         # POST /containers/{id}/restart
+      # All others disabled by default: IMAGES=0, VOLUMES=0, NETWORKS=0,
+      # EXEC=0, BUILD=0, SERVICES=0, SWARM=0, SYSTEM=0, TASKS=0, PLUGINS=0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - portfolio-net
+    restart: unless-stopped
+    # tecnativa/docker-socket-proxy needs to write its generated haproxy.cfg
+    # at /usr/local/etc/haproxy on startup, so the rootfs cannot be read-only.
+    # The container is still hardened with no-new-privileges and the docker
+    # socket is mounted read-only.
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:2375/_ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   nginx-portfolio:
     image: nginx:1.27.3-alpine

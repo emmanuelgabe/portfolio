@@ -34,6 +34,12 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 
+    <!-- Exclude moderation DTOs - AI response data carriers -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.moderation.AiModerationResponse"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
     <!-- Exclude GraphQL types and inputs - Data carriers for GraphQL API -->
     <Match>
         <Package name="~com\.emmanuelgabe\.portfolio\.graphql\.type.*"/>
@@ -98,10 +104,38 @@
         </Or>
     </Match>
 
-    <!-- Exclude VA_FORMAT_STRING_USES_NEWLINE for HTML templates -->
+    <!-- Exclude EI_EXPOSE_REP for AI service beans (manually wired via @Configuration classes,
+         Lombok SOURCE-retention annotations are not visible to SpotBugs bytecode analysis) -->
+    <Match>
+        <Or>
+            <Package name="~com\.emmanuelgabe\.portfolio\.chat.*"/>
+            <Package name="~com\.emmanuelgabe\.portfolio\.autoreply.*"/>
+            <Package name="~com\.emmanuelgabe\.portfolio\.moderation.*"/>
+            <Package name="~com\.emmanuelgabe\.portfolio\.healthmonitor.*"/>
+        </Or>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- HealthToolCallTracker: looks like a singleton due to noop() factory but
+         is intentionally a regular class with a public ctor for per-cycle instances -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.healthmonitor.HealthToolCallTracker"/>
+        <Bug pattern="SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR"/>
+    </Match>
+
+    <!-- Exclude VA_FORMAT_STRING_USES_NEWLINE for HTML templates and AI prompts -->
     <Match>
         <Class name="com.emmanuelgabe.portfolio.service.impl.ContactServiceImpl"/>
         <Method name="buildEmailContent"/>
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    </Match>
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.moderation.ModerationPromptBuilder"/>
+        <Method name="buildUserPrompt"/>
+        <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+    </Match>
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.messaging.consumer.AutoReplyConsumer"/>
         <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
     </Match>
 
@@ -114,6 +148,15 @@
             <Class name="com.emmanuelgabe.portfolio.service.ImageProcessorService"/>
             <Class name="com.emmanuelgabe.portfolio.service.impl.SitemapServiceImpl"/>
         </Or>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
+    <!-- ChatController.buildSseEvent: ServerSentEvent is a record with immutable
+         accessors; ternary null-checks are correct but SpotBugs dataflow cannot
+         prove record accessor stability between calls -->
+    <Match>
+        <Class name="com.emmanuelgabe.portfolio.controller.ChatController"/>
+        <Method name="buildSseEvent"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
 

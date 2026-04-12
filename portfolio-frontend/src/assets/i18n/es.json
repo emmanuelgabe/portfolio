@@ -539,7 +539,12 @@
       "imageUploadSuccess": "Foto de perfil actualizada",
       "imageUploadError": "Error al subir la foto",
       "imageDeleteSuccess": "Foto de perfil eliminada",
-      "imageDeleteError": "Error al eliminar la foto"
+      "imageDeleteError": "Error al eliminar la foto",
+      "chatbotSection": "Chatbot",
+      "chatbotDescription": "Configuracion del chatbot IA integrado en el sitio.",
+      "chatbotInfoUrl": "URL de informacion AI-powered",
+      "chatbotInfoUrlPlaceholder": "https://ejemplo.com/articulo-chatbot",
+      "chatbotInfoUrlHelp": "Enlace mostrado en la insignia 'AI-powered' del widget de chat. Dejar vacio para no mostrar enlace."
     },
     "audit": {
       "title": "Registros de auditoria",
@@ -622,6 +627,46 @@
         "title": "Responsabilidad",
         "description": "El editor no puede ser considerado responsable de errores u omisiones en este sitio web, ni de danos directos o indirectos resultantes de su uso."
       }
+    }
+  },
+  "chat": {
+    "title": "Asistente",
+    "toggleLabel": "Abrir chat",
+    "panelLabel": "Chat con asistente IA",
+    "closeLabel": "Cerrar chat",
+    "welcome": "Hola! Soy el asistente IA de este portfolio. Pregunteme sobre proyectos, habilidades o experiencia.",
+    "inputPlaceholder": "Escriba su mensaje...",
+    "inputLabel": "Mensaje",
+    "sendLabel": "Enviar",
+    "error": "Lo siento, ocurrio un error. Por favor, intentelo de nuevo o use el formulario de contacto.",
+    "openContactForm": "Abrir formulario de contacto",
+    "rateLimitWarning": "Le quedan {{remaining}} mensaje(s) disponible(s).",
+    "rateLimitExhausted": "Limite de mensajes alcanzado. Por favor, intentelo mas tarde.",
+    "starters": {
+      "projects": "Cuales son sus principales proyectos?",
+      "skills": "Cuales son sus habilidades tecnicas?",
+      "experience": "Hableme de su trayectoria profesional.",
+      "contact": "Como puedo contactarle?"
+    },
+    "suggestions": {
+      "moreDetails": "Mas detalles",
+      "otherProjects": "Otros proyectos?",
+      "contactMe": "Quisiera contactarle"
+    },
+    "tools": {
+      "searchProjects": "Buscando proyectos",
+      "listProjects": "Revisando todos los proyectos",
+      "getFeaturedProjects": "Seleccionando proyectos destacados",
+      "getProjectDetails": "Cargando detalles del proyecto",
+      "listArticles": "Consultando articulos",
+      "getArticle": "Leyendo articulo",
+      "listExperiences": "Consultando experiencia",
+      "getRecentExperiences": "Experiencia reciente",
+      "listSkills": "Consultando habilidades",
+      "getSiteConfig": "Informacion del sitio",
+      "getCurrentCV": "Consultando CV",
+      "prepareContact": "Preparando contacto",
+      "searchPortfolio": "Buscando en el portfolio"
     }
   }
 }

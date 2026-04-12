@@ -18,6 +18,8 @@
 13. [GraphQL](#13-graphql)
 14. [Sitemap](#14-sitemap)
 15. [Caching](#15-caching)
+16. [AI / Spring AI](#16-ai--spring-ai)
+17. [Contact Retention](#17-contact-retention)
 
 ---
 
@@ -248,6 +250,7 @@ rabbitmq:
     email: portfolio.email.queue
     image: portfolio.image.queue
     audit: portfolio.audit.queue
+    autoreply: portfolio.autoreply.queue
 ```
 
 **Environment Variables**:
@@ -405,6 +408,152 @@ spring:
 
 ---
 
+## 16. AI / Spring AI
+
+### 16.1 Master Switch
+
+```yaml
+ai:
+  enabled: ${AI_ENABLED:false}  # Global AI feature flag
+```
+
+**Environment Variables**:
+- `AI_ENABLED` - Enable all AI features (default: false)
+- `GOOGLE_GENAI_API_KEY` - Google Gemini API key (required when AI enabled)
+
+### 16.2 Model Configuration
+
+```yaml
+spring.ai.google.genai:
+  api-key: ${GOOGLE_GENAI_API_KEY:}
+  chat:
+    options:
+      model: ${AI_CHAT_MODEL:gemini-2.5-flash}
+      temperature: ${AI_CHAT_TEMPERATURE:0.7}
+      max-output-tokens: ${AI_CHAT_MAX_TOKENS:500}
+  embedding:
+    text:
+      options:
+        model: ${AI_EMBEDDING_MODEL:gemini-embedding-001}
+```
+
+**Environment Variables**:
+- `AI_CHAT_MODEL` - LLM model name (default: gemini-2.5-flash)
+- `AI_CHAT_TEMPERATURE` - Response creativity (default: 0.7)
+- `AI_CHAT_MAX_TOKENS` - Max response tokens (default: 500)
+- `AI_EMBEDDING_MODEL` - Embedding model (default: gemini-embedding-001)
+
+### 16.3 Chatbot
+
+```yaml
+ai:
+  chat:
+    rate-limit:
+      max-requests-per-hour: ${AI_CHAT_RATE_LIMIT:10}
+    memory:
+      window-size: 20              # Messages per conversation
+      idle-ttl-minutes: 120        # Conversation eviction timeout
+      max-conversations: 1000     # Max concurrent conversations
+      cleanup-interval-ms: 1800000 # Eviction task interval (30 min)
+```
+
+**Environment Variables**:
+- `AI_CHAT_RATE_LIMIT` - Chat rate limit per IP/hour (default: 10, dev: 100)
+
+### 16.4 Embeddings / Vector Store
+
+```yaml
+ai:
+  embedding:
+    index-name: ${AI_EMBEDDING_INDEX:portfolio-embeddings}
+    dimensions: ${AI_EMBEDDING_DIMENSIONS:3072}
+
+batch:
+  embedding-ingestion:
+    cron: ${BATCH_EMBEDDING_INGESTION_CRON:0 0 4 * * SUN}  # Weekly Sunday 4 AM
+```
+
+**Environment Variables**:
+- `AI_EMBEDDING_INDEX` - Elasticsearch index name (default: portfolio-embeddings)
+- `AI_EMBEDDING_DIMENSIONS` - Vector dimensions (default: 3072)
+- `BATCH_EMBEDDING_INGESTION_CRON` - Embedding ingestion schedule
+
+### 16.5 Contact Moderation
+
+```yaml
+ai:
+  moderation:
+    enabled: ${AI_MODERATION_ENABLED:true}
+    timeout-seconds: ${AI_MODERATION_TIMEOUT:5}
+```
+
+**Environment Variables**:
+- `AI_MODERATION_ENABLED` - Enable contact moderation (default: true)
+- `AI_MODERATION_TIMEOUT` - Moderation AI timeout in seconds (default: 5)
+
+### 16.6 Auto-Reply
+
+```yaml
+ai:
+  autoreply:
+    enabled: ${AI_AUTOREPLY_ENABLED:false}
+    timeout-seconds: ${AI_AUTOREPLY_TIMEOUT:10}
+    max-documents: ${AI_AUTOREPLY_MAX_DOCS:5}
+```
+
+**Environment Variables**:
+- `AI_AUTOREPLY_ENABLED` - Enable auto-reply (default: false)
+- `AI_AUTOREPLY_TIMEOUT` - Reply generation timeout in seconds (default: 10)
+- `AI_AUTOREPLY_MAX_DOCS` - Max RAG documents retrieved (default: 5)
+
+### 16.7 Health Monitor
+
+```yaml
+ai:
+  health-monitor:
+    enabled: ${AI_HEALTH_MONITOR_ENABLED:false}
+    demo-mode: ${AI_HEALTH_MONITOR_DEMO_MODE:false}
+    schedule-cron: ${AI_HEALTH_MONITOR_CRON:0 */15 * * * *}
+    on-demand-bypass-precheck: ${AI_HEALTH_MONITOR_BYPASS_PRECHECK:true}
+    action-expiration-minutes: ${AI_HEALTH_MONITOR_EXPIRATION_MINUTES:60}
+    max-mutations-per-hour: ${AI_HEALTH_MONITOR_MAX_MUTATIONS:10}
+    docker:
+      host: ${AI_HEALTH_MONITOR_DOCKER_HOST:tcp://docker-socket-proxy:2375}
+    history:
+      reports-in-context: ${AI_HEALTH_MONITOR_REPORTS_CONTEXT:3}
+      rejected-actions-in-context: ${AI_HEALTH_MONITOR_REJECTED_CONTEXT:5}
+    logs:
+      max-lines-per-call: ${AI_HEALTH_MONITOR_LOG_LINES:50}
+```
+
+**Environment Variables**:
+- `AI_HEALTH_MONITOR_ENABLED` - Enable health monitor (default: false)
+- `AI_HEALTH_MONITOR_DEMO_MODE` - Mock data mode (default: false)
+- `AI_HEALTH_MONITOR_CRON` - Diagnostic cycle interval (default: every 15 min)
+- `AI_HEALTH_MONITOR_DOCKER_HOST` - Docker proxy address (default: tcp://docker-socket-proxy:2375)
+- `AI_HEALTH_MONITOR_BYPASS_PRECHECK` - Skip pre-check for manual triggers (default: true)
+- `AI_HEALTH_MONITOR_EXPIRATION_MINUTES` - Pending action TTL (default: 60)
+- `AI_HEALTH_MONITOR_MAX_MUTATIONS` - Max executed actions/hour (default: 10)
+- `AI_HEALTH_MONITOR_REPORTS_CONTEXT` - Recent reports in LLM prompt (default: 3)
+- `AI_HEALTH_MONITOR_REJECTED_CONTEXT` - Rejected actions in LLM prompt (default: 5)
+- `AI_HEALTH_MONITOR_LOG_LINES` - Max log lines per tool call (default: 50)
+
+---
+
+## 17. Contact Retention
+
+```yaml
+contact:
+  retention:
+    months: ${CONTACT_RETENTION_MONTHS:12}
+    cron: "0 30 3 * * ?"  # Daily at 3:30 AM
+```
+
+**Environment Variables**:
+- `CONTACT_RETENTION_MONTHS` - GDPR retention period in months (default: 12)
+
+---
+
 ## Related Documentation
 
 - [Development: Setup](../development/setup.md) - Environment setup
@@ -415,3 +564,6 @@ spring:
 - [Features: Event Streaming](../features/event-streaming.md) - Kafka usage
 - [Features: Search](../features/search.md) - Elasticsearch usage
 - [Features: Batch Processing](../features/batch-processing.md) - Batch jobs
+- [Features: AI Chatbot](../features/ai-chatbot.md) - Chatbot configuration
+- [Features: Contact Moderation](../features/contact-moderation.md) - Moderation configuration
+- [Features: Health Monitor](../features/health-monitor.md) - Health monitor configuration

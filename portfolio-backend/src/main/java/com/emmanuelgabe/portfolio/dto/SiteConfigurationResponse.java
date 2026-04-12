@@ -25,6 +25,7 @@ public class SiteConfigurationResponse {
     private String profileImageUrl;
     private String githubUrl;
     private String linkedinUrl;
+    private String chatbotInfoUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

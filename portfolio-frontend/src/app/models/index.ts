@@ -8,3 +8,4 @@ export * from './cv.model';
 export * from './auth.model';
 export * from './image-upload-response.model';
 export * from './site-configuration.model';
+export * from './chat.model';

@@ -185,6 +185,7 @@ spring:
 ## Related Documentation
 
 - [Contact API](../api/contact.md) - Complete API reference
+- [Contact Moderation](./contact-moderation.md) - AI moderation, auto-reply, and admin endpoints
 - [Security: Rate Limiting](../security/rate-limiting.md) - Rate limiting details
 - [Reference: Configuration Properties](../reference/configuration-properties.md) - All configuration options
 - [Features: Messaging](./messaging.md) - RabbitMQ async email sending

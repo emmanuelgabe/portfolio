@@ -30,4 +30,9 @@
     <suppress checks="ParameterNumber" files=".*AuditServiceImpl\.java"/>
     <suppress checks="ParameterNumber" files=".*AdminAuditController\.java"/>
     <suppress checks="ParameterNumber" files=".*AuditEvent\.java"/>
+
+    <!-- Suppress ParameterNumber for health monitor orchestrators that wire many collaborators -->
+    <suppress checks="ParameterNumber" files=".*ActionExecutorImpl\.java"/>
+    <suppress checks="ParameterNumber" files=".*HealthAgentBeanConfig\.java"/>
+    <suppress checks="ParameterNumber" files=".*AdminHealthMonitorController\.java"/>
 </suppressions>

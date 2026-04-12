@@ -16,7 +16,9 @@ public enum AuditEntityType {
     TAG("Tag"),
     CV("Cv"),
     SITE_CONFIGURATION("SiteConfiguration"),
-    USER("User");
+    USER("User"),
+    HEALTH_REPORT("HealthReport"),
+    HEALTH_PROPOSED_ACTION("HealthProposedAction");
 
     private final String name;
 

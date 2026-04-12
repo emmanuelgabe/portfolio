@@ -39,6 +39,7 @@ The Portfolio Application is a full-stack web application built with a modern th
 | Message Queue | RabbitMQ | 3.12 |
 | Event Streaming | Kafka | 3.5 |
 | Search | Elasticsearch | 8.x |
+| AI | Spring AI + Google Gemini | 1.0 |
 | Reverse Proxy | Nginx | 1.27 |
 | Containerization | Docker & Docker Compose | 20.10+ |
 | CI/CD | GitHub Actions | N/A |
@@ -74,8 +75,9 @@ The Portfolio Application is a full-stack web application built with a modern th
 │  - SPA (Single Page)    │   │  - REST API + GraphQL API          │
 │  - Responsive UI        │   │  - Business Logic                  │
 │  - PWA Support          │   │  - Spring Security (JWT)           │
-│  Port: 4200             │   │  - Spring Batch Jobs               │
-└─────────────────────────┘   │  - Circuit Breaker (Resilience4j)  │
+│  Port: 4200             │   │  - Spring AI (Gemini)              │
+└─────────────────────────┘   │  - Spring Batch Jobs               │
+                              │  - Circuit Breaker (Resilience4j)  │
                               │  Port: 8080                         │
                               └────────────┬───────────────────────┘
                                            │
@@ -186,6 +188,7 @@ API Request → RabbitMQ Producer
 | RabbitMQ Management | 15672 | HTTP |
 | Kafka | 9092 | TCP |
 | Elasticsearch | 9200 | HTTP |
+| Docker Socket Proxy | 2375 | HTTP (internal) |
 | Prometheus | 9090 | HTTP |
 | Grafana | 3001 | HTTP |
 | Loki | 3100 | HTTP |
@@ -198,7 +201,9 @@ Backend depends on:
 ├── Redis (required for rate limiting)
 ├── RabbitMQ (required for async)
 ├── Elasticsearch (optional, fallback to JPA)
-└── Kafka (optional, feature flag)
+├── Kafka (optional, feature flag)
+├── Google Gemini API (optional, ai.enabled flag)
+└── Docker Socket Proxy (optional, health monitor only)
 ```
 
 ---

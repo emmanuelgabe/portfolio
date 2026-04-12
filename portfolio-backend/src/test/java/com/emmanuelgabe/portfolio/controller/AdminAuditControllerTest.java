@@ -283,7 +283,7 @@ class AdminAuditControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(8)))
+                .andExpect(jsonPath("$", hasSize(10)))
                 .andExpect(jsonPath("$[0]").value("Project"))
                 .andExpect(jsonPath("$[1]").value("Article"));
     }

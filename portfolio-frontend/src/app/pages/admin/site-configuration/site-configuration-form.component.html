@@ -314,6 +314,38 @@
         </div>
       </div>
 
+      <!-- Chatbot Section -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-robot me-2"></i>{{ 'admin.siteConfig.chatbotSection' | translate }}</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">
+            {{ 'admin.siteConfig.chatbotDescription' | translate }}
+          </p>
+
+          <!-- Chatbot Info URL -->
+          <div class="mb-3">
+            <label for="chatbotInfoUrl" class="form-label">
+              {{ 'admin.siteConfig.chatbotInfoUrl' | translate }}
+            </label>
+            <input
+              type="url"
+              id="chatbotInfoUrl"
+              class="form-control"
+              formControlName="chatbotInfoUrl"
+              [class.is-invalid]="isFieldInvalid('chatbotInfoUrl')"
+              [readonly]="demoModeService.isDemo()"
+              [placeholder]="'admin.siteConfig.chatbotInfoUrlPlaceholder' | translate"
+            />
+            <div class="form-text">{{ 'admin.siteConfig.chatbotInfoUrlHelp' | translate }}</div>
+            <div class="invalid-feedback" *ngIf="hasError('chatbotInfoUrl', 'maxlength')">
+              {{ 'admin.validation.maxLength' | translate:{ max: 500 } }}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Form Actions -->
       <div class="d-flex justify-content-between pt-3">
         <button type="button" class="btn btn-outline-secondary" (click)="goBack()">

@@ -188,6 +188,8 @@
       "experiences": "Expériences",
       "articles": "Articles",
       "cv": "CV",
+      "contacts": "Contacts",
+      "healthMonitor": "Santé Système",
       "audit": "Journaux d'audit",
       "backToSite": "Retour au site",
       "brand": "Portfolio Admin"
@@ -233,7 +235,9 @@
       "cbSuccesses": "Succès",
       "noCircuitBreakers": "Aucun disjoncteur configuré",
       "toggleChart": "Afficher/Masquer le graphique",
-      "last7Days": "7 derniers jours"
+      "last7Days": "7 derniers jours",
+      "openHealthMonitor": "Ouvrir le moniteur de santé",
+      "healthMonitorUnavailable": "Moniteur de santé indisponible"
     },
     "common": {
       "back": "Retour",
@@ -560,7 +564,155 @@
       "imageUploadSuccess": "Photo de profil mise à jour",
       "imageUploadError": "Erreur lors du téléchargement de la photo",
       "imageDeleteSuccess": "Photo de profil supprimée",
-      "imageDeleteError": "Erreur lors de la suppression de la photo"
+      "imageDeleteError": "Erreur lors de la suppression de la photo",
+      "chatbotSection": "Chatbot",
+      "chatbotDescription": "Configuration du chatbot IA intégré au site.",
+      "chatbotInfoUrl": "URL d'information AI-powered",
+      "chatbotInfoUrlPlaceholder": "https://exemple.com/article-chatbot",
+      "chatbotInfoUrlHelp": "Lien affiché sur le badge 'AI-powered' dans le widget de chat. Laissez vide pour ne pas afficher de lien."
+    },
+    "contacts": {
+      "title": "Modération des contacts",
+      "period": "Période",
+      "lastDays": "{{days}} derniers jours",
+      "totalContacts": "Total contacts",
+      "approved": "Approuvés",
+      "rejected": "Rejetés",
+      "categoryBreakdown": "Répartition par catégorie",
+      "categoryFilter": "Catégorie",
+      "allCategories": "Toutes les catégories",
+      "clearFilters": "Effacer les filtres",
+      "date": "Date",
+      "name": "Nom",
+      "subject": "Sujet",
+      "category": "Catégorie",
+      "verdict": "Verdict",
+      "confidence": "Confiance",
+      "noContacts": "Aucun contact enregistré",
+      "loadError": "Erreur lors du chargement des contacts",
+      "showing": "Affichage",
+      "of": "sur",
+      "categories": {
+        "MISSION": "Mission",
+        "QUESTION": "Question",
+        "FEEDBACK": "Retour",
+        "SPAM": "Spam",
+        "INAPPROPRIATE": "Inapproprié"
+      },
+      "verdicts": {
+        "APPROVED": "Approuvé",
+        "REJECTED": "Rejeté"
+      }
+    },
+    "healthMonitor": {
+      "title": "Agent de santé système",
+      "subtitle": "Diagnostic IA en temps réel avec actions à confirmation humaine",
+      "analyzeNow": "Analyser maintenant",
+      "analyzing": "Analyse en cours...",
+      "connected": "En direct",
+      "disconnected": "Hors ligne",
+      "stats": {
+        "currentStatus": "Statut actuel",
+        "pendingActions": "Actions en attente",
+        "recentAnomalies": "Anomalies récentes",
+        "lastCycle": "Dernier cycle"
+      },
+      "severity": {
+        "OK": "Normal",
+        "WARNING": "Attention",
+        "CRITICAL": "Critique",
+        "UNKNOWN": "Indéterminé"
+      },
+      "cycleType": {
+        "SCHEDULED": "Planifié",
+        "ON_DEMAND": "À la demande",
+        "PRECHECK_ONLY": "Pré-vérif seule"
+      },
+      "actionLevel": {
+        "GREEN": "Observation",
+        "ORANGE": "Récupération",
+        "RED": "Critique"
+      },
+      "actionStatus": {
+        "PENDING": "En attente",
+        "APPROVED": "Approuvée",
+        "REJECTED": "Refusée",
+        "EXECUTED": "Exécutée",
+        "FAILED": "Échouée",
+        "EXPIRED": "Expirée"
+      },
+      "actionType": {
+        "FLUSH_REDIS_CACHE": "Vider le cache Redis",
+        "RETRY_DLQ_MESSAGES": "Rejouer la DLQ",
+        "REINDEX_ELASTICSEARCH": "Réindexer Elasticsearch",
+        "TRIGGER_IMAGE_REPROCESSING": "Retraiter les images",
+        "RESTART_SERVICE": "Redémarrer un service"
+      },
+      "pendingSection": {
+        "title": "Actions à approuver",
+        "empty": "Aucune action en attente. L'agent n'a rien à proposer pour le moment.",
+        "expiresIn": "Expire dans {{minutes}} min",
+        "expired": "Expirée",
+        "justification": "Justification de l'agent",
+        "parameters": "Paramètres",
+        "proposedAt": "Proposée le {{date}}"
+      },
+      "reportsSection": {
+        "title": "Rapports de diagnostic",
+        "empty": "Aucun rapport disponible. L'agent analysera bientôt l'infrastructure.",
+        "toolsCalled": "{{count}} outils appelés",
+        "duration": "{{ms}} ms",
+        "proposedActions": "{{count}} action(s) proposée(s)",
+        "anomalies": "Anomalies détectées",
+        "noAnomalies": "Aucune anomalie détectée",
+        "viewMore": "Voir plus",
+        "viewLess": "Voir moins"
+      },
+      "historySection": {
+        "title": "Historique des décisions",
+        "empty": "Aucune décision enregistrée.",
+        "date": "Date",
+        "level": "Niveau",
+        "type": "Action",
+        "status": "Statut",
+        "decidedBy": "Décideur",
+        "reason": "Motif",
+        "filterStatus": "Filtrer par statut",
+        "filterLevel": "Filtrer par niveau",
+        "allStatuses": "Tous les statuts",
+        "allLevels": "Tous les niveaux",
+        "clearFilters": "Effacer les filtres",
+        "showAll": "Tout afficher",
+        "hideAll": "Masquer"
+      },
+      "modal": {
+        "approveTitle": "Approuver l'action",
+        "rejectTitle": "Refuser l'action",
+        "reasonLabel": "Motif",
+        "reasonOptional": "(optionnel)",
+        "reasonRequired": "(obligatoire)",
+        "reasonPlaceholder": "Expliquez brièvement votre décision...",
+        "redWarning": "Action critique : un motif explicite est requis. Vérifiez la justification de l'agent avant de confirmer.",
+        "confirm": "Confirmer",
+        "cancel": "Annuler",
+        "approve": "Approuver",
+        "reject": "Refuser"
+      },
+      "toasts": {
+        "analyzeSuccess": "Nouveau rapport généré",
+        "analyzeNoAnomaly": "Pré-vérification propre, aucune analyse LLM effectuée",
+        "analyzeFailed": "Échec du déclenchement de l'analyse",
+        "approveSuccess": "Action approuvée et exécutée",
+        "rejectSuccess": "Action refusée",
+        "decisionFailed": "Erreur lors du traitement de la décision",
+        "newPendingAction": "Nouvelle action à approuver",
+        "loadError": "Erreur lors du chargement des données"
+      },
+      "demo": {
+        "banner": "Mode démonstration : les actions ne sont pas réellement exécutées.",
+        "actionBlocked": "Action non disponible en mode démonstration",
+        "analyzeSimulated": "Nouveau rapport simulé"
+      }
     },
     "audit": {
       "title": "Journaux d'audit",
@@ -645,6 +797,46 @@
         "title": "Responsabilité",
         "description": "L'éditeur ne peut être tenu responsable des erreurs ou omissions présentes sur ce site, ni des dommages directs ou indirects résultant de son utilisation."
       }
+    }
+  },
+  "chat": {
+    "title": "Assistant d'Emmanuel",
+    "toggleLabel": "Ouvrir le chat",
+    "panelLabel": "Chat avec l'assistant d'Emmanuel",
+    "closeLabel": "Fermer le chat",
+    "welcome": "Bonjour et bienvenue ! Je suis là pour vous faire découvrir le travail d'Emmanuel : ses projets, ses compétences techniques et son parcours. Par quoi souhaitez-vous commencer ?",
+    "inputPlaceholder": "Posez votre question...",
+    "inputLabel": "Message",
+    "sendLabel": "Envoyer",
+    "error": "Oups, une petite erreur de mon côté. Réessayez dans un instant, ou contactez Emmanuel directement via le formulaire.",
+    "openContactForm": "Ouvrir le formulaire de contact",
+    "rateLimitWarning": "Encore {{remaining}} message(s) pour cette session.",
+    "rateLimitExhausted": "Vous avez atteint la limite de cette session. Pour poursuivre l'échange, n'hésitez pas à contacter Emmanuel via le formulaire.",
+    "starters": {
+      "projects": "Montrez-moi ses projets phares",
+      "skills": "Quelles sont ses expertises techniques ?",
+      "experience": "Racontez-moi son parcours",
+      "contact": "Comment entrer en contact avec lui ?"
+    },
+    "suggestions": {
+      "moreDetails": "En savoir plus",
+      "otherProjects": "Voir d'autres projets",
+      "contactMe": "Prendre contact"
+    },
+    "tools": {
+      "searchProjects": "Exploration des projets",
+      "listProjects": "Revue des projets",
+      "getFeaturedProjects": "Sélection des projets phares",
+      "getProjectDetails": "Analyse du projet",
+      "listArticles": "Parcours des articles",
+      "getArticle": "Lecture de l'article",
+      "listExperiences": "Revue du parcours",
+      "getRecentExperiences": "Expériences récentes",
+      "listSkills": "Revue des compétences",
+      "getSiteConfig": "Informations générales",
+      "getCurrentCV": "Accès au CV",
+      "prepareContact": "Préparation du message",
+      "searchPortfolio": "Recherche approfondie"
     }
   }
 }

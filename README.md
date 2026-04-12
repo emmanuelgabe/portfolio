@@ -28,6 +28,12 @@ Full-stack web application with Angular, Spring Boot, and PostgreSQL.
 - **Admin Panel** - Full CMS for managing all content
 - **Authentication** - JWT-based auth with automatic token refresh
 
+**AI-Powered Features:**
+- **Agentic Chatbot** - Visitor chatbot with function calling, 10 tools, SSE streaming
+- **Contact Moderation** - AI spam filtering and message categorization
+- **Auto-Reply** - RAG-powered automatic email responses
+- **Health Monitor** - AI diagnostic agent with tiered actions (GREEN/ORANGE/RED)
+
 **Advanced Features:**
 - **Messaging** - Async email and image processing via RabbitMQ
 - **Event Streaming** - Admin events and analytics via Apache Kafka
@@ -67,6 +73,10 @@ flowchart TB
         ES["Elasticsearch"]
     end
 
+    subgraph AI["AI Layer"]
+        Gemini["Google Gemini<br/>LLM + Embeddings"]
+    end
+
     subgraph Async["Async Processing"]
         RabbitMQ["RabbitMQ"]
         Kafka["Kafka"]
@@ -82,6 +92,7 @@ flowchart TB
     NGINX --> BE
     BE --> Data
     BE --> Async
+    BE --> Gemini
     BE -.-> Prometheus
     RabbitMQ -.-> Mail["SMTP"]
 
@@ -96,6 +107,7 @@ flowchart TB
     style RabbitMQ fill:#ff6600,color:#fff
     style Kafka fill:#231f20,color:#fff
     style Mail fill:#ea4335,color:#fff
+    style Gemini fill:#4285f4,color:#fff
     style Prometheus fill:#e6522c,color:#fff
     style Grafana fill:#f46800,color:#fff
     style Loki fill:#2c3239,color:#fff
@@ -124,6 +136,7 @@ flowchart TB
 ![Kafka][kafka-badge]
 ![GraphQL][graphql-badge]
 ![Resilience4j][resilience4j-badge]
+![Spring AI][spring-ai-badge]
 
 **Database & Search:**
 
@@ -150,6 +163,9 @@ flowchart TB
 - [API Reference](./docs/api/README.md) - REST and GraphQL endpoints
 - [Architecture](./docs/architecture/README.md) - System design and database schema
 - [Features](./docs/features/README.md) - Detailed feature documentation
+- [AI Chatbot](./docs/features/ai-chatbot.md) - Agentic chatbot with function calling
+- [Contact Moderation](./docs/features/contact-moderation.md) - AI moderation and auto-reply
+- [Health Monitor](./docs/features/health-monitor.md) - AI diagnostic agent
 
 ---
 
@@ -189,6 +205,7 @@ flowchart TB
 [kafka-badge]: https://img.shields.io/badge/Apache%20Kafka-231F20?logo=apachekafka&logoColor=white
 [graphql-badge]: https://img.shields.io/badge/GraphQL-E10098?logo=graphql&logoColor=white
 [resilience4j-badge]: https://img.shields.io/badge/Resilience4j-Circuit%20Breaker-00B4AB
+[spring-ai-badge]: https://img.shields.io/badge/Spring%20AI-1.0-6DB33F?logo=spring&logoColor=white
 [elasticsearch-badge]: https://img.shields.io/badge/Elasticsearch-005571?logo=elasticsearch&logoColor=white
 [postgres-badge]: https://img.shields.io/badge/PostgreSQL-17-316192?logo=postgresql&logoColor=white
 [docker-badge]: https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white

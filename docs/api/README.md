@@ -439,7 +439,49 @@ See [visitors.md](./visitors.md) for details.
 | GET | `/api/admin/circuit-breakers` | Admin | All circuit breakers |
 | GET | `/api/admin/circuit-breakers/{name}` | Admin | Specific breaker |
 
-### 7.17 Health Check
+### 7.17 Chat API
+
+**Base Path**: `/api/chat`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/chat` | Public | Synchronous chat message |
+| POST | `/api/chat/stream` | Public | SSE streaming chat response |
+
+Rate limited per IP. Response headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`.
+
+See [Features: AI Chatbot](../features/ai-chatbot.md) for details.
+
+### 7.18 Contacts Admin API
+
+**Base Path**: `/api/admin/contacts`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/admin/contacts/stats` | Admin | Moderation statistics (query: `days`) |
+| GET | `/api/admin/contacts/history` | Admin | Paginated contact history with filters |
+| GET | `/api/admin/contacts/categories` | Admin | Available contact categories |
+
+See [Features: Contact Moderation](../features/contact-moderation.md) for details.
+
+### 7.19 Health Monitor API
+
+**Base Path**: `/api/admin/health-monitor`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/admin/health-monitor/reports` | Admin | Recent diagnostic reports |
+| GET | `/api/admin/health-monitor/reports/{id}` | Admin | Specific report |
+| POST | `/api/admin/health-monitor/analyze-now` | Admin | Trigger on-demand analysis |
+| GET | `/api/admin/health-monitor/actions/pending` | Admin | Pending actions |
+| GET | `/api/admin/health-monitor/actions` | Admin | All actions with history |
+| POST | `/api/admin/health-monitor/actions/{id}/approve` | Admin | Approve action |
+| POST | `/api/admin/health-monitor/actions/{id}/reject` | Admin | Reject action |
+| GET | `/api/admin/health-monitor/stream` | Admin | SSE real-time notifications |
+
+See [Features: Health Monitor](../features/health-monitor.md) for details.
+
+### 7.20 Health Check
 
 **Base Path**: `/actuator`
 
@@ -497,5 +539,8 @@ This JSON file can be imported into tools like Postman, Insomnia, or used to gen
 - [CV API](./cv.md) - CV management endpoints
 - [Site Configuration API](./site-configuration.md) - Site configuration endpoints
 - [Files API](./files.md) - File upload endpoints
+- [Features: AI Chatbot](../features/ai-chatbot.md) - Chat API details
+- [Features: Contact Moderation](../features/contact-moderation.md) - Contact admin API details
+- [Features: Health Monitor](../features/health-monitor.md) - Health monitor API details
 - [Security: RBAC](../security/rbac.md) - Role-based access control
 - [CI/CD Documentation](../deployment/ci-cd.md) - Deployment pipeline

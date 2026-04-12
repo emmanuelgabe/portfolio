@@ -46,15 +46,21 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public DirectExchange autoReplyExchange() {
+        return new DirectExchange(properties.getExchanges().getAutoreply(), true, false);
+    }
+
+    @Bean
     public DirectExchange deadLetterExchange() {
         return new DirectExchange(properties.getExchanges().getDlx(), true, false);
     }
 
     // ========== Email Queues ==========
 
-    private static final int EMAIL_TTL_MS = 86400000;  // 24 hours
-    private static final int IMAGE_TTL_MS = 3600000;   // 1 hour
-    private static final int AUDIT_TTL_MS = 86400000;  // 24 hours
+    private static final int EMAIL_TTL_MS = 86400000;      // 24 hours
+    private static final int IMAGE_TTL_MS = 3600000;      // 1 hour
+    private static final int AUDIT_TTL_MS = 86400000;     // 24 hours
+    private static final int AUTOREPLY_TTL_MS = 86400000; // 24 hours
 
     @Bean
     public Queue emailQueue() {
@@ -100,6 +106,22 @@ public class RabbitMQConfig {
     @Bean
     public Queue auditDeadLetterQueue() {
         return QueueBuilder.durable(properties.getQueues().getAuditDlq()).build();
+    }
+
+    // ========== Auto-Reply Queues ==========
+
+    @Bean
+    public Queue autoReplyQueue() {
+        return QueueBuilder.durable(properties.getQueues().getAutoreply())
+                .withArgument("x-dead-letter-exchange", properties.getExchanges().getDlx())
+                .withArgument("x-dead-letter-routing-key", properties.getRoutingKeys().getAutoreplyDlq())
+                .withArgument("x-message-ttl", AUTOREPLY_TTL_MS)
+                .build();
+    }
+
+    @Bean
+    public Queue autoReplyDeadLetterQueue() {
+        return QueueBuilder.durable(properties.getQueues().getAutoreplyDlq()).build();
     }
 
     // ========== Email Bindings ==========
@@ -148,6 +170,22 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(auditDeadLetterQueue)
                 .to(deadLetterExchange)
                 .with(properties.getRoutingKeys().getAuditDlq());
+    }
+
+    // ========== Auto-Reply Bindings ==========
+
+    @Bean
+    public Binding autoReplyBinding(Queue autoReplyQueue, DirectExchange autoReplyExchange) {
+        return BindingBuilder.bind(autoReplyQueue)
+                .to(autoReplyExchange)
+                .with(properties.getRoutingKeys().getAutoreply());
+    }
+
+    @Bean
+    public Binding autoReplyDlqBinding(Queue autoReplyDeadLetterQueue, DirectExchange deadLetterExchange) {
+        return BindingBuilder.bind(autoReplyDeadLetterQueue)
+                .to(deadLetterExchange)
+                .with(properties.getRoutingKeys().getAutoreplyDlq());
     }
 
     // ========== Message Converter ==========

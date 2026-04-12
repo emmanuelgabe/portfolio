@@ -29,6 +29,7 @@ describe('FooterComponent', () => {
     profileImageUrl: '/images/profile.jpg',
     githubUrl: 'https://github.com/johndoe',
     linkedinUrl: 'https://linkedin.com/in/johndoe',
+    chatbotInfoUrl: undefined,
     createdAt: '2024-01-01T12:00:00',
     updatedAt: '2024-01-01T12:00:00',
   };

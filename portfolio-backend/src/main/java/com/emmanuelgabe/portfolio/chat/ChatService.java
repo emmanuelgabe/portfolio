@@ -1,0 +1,41 @@
+package com.emmanuelgabe.portfolio.chat;
+
+import org.springframework.http.codec.ServerSentEvent;
+import reactor.core.publisher.Flux;
+
+/**
+ * Service for conversational chat with retrieval-augmented generation (RAG).
+ * Implementations retrieve portfolio context from the vector store, augment
+ * the prompt, and delegate generation to the underlying chat model.
+ *
+ * <p>Conversation state is tracked per {@code conversationId} so that
+ * multi-turn exchanges maintain coherent memory. The caller is responsible
+ * for generating and preserving the conversation identifier across requests.</p>
+ *
+ * <p>Follows the fail-open contract: when the AI backend is unavailable or
+ * disabled, implementations return a polite fallback message rather than
+ * propagating errors to the HTTP layer.</p>
+ */
+public interface ChatService {
+
+    /**
+     * Generate a synchronous RAG-powered reply.
+     *
+     * @param conversationId the conversation identifier, used to maintain history
+     * @param userMessage    the raw visitor message
+     * @return the assistant reply text, or a fallback if generation failed
+     */
+    String chat(String conversationId, String userMessage);
+
+    /**
+     * Generate a streaming RAG-powered reply as typed Server-Sent Events.
+     * Emits {@code tool_calls}, {@code token}, {@code contact_form}, and
+     * {@code done} events so the frontend can render tool activity indicators
+     * and structured actions alongside the progressive text response.
+     *
+     * @param conversationId the conversation identifier, used to maintain history
+     * @param userMessage    the raw visitor message
+     * @return a flux of typed SSE events
+     */
+    Flux<ServerSentEvent<String>> streamChat(String conversationId, String userMessage);
+}

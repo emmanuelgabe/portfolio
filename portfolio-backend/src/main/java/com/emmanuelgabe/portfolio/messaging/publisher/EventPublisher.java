@@ -1,12 +1,13 @@
 package com.emmanuelgabe.portfolio.messaging.publisher;
 
 import com.emmanuelgabe.portfolio.messaging.event.AuditEvent;
+import com.emmanuelgabe.portfolio.messaging.event.AutoReplyEvent;
 import com.emmanuelgabe.portfolio.messaging.event.EmailEvent;
 import com.emmanuelgabe.portfolio.messaging.event.ImageProcessingEvent;
 
 /**
  * Interface for publishing events to a message broker.
- * Supports email, image processing, and audit events.
+ * Supports email, image processing, audit, and auto-reply events.
  */
 public interface EventPublisher {
 
@@ -30,6 +31,13 @@ public interface EventPublisher {
      * @param event the audit event to publish
      */
     void publishAuditEvent(AuditEvent event);
+
+    /**
+     * Publish an auto-reply event for asynchronous RAG-powered reply generation.
+     *
+     * @param event the auto-reply event to publish
+     */
+    void publishAutoReplyEvent(AutoReplyEvent event);
 
     /**
      * Check if the publisher is enabled and operational.

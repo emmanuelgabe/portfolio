@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ContactRequest } from '../../models';
@@ -15,15 +15,27 @@ import { LoggerService } from '../../services/logger.service';
   templateUrl: './contact-form.component.html',
   styleUrl: './contact-form.component.css',
 })
-export class ContactFormComponent {
+export class ContactFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly contactService = inject(ContactService);
   private readonly toastr = inject(ToastrService);
   private readonly translate = inject(TranslateService);
   private readonly logger = inject(LoggerService);
+  private readonly router = inject(Router);
 
   loading = false;
   submitted = false;
+
+  ngOnInit(): void {
+    const state = this.router.getCurrentNavigation()?.extras.state || history.state;
+    if (state?.['subject'] || state?.['message']) {
+      this.contactForm.patchValue({
+        subject: state['subject'] || '',
+        message: state['message'] || '',
+      });
+      this.logger.debug('[CONTACT_FORM] Pre-filled from router state');
+    }
+  }
 
   contactForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],

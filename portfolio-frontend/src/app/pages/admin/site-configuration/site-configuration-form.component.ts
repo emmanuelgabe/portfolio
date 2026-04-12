@@ -61,6 +61,9 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
       // Social Links
       githubUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.*/)]],
       linkedinUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.*/)]],
+
+      // Chatbot
+      chatbotInfoUrl: ['', [Validators.maxLength(500)]],
     });
   }
 
@@ -86,6 +89,7 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
             seoDescription: config.seoDescription,
             githubUrl: config.githubUrl,
             linkedinUrl: config.linkedinUrl,
+            chatbotInfoUrl: config.chatbotInfoUrl || '',
           });
 
           this.profileImageUrl = config.profileImageUrl
@@ -129,6 +133,7 @@ export class SiteConfigurationFormComponent implements OnInit, OnDestroy {
       seoDescription: formValue.seoDescription,
       githubUrl: formValue.githubUrl,
       linkedinUrl: formValue.linkedinUrl,
+      chatbotInfoUrl: formValue.chatbotInfoUrl || undefined,
     };
 
     this.logger.info('[SITE_CONFIG_FORM] Updating configuration', { fullName: request.fullName });

@@ -1,0 +1,85 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="bi me-2" [ngClass]="isReject ? 'bi-x-octagon' : 'bi-check2-square'"></i>
+    {{ titleKey | translate }}
+  </h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="mb-3 d-flex align-items-center gap-2">
+    <span class="badge" [ngClass]="levelBadgeClass">
+      {{ 'admin.healthMonitor.actionLevel.' + action.level | translate }}
+    </span>
+    <span class="text-muted small">
+      {{ 'admin.healthMonitor.actionType.' + action.actionType | translate }}
+    </span>
+  </div>
+
+  @if (isRedApprove) {
+    <div class="alert alert-danger d-flex align-items-start gap-2 py-2" role="alert">
+      <i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i>
+      <small class="mb-0">{{ 'admin.healthMonitor.modal.redWarning' | translate }}</small>
+    </div>
+  }
+
+  <div class="mb-3">
+    <label class="form-label text-muted small text-uppercase mb-1">
+      {{ 'admin.healthMonitor.pendingSection.justification' | translate }}
+    </label>
+    <blockquote class="agent-justification">
+      {{ action.justification }}
+    </blockquote>
+  </div>
+
+  @if (paramsEntries.length > 0) {
+    <div class="mb-3">
+      <label class="form-label text-muted small text-uppercase mb-1">
+        {{ 'admin.healthMonitor.pendingSection.parameters' | translate }}
+      </label>
+      <ul class="params-list mb-0">
+        @for (entry of paramsEntries; track entry.key) {
+          <li>
+            <span class="text-muted">{{ entry.key }}</span>
+            <code class="ms-2">{{ entry.value }}</code>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="mb-0">
+    <label class="form-label mb-1" for="decision-reason">
+      {{ 'admin.healthMonitor.modal.reasonLabel' | translate }}
+      <small class="text-muted">
+        @if (reasonRequired) {
+          {{ 'admin.healthMonitor.modal.reasonRequired' | translate }}
+        } @else {
+          {{ 'admin.healthMonitor.modal.reasonOptional' | translate }}
+        }
+      </small>
+    </label>
+    <textarea
+      id="decision-reason"
+      class="form-control"
+      rows="3"
+      maxlength="1000"
+      [(ngModel)]="reason"
+      [placeholder]="'admin.healthMonitor.modal.reasonPlaceholder' | translate"
+    ></textarea>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="cancel()">
+    {{ 'admin.healthMonitor.modal.cancel' | translate }}
+  </button>
+  <button
+    type="button"
+    class="btn"
+    [ngClass]="confirmClass"
+    [disabled]="!canConfirm"
+    (click)="confirm()">
+    {{ confirmKey | translate }}
+  </button>
+</div>

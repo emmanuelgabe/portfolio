@@ -1,0 +1,280 @@
+<div class="contact-list">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ 'admin.contacts.title' | translate }}</h1>
+    <div class="d-flex align-items-center gap-2">
+      <label class="form-label mb-0 text-muted small">{{ 'admin.contacts.period' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        style="width: auto"
+        [(ngModel)]="selectedDays"
+        (change)="onPeriodChange()">
+        <option *ngFor="let days of periodOptions" [ngValue]="days">
+          {{ 'admin.contacts.lastDays' | translate:{ days: days } }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row g-3 mb-4">
+    <!-- Total -->
+    <div class="col-md-4">
+      <div class="card shadow-sm stat-card border-primary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted text-uppercase mb-1">{{ 'admin.contacts.totalContacts' | translate }}</h6>
+              <h3 class="mb-0 fw-bold">
+                @if (statsLoading) {
+                  <span class="placeholder col-4"></span>
+                } @else {
+                  {{ stats?.totalCount ?? 0 }}
+                }
+              </h3>
+            </div>
+            <div class="stat-icon text-primary">
+              <i class="bi bi-envelope"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approved -->
+    <div class="col-md-4">
+      <div class="card shadow-sm stat-card border-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted text-uppercase mb-1">{{ 'admin.contacts.approved' | translate }}</h6>
+              <h3 class="mb-0 fw-bold">
+                @if (statsLoading) {
+                  <span class="placeholder col-4"></span>
+                } @else {
+                  {{ approvedCount }}
+                }
+              </h3>
+            </div>
+            <div class="stat-icon text-success">
+              <i class="bi bi-check-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rejected -->
+    <div class="col-md-4">
+      <div class="card shadow-sm stat-card border-danger">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted text-uppercase mb-1">{{ 'admin.contacts.rejected' | translate }}</h6>
+              <h3 class="mb-0 fw-bold">
+                @if (statsLoading) {
+                  <span class="placeholder col-4"></span>
+                } @else {
+                  {{ rejectedCount }}
+                }
+              </h3>
+            </div>
+            <div class="stat-icon text-danger">
+              <i class="bi bi-x-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Breakdown -->
+  @if (stats && !statsLoading) {
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="card-title text-muted text-uppercase mb-3">
+          <i class="bi bi-tag me-2"></i>{{ 'admin.contacts.categoryBreakdown' | translate }}
+        </h6>
+        <div class="d-flex flex-wrap gap-3">
+          <div *ngFor="let cat of categories" class="d-flex align-items-center gap-2">
+            <span class="badge" [ngClass]="getCategoryBadgeClass(cat)">
+              {{ 'admin.contacts.categories.' + cat | translate }}
+            </span>
+            <span class="fw-medium">{{ stats.categoryCounts[cat] || 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">{{ 'admin.contacts.categoryFilter' | translate }}</label>
+          <select
+            class="form-select"
+            [(ngModel)]="selectedCategory"
+            (change)="onCategoryChange()">
+            <option [ngValue]="undefined">{{ 'admin.contacts.allCategories' | translate }}</option>
+            <option *ngFor="let cat of categories" [value]="cat">
+              {{ 'admin.contacts.categories.' + cat | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+            <i class="bi bi-x-circle me-2"></i>
+            {{ 'admin.contacts.clearFilters' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Skeletons -->
+  <div *ngIf="historyLoading" class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 160px">{{ 'admin.contacts.date' | translate }}</th>
+              <th style="width: 140px">{{ 'admin.contacts.name' | translate }}</th>
+              <th>{{ 'admin.contacts.subject' | translate }}</th>
+              <th style="width: 130px">{{ 'admin.contacts.category' | translate }}</th>
+              <th style="width: 110px">{{ 'admin.contacts.verdict' | translate }}</th>
+              <th style="width: 100px">{{ 'admin.contacts.confidence' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of [1,2,3,4,5,6,7,8]; track i) {
+              <app-skeleton-table-row [columns]="[{width: '160px'}, {width: '140px'}, {width: '30%'}, {width: '130px'}, {width: '110px'}, {width: '100px'}]" />
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !historyLoading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadHistory()">
+      <i class="bi bi-arrow-clockwise me-1"></i>
+      {{ 'common.retry' | translate }}
+    </button>
+  </div>
+
+  <!-- Contact History Table -->
+  <div *ngIf="!historyLoading && !error" class="card shadow-sm">
+    <div class="card-body p-0">
+      <!-- Empty State -->
+      <div *ngIf="contacts.length === 0" class="text-center py-5">
+        <i class="bi bi-envelope-open display-1 text-muted"></i>
+        <p class="mt-3 text-muted">
+          {{ 'admin.contacts.noContacts' | translate }}
+        </p>
+      </div>
+
+      <!-- Table -->
+      <div *ngIf="contacts.length > 0" class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 160px">{{ 'admin.contacts.date' | translate }}</th>
+              <th style="width: 140px">{{ 'admin.contacts.name' | translate }}</th>
+              <th>{{ 'admin.contacts.subject' | translate }}</th>
+              <th style="width: 130px">{{ 'admin.contacts.category' | translate }}</th>
+              <th style="width: 110px">{{ 'admin.contacts.verdict' | translate }}</th>
+              <th style="width: 100px">{{ 'admin.contacts.confidence' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let contact of contacts">
+              <!-- Date -->
+              <td class="align-middle">
+                <small>{{ formatDate(contact.createdAt) }}</small>
+              </td>
+
+              <!-- Name -->
+              <td class="align-middle">
+                {{ contact.name }}
+              </td>
+
+              <!-- Subject + Reason -->
+              <td class="align-middle">
+                <span>{{ contact.subject }}</span>
+                <small *ngIf="contact.moderationReason" class="text-muted d-block">
+                  <i class="bi bi-robot me-1"></i>
+                  {{ contact.moderationReason }}
+                </small>
+              </td>
+
+              <!-- Category -->
+              <td class="align-middle">
+                <span class="badge" [ngClass]="getCategoryBadgeClass(contact.category)">
+                  {{ 'admin.contacts.categories.' + contact.category | translate }}
+                </span>
+              </td>
+
+              <!-- Verdict -->
+              <td class="align-middle">
+                <span class="badge" [ngClass]="getVerdictBadgeClass(contact.moderationVerdict)">
+                  {{ 'admin.contacts.verdicts.' + contact.moderationVerdict | translate }}
+                </span>
+              </td>
+
+              <!-- Confidence -->
+              <td class="align-middle">
+                <span class="fw-medium" [ngClass]="getConfidenceClass(contact.confidenceScore)">
+                  {{ formatPercent(contact.confidenceScore) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="contacts.length > 0" class="card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">
+        <i class="bi bi-info-circle me-1"></i>
+        {{ 'admin.contacts.showing' | translate }}
+        {{ currentPage * pageSize + 1 }} - {{ Math.min((currentPage + 1) * pageSize, totalElements) }}
+        {{ 'admin.contacts.of' | translate }} {{ totalElements }}
+      </small>
+
+      <nav *ngIf="totalPages > 1">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" (click)="goToPage(0)" [disabled]="currentPage === 0">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+          </li>
+          <li *ngFor="let page of pageNumbers" class="page-item" [class.active]="page === currentPage">
+            <button class="page-link" (click)="goToPage(page)">{{ page + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" (click)="goToPage(totalPages - 1)" [disabled]="currentPage === totalPages - 1">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

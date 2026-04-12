@@ -532,7 +532,12 @@
       "imageUploadSuccess": "تم تحديث صورة الملف الشخصي",
       "imageUploadError": "خطأ في رفع الصورة",
       "imageDeleteSuccess": "تم حذف صورة الملف الشخصي",
-      "imageDeleteError": "خطأ في حذف الصورة"
+      "imageDeleteError": "خطأ في حذف الصورة",
+      "chatbotSection": "الروبوت الذكي",
+      "chatbotDescription": "إعدادات الروبوت الذكي المدمج في الموقع.",
+      "chatbotInfoUrl": "رابط معلومات AI-powered",
+      "chatbotInfoUrlPlaceholder": "https://example.com/chatbot-article",
+      "chatbotInfoUrlHelp": "الرابط المعروض على شارة 'AI-powered' في أداة الدردشة. اتركه فارغا لإخفاء الرابط."
     },
     "audit": {
       "title": "سجلات التدقيق",
@@ -615,6 +620,46 @@
         "title": "المسؤولية",
         "description": "لا يمكن تحميل الناشر المسؤولية عن الأخطاء أو السهو في هذا الموقع، ولا عن الأضرار المباشرة أو غير المباشرة الناتجة عن استخدامه."
       }
+    }
+  },
+  "chat": {
+    "title": "المساعد",
+    "toggleLabel": "فتح الدردشة",
+    "panelLabel": "الدردشة مع المساعد الذكي",
+    "closeLabel": "إغلاق الدردشة",
+    "welcome": "مرحبا! أنا المساعد الذكي لهذا الملف الشخصي. اسألني عن المشاريع أو المهارات أو الخبرات.",
+    "inputPlaceholder": "اكتب رسالتك...",
+    "inputLabel": "رسالة",
+    "sendLabel": "إرسال",
+    "error": "عذرا، حدث خطأ. يرجى المحاولة مرة أخرى أو استخدام نموذج الاتصال.",
+    "openContactForm": "فتح نموذج الاتصال",
+    "rateLimitWarning": "لديك {{remaining}} رسالة متبقية.",
+    "rateLimitExhausted": "تم الوصول إلى حد الرسائل. يرجى المحاولة لاحقا.",
+    "starters": {
+      "projects": "ما هي مشاريعك الرئيسية؟",
+      "skills": "ما هي مهاراتك التقنية؟",
+      "experience": "حدثني عن مسيرتك المهنية.",
+      "contact": "كيف يمكنني التواصل معك؟"
+    },
+    "suggestions": {
+      "moreDetails": "مزيد من التفاصيل",
+      "otherProjects": "مشاريع أخرى؟",
+      "contactMe": "أرغب في التواصل معك"
+    },
+    "tools": {
+      "searchProjects": "البحث عن المشاريع",
+      "listProjects": "استعراض جميع المشاريع",
+      "getFeaturedProjects": "اختيار المشاريع المميزة",
+      "getProjectDetails": "تحميل تفاصيل المشروع",
+      "listArticles": "استعراض المقالات",
+      "getArticle": "قراءة المقالة",
+      "listExperiences": "استعراض الخبرات",
+      "getRecentExperiences": "الخبرات الأخيرة",
+      "listSkills": "استعراض المهارات",
+      "getSiteConfig": "معلومات الموقع",
+      "getCurrentCV": "استعراض السيرة الذاتية",
+      "prepareContact": "تحضير الاتصال",
+      "searchPortfolio": "البحث في الملف الشخصي"
     }
   }
 }

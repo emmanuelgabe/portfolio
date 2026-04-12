@@ -43,6 +43,10 @@ services:
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_APP_PASSWORD=${MAIL_APP_PASSWORD}
       - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
+      - AI_ENABLED=${AI_ENABLED:-false}
+      - AI_AUTOREPLY_ENABLED=${AI_AUTOREPLY_ENABLED:-false}
+      - AI_MODERATION_ENABLED=${AI_MODERATION_ENABLED:-true}
+      - GOOGLE_GENAI_API_KEY=${GOOGLE_GENAI_API_KEY:-}
     volumes:
       - ./portfolio-backend/src:/app/src
       - ./portfolio-backend/build:/app/build
