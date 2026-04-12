@@ -107,6 +107,9 @@ Detailed feature documentation:
 - [Contact Form](./features/contact-form.md) - Rate-limited contact
 - [Image Processing](./features/image-processing.md) - WebP, thumbnails
 - [File Storage](./features/file-storage.md) - File upload system
+- [AI Chatbot](./features/ai-chatbot.md) - Agentic chatbot with function calling
+- [Contact Moderation](./features/contact-moderation.md) - AI moderation and auto-reply
+- [Health Monitor](./features/health-monitor.md) - AI diagnostic agent
 
 ### Security
 

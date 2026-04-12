@@ -64,6 +64,7 @@ The frontend is built with **Angular 18** using **standalone components** archit
 src/app/
 ├── components/          # Reusable UI components
 │   ├── article-card/
+│   ├── chat-widget/     # Floating chatbot widget (SSE streaming)
 │   ├── contact-form/
 │   ├── footer/
 │   ├── home/
@@ -82,6 +83,8 @@ src/app/
 │   │   ├── admin-layout/
 │   │   ├── dashboard/
 │   │   ├── articles/
+│   │   ├── contacts/       # Contact moderation admin
+│   │   ├── health-monitor/ # AI health diagnostics
 │   │   ├── projects/
 │   │   └── ...
 │   ├── blog/
@@ -129,6 +132,8 @@ src/app/
 - `/admin/experiences` - Manage experiences
 - `/admin/articles` - Manage blog articles
 - `/admin/audit` - Audit logs viewer
+- `/admin/contacts` - Contact moderation history
+- `/admin/health-monitor` - AI health diagnostics
 
 **Demo Routes** (no authentication required):
 - `/admindemo` - Demo admin with mock data (read-only)
@@ -164,6 +169,9 @@ Admin routes use nested routing with `AdminLayoutComponent` as shell:
 | `ActiveUsersService` | Real-time active users (SSE) |
 | `VisitorTrackerService` | Visitor tracking |
 | `SeoService` | Dynamic SEO management |
+| `ChatService` | Chatbot streaming and conversation management |
+| `ContactAdminService` | Contact moderation stats and history |
+| `HealthMonitorService` | Health reports, actions, and SSE stream |
 
 ### Service Pattern
 
@@ -238,6 +246,7 @@ Admin routes use nested routing with `AdminLayoutComponent` as shell:
 - `ProjectCardComponent` - Project preview card
 - `ArticleCardComponent` - Article preview card
 - `ContactFormComponent` - Contact form widget
+- `ChatWidgetComponent` - Floating chatbot with SSE streaming
 
 **Page Components** (`pages/`):
 - `LoginComponent` - Authentication page
@@ -263,6 +272,8 @@ Admin routes use nested routing with `AdminLayoutComponent` as shell:
 | Tags | `TagListComponent` | `TagFormComponent` |
 | Articles | `AdminArticleListComponent` | `ArticleFormComponent` |
 | Experiences | `ExperienceListComponent` | `ExperienceFormComponent` |
+| Contacts | `ContactListComponent` | - (read-only) |
+| Health Monitor | `HealthMonitorComponent` | - (approval actions) |
 
 ---
 
