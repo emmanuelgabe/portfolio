@@ -10,29 +10,35 @@
     "dependencyDashboard": true,
     "packageRules": [
       {
-        "description": "Images construites localement, absentes de tout registre",
+        "description": "Locally built images, absent from any registry",
         "matchPackageNames": ["portfolio-angular-frontend", "portfolio-spring-backend"],
         "enabled": false
       },
       {
-        "description": "Toutes les images Docker dans une seule PR",
+        "description": "Group all Docker image updates into a single PR",
         "matchManagers": ["docker-compose", "dockerfile"],
         "matchUpdateTypes": ["minor", "patch"],
-        "groupName": "images docker"
+        "groupName": "docker images"
       },
       {
-        "description": "Dependances npm et gradle mineures regroupees",
-        "matchManagers": ["npm", "gradle"],
+        "description": "Group npm minor and patch updates",
+        "matchManagers": ["npm"],
         "matchUpdateTypes": ["minor", "patch"],
-        "groupName": "dependances mineures"
+        "groupName": "npm dependencies"
       },
       {
-        "description": "Actions GitHub regroupees",
+        "description": "Group gradle minor and patch updates",
+        "matchManagers": ["gradle"],
+        "matchUpdateTypes": ["minor", "patch"],
+        "groupName": "gradle dependencies"
+      },
+      {
+        "description": "Group GitHub Actions updates",
         "matchManagers": ["github-actions"],
         "groupName": "github actions"
       },
       {
-        "description": "Les majeures passent par le tableau de bord, jamais en PR automatique",
+        "description": "Major updates require manual approval from the dependency dashboard",
         "matchUpdateTypes": ["major"],
         "dependencyDashboardApproval": true
       }
