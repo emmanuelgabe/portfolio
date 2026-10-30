@@ -33,6 +33,12 @@
         "groupName": "gradle dependencies"
       },
       {
+        "description": "Static analysis tooling, kept out of the library group",
+        "matchManagers": ["gradle"],
+        "matchPackageNames": ["spotbugs", "checkstyle", "jacoco"],
+        "groupName": "gradle build tooling"
+      },
+      {
         "description": "Group GitHub Actions updates",
         "matchManagers": ["github-actions"],
         "groupName": "github actions"
@@ -43,9 +49,10 @@
         "dependencyDashboardApproval": true
       },
       {
-        "description": "Pinned by Angular 19 peer dependencies (compiler-cli requires typescript >=5.5 <5.9, core requires zone.js ~0.15.0). They move only when Angular itself is upgraded.",
+        "description": "Pinned by Angular 19 peer dependencies, upgrade Angular first",
         "matchManagers": ["npm"],
         "matchPackageNames": ["typescript", "zone.js"],
         "enabled": false
       }
     ]
+  }
