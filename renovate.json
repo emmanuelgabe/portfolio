@@ -1,0 +1,40 @@
+
+  {
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["config:recommended"],
+    "timezone": "Europe/Paris",
+    "schedule": ["before 6am on monday"],
+    "prConcurrentLimit": 3,
+    "prHourlyLimit": 2,
+    "labels": ["dependencies"],
+    "dependencyDashboard": true,
+    "packageRules": [
+      {
+        "description": "Images construites localement, absentes de tout registre",
+        "matchPackageNames": ["portfolio-angular-frontend", "portfolio-spring-backend"],
+        "enabled": false
+      },
+      {
+        "description": "Toutes les images Docker dans une seule PR",
+        "matchManagers": ["docker-compose", "dockerfile"],
+        "matchUpdateTypes": ["minor", "patch"],
+        "groupName": "images docker"
+      },
+      {
+        "description": "Dependances npm et gradle mineures regroupees",
+        "matchManagers": ["npm", "gradle"],
+        "matchUpdateTypes": ["minor", "patch"],
+        "groupName": "dependances mineures"
+      },
+      {
+        "description": "Actions GitHub regroupees",
+        "matchManagers": ["github-actions"],
+        "groupName": "github actions"
+      },
+      {
+        "description": "Les majeures passent par le tableau de bord, jamais en PR automatique",
+        "matchUpdateTypes": ["major"],
+        "dependencyDashboardApproval": true
+      }
+    ]
+  }
