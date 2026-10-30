@@ -7,10 +7,22 @@ on:
       - staging
       - dev
       - 'dev/**'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'renovate.json'
   pull_request:
     branches:
       - main
       - staging
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'renovate.json'
   workflow_dispatch:
     inputs:
       clean_messaging_volumes:
