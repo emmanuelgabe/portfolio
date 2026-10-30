@@ -41,6 +41,11 @@
         "description": "Major updates require manual approval from the dependency dashboard",
         "matchUpdateTypes": ["major"],
         "dependencyDashboardApproval": true
+      },
+      {
+        "description": "Pinned by Angular 19 peer dependencies (compiler-cli requires typescript >=5.5 <5.9, core requires zone.js ~0.15.0). They move only when Angular itself is upgraded.",
+        "matchManagers": ["npm"],
+        "matchPackageNames": ["typescript", "zone.js"],
+        "enabled": false
       }
     ]
-  }
