@@ -164,6 +164,17 @@ jobs:
             else
               echo "[WARNING] Backup file is empty or was not created"
             fi
+
+            # Backup uploads volume - files are NOT in the database
+            UPLOADS_VOL="portfolio_${ENV_NAME}_uploads"
+            if docker volume inspect "$UPLOADS_VOL" >/dev/null 2>&1; then
+              echo "Creating uploads backup: uploads_${ENV_NAME}_${TIMESTAMP}.tar.gz"
+              docker run --rm -v "$UPLOADS_VOL":/data -v "$BACKUP_DIR":/backup alpine \
+                tar czf "/backup/uploads_${ENV_NAME}_${TIMESTAMP}.tar.gz" -C /data .
+              ls -t "$BACKUP_DIR"/uploads_${ENV_NAME}_*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm -f
+            else
+              echo "[WARNING] Uploads volume $UPLOADS_VOL not found"
+            fi
           else
             echo "[INFO] No running database container found, skipping backup"
           fi
@@ -669,9 +680,6 @@ jobs:
         run: |
           echo "Cleaning up dangling images..."
           docker image prune -f
-
-          echo "Removing unused portfolio volumes..."
-          docker volume ls --filter "name=portfolio" -q | xargs -r docker volume rm 2>/dev/null || true
 
       - name: Verify deployment
         run: |
