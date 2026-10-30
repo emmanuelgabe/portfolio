@@ -168,7 +168,10 @@ spotbugs {
 }
 
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
-    enabled = true
+    // Production code only. Both CI workflows run spotbugsMain explicitly; spotbugsTest
+    // is only pulled in as a side effect of `gradle build` and flags test-only idioms
+    // such as hardcoded paths.
+    enabled = name == 'spotbugsMain'
     ignoreFailures = false
     reports {
         html {
