@@ -32,15 +32,18 @@ repositories {
     mavenCentral()
 }
 
+// A constraint is not enough for commons-lang3: io.spring.dependency-management applies
+// the Spring Boot BOM to every configuration and takes precedence over constraints, which
+// silently kept the version at 3.17.0. Overriding the BOM property is what actually works.
+// CVE-2025-48924 fixed in 3.18.0+
+ext['commons-lang3.version'] = '3.21.0'
+
 dependencies {
     // Spring AI BOM for version management
     implementation platform("org.springframework.ai:spring-ai-bom:1.1.2")
 
     // Security: Force secure versions of transitive dependencies to fix CVEs
     constraints {
-        implementation('org.apache.commons:commons-lang3:3.18.0') {
-            because 'CVE-2025-48924 fixed in 3.18.0+'
-        }
         implementation('org.apache.commons:commons-compress:1.26.0') {
             because 'CVE-2024-25710 and CVE-2024-26308 fixed in 1.26.0+'
         }

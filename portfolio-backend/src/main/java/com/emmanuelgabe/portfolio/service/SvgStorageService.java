@@ -165,7 +165,11 @@ public class SvgStorageService {
         try {
             // Find and delete all files matching pattern skill_{id}_*
             Files.list(uploadPath)
-                    .filter(path -> path.getFileName().toString().startsWith("skill_" + skillId + "_"))
+                    .filter(path -> {
+                        Path fileName = path.getFileName();
+                        return fileName != null
+                                && fileName.toString().startsWith("skill_" + skillId + "_");
+                    })
                     .forEach(path -> {
                         try {
                             Files.delete(path);

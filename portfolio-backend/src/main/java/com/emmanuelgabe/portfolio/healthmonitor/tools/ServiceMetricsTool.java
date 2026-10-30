@@ -93,9 +93,15 @@ public class ServiceMetricsTool {
         var networks = stats.getNetworks();
         if (networks != null) {
             long rx = networks.values().stream()
-                    .mapToLong(n -> n.getRxBytes() == null ? 0 : n.getRxBytes()).sum();
+                    .mapToLong(n -> {
+                        Long bytes = n.getRxBytes();
+                        return bytes == null ? 0L : bytes;
+                    }).sum();
             long tx = networks.values().stream()
-                    .mapToLong(n -> n.getTxBytes() == null ? 0 : n.getTxBytes()).sum();
+                    .mapToLong(n -> {
+                        Long bytes = n.getTxBytes();
+                        return bytes == null ? 0L : bytes;
+                    }).sum();
             result.put("networkRxBytes", rx);
             result.put("networkTxBytes", tx);
         }
