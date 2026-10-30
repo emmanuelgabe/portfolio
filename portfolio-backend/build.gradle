@@ -1,9 +1,9 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.5'
+    id 'org.springframework.boot' version '3.5.16'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'checkstyle'
-    id 'com.github.spotbugs' version '6.0.26'
+    id 'com.github.spotbugs' version '6.5.13'
     id 'jacoco'
     id 'org.sonarqube' version '5.1.0.4882'
 }
@@ -34,14 +34,14 @@ repositories {
 
 dependencies {
     // Spring AI BOM for version management
-    implementation platform("org.springframework.ai:spring-ai-bom:1.1.2")
+    implementation platform("org.springframework.ai:spring-ai-bom:1.1.8")
 
     // Security: Force secure versions of transitive dependencies to fix CVEs
     constraints {
-        implementation('org.apache.commons:commons-lang3:3.18.0') {
+        implementation('org.apache.commons:commons-lang3:3.21.0') {
             because 'CVE-2025-48924 fixed in 3.18.0+'
         }
-        implementation('org.apache.commons:commons-compress:1.26.0') {
+        implementation('org.apache.commons:commons-compress:1.28.0') {
             because 'CVE-2024-25710 and CVE-2024-26308 fixed in 1.26.0+'
         }
     }
@@ -65,33 +65,33 @@ dependencies {
     implementation 'org.flywaydb:flyway-database-postgresql'
 
     // Documentation
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.10.0'
 
     // Mapping
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
     // Logging
-    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
 
     // Metrics (Prometheus)
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
     // Error tracking (Sentry)
-    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.19.1'
-    implementation 'io.sentry:sentry-logback:7.19.1'
+    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.22.6'
+    implementation 'io.sentry:sentry-logback:7.22.6'
 
     // Resilience4j (Circuit Breaker)
-    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
-    implementation 'io.github.resilience4j:resilience4j-micrometer:2.2.0'
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.4.0'
+    implementation 'io.github.resilience4j:resilience4j-micrometer:2.4.0'
 
     // JWT Authentication
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
     // Image processing
-    implementation 'net.coobird:thumbnailator:0.4.20'
+    implementation 'net.coobird:thumbnailator:0.4.21'
     implementation 'org.sejda.imageio:webp-imageio:0.1.6'
 
     // Spring AI: Google Gemini chat + embeddings + Elasticsearch vector store (non-starter, manually configured via AiConfig)
@@ -101,14 +101,14 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-elasticsearch-store'
 
     // Docker API client (used by AI Health Monitor agent via docker-socket-proxy sidecar)
-    implementation 'com.github.docker-java:docker-java-core:3.4.0'
-    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.4.0'
+    implementation 'com.github.docker-java:docker-java-core:3.7.1'
+    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.7.1'
 
     // Markdown processing
     implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 
     // HTML/SVG sanitization
-    implementation 'org.jsoup:jsoup:1.18.1'
+    implementation 'org.jsoup:jsoup:1.23.2'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -121,13 +121,13 @@ dependencies {
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'io.rest-assured:rest-assured:5.5.0'
-    testImplementation 'org.testcontainers:testcontainers:1.20.4'
-    testImplementation 'org.testcontainers:postgresql:1.20.4'
-    testImplementation 'org.testcontainers:rabbitmq:1.20.4'
-    testImplementation 'org.testcontainers:kafka:1.20.4'
-    testImplementation 'org.testcontainers:elasticsearch:1.20.4'
-    testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
+    testImplementation 'io.rest-assured:rest-assured:5.5.7'
+    testImplementation 'org.testcontainers:testcontainers:1.21.4'
+    testImplementation 'org.testcontainers:postgresql:1.21.4'
+    testImplementation 'org.testcontainers:rabbitmq:1.21.4'
+    testImplementation 'org.testcontainers:kafka:1.21.4'
+    testImplementation 'org.testcontainers:elasticsearch:1.21.4'
+    testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.springframework.graphql:spring-graphql-test'
     testImplementation 'io.projectreactor:reactor-test'
@@ -141,7 +141,7 @@ tasks.named('test') {
 
 // Checkstyle Configuration
 checkstyle {
-    toolVersion = '10.20.2'
+    toolVersion = '10.26.1'
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
     ignoreFailures = false
     maxWarnings = 0
@@ -157,7 +157,7 @@ checkstyleTest {
 
 // SpotBugs Configuration
 spotbugs {
-    toolVersion = '4.8.6'
+    toolVersion = '4.10.5'
     ignoreFailures = false
     effort = Effort.valueOf('MAX')
     reportLevel = Confidence.valueOf('MEDIUM')
@@ -181,7 +181,7 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
 
 // JaCoCo Configuration
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "0.8.16"
 }
 
 jacocoTestReport {

@@ -53,7 +53,7 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "web-vitals": "^4.2.4",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.16.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.16",
@@ -77,6 +77,6 @@
     "karma-jasmine-html-reporter": "^2.1.0",
     "lint-staged": "^15.2.11",
     "prettier": "^3.4.2",
-    "typescript": "~5.5.0"
+    "typescript": "~5.9.0"
   }
 }
