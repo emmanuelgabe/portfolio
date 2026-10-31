@@ -245,7 +245,7 @@ jobs:
 
           # Define ports per environment (including monitoring ports)
           if [ "$ENV_NAME" = "staging" ]; then
-            PORTS_TO_CHECK="3000 6380 15673 9090 9093 3001"  # Nginx, Redis, RabbitMQ, Prometheus, AlertManager, Grafana
+            PORTS_TO_CHECK="3000 6380 15673"  # Nginx, Redis, RabbitMQ (monitoring ports belong to prod)
           elif [ "$ENV_NAME" = "prod" ]; then
             PORTS_TO_CHECK="80 9090 9093 3001"  # Nginx, Prometheus, AlertManager, Grafana
           else
@@ -326,19 +326,22 @@ jobs:
           echo ""
           echo "Cleanup completed!"
 
-          # Stop monitoring stack if running
-          echo ""
-          echo "========================================="
-          echo "Checking monitoring stack"
-          echo "========================================="
-          MONITORING_CONTAINERS=$(docker ps --filter "name=portfolio-prometheus-prod" --filter "name=portfolio-loki-prod" --filter "name=portfolio-promtail-prod" --filter "name=portfolio-grafana-prod" --filter "name=portfolio-alertmanager-prod" --filter "name=portfolio-kafka-exporter-prod" --format "{{.Names}}" 2>/dev/null || true)
-          if [ -n "$MONITORING_CONTAINERS" ]; then
-            echo "Stopping monitoring stack containers..."
-            echo "$MONITORING_CONTAINERS" | xargs -r docker stop || true
-            echo "$MONITORING_CONTAINERS" | xargs -r docker rm || true
-            echo "Monitoring stack stopped"
-          else
-            echo "No monitoring stack running"
+          # Stop monitoring stack if running. It is attached to the prod network, which a prod
+          # deploy rebuilds, and it is only redeployed on main: staging must leave it untouched.
+          if [ "$ENV_NAME" = "prod" ]; then
+            echo ""
+            echo "========================================="
+            echo "Checking monitoring stack"
+            echo "========================================="
+            MONITORING_CONTAINERS=$(docker ps --filter "name=portfolio-prometheus-prod" --filter "name=portfolio-loki-prod" --filter "name=portfolio-promtail-prod" --filter "name=portfolio-grafana-prod" --filter "name=portfolio-alertmanager-prod" --filter "name=portfolio-kafka-exporter-prod" --format "{{.Names}}" 2>/dev/null || true)
+            if [ -n "$MONITORING_CONTAINERS" ]; then
+              echo "Stopping monitoring stack containers..."
+              echo "$MONITORING_CONTAINERS" | xargs -r docker stop || true
+              echo "$MONITORING_CONTAINERS" | xargs -r docker rm || true
+              echo "Monitoring stack stopped"
+            else
+              echo "No monitoring stack running"
+            fi
           fi
 
       - name: Clean and prepare deployment directory

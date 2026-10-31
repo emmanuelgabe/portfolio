@@ -95,6 +95,9 @@ services:
   elasticsearch:
     container_name: portfolio-elasticsearch-staging
 
+  docker-socket-proxy:
+    container_name: portfolio-docker-proxy-staging
+
 volumes:
   portfolio_db_staging_data:
     name: portfolio_staging_db_data
