@@ -1,4 +1,4 @@
-FROM node:20.18.1-alpine3.20 AS build
+FROM node:20.19.2-alpine3.20 AS build
 
 # Accept build arguments
 ARG VERSION=0.0.1-SNAPSHOT
@@ -22,7 +22,7 @@ RUN if [ -n "$SENTRY_DSN_FRONTEND" ]; then \
 ENV VERSION=${VERSION}
 RUN npm run build -- --configuration production
 
-FROM nginx:1.27.3-alpine
+FROM nginx:1.31.8-alpine
 
 # Install curl for health checks
 RUN apk add --no-cache curl
