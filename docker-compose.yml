@@ -36,6 +36,8 @@ services:
     restart: unless-stopped
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      # Read by VersionController as info.app.version (same Git version as the frontend footer)
+      - INFO_APP_VERSION=${VERSION:-0.0.1-SNAPSHOT}
       - SPRING_DATASOURCE_URL=jdbc:postgresql://portfolio-db:5432/portfolio
       - SPRING_DATASOURCE_USERNAME=postgres_app
       - SPRING_DATASOURCE_PASSWORD=${DB_USER_PASSWORD}
