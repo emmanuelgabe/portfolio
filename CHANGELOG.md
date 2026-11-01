@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2026-11-01
+
+### Changed
+- Dependency updates managed by Renovate, grouped into Docker images, npm, Gradle libraries, Gradle build tooling and GitHub Actions pull requests, with dashboard approval required for major updates
+- TypeScript and zone.js held at the Angular 19 peer ranges until the Angular upgrade
+- CI/CD pipeline skipped for documentation-only changes (Markdown, docs, LICENSE, .gitignore, renovate.json)
+- CI/CD runs serialized per branch: a newer push waits for the running deploy and replaces any pending run
+- SpotBugs analysis limited to production sources
+
+### Fixed
+- Deploys no longer delete Docker volumes; uploads are backed up with the database before each production deploy
+- Staging deploys no longer stop the production monitoring stack or kill its ports, and the staging docker-socket-proxy has its own container name
+- Null value guards in ServiceMetricsTool (network byte counters) and SvgStorageService (skill icon file name)
+- Missing nested entries restored in the frontend lockfile, which `npm ci` rejected
+
+### Security
+- commons-lang3 forced to 3.21.0 through the Spring Boot BOM property (CVE-2025-48924)
+- Grafana and Alertmanager ports bound to localhost only
+
+### Dependencies
+- Backend: Spring Boot 3.5.16, Spring AI 1.1.8, springdoc-openapi 2.10.0, jjwt 0.13.0, Resilience4j 2.4.0, Sentry 7.22.6, docker-java 3.7.1, jsoup 1.23.2, Testcontainers 1.21.4
+- Build tooling: Gradle 8.14.6, SpotBugs 4.10.5 (Gradle plugin 6.5.13), Checkstyle 10.26.1, JaCoCo 0.8.16
+- Frontend: Angular 19.2.25, Angular CLI 19.2.27, typescript-eslint 8.72.1, Prettier 3.9.10, DOMPurify 3.4.17, Chart.js 4.6.1
+- Docker images: PostgreSQL 17.11, Redis 7.4.12, Kafka (cp-kafka) 7.9.10, Elasticsearch 8.19.23, Nginx 1.31.8, docker-socket-proxy 0.5.0, Eclipse Temurin JRE 21.0.13, Node 20.19.2
+- Monitoring: Grafana 13.3.0 (from 10.2.0), Prometheus 2.55.1, Alertmanager 0.34.2, Loki and Promtail 2.9.17, kafka-exporter 1.11.0
+
+---
+
 ## [1.3.0] - 2026-04-12
 
 ### Added
