@@ -3,6 +3,8 @@ FROM node:20.19.2-alpine3.20 AS build
 # Accept build arguments
 ARG VERSION=0.0.1-SNAPSHOT
 ARG SENTRY_DSN_FRONTEND=
+# Angular build configuration: staging overrides it to get its own environment file
+ARG BUILD_CONFIGURATION=production
 
 WORKDIR /app
 
@@ -20,7 +22,7 @@ RUN if [ -n "$SENTRY_DSN_FRONTEND" ]; then \
 
 # Build with VERSION as environment variable (used by generate-version.js)
 ENV VERSION=${VERSION}
-RUN npm run build -- --configuration production
+RUN npm run build -- --configuration ${BUILD_CONFIGURATION}
 
 FROM nginx:1.31.8-alpine
 

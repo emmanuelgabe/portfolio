@@ -5,6 +5,9 @@ services:
   angular-frontend:
     container_name: portfolio-frontend-staging
     image: portfolio-angular-frontend:staging
+    build:
+      args:
+        BUILD_CONFIGURATION: staging
     environment:
       - NODE_ENV=staging
 
