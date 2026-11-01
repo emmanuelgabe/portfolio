@@ -3,7 +3,9 @@ server:
   grpc_listen_port: 0
 
 positions:
-  filename: /tmp/positions.yaml
+  # Persisted in a volume so a recreated container resumes where it stopped instead of
+  # re-reading every log file, which Loki rejects as too old.
+  filename: /var/lib/promtail/positions.yaml
 
 clients:
   - url: http://loki:3100/loki/api/v1/push
