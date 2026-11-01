@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.2] - 2026-11-01
+
+### Fixed
+- Backend version endpoint reports the deployed Git version instead of always returning 0.0.1-SNAPSHOT
+- Promtail positions persisted in a volume, so a redeploy no longer re-reads every log file that Loki rejects as too old
+- www.emmanuelgabe.com redirects to emmanuelgabe.com: the www site loaded but the backend CORS policy rejected all its API calls (projects, articles, contact form, chatbot, login)
+- Staging frontend usable in a browser: built with the staging configuration and the production bundle budgets, calling its own API on the same origin, with the client port kept in the forwarded host so same-origin calls pass the CORS check
+- Chat and visitor session ids generated without `crypto.randomUUID` when it is unavailable (pages served over plain HTTP, such as staging)
+
+### Security
+- Nginx logs and forwards the real visitor address: the Cloudflare `CF-Connecting-IP` header is trusted only from Docker networks, where the Cloudflare Tunnel reaches nginx
+- `X-Forwarded-For` reduced to the resolved visitor address, so a forged header can no longer bypass the IP rate limits on login, contact form and chatbot, and the audit log records real addresses
+- Production nginx port published on loopback only, since Docker-published ports bypass the host firewall and all public traffic arrives through the Cloudflare Tunnel
+
+---
+
 ## [1.3.1] - 2026-11-01
 
 ### Changed
