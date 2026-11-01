@@ -30,6 +30,12 @@ on:
         type: boolean
         default: false
 
+# One run per branch at a time: a newer push waits for the current run and replaces any run
+# still pending, so an older commit can never be deployed after a newer one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'temurin'
