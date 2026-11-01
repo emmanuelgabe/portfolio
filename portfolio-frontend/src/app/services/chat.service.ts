@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ChatContactFormData, ChatRateLimit, ChatSseEventType } from '../models';
+import { randomUuid } from '../utils/uuid.utils';
 import { LoggerService } from './logger.service';
 
 /**
@@ -17,7 +18,7 @@ export interface ChatSseEvent {
  *
  * Uses fetch + ReadableStream instead of EventSource because the backend
  * requires POST with a JSON body. Exposes rate limit state from response
- * headers and manages conversation IDs via crypto.randomUUID.
+ * headers and manages conversation IDs via randomUuid.
  */
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,7 @@ export class ChatService {
   private readonly logger = inject(LoggerService);
   private readonly streamUrl = `${environment.apiUrl}/api/chat/stream`;
 
-  private conversationId = crypto.randomUUID();
+  private conversationId = randomUuid();
   private abortController: AbortController | undefined;
 
   private readonly rateLimitSubject = new Subject<ChatRateLimit>();
@@ -98,7 +99,7 @@ export class ChatService {
    * Reset the conversation by generating a new ID.
    */
   resetConversation(): void {
-    this.conversationId = crypto.randomUUID();
+    this.conversationId = randomUuid();
     this.logger.debug('[CHAT] Conversation reset', {
       conversationId: this.conversationId,
     });

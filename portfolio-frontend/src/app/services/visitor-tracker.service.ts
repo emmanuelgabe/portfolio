@@ -2,6 +2,7 @@ import { Injectable, inject, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { interval, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { randomUuid } from '../utils/uuid.utils';
 import { LoggerService } from './logger.service';
 
 /**
@@ -89,7 +90,7 @@ export class VisitorTrackerService implements OnDestroy {
   private getOrCreateSessionId(): string {
     let sessionId = sessionStorage.getItem(this.SESSION_KEY);
     if (!sessionId) {
-      sessionId = crypto.randomUUID();
+      sessionId = randomUuid();
       sessionStorage.setItem(this.SESSION_KEY, sessionId);
       this.logger.debug('[VISITOR_TRACKER] Created new session', { sessionId });
     }
