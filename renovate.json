@@ -35,7 +35,7 @@
       {
         "description": "Static analysis tooling, kept out of the library group",
         "matchManagers": ["gradle"],
-        "matchPackageNames": ["spotbugs", "checkstyle", "jacoco"],
+        "matchDepNames": ["spotbugs", "checkstyle", "jacoco", "com.github.spotbugs"],
         "groupName": "gradle build tooling"
       },
       {
