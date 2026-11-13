@@ -4,7 +4,7 @@
 
 services:
   alertmanager:
-    image: prom/alertmanager:v0.34.2
+    image: prom/alertmanager:v0.35.0
     container_name: portfolio-alertmanager-prod
     restart: unless-stopped
     volumes:
@@ -108,7 +108,7 @@ services:
           cpus: '0.25'
 
   grafana:
-    image: grafana/grafana:13.3.0
+    image: grafana/grafana:13.3.1
     container_name: portfolio-grafana-prod
     restart: unless-stopped
     environment:

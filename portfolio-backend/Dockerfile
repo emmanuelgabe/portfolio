@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for production
 # Stage 1: Build the application
-FROM gradle:8.14.6-jdk21-alpine AS build
+FROM gradle:8.14.7-jdk21-alpine AS build
 
 WORKDIR /app
 

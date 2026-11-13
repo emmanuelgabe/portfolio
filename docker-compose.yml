@@ -96,7 +96,7 @@ services:
       start_period: 120s
 
   portfolio-db:
-    image: postgres:17.11
+    image: postgres:17.12
     restart: always
     environment:
       POSTGRES_DB: portfolio
@@ -149,7 +149,7 @@ services:
       start_period: 30s
 
   kafka:
-    image: confluentinc/cp-kafka:7.9.10
+    image: confluentinc/cp-kafka:7.9.11
     container_name: portfolio-kafka
     restart: unless-stopped
     environment:
@@ -180,7 +180,7 @@ services:
       start_period: 90s
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.23
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.25
     container_name: portfolio-elasticsearch
     restart: unless-stopped
     environment:
