@@ -68,7 +68,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-database-postgresql'
 
     // Documentation
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.10.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.10.1'
 
     // Mapping
     implementation 'org.mapstruct:mapstruct:1.6.3'
@@ -111,7 +111,7 @@ dependencies {
     implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 
     // HTML/SVG sanitization
-    implementation 'org.jsoup:jsoup:1.23.2'
+    implementation 'org.jsoup:jsoup:1.24.1'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
