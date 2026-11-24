@@ -24,7 +24,7 @@ RUN if [ -n "$SENTRY_DSN_FRONTEND" ]; then \
 ENV VERSION=${VERSION}
 RUN npm run build -- --configuration ${BUILD_CONFIGURATION}
 
-FROM nginx:1.31.8-alpine
+FROM nginx:1.31.10-alpine
 
 # Install curl for health checks
 RUN apk add --no-cache curl
